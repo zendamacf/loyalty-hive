@@ -21,6 +21,16 @@
         "backgroundColor": "#0D1B2A"
       }
     },
-    "plugins": ["expo-router"]
+    "plugins": [
+      "expo-router",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "loyalty-hive",
+          "organization": "kalopsiadev"
+        }
+      ]
+    ]
   }
 }
