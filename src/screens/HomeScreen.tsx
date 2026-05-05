@@ -1,5 +1,6 @@
-import React from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { router } from "expo-router";
+import { FlatList, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { FAB } from "../components/FAB";
 import { LoyaltyCard } from "../components/LoyaltyCard";
 import { SearchBar } from "../components/SearchBar";
@@ -10,7 +11,9 @@ export const HomeScreen = () => {
   const { colors } = useTheme();
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
       <SearchBar />
 
       <FlatList
@@ -19,8 +22,8 @@ export const HomeScreen = () => {
         renderItem={({ item }) => <LoyaltyCard {...item} />}
       />
 
-      <FAB onPress={() => console.log("Add card")} />
-    </View>
+      <FAB onPress={() => router.push("/select-brand")} />
+    </SafeAreaView>
   );
 };
 

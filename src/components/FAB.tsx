@@ -1,8 +1,11 @@
-import React from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import { colors, spacing } from "../theme/theme";
 
-export const FAB = ({ onPress }) => {
+type FABProps = {
+  onPress: () => void;
+};
+
+export const FAB = ({ onPress }: FABProps) => {
   return (
     <TouchableOpacity style={styles.fab} onPress={onPress}>
       <Text style={styles.plus}>+</Text>

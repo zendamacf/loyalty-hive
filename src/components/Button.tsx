@@ -1,9 +1,13 @@
-import React from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import { radius, spacing } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
-export const Button = ({ title, onPress }) => {
+type ButtonProps = {
+  title: string;
+  onPress: () => void;
+};
+
+export const Button = ({ title, onPress }: ButtonProps) => {
   const { colors } = useTheme();
 
   return (

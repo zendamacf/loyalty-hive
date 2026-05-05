@@ -1,9 +1,13 @@
-import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { radius, spacing } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
-export const LoyaltyCard = ({ brand, points, logo }) => {
+type LoyaltyCardProps = {
+  brand: string;
+  logo: string;
+};
+
+export const LoyaltyCard = ({ brand, logo }: LoyaltyCardProps) => {
   const { colors, isDark } = useTheme();
 
   return (
@@ -22,7 +26,6 @@ export const LoyaltyCard = ({ brand, points, logo }) => {
           <Text style={[styles.brand, { color: colors.textPrimary }]}>
             {brand}
           </Text>
-          <Text style={{ color: colors.textSecondary }}>{points}</Text>
         </View>
       </View>
     </View>

@@ -1,4 +1,3 @@
-import React from "react";
 import { StyleSheet, TextInput, View } from "react-native";
 import { radius, spacing } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
