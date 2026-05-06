@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1778063784175,
+      "tag": "0000_brown_iron_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1778064300000,
+      "tag": "0001_seed_brands",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778065715797,
+      "tag": "0002_daily_kid_colt",
+      "breakpoints": true
+    }
+  ]
+}
