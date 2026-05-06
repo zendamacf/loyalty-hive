@@ -7,7 +7,10 @@ import apiRouter from "./router";
 const app = new Hono<{ Variables: { userId?: string } }>();
 
 app.use(logger());
-app.use("*", sentry({ dsn: config.tracing.sentryDsn }));
+app.use(
+  "*",
+  sentry({ dsn: config.tracing.sentryDsn, environment: config.environment }),
+);
 
 app.route("/api/v1", apiRouter);
 
