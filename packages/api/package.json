@@ -1,0 +1,30 @@
+{
+  "name": "loyalty-hive/api",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/app.ts",
+    "start": "node dist/app.js",
+    "lint": "biome check src",
+    "lint:fix": "biome check src --write",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@hono/sentry": "^1.2.2",
+    "@hono/zod-validator": "^0.7.6",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.12.17",
+    "pg": "^8.20.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.14",
+    "@types/node": "^20.11.17",
+    "@types/pg": "^8.20.0",
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.7.1",
+    "typescript": "^5.8.3"
+  }
+}
