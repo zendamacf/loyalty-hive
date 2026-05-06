@@ -1,5 +1,5 @@
 {
-  "name": "loyalty-hive",
+  "name": "@loyalty-hive",
   "private": true,
   "workspaces": [
     "packages/*"

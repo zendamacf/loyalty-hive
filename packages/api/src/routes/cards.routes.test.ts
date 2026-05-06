@@ -5,7 +5,7 @@ import { sign } from "hono/jwt";
 import { config } from "../common/config";
 import { db } from "../db/client";
 import { brands, cards, users } from "../db/schema";
-import { cardsRouter } from "./cards.routes";
+import cardsRouter from "./cards.routes";
 
 const USER_ID = "11111111-1111-4111-8111-111111111111";
 const CARD_ID = "22222222-2222-4222-8222-222222222222";

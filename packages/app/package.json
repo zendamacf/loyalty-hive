@@ -1,7 +1,6 @@
 {
-  "name": "loyalty-hive/app",
-  "private": true,
-  "main": "expo-router/entry",
+  "name": "@loyalty-hive/app",
+  "type": "module",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -13,11 +12,13 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@loyalty-hive/api-rpc-spec": "workspace:*",
     "@sentry/react-native": "^8.10.0",
     "expo": "^54.0.0",
     "expo-camera": "~17.0.8",
     "expo-router": "~6.0.23",
     "expo-status-bar": "~3.0.9",
+    "hono": "^4.12.17",
     "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-safe-area-context": "~5.6.2",
