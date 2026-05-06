@@ -6,14 +6,14 @@ on:
       - main
 
 jobs:
-  lint-and-typecheck:
+  run-checks:
     name: ${{ matrix.package }} / ${{ matrix.script }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         package: [api, app]
-        script: [lint, typecheck]
+        script: [lint, typecheck, test]
 
     defaults:
       run:

@@ -5,7 +5,7 @@
     "moduleResolution": "bundler",
     "strict": true,
     "skipLibCheck": true,
-    "types": ["node"],
+    "types": ["bun-types", "node"],
     "jsxImportSource": "hono/jsx",
     "outDir": "./dist"
   },
