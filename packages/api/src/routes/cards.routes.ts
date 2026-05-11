@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import z from "zod";
 import { db } from "../db/client.js";
-import { cards } from "../db/schema.js";
+import { brands, cards } from "../db/schema.js";
 import { requireUserAuth } from "../middleware/auth.middleware.js";
 
 export const cardSchema = z.object({
@@ -11,7 +11,13 @@ export const cardSchema = z.object({
   userId: z.uuid(),
   cardNumber: z.string(),
   label: z.string().nullable().optional(),
-  brandId: z.uuid().nullable().optional(),
+  brand: z
+    .object({
+      id: z.uuid(),
+      name: z.string(),
+      logoUrl: z.string(),
+    })
+    .nullable(),
   createdAt: z.string(),
 });
 
@@ -56,10 +62,32 @@ const app = new Hono<{ Variables: ContextVariables }>()
     }),
     async (c) => {
       const result = await db
-        .select()
+        .select({
+          id: cards.id,
+          userId: cards.userId,
+          cardNumber: cards.cardNumber,
+          label: cards.label,
+          brandId: cards.brandId,
+          brandName: brands.name,
+          brandLogoUrl: brands.logoUrl,
+          createdAt: cards.createdAt,
+        })
         .from(cards)
+        .leftJoin(brands, eq(cards.brandId, brands.id))
         .where(eq(cards.userId, c.get("userId")));
-      return c.json(result);
+
+      return c.json(
+        result.map((r) => ({
+          ...r,
+          brand: r.brandId
+            ? {
+                id: r.brandId,
+                name: r.brandName,
+                logoUrl: r.brandLogoUrl,
+              }
+            : null,
+        })),
+      );
     },
   )
   .post(
@@ -112,7 +140,26 @@ const app = new Hono<{ Variables: ContextVariables }>()
             brandId: body.brandId ?? null,
           })
           .returning();
-        return c.json(created, 201);
+        if (created.brandId) {
+          const [brand] = await db
+            .select()
+            .from(brands)
+            .where(eq(brands.id, created.brandId));
+          return c.json(
+            {
+              ...created,
+              brand: brand.id
+                ? {
+                    id: brand.id,
+                    name: brand.name,
+                    logoUrl: brand.logoUrl,
+                  }
+                : null,
+            },
+            201,
+          );
+        }
+        return c.json({ ...created, brand: null }, 201);
       } catch (error) {
         if (isPgError(error) && error.code === "23505") {
           return c.json({ error: "Card for user already exists" }, 409);

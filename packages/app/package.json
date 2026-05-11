@@ -9,10 +9,13 @@
     "test": "bun test --preload ./test/setup.ts ./src",
     "lint": "biome check src",
     "lint:fix": "biome check src --write",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "api:generate": "openapi-ts"
   },
   "dependencies": {
-    "@sentry/react-native": "^8.10.0",
+    "@hey-api/client-fetch": "^0.13.1",
+    "@hey-api/openapi-ts": "^0.97.1",
+    "@sentry/react-native": "7.2.0",
     "expo": "^54.0.0",
     "expo-camera": "~17.0.8",
     "expo-router": "~6.0.23",
