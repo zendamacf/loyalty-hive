@@ -1,10 +1,37 @@
-import { describe, expect, it } from "bun:test";
-import app from "./app";
+import { beforeAll, describe, expect, it } from "bun:test";
 
-describe("API app", () => {
-  it("responds with 404 on unknown route", async () => {
-    const response = await app.request("/does-not-exist");
+let app: typeof import("./app")["default"];
 
-    expect(response.status).toBe(404);
+beforeAll(async () => {
+  process.env.DATABASE_URL ??=
+    "postgres://postgres:postgres@localhost:5432/loyalty_hive";
+  process.env.JWT_ACCESS_SECRET ??= "test-secret";
+  process.env.SENTRY_DSN ??= "";
+
+  ({ default: app } = await import("./app"));
+});
+
+describe("app", () => {
+  it("serves OpenAPI document at /openapi", async () => {
+    const response = await app.request("/openapi");
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toContain("application/json");
+  });
+
+  it("includes basic OpenAPI metadata", async () => {
+    const response = await app.request("/openapi");
+    const document = await response.json();
+
+    expect(document).toEqual(
+      expect.objectContaining({
+        openapi: expect.any(String),
+        info: expect.objectContaining({
+          title: "Loyalty Hive API",
+          version: "1.0.0",
+        }),
+      }),
+    );
+    expect(document.servers).toBeArray();
   });
 });
