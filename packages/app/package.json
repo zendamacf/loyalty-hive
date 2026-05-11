@@ -12,7 +12,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@loyalty-hive/api-rpc-spec": "workspace:*",
     "@sentry/react-native": "^8.10.0",
     "expo": "^54.0.0",
     "expo-camera": "~17.0.8",
