@@ -1,5 +1,6 @@
-import { relations } from "drizzle-orm";
+import { relations, type SQL, sql } from "drizzle-orm";
 import {
+  type AnyPgColumn,
   pgTable,
   text,
   timestamp,
@@ -23,7 +24,7 @@ export const users = pgTable(
     passwordHash: text("password_hash").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
-  (table) => [uniqueIndex("users_email_unique_idx").on(table.email)],
+  (table) => [uniqueIndex("users_email_unique_idx").on(lower(table.email))],
 );
 
 export const cards = pgTable("cards", {
@@ -60,3 +61,7 @@ export const cardsRelations = relations(cards, ({ one }) => ({
     references: [brands.id],
   }),
 }));
+
+export function lower(email: AnyPgColumn): SQL {
+  return sql`lower(${email})`;
+}

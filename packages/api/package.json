@@ -13,6 +13,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "@hono/sentry": "^1.2.2",
     "@hono/standard-validator": "^0.2.2",
     "@hono/zod-validator": "^0.7.6",
@@ -23,6 +24,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@biomejs/biome": "2.4.14",
     "@types/node": "^20.11.17",
     "@types/pg": "^8.20.0",
