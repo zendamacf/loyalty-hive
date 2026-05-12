@@ -1,6 +1,7 @@
 import { router } from "expo-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
+  ActivityIndicator,
   FlatList,
   Image,
   Pressable,
@@ -10,24 +11,40 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { mockBrands } from "../data/mockBrands";
+
+import { type GetApiV1BrandsResponse, getApiV1Brands } from "@/lib/api-client";
 import { radius, spacing } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
 export const SelectBrandScreen = () => {
   const { colors } = useTheme();
   const [query, setQuery] = useState("");
+  const [brands, setBrands] = useState<GetApiV1BrandsResponse>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data, error: apiError } = await getApiV1Brands();
+        if (apiError) setError(apiError.error);
+        if (data) setBrands(data);
+      } finally {
+        setLoaded(true);
+      }
+    })();
+  }, []);
 
   const filteredBrands = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     if (!normalizedQuery) {
-      return mockBrands;
+      return brands;
     }
 
-    return mockBrands.filter((brand) =>
+    return brands.filter((brand) =>
       brand.name.toLowerCase().includes(normalizedQuery),
     );
-  }, [query]);
+  }, [brands, query]);
 
   return (
     <SafeAreaView
@@ -49,36 +66,53 @@ export const SelectBrandScreen = () => {
           placeholder="Search brands..."
           placeholderTextColor={colors.textSecondary}
           style={[styles.searchInput, { color: colors.textPrimary }]}
+          editable={loaded && !error}
         />
       </View>
 
-      <FlatList
-        data={filteredBrands}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={() =>
-              router.push({
-                pathname: "/scan",
-                params: {
-                  brandId: item.id,
-                  brandName: item.name,
+      {error && (
+        <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
+      )}
+      {!loaded && !error && (
+        <View style={styles.loading}>
+          <ActivityIndicator color={colors.textPrimary} />
+          <Text style={[styles.loadingLabel, { color: colors.textSecondary }]}>
+            Loading brands…
+          </Text>
+        </View>
+      )}
+      {loaded && !error && (
+        <FlatList
+          data={filteredBrands}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContent}
+          renderItem={({ item }) => (
+            <Pressable
+              onPress={() =>
+                router.push({
+                  pathname: "/scan",
+                  params: {
+                    brandId: item.id,
+                    brandName: item.name,
+                  },
+                })
+              }
+              style={[
+                styles.row,
+                {
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border,
                 },
-              })
-            }
-            style={[
-              styles.row,
-              { backgroundColor: colors.surface, borderColor: colors.border },
-            ]}
-          >
-            <Image source={{ uri: item.logo }} style={styles.logo} />
-            <Text style={[styles.brandName, { color: colors.textPrimary }]}>
-              {item.name}
-            </Text>
-          </Pressable>
-        )}
-      />
+              ]}
+            >
+              <Image source={{ uri: item.logoUrl }} style={styles.logo} />
+              <Text style={[styles.brandName, { color: colors.textPrimary }]}>
+                {item.name}
+              </Text>
+            </Pressable>
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -104,6 +138,18 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     fontSize: 16,
+  },
+  errorText: {
+    marginTop: spacing.sm,
+    fontSize: 14,
+  },
+  loading: {
+    marginTop: spacing.lg,
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  loadingLabel: {
+    fontSize: 14,
   },
   listContent: {
     paddingTop: spacing.md,

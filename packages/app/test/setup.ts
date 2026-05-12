@@ -39,6 +39,7 @@ mock.module("react-native", () => ({
       ),
     ),
   Pressable: createPrimitive("Pressable"),
+  ActivityIndicator: createPrimitive("ActivityIndicator"),
   StyleSheet: {
     create: (styles: object) => styles,
     flatten: (style: unknown) => style,
