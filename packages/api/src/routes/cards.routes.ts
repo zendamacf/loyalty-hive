@@ -26,7 +26,6 @@ const idParamSchema = z.object({
 });
 
 const cardWriteSchema = z.object({
-  userId: z.uuid(),
   cardNumber: z.string(),
   label: z.string().nullable().optional(),
   brandId: z.uuid().nullable().optional(),

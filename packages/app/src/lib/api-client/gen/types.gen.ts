@@ -83,6 +83,39 @@ export type PostApiV1AuthSignupResponses = {
 
 export type PostApiV1AuthSignupResponse = PostApiV1AuthSignupResponses[keyof PostApiV1AuthSignupResponses];
 
+export type GetApiV1BrandsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/brands';
+};
+
+export type GetApiV1BrandsErrors = {
+    /**
+     * Unauthorized
+     */
+    401: {
+        error: string;
+    };
+};
+
+export type GetApiV1BrandsError = GetApiV1BrandsErrors[keyof GetApiV1BrandsErrors];
+
+export type GetApiV1BrandsResponses = {
+    /**
+     * Successful response
+     */
+    200: Array<{
+        id: string;
+        name: string;
+        logoUrl: string;
+        defaultView: '1D' | '2D' | null;
+        createdAt: string;
+    }>;
+};
+
+export type GetApiV1BrandsResponse = GetApiV1BrandsResponses[keyof GetApiV1BrandsResponses];
+
 export type GetApiV1CardsData = {
     body?: never;
     path?: never;
@@ -123,7 +156,6 @@ export type GetApiV1CardsResponse = GetApiV1CardsResponses[keyof GetApiV1CardsRe
 
 export type PostApiV1CardsData = {
     body: {
-        userId: string;
         cardNumber: string;
         label?: string | null;
         brandId?: string | null;
@@ -259,7 +291,6 @@ export type GetApiV1CardsByIdResponse = GetApiV1CardsByIdResponses[keyof GetApiV
 
 export type PutApiV1CardsByIdData = {
     body: {
-        userId: string;
         cardNumber: string;
         label?: string | null;
         brandId?: string | null;
