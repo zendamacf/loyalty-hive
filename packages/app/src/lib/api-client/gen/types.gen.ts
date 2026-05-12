@@ -4,6 +4,45 @@ export type ClientOptions = {
     baseUrl: 'http://localhost:3000' | 'https://loyaltyhive.kalopsia.dev' | (string & {});
 };
 
+export type PostApiV1AuthLoginData = {
+    body: {
+        email: string;
+        password: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/login';
+};
+
+export type PostApiV1AuthLoginErrors = {
+    /**
+     * Invalid request input
+     */
+    400: {
+        error: string;
+        issues: Array<unknown>;
+    };
+    /**
+     * Invalid email or password
+     */
+    401: {
+        error: string;
+    };
+};
+
+export type PostApiV1AuthLoginError = PostApiV1AuthLoginErrors[keyof PostApiV1AuthLoginErrors];
+
+export type PostApiV1AuthLoginResponses = {
+    /**
+     * Successful response
+     */
+    200: {
+        token: string;
+    };
+};
+
+export type PostApiV1AuthLoginResponse = PostApiV1AuthLoginResponses[keyof PostApiV1AuthLoginResponses];
+
 export type GetApiV1CardsData = {
     body?: never;
     path?: never;

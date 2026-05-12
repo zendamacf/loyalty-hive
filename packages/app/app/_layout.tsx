@@ -1,5 +1,10 @@
 import * as Sentry from "@sentry/react-native";
 import { Stack } from "expo-router";
+import { Platform } from "react-native";
+import {
+  initialWindowMetrics,
+  SafeAreaProvider,
+} from "react-native-safe-area-context";
 
 Sentry.init({
   environment: process.env.NODE_ENV ?? "development",
@@ -12,5 +17,15 @@ Sentry.init({
 });
 
 export default Sentry.wrap(function Layout() {
-  return <Stack screenOptions={{ headerShown: false }} />;
+  // Workaround for https://github.com/AppAndFlow/react-native-safe-area-context/issues/667
+  const isAndroid15 = Platform.OS === "android" && Platform.Version >= 35;
+  return (
+    <SafeAreaProvider
+      style={
+        isAndroid15 ? { marginBottom: initialWindowMetrics?.insets.bottom } : {}
+      }
+    >
+      <Stack screenOptions={{ headerShown: false }} />
+    </SafeAreaProvider>
+  );
 });

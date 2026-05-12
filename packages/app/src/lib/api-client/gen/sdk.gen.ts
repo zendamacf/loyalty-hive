@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdErrors, DeleteApiV1CardsByIdResponses, GetApiV1CardsByIdData, GetApiV1CardsByIdErrors, GetApiV1CardsByIdResponses, GetApiV1CardsData, GetApiV1CardsErrors, GetApiV1CardsResponses, PostApiV1CardsData, PostApiV1CardsErrors, PostApiV1CardsResponses, PutApiV1CardsByIdData, PutApiV1CardsByIdErrors, PutApiV1CardsByIdResponses } from './types.gen';
+import type { DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdErrors, DeleteApiV1CardsByIdResponses, GetApiV1CardsByIdData, GetApiV1CardsByIdErrors, GetApiV1CardsByIdResponses, GetApiV1CardsData, GetApiV1CardsErrors, GetApiV1CardsResponses, PostApiV1AuthLoginData, PostApiV1AuthLoginErrors, PostApiV1AuthLoginResponses, PostApiV1CardsData, PostApiV1CardsErrors, PostApiV1CardsResponses, PutApiV1CardsByIdData, PutApiV1CardsByIdErrors, PutApiV1CardsByIdResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -17,6 +17,18 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
      */
     meta?: Record<string, unknown>;
 };
+
+/**
+ * Sign in with email and password; returns a JWT access token
+ */
+export const postApiV1AuthLogin = <ThrowOnError extends boolean = false>(options: Options<PostApiV1AuthLoginData, ThrowOnError>) => (options.client ?? client).post<PostApiV1AuthLoginResponses, PostApiV1AuthLoginErrors, ThrowOnError>({
+    url: '/api/v1/auth/login',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
 
 /**
  * Get all cards for the authenticated user
