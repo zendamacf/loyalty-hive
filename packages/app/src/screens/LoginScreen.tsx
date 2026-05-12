@@ -1,21 +1,95 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { Image, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "../components/Button";
-import { client, postApiV1AuthLogin } from "../lib/api-client";
+import {
+  client,
+  postApiV1AuthLogin,
+  postApiV1AuthSignup,
+} from "../lib/api-client";
 import { radius, spacing } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
 const icon = require("../../assets/images/icon.png");
 
+function messageFromApiError(err: unknown): string {
+  if (
+    err &&
+    typeof err === "object" &&
+    "error" in err &&
+    typeof (err as { error: unknown }).error === "string"
+  ) {
+    return (err as { error: string }).error;
+  }
+  if (typeof err === "string") {
+    return err;
+  }
+  return "Something went wrong. Please try again.";
+}
+
+type AuthMode = "login" | "signup";
+
 export const LoginScreen = () => {
   const { colors } = useTheme();
+  const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const switchMode = (next: AuthMode) => {
+    setMode(next);
+    setError(null);
+  };
+
+  const completeWithToken = (token: string) => {
+    client.setConfig({ auth: token });
+    router.replace("/home");
+  };
+
+  const submitLogin = async (trimmedEmail: string, pwd: string) => {
+    const { data, error: apiError } = await postApiV1AuthLogin({
+      body: { email: trimmedEmail, password: pwd },
+    });
+
+    if (apiError) {
+      setError(messageFromApiError(apiError));
+      return;
+    }
+
+    if (data?.token) {
+      completeWithToken(data.token);
+    } else {
+      setError("Unexpected response from server.");
+    }
+  };
+
+  const submitSignup = async (trimmedEmail: string, pwd: string) => {
+    const { data, error: apiError } = await postApiV1AuthSignup({
+      body: { email: trimmedEmail, password: pwd },
+    });
+
+    if (apiError) {
+      setError(messageFromApiError(apiError));
+      return;
+    }
+
+    if (!data?.id) {
+      setError("Unexpected response from server.");
+      return;
+    }
+
+    await submitLogin(trimmedEmail, pwd);
+  };
 
   const submit = async () => {
     setError(null);
@@ -26,23 +100,25 @@ export const LoginScreen = () => {
     }
 
     setIsSubmitting(true);
-    const { data, error } = await postApiV1AuthLogin({
-      body: { email: trimmedEmail, password },
-    });
-    setIsSubmitting(false);
-
-    if (error) {
-      setError(error.error);
-      return;
-    }
-
-    if (data?.token) {
-      client.setConfig({ auth: data.token });
-      router.replace("/home");
-    } else {
-      setError("Unexpected response from server.");
+    try {
+      if (mode === "login") {
+        await submitLogin(trimmedEmail, password);
+      } else {
+        await submitSignup(trimmedEmail, password);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  const primaryLabel =
+    mode === "login"
+      ? isSubmitting
+        ? "Signing in…"
+        : "Sign in"
+      : isSubmitting
+        ? "Creating account…"
+        : "Create account";
 
   return (
     <SafeAreaView
@@ -58,7 +134,9 @@ export const LoginScreen = () => {
           Loyalty Hive
         </Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-          Sign in to manage your loyalty cards
+          {mode === "login"
+            ? "Sign in to manage your loyalty cards"
+            : "Create an account to get started"}
         </Text>
 
         <TextInput
@@ -102,11 +180,24 @@ export const LoginScreen = () => {
 
         <Button
           disabled={isSubmitting}
-          title={isSubmitting ? "Signing in…" : "Sign in"}
+          title={primaryLabel}
           onPress={() => {
             void submit();
           }}
         />
+
+        <Pressable
+          accessibilityRole="button"
+          disabled={isSubmitting}
+          hitSlop={8}
+          onPress={() => switchMode(mode === "login" ? "signup" : "login")}
+        >
+          <Text style={[styles.modeToggle, { color: colors.primary }]}>
+            {mode === "login"
+              ? "Need an account? Sign up"
+              : "Already have an account? Sign in"}
+          </Text>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
@@ -149,5 +240,11 @@ const styles = StyleSheet.create({
   error: {
     fontSize: 14,
     textAlign: "center",
+  },
+  modeToggle: {
+    fontSize: 15,
+    fontWeight: "600",
+    textAlign: "center",
+    marginTop: spacing.sm,
   },
 });
