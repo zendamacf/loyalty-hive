@@ -7,6 +7,8 @@ import React from "react";
 const expoRouterMocks = {
   push: mock(() => {}),
   back: mock(() => {}),
+  dismissTo: mock(() => {}),
+  replace: mock(() => {}),
   params: {} as Record<string, string | undefined>,
 };
 
@@ -26,18 +28,38 @@ mock.module("react-native", () => ({
       item: Record<string, unknown>;
       index: number;
     }) => React.ReactNode;
-  }) =>
-    React.createElement(
+    ListEmptyComponent?: React.ReactNode | React.ComponentType;
+    refreshControl?: React.ReactNode;
+  }) => {
+    const rows =
+      props.data.length === 0 && props.ListEmptyComponent != null
+        ? [
+            React.createElement(
+              React.Fragment,
+              { key: "list-empty" },
+              typeof props.ListEmptyComponent === "function"
+                ? React.createElement(
+                    props.ListEmptyComponent as React.ComponentType,
+                  )
+                : (props.ListEmptyComponent as React.ReactNode),
+            ),
+          ]
+        : props.data.map((item, index) =>
+            React.createElement(
+              React.Fragment,
+              { key: `${index}-${String(item.id ?? "row")}` },
+              props.renderItem({ item, index }),
+            ),
+          );
+
+    return React.createElement(
       "FlatList",
       props,
-      props.data.map((item, index) =>
-        React.createElement(
-          React.Fragment,
-          { key: `${index}-${String(item.id ?? "row")}` },
-          props.renderItem({ item, index }),
-        ),
-      ),
-    ),
+      props.refreshControl,
+      ...rows,
+    );
+  },
+  RefreshControl: createPrimitive("RefreshControl"),
   Pressable: createPrimitive("Pressable"),
   ActivityIndicator: createPrimitive("ActivityIndicator"),
   StyleSheet: {
@@ -57,11 +79,24 @@ mock.module("react-native-safe-area-context", () => ({
   SafeAreaView: createPrimitive("SafeAreaView"),
 }));
 
+mock.module("@react-navigation/native", () => ({
+  useFocusEffect: (effect: () => undefined | (() => void)) => {
+    React.useEffect(() => {
+      const cleanup = effect();
+      return typeof cleanup === "function" ? cleanup : undefined;
+    }, [effect]);
+  },
+}));
+
 mock.module("expo-router", () => ({
   router: {
     push: (arg: unknown) =>
       (expoRouterMocks.push as unknown as (value: unknown) => void)(arg),
     back: () => expoRouterMocks.back(),
+    dismissTo: (arg: unknown) =>
+      (expoRouterMocks.dismissTo as unknown as (value: unknown) => void)(arg),
+    replace: (arg: unknown) =>
+      (expoRouterMocks.replace as unknown as (value: unknown) => void)(arg),
   },
   useLocalSearchParams: () => expoRouterMocks.params,
 }));

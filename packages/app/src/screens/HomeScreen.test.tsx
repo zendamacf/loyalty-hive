@@ -1,6 +1,42 @@
-import { beforeEach, describe, expect, it, type mock } from "bun:test";
+import { beforeEach, describe, expect, it, mock } from "bun:test";
 
-import { fireEvent, render } from "@testing-library/react-native";
+import { fireEvent, render, waitFor } from "@testing-library/react-native";
+
+const getApiV1CardsMock = mock(() =>
+  Promise.resolve({
+    data: [
+      {
+        id: "00000000-0000-4000-8000-000000000001",
+        userId: "00000000-0000-4000-8000-000000000099",
+        cardNumber: "111",
+        label: null,
+        brand: {
+          id: "00000000-0000-4000-8000-0000000000a1",
+          name: "ASOS",
+          logoUrl: "https://example.com/asos.png",
+        },
+        createdAt: "2020-01-01T00:00:00.000Z",
+      },
+      {
+        id: "00000000-0000-4000-8000-000000000002",
+        userId: "00000000-0000-4000-8000-000000000099",
+        cardNumber: "222",
+        label: null,
+        brand: {
+          id: "00000000-0000-4000-8000-0000000000a2",
+          name: "Cotton On",
+          logoUrl: "https://example.com/cotton.png",
+        },
+        createdAt: "2020-01-01T00:00:00.000Z",
+      },
+    ],
+    error: undefined,
+  }),
+);
+
+mock.module("@/lib/api-client", () => ({
+  getApiV1Cards: getApiV1CardsMock,
+}));
 
 const { __expoRouterMocks } = globalThis as unknown as {
   __expoRouterMocks: {
@@ -15,18 +51,38 @@ const { HomeScreen } = await import("./HomeScreen");
 describe("HomeScreen", () => {
   beforeEach(() => {
     __expoRouterMocks.push.mockClear();
+    getApiV1CardsMock.mockClear();
   });
 
-  it("renders search and loyalty cards", () => {
+  it("renders search and loyalty cards", async () => {
     const { getByPlaceholderText, getByText } = render(<HomeScreen />);
 
     expect(getByPlaceholderText("Search cards...")).toBeTruthy();
-    expect(getByText("ASOS")).toBeTruthy();
+    await waitFor(() => {
+      expect(getByText("ASOS")).toBeTruthy();
+    });
     expect(getByText("Cotton On")).toBeTruthy();
   });
 
-  it("navigates to select brand when FAB is pressed", () => {
+  it("filters cards by search query", async () => {
+    const { getByPlaceholderText, getByText, queryByText } = render(
+      <HomeScreen />,
+    );
+
+    await waitFor(() => expect(getByText("ASOS")).toBeTruthy());
+
+    fireEvent.changeText(getByPlaceholderText("Search cards..."), "cotton");
+
+    await waitFor(() => {
+      expect(queryByText("ASOS")).toBeNull();
+      expect(getByText("Cotton On")).toBeTruthy();
+    });
+  });
+
+  it("navigates to select brand when FAB is pressed", async () => {
     const { getByText } = render(<HomeScreen />);
+
+    await waitFor(() => expect(getByText("+")).toBeTruthy());
 
     fireEvent.press(getByText("+"));
 

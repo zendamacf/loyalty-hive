@@ -1,7 +1,35 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 
-import { fireEvent, render } from "@testing-library/react-native";
+import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import React from "react";
+
+const testUserId = "00000000-0000-4000-8000-000000000001";
+const fakeJwt = `h.${Buffer.from(JSON.stringify({ sub: testUserId })).toString("base64url")}.s`;
+
+const postApiV1CardsMock = mock(
+  (): Promise<{
+    data: Record<string, unknown>;
+    error: undefined;
+  }> =>
+    Promise.resolve({
+      data: {
+        id: "card-1",
+        userId: testUserId,
+        cardNumber: "123456",
+        brand: null,
+        createdAt: new Date().toISOString(),
+      },
+      error: undefined,
+    }),
+);
+
+mock.module("@/lib/api-client", () => ({
+  client: {
+    getConfig: () => ({ auth: fakeJwt }),
+    setConfig: mock(() => {}),
+  },
+  postApiV1Cards: postApiV1CardsMock,
+}));
 
 type PermissionState = { granted: boolean } | null;
 
@@ -11,6 +39,7 @@ const { __expoRouterMocks } = globalThis as unknown as {
   __expoRouterMocks: {
     push: ReturnType<typeof mock>;
     back: ReturnType<typeof mock>;
+    dismissTo: ReturnType<typeof mock>;
     params: Record<string, string | undefined>;
   };
 };
@@ -27,7 +56,9 @@ describe("ScanScreen", () => {
   beforeEach(() => {
     permissionState = null;
     __expoRouterMocks.back.mockClear();
+    __expoRouterMocks.dismissTo.mockClear();
     requestPermissionMock.mockClear();
+    postApiV1CardsMock.mockClear();
     __expoRouterMocks.params = { brandName: "ASOS" };
   });
 
@@ -46,7 +77,7 @@ describe("ScanScreen", () => {
     expect(requestPermissionMock).toHaveBeenCalledTimes(1);
   });
 
-  it("supports manual card entry and done action", () => {
+  it("creates a card from manual entry and returns home", async () => {
     permissionState = { granted: true };
     const { getByText, getByPlaceholderText } = render(<ScanScreen />);
 
@@ -54,11 +85,26 @@ describe("ScanScreen", () => {
     fireEvent.changeText(getByPlaceholderText("Card number"), " 123456 ");
     fireEvent.press(getByText("Use card number"));
 
-    expect(getByText("Code captured")).toBeTruthy();
-    expect(getByText("Value: 123456")).toBeTruthy();
+    expect(getByText("Saving card...")).toBeTruthy();
 
-    fireEvent.press(getByText("Done"));
+    await waitFor(() => {
+      expect(postApiV1CardsMock).toHaveBeenCalledTimes(1);
+      expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith("/home");
+    });
+  });
 
-    expect(__expoRouterMocks.back).toHaveBeenCalledTimes(1);
+  it("creates a card when a barcode is scanned", async () => {
+    permissionState = { granted: true };
+    const { getByTestId } = render(<ScanScreen />);
+
+    fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
+      type: "qr",
+      data: "987654",
+    });
+
+    await waitFor(() => {
+      expect(postApiV1CardsMock).toHaveBeenCalledTimes(1);
+      expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith("/home");
+    });
   });
 });

@@ -4,33 +4,83 @@ import {
   useCameraPermissions,
 } from "expo-camera";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { postApiV1Cards } from "@/lib/api-client";
 import { radius, spacing } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
-type CapturedCode = {
-  type: string;
-  data: string;
-};
+function messageFromApiError(err: unknown): string {
+  if (
+    err &&
+    typeof err === "object" &&
+    "error" in err &&
+    typeof (err as { error: unknown }).error === "string"
+  ) {
+    return (err as { error: string }).error;
+  }
+  if (typeof err === "string") {
+    return err;
+  }
+  console.error(err);
+  return "Something went wrong. Please try again.";
+}
 
 export const ScanScreen = () => {
   const { colors } = useTheme();
-  const params = useLocalSearchParams<{ brandName?: string }>();
+  const params = useLocalSearchParams<{
+    brandName?: string;
+    brandId?: string;
+  }>();
   const selectedBrandName =
     typeof params.brandName === "string" ? params.brandName : null;
+  const selectedBrandId =
+    typeof params.brandId === "string" ? params.brandId : null;
   const [permission, requestPermission] = useCameraPermissions();
-  const [scanResult, setScanResult] = useState<CapturedCode | null>(null);
   const [isManualEntryOpen, setIsManualEntryOpen] = useState(false);
   const [manualCode, setManualCode] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const saveLockRef = useRef(false);
+
+  const saveCard = useCallback(
+    async (cardNumber: string) => {
+      const trimmed = cardNumber.trim();
+      if (!trimmed || saveLockRef.current) {
+        return;
+      }
+      saveLockRef.current = true;
+      setIsSaving(true);
+      setSaveError(null);
+
+      try {
+        const { data, error } = await postApiV1Cards({
+          body: {
+            cardNumber: trimmed,
+            label: selectedBrandName,
+            brandId: selectedBrandId,
+          },
+        });
+
+        if (error) {
+          setSaveError(messageFromApiError(error));
+          return;
+        }
+
+        if (data) {
+          router.dismissTo("/home");
+        }
+      } finally {
+        saveLockRef.current = false;
+        setIsSaving(false);
+      }
+    },
+    [selectedBrandId, selectedBrandName],
+  );
 
   const handleScan = (result: BarcodeScanningResult) => {
-    if (scanResult) {
-      return;
-    }
-
-    setScanResult({ type: result.type, data: result.data });
+    void saveCard(result.data);
   };
 
   const submitManualCode = () => {
@@ -39,8 +89,8 @@ export const ScanScreen = () => {
       return;
     }
 
-    setScanResult({ type: "manual", data: normalizedCode });
     setIsManualEntryOpen(false);
+    void saveCard(normalizedCode);
   };
 
   if (!permission) {
@@ -79,9 +129,10 @@ export const ScanScreen = () => {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: "#000000" }]}>
       <CameraView
-        style={StyleSheet.absoluteFillObject}
+        testID="scan-camera"
+        style={StyleSheet.absoluteFill}
         facing="back"
-        onBarcodeScanned={scanResult ? undefined : handleScan}
+        onBarcodeScanned={isSaving ? undefined : handleScan}
         barcodeScannerSettings={{
           barcodeTypes: [
             "aztec",
@@ -107,10 +158,16 @@ export const ScanScreen = () => {
           </Text>
         ) : null}
         <Text style={styles.overlayTitle}>
-          {scanResult ? "Code captured" : "Scan a loyalty card QR or barcode"}
+          {isSaving ? "Saving card..." : "Scan a loyalty card QR or barcode"}
         </Text>
 
-        {!scanResult ? (
+        {saveError ? (
+          <Text style={[styles.saveError, { color: colors.error }]}>
+            {saveError}
+          </Text>
+        ) : null}
+
+        {!isSaving ? (
           <View style={styles.manualEntryWrapper}>
             <Pressable
               onPress={() => setIsManualEntryOpen((current) => !current)}
@@ -150,33 +207,6 @@ export const ScanScreen = () => {
                 </Pressable>
               </View>
             ) : null}
-          </View>
-        ) : null}
-
-        {scanResult ? (
-          <View style={styles.resultPanel}>
-            <Text style={styles.resultText}>Type: {scanResult.type}</Text>
-            <Text numberOfLines={2} style={styles.resultText}>
-              Value: {scanResult.data}
-            </Text>
-
-            <View style={styles.actions}>
-              <Pressable
-                onPress={() => setScanResult(null)}
-                style={styles.secondaryButton}
-              >
-                <Text style={styles.secondaryButtonText}>Scan again</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => router.back()}
-                style={[
-                  styles.primaryButton,
-                  { backgroundColor: colors.primary },
-                ]}
-              >
-                <Text style={styles.primaryButtonText}>Done</Text>
-              </Pressable>
-            </View>
           </View>
         ) : null}
       </View>
@@ -231,9 +261,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginBottom: spacing.xs,
   },
-  resultPanel: {
+  saveError: {
     marginTop: spacing.sm,
-    gap: spacing.xs,
+    fontSize: 14,
   },
   manualEntryWrapper: {
     marginTop: spacing.sm,
@@ -249,15 +279,6 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     fontSize: 16,
     backgroundColor: "rgba(15, 23, 42, 0.9)",
-  },
-  resultText: {
-    color: "#E2E8F0",
-    fontSize: 14,
-  },
-  actions: {
-    marginTop: spacing.sm,
-    flexDirection: "row",
-    gap: spacing.sm,
   },
   secondaryButton: {
     flex: 1,

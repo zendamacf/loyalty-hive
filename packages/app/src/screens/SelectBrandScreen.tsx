@@ -7,12 +7,12 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { type GetApiV1BrandsResponse, getApiV1Brands } from "@/lib/api-client";
+import { SearchBar } from "../components/SearchBar";
 import { radius, spacing } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
@@ -57,18 +57,12 @@ export const SelectBrandScreen = () => {
         Select the loyalty brand before scanning your card.
       </Text>
 
-      <View
-        style={[styles.searchContainer, { backgroundColor: colors.surface }]}
-      >
-        <TextInput
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Search brands..."
-          placeholderTextColor={colors.textSecondary}
-          style={[styles.searchInput, { color: colors.textPrimary }]}
-          editable={loaded && !error}
-        />
-      </View>
+      <SearchBar
+        value={query}
+        onChangeText={setQuery}
+        placeholder="Search brands..."
+        editable={loaded && !error}
+      />
 
       {error && (
         <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
@@ -130,14 +124,6 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     marginBottom: spacing.md,
     fontSize: 14,
-  },
-  searchContainer: {
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  searchInput: {
-    fontSize: 16,
   },
   errorText: {
     marginTop: spacing.sm,
