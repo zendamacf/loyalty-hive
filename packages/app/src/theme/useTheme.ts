@@ -14,6 +14,8 @@ export const useTheme = () => {
       textSecondary: colors.textSecondary,
       border: colors.border,
       primary: colors.primary,
+      error: colors.error,
+      success: colors.success,
     },
   };
 };

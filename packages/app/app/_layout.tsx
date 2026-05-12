@@ -2,7 +2,8 @@ import * as Sentry from "@sentry/react-native";
 import { Stack } from "expo-router";
 
 Sentry.init({
-  dsn: "https://74e37cfea8703595ffd65f353854184b@o4509541345591296.ingest.de.sentry.io/4511337311436881",
+  environment: process.env.NODE_ENV ?? "development",
+  dsn: process.env.SENTRY_DSN,
   sendDefaultPii: true,
   enableLogs: true,
   replaysSessionSampleRate: 0.1,

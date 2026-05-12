@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { FlatList, StyleSheet } from "react-native";
+import { FlatList, StyleSheet, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { type GetApiV1CardsResponse, getApiV1Cards } from "@/lib/api-client";
@@ -16,10 +16,12 @@ const PLACEHOLDER_LOGO_URI =
 export const HomeScreen = () => {
   const { colors } = useTheme();
   const [cards, setCards] = useState<GetApiV1CardsResponse>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
-      const { data } = await getApiV1Cards();
+      const { data, error } = await getApiV1Cards();
+      if (error) setError(error.error);
       if (data) setCards(data);
     })();
   }, []);
@@ -30,16 +32,19 @@ export const HomeScreen = () => {
     >
       <SearchBar />
 
-      <FlatList
-        data={cards}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <LoyaltyCard
-            brand={item.label ?? `•••• ${item.cardNumber.slice(-4)}`}
-            logo={item.brand?.logoUrl ?? PLACEHOLDER_LOGO_URI}
-          />
-        )}
-      />
+      {error && <Text style={{ color: colors.error }}>{error}</Text>}
+      {cards.length > 0 && (
+        <FlatList
+          data={cards}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <LoyaltyCard
+              brand={item.label ?? item.brand?.name ?? item.cardNumber}
+              logo={item.brand?.logoUrl ?? PLACEHOLDER_LOGO_URI}
+            />
+          )}
+        />
+      )}
 
       <FAB onPress={() => router.push("/select-brand")} />
     </SafeAreaView>
