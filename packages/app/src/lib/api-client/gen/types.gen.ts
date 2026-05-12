@@ -43,6 +43,46 @@ export type PostApiV1AuthLoginResponses = {
 
 export type PostApiV1AuthLoginResponse = PostApiV1AuthLoginResponses[keyof PostApiV1AuthLoginResponses];
 
+export type PostApiV1AuthSignupData = {
+    body: {
+        email: string;
+        password: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/signup';
+};
+
+export type PostApiV1AuthSignupErrors = {
+    /**
+     * Invalid request input
+     */
+    400: {
+        error: string;
+        issues: Array<unknown>;
+    };
+    /**
+     * Email already registered
+     */
+    409: {
+        error: string;
+    };
+};
+
+export type PostApiV1AuthSignupError = PostApiV1AuthSignupErrors[keyof PostApiV1AuthSignupErrors];
+
+export type PostApiV1AuthSignupResponses = {
+    /**
+     * Account created
+     */
+    201: {
+        id: string;
+        email: string;
+    };
+};
+
+export type PostApiV1AuthSignupResponse = PostApiV1AuthSignupResponses[keyof PostApiV1AuthSignupResponses];
+
 export type GetApiV1CardsData = {
     body?: never;
     path?: never;
