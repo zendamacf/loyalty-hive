@@ -1,8 +1,10 @@
 import { router } from "expo-router";
+import { useState } from "react";
 import { Image, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "../components/Button";
+import { client, postApiV1AuthLogin } from "../lib/api-client";
 import { radius, spacing } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
@@ -10,6 +12,37 @@ const icon = require("../../assets/images/icon.png");
 
 export const LoginScreen = () => {
   const { colors } = useTheme();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const submit = async () => {
+    setError(null);
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || !password) {
+      setError("Enter your email and password.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    const { data, error } = await postApiV1AuthLogin({
+      body: { email: trimmedEmail, password },
+    });
+    setIsSubmitting(false);
+
+    if (error) {
+      setError(error.error);
+      return;
+    }
+
+    if (data?.token) {
+      client.setConfig({ auth: data.token });
+      router.replace("/home");
+    } else {
+      setError("Unexpected response from server.");
+    }
+  };
 
   return (
     <SafeAreaView
@@ -31,6 +64,7 @@ export const LoginScreen = () => {
         <TextInput
           autoCapitalize="none"
           autoCorrect={false}
+          editable={!isSubmitting}
           keyboardType="email-address"
           placeholder="Email"
           placeholderTextColor={colors.textSecondary}
@@ -42,8 +76,11 @@ export const LoginScreen = () => {
               color: colors.textPrimary,
             },
           ]}
+          value={email}
+          onChangeText={setEmail}
         />
         <TextInput
+          editable={!isSubmitting}
           placeholder="Password"
           placeholderTextColor={colors.textSecondary}
           secureTextEntry
@@ -55,12 +92,19 @@ export const LoginScreen = () => {
               color: colors.textPrimary,
             },
           ]}
+          value={password}
+          onChangeText={setPassword}
         />
 
+        {error && (
+          <Text style={[styles.error, { color: colors.error }]}>{error}</Text>
+        )}
+
         <Button
-          title="Sign in"
+          disabled={isSubmitting}
+          title={isSubmitting ? "Signing in…" : "Sign in"}
           onPress={() => {
-            router.replace("/home");
+            void submit();
           }}
         />
       </View>
@@ -101,5 +145,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm + 2,
     fontSize: 16,
+  },
+  error: {
+    fontSize: 14,
+    textAlign: "center",
   },
 });

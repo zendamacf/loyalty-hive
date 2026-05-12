@@ -5,14 +5,21 @@ import { useTheme } from "../theme/useTheme";
 type ButtonProps = {
   title: string;
   onPress: () => void;
+  disabled?: boolean;
 };
 
-export const Button = ({ title, onPress }: ButtonProps) => {
+export const Button = ({ title, onPress, disabled = false }: ButtonProps) => {
   const { colors } = useTheme();
 
   return (
     <TouchableOpacity
-      style={[styles.button, { backgroundColor: colors.primary }]}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
+      style={[
+        styles.button,
+        { backgroundColor: colors.primary },
+        disabled && styles.buttonDisabled,
+      ]}
       onPress={onPress}
     >
       <Text style={[styles.text, { color: "#0D1B2A" }]}>{title}</Text>
@@ -27,6 +34,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: spacing.md,
+  },
+  buttonDisabled: {
+    opacity: 0.5,
   },
   text: {
     fontSize: 16,
