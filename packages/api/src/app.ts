@@ -19,7 +19,7 @@ app
     "/openapi",
     openAPIRouteHandler(app, {
       documentation: {
-        info: { title: "Loyalty Hive API", version: "1.0.0" },
+        info: { title: "LoyaltyHive API", version: "1.0.0" },
         components: {
           securitySchemes: {
             bearerAuth: {

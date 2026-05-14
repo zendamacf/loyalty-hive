@@ -27,7 +27,7 @@ describe("app", () => {
       expect.objectContaining({
         openapi: expect.any(String),
         info: expect.objectContaining({
-          title: "Loyalty Hive API",
+          title: "LoyaltyHive API",
           version: "1.0.0",
         }),
       }),

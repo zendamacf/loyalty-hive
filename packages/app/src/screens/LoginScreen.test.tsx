@@ -55,7 +55,7 @@ describe("LoginScreen", () => {
   it("renders login fields and copy by default", () => {
     const { getByText, getByPlaceholderText } = render(<LoginScreen />);
 
-    expect(getByText("Loyalty Hive")).toBeTruthy();
+    expect(getByText("LoyaltyHive")).toBeTruthy();
     expect(getByText("Sign in to manage your loyalty cards")).toBeTruthy();
     expect(getByPlaceholderText("Email")).toBeTruthy();
     expect(getByPlaceholderText("Password")).toBeTruthy();
@@ -106,6 +106,66 @@ describe("LoginScreen", () => {
       expect(postApiV1AuthLoginMock).toHaveBeenCalledWith(
         expect.objectContaining({
           body: { email: "hi@example.com", password: "secret" },
+        }),
+      );
+      expect(setConfigMock).toHaveBeenCalledWith({ auth: "test-token" });
+      expect(__expoRouterMocks.replace).toHaveBeenCalledWith("/home");
+    });
+  });
+
+  it("shows validation when pressing Enter on the password field with empty fields", () => {
+    const { getByPlaceholderText, getByText } = render(<LoginScreen />);
+
+    fireEvent(getByPlaceholderText("Password"), "submitEditing");
+
+    expect(getByText("Enter your email and password.")).toBeTruthy();
+  });
+
+  it("submits login when pressing Enter on the password field", async () => {
+    const { getByPlaceholderText } = render(<LoginScreen />);
+
+    fireEvent.changeText(getByPlaceholderText("Email"), "hi@example.com");
+    fireEvent.changeText(getByPlaceholderText("Password"), "secret");
+    fireEvent(getByPlaceholderText("Password"), "submitEditing");
+
+    await waitFor(() => {
+      expect(postApiV1AuthLoginMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: { email: "hi@example.com", password: "secret" },
+        }),
+      );
+      expect(setConfigMock).toHaveBeenCalledWith({ auth: "test-token" });
+      expect(__expoRouterMocks.replace).toHaveBeenCalledWith("/home");
+    });
+  });
+
+  it("does not submit login when pressing Enter on the email field (only focuses password)", () => {
+    const { getByPlaceholderText } = render(<LoginScreen />);
+
+    fireEvent.changeText(getByPlaceholderText("Email"), "hi@example.com");
+    fireEvent.changeText(getByPlaceholderText("Password"), "secret");
+    fireEvent(getByPlaceholderText("Email"), "submitEditing");
+
+    expect(postApiV1AuthLoginMock).not.toHaveBeenCalled();
+  });
+
+  it("signs up then logs in when pressing Enter on the password field in signup mode", async () => {
+    const { getByText, getByPlaceholderText } = render(<LoginScreen />);
+
+    fireEvent.press(getByText("Need an account? Sign up"));
+    fireEvent.changeText(getByPlaceholderText("Email"), "new@example.com");
+    fireEvent.changeText(getByPlaceholderText("Password"), "pw");
+    fireEvent(getByPlaceholderText("Password"), "submitEditing");
+
+    await waitFor(() => {
+      expect(postApiV1AuthSignupMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: { email: "new@example.com", password: "pw" },
+        }),
+      );
+      expect(postApiV1AuthLoginMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: { email: "new@example.com", password: "pw" },
         }),
       );
       expect(setConfigMock).toHaveBeenCalledWith({ auth: "test-token" });

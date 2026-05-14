@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Image,
   Pressable,
@@ -16,7 +16,7 @@ import {
   postApiV1AuthLogin,
   postApiV1AuthSignup,
 } from "../lib/api-client";
-import { radius, spacing } from "../theme/theme";
+import { colors, radius, spacing } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
 const icon = require("../../assets/images/icon.png");
@@ -40,6 +40,7 @@ type AuthMode = "login" | "signup";
 
 export const LoginScreen = () => {
   const { colors } = useTheme();
+  const passwordRef = useRef<TextInput>(null);
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -131,7 +132,7 @@ export const LoginScreen = () => {
           style={styles.logo}
         />
         <Text style={[styles.title, { color: colors.textPrimary }]}>
-          Loyalty Hive
+          Loyalty<Text style={styles.titleHive}>Hive</Text>
         </Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
           {mode === "login"
@@ -146,6 +147,8 @@ export const LoginScreen = () => {
           keyboardType="email-address"
           placeholder="Email"
           placeholderTextColor={colors.textSecondary}
+          returnKeyType="next"
+          submitBehavior="submit"
           style={[
             styles.input,
             {
@@ -156,11 +159,14 @@ export const LoginScreen = () => {
           ]}
           value={email}
           onChangeText={setEmail}
+          onSubmitEditing={() => passwordRef.current?.focus()}
         />
         <TextInput
+          ref={passwordRef}
           editable={!isSubmitting}
           placeholder="Password"
           placeholderTextColor={colors.textSecondary}
+          returnKeyType="go"
           secureTextEntry
           style={[
             styles.input,
@@ -172,6 +178,9 @@ export const LoginScreen = () => {
           ]}
           value={password}
           onChangeText={setPassword}
+          onSubmitEditing={() => {
+            if (!isSubmitting) void submit();
+          }}
         />
 
         {error && (
@@ -224,6 +233,9 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "700",
     textAlign: "center",
+  },
+  titleHive: {
+    color: colors.primary,
   },
   subtitle: {
     fontSize: 15,

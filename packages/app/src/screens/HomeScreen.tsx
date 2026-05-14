@@ -1,19 +1,24 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { router } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
-import { FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
+import {
+  FlatList,
+  Image,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { type GetApiV1CardsResponse, getApiV1Cards } from "@/lib/api-client";
 import { FAB } from "../components/FAB";
 import { LoyaltyBrandLogo } from "../components/LoyaltyBrandLogo";
 import { SearchBar } from "../components/SearchBar";
-import { spacing } from "../theme/theme";
+import { colors, radius, spacing } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
-/** 1×1 transparent PNG if card brand URL is not available. */
-const PLACEHOLDER_LOGO_URI =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
+const appIcon = require("../../assets/images/icon.png");
 
 function filterCards(
   list: GetApiV1CardsResponse,
@@ -103,6 +108,19 @@ export const HomeScreen = () => {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
     >
+      <View style={styles.header}>
+        <Image
+          accessibilityLabel="App logo"
+          source={appIcon}
+          style={styles.appLogo}
+        />
+        <View style={styles.titleWrap}>
+          <Text style={[styles.title, { color: colors.textPrimary }]}>
+            Loyalty<Text style={styles.titleHive}>Hive</Text>
+          </Text>
+        </View>
+      </View>
+
       <SearchBar
         value={searchQuery}
         onChangeText={setSearchQuery}
@@ -169,6 +187,29 @@ const styles = StyleSheet.create({
   },
   errorBanner: {
     marginBottom: 8,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  appLogo: {
+    width: 56,
+    height: 56,
+    borderRadius: radius.md,
+  },
+  titleWrap: {
+    height: 56,
+    justifyContent: "center",
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "700",
+    textAlign: "left",
+  },
+  titleHive: {
+    color: colors.primary,
   },
   searchBar: {
     marginBottom: spacing.md,
