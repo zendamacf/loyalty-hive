@@ -77,7 +77,7 @@ describe("ScanScreen", () => {
     expect(requestPermissionMock).toHaveBeenCalledTimes(1);
   });
 
-  it("creates a card from manual entry and returns home", async () => {
+  it("creates a card from manual entry and returns to cards tab", async () => {
     permissionState = { granted: true };
     const { getByText, getByPlaceholderText } = render(<ScanScreen />);
 
@@ -89,7 +89,7 @@ describe("ScanScreen", () => {
 
     await waitFor(() => {
       expect(postApiV1CardsMock).toHaveBeenCalledTimes(1);
-      expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith("/home");
+      expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith("/(tabs)/cards");
     });
   });
 
@@ -104,7 +104,7 @@ describe("ScanScreen", () => {
 
     await waitFor(() => {
       expect(postApiV1CardsMock).toHaveBeenCalledTimes(1);
-      expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith("/home");
+      expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith("/(tabs)/cards");
     });
   });
 });

@@ -109,7 +109,7 @@ describe("LoginScreen", () => {
         }),
       );
       expect(setConfigMock).toHaveBeenCalledWith({ auth: "test-token" });
-      expect(__expoRouterMocks.replace).toHaveBeenCalledWith("/home");
+      expect(__expoRouterMocks.replace).toHaveBeenCalledWith("/(tabs)/cards");
     });
   });
 
@@ -135,7 +135,7 @@ describe("LoginScreen", () => {
         }),
       );
       expect(setConfigMock).toHaveBeenCalledWith({ auth: "test-token" });
-      expect(__expoRouterMocks.replace).toHaveBeenCalledWith("/home");
+      expect(__expoRouterMocks.replace).toHaveBeenCalledWith("/(tabs)/cards");
     });
   });
 
@@ -169,7 +169,7 @@ describe("LoginScreen", () => {
         }),
       );
       expect(setConfigMock).toHaveBeenCalledWith({ auth: "test-token" });
-      expect(__expoRouterMocks.replace).toHaveBeenCalledWith("/home");
+      expect(__expoRouterMocks.replace).toHaveBeenCalledWith("/(tabs)/cards");
     });
   });
 
@@ -229,7 +229,7 @@ describe("LoginScreen", () => {
         }),
       );
       expect(setConfigMock).toHaveBeenCalledWith({ auth: "test-token" });
-      expect(__expoRouterMocks.replace).toHaveBeenCalledWith("/home");
+      expect(__expoRouterMocks.replace).toHaveBeenCalledWith("/(tabs)/cards");
     });
   });
 });

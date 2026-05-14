@@ -54,7 +54,7 @@ export const LoginScreen = () => {
 
   const completeWithToken = (token: string) => {
     client.setConfig({ auth: token });
-    router.replace("/home");
+    router.replace("/(tabs)/cards");
   };
 
   const submitLogin = async (trimmedEmail: string, pwd: string) => {

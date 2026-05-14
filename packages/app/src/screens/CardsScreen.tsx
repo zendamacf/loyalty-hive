@@ -36,7 +36,7 @@ function filterCards(
   });
 }
 
-export const HomeScreen = () => {
+export const CardsScreen = () => {
   const { colors } = useTheme();
   const [cards, setCards] = useState<GetApiV1CardsResponse>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -106,6 +106,7 @@ export const HomeScreen = () => {
 
   return (
     <SafeAreaView
+      edges={["top", "left", "right"]}
       style={[styles.container, { backgroundColor: colors.background }]}
     >
       <View style={styles.header}>
@@ -173,14 +174,14 @@ export const HomeScreen = () => {
           />
         }
         renderItem={({ item }) => (
-          <LoyaltyBrandLogo
-            brand={item.label ?? item.brand?.name ?? item.cardNumber}
-            logo={item.brand?.logoUrl}
-            backgroundColor={item.brand?.backgroundColor}
-            height={100}
-            style={styles.card}
-            onPress={() => {}}
-          />
+          <View style={styles.card}>
+            <LoyaltyBrandLogo
+              brand={item.label ?? item.brand?.name ?? item.cardNumber}
+              logo={item.brand?.logoUrl}
+              backgroundColor={item.brand?.backgroundColor}
+              height={100}
+            />
+          </View>
         )}
       />
     </SafeAreaView>

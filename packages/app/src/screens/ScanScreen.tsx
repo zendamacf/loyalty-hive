@@ -69,7 +69,7 @@ export const ScanScreen = () => {
         }
 
         if (data) {
-          router.dismissTo("/home");
+          router.dismissTo("/(tabs)/cards");
         }
       } finally {
         saveLockRef.current = false;

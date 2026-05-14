@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
 
-/** Bun otherwise executes the real PNG when HomeScreen loads `require(...)`. */
+/** Bun otherwise executes the real PNG when CardsScreen loads `require(...)`. */
 mock.module("../../assets/images/icon.png", () => ({ default: 1 }));
 
 const getApiV1CardsMock = mock(() =>
@@ -47,16 +47,16 @@ const { __expoRouterMocks } = globalThis as unknown as {
   };
 };
 
-const { HomeScreen } = await import("./HomeScreen");
+const { CardsScreen } = await import("./CardsScreen");
 
-describe("HomeScreen", () => {
+describe("CardsScreen", () => {
   beforeEach(() => {
     __expoRouterMocks.push.mockClear();
     getApiV1CardsMock.mockClear();
   });
 
   it("renders search and loyalty cards", async () => {
-    const { getByPlaceholderText, getByText } = render(<HomeScreen />);
+    const { getByPlaceholderText, getByText } = render(<CardsScreen />);
 
     expect(getByPlaceholderText("Search cards...")).toBeTruthy();
     await waitFor(() => {
@@ -67,7 +67,7 @@ describe("HomeScreen", () => {
 
   it("filters cards by search query", async () => {
     const { getByPlaceholderText, getByText, queryByText } = render(
-      <HomeScreen />,
+      <CardsScreen />,
     );
 
     await waitFor(() => expect(getByText("ASOS")).toBeTruthy());
@@ -81,7 +81,7 @@ describe("HomeScreen", () => {
   });
 
   it("navigates to select brand when add button is pressed", async () => {
-    const { getByText } = render(<HomeScreen />);
+    const { getByText } = render(<CardsScreen />);
 
     await waitFor(() => expect(getByText("+")).toBeTruthy());
 
