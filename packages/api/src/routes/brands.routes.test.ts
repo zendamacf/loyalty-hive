@@ -31,13 +31,15 @@ beforeAll(async () => {
     {
       id: BRAND_B_ID,
       name: "Beta Brand",
-      logoUrl: "https://example.com/beta",
+      logoFile: "beta.png",
+      backgroundColor: "#000000",
       defaultView: "2D",
     },
     {
       id: BRAND_A_ID,
       name: "Alpha Brand",
-      logoUrl: "https://example.com/alpha",
+      logoFile: "alpha.png",
+      backgroundColor: "#000000",
       defaultView: null,
     },
   ]);

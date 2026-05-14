@@ -47,14 +47,19 @@ const app = new Hono<{ Variables: ContextVariables }>()
         .select({
           id: brands.id,
           name: brands.name,
-          logoUrl: brands.logoUrl,
+          logoFile: brands.logoFile,
           defaultView: brands.defaultView,
           createdAt: brands.createdAt,
         })
         .from(brands)
         .orderBy(asc(brands.name));
 
-      return c.json(rows);
+      return c.json(
+        rows.map((row) => ({
+          ...row,
+          logoUrl: `${new URL(c.req.url).origin}/static/${row.logoFile}`,
+        })),
+      );
     },
   );
 

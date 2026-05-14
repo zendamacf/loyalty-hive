@@ -16,6 +16,7 @@ export const cardSchema = z.object({
       id: z.uuid(),
       name: z.string(),
       logoUrl: z.string(),
+      backgroundColor: z.string(),
     })
     .nullable(),
   createdAt: z.string(),
@@ -68,7 +69,8 @@ const app = new Hono<{ Variables: ContextVariables }>()
           label: cards.label,
           brandId: cards.brandId,
           brandName: brands.name,
-          brandLogoUrl: brands.logoUrl,
+          brandLogoFile: brands.logoFile,
+          brandBackgroundColor: brands.backgroundColor,
           createdAt: cards.createdAt,
         })
         .from(cards)
@@ -82,7 +84,8 @@ const app = new Hono<{ Variables: ContextVariables }>()
             ? {
                 id: r.brandId,
                 name: r.brandName,
-                logoUrl: r.brandLogoUrl,
+                logoUrl: `${new URL(c.req.url).origin}/static/${r.brandLogoFile}`,
+                backgroundColor: r.brandBackgroundColor,
               }
             : null,
         })),
@@ -151,7 +154,8 @@ const app = new Hono<{ Variables: ContextVariables }>()
                 ? {
                     id: brand.id,
                     name: brand.name,
-                    logoUrl: brand.logoUrl,
+                    logoUrl: `${new URL(c.req.url).origin}/static/${brand.logoFile}`,
+                    backgroundColor: brand.backgroundColor,
                   }
                 : null,
             },

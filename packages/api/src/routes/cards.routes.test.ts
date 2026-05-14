@@ -31,7 +31,8 @@ beforeAll(async () => {
   await db.insert(brands).values({
     id: BRAND_ID,
     name: "Test Brand",
-    logoUrl: "https://example.com/testbrand",
+    logoFile: "testbrand.png",
+    backgroundColor: "#000000",
     defaultView: "1D",
   });
 
@@ -84,7 +85,6 @@ describe("cards routes", () => {
       },
       body: JSON.stringify({
         userId: "not-a-uuid",
-        cardNumber: "5555555555554444",
       }),
     });
 

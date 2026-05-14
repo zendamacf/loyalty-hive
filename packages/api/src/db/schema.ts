@@ -11,9 +11,10 @@ import {
 export const brands = pgTable("brands", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
-  logoUrl: text("logo_url").notNull(),
+  logoFile: text("logo_file").notNull(),
   defaultView: text("default_view", { enum: ["1D", "2D"] }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  backgroundColor: text("background_color").notNull(),
 });
 
 export const users = pgTable(
