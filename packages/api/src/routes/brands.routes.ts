@@ -11,6 +11,7 @@ export const brandSchema = z.object({
   id: z.uuid(),
   name: z.string(),
   logoUrl: z.string(),
+  backgroundColor: z.string(),
   defaultView: z.enum(["1D", "2D"]).nullable(),
   createdAt: z.string(),
 });
@@ -49,6 +50,7 @@ const app = new Hono<{ Variables: ContextVariables }>()
           id: brands.id,
           name: brands.name,
           logoFile: brands.logoFile,
+          backgroundColor: brands.backgroundColor,
           defaultView: brands.defaultView,
           createdAt: brands.createdAt,
         })
@@ -58,8 +60,11 @@ const app = new Hono<{ Variables: ContextVariables }>()
       return c.json(
         rows.map<z.infer<typeof brandSchema>>((row) => ({
           ...row,
-          createdAt: row.createdAt.toISOString(),
+          id: row.id,
           logoUrl: logoUrl(row.logoFile),
+          backgroundColor: row.backgroundColor,
+          defaultView: row.defaultView,
+          createdAt: row.createdAt.toISOString(),
         })),
       );
     },

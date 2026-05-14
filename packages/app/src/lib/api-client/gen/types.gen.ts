@@ -109,6 +109,7 @@ export type GetApiV1BrandsResponses = {
         id: string;
         name: string;
         logoUrl: string;
+        backgroundColor: string;
         defaultView: '1D' | '2D' | null;
         createdAt: string;
     }>;
@@ -147,6 +148,7 @@ export type GetApiV1CardsResponses = {
             id: string;
             name: string;
             logoUrl: string;
+            backgroundColor: string;
         } | null;
         createdAt: string;
     }>;
@@ -201,6 +203,7 @@ export type PostApiV1CardsResponses = {
             id: string;
             name: string;
             logoUrl: string;
+            backgroundColor: string;
         } | null;
         createdAt: string;
     };
@@ -282,6 +285,7 @@ export type GetApiV1CardsByIdResponses = {
             id: string;
             name: string;
             logoUrl: string;
+            backgroundColor: string;
         } | null;
         createdAt: string;
     };
@@ -332,6 +336,7 @@ export type PutApiV1CardsByIdResponses = {
             id: string;
             name: string;
             logoUrl: string;
+            backgroundColor: string;
         } | null;
         createdAt: string;
     };

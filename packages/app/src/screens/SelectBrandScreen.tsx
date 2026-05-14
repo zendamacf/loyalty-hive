@@ -1,19 +1,18 @@
+import { LoyaltyBrandLogo } from "@/components/LoyaltyBrandLogo";
+import { type GetApiV1BrandsResponse, getApiV1Brands } from "@/lib/api-client";
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
-  Image,
   Pressable,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-import { type GetApiV1BrandsResponse, getApiV1Brands } from "@/lib/api-client";
 import { SearchBar } from "../components/SearchBar";
-import { radius, spacing } from "../theme/theme";
+import { spacing } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
 export const SelectBrandScreen = () => {
@@ -62,6 +61,7 @@ export const SelectBrandScreen = () => {
         onChangeText={setQuery}
         placeholder="Search brands..."
         editable={loaded && !error}
+        style={styles.searchBar}
       />
 
       {error && (
@@ -79,6 +79,9 @@ export const SelectBrandScreen = () => {
         <FlatList
           data={filteredBrands}
           keyExtractor={(item) => item.id}
+          numColumns={2}
+          showsVerticalScrollIndicator={false}
+          columnWrapperStyle={styles.columnWrapper}
           contentContainerStyle={styles.listContent}
           renderItem={({ item }) => (
             <Pressable
@@ -91,18 +94,14 @@ export const SelectBrandScreen = () => {
                   },
                 })
               }
-              style={[
-                styles.row,
-                {
-                  backgroundColor: colors.surface,
-                  borderColor: colors.border,
-                },
-              ]}
+              style={styles.card}
             >
-              <Image source={{ uri: item.logoUrl }} style={styles.logo} />
-              <Text style={[styles.brandName, { color: colors.textPrimary }]}>
-                {item.name}
-              </Text>
+              <LoyaltyBrandLogo
+                brand={item.name}
+                logo={item.logoUrl}
+                backgroundColor={item.backgroundColor}
+                height={80}
+              />
             </Pressable>
           )}
         />
@@ -125,6 +124,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     fontSize: 14,
   },
+  searchBar: {
+    marginBottom: spacing.md,
+  },
   errorText: {
     marginTop: spacing.sm,
     fontSize: 14,
@@ -138,25 +140,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   listContent: {
-    paddingTop: spacing.md,
     paddingBottom: spacing.xl,
     gap: spacing.sm,
   },
-  row: {
-    borderWidth: 1,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    flexDirection: "row",
-    alignItems: "center",
+  columnWrapper: {
+    justifyContent: "space-between",
+    gap: spacing.sm,
+  },
+  card: {
     gap: spacing.md,
+    flex: 0.5,
   },
   logo: {
-    width: 32,
-    height: 32,
-    borderRadius: radius.sm,
-  },
-  brandName: {
-    fontSize: 16,
-    fontWeight: "600",
+    width: "100%",
+    height: 60,
+    resizeMode: "contain",
   },
 });

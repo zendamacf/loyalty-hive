@@ -46,16 +46,16 @@ DELETE FROM brands WHERE name in (
 
 -- Setup brand logo URLs
 UPDATE brands SET logo_url = 'aa.png' WHERE name = 'AA';
-UPDATE brands SET logo_url = 'air-new-zealand.png' WHERE name = 'Air New Zealand';
+UPDATE brands SET logo_url = 'air-nz.png' WHERE name = 'Air New Zealand';
 UPDATE brands SET logo_url = 'city-chic.jpeg' WHERE name = 'City Chic';
-UPDATE brands SET logo_url = 'everyday-rewards.png' WHERE name = 'Everyday Rewards';
+UPDATE brands SET logo_url = 'everyday-rewards.jpg' WHERE name = 'Everyday Rewards';
 UPDATE brands SET logo_url = 'farmers.png' WHERE name = 'Farmers';
 UPDATE brands SET logo_url = 'hoyts.png' WHERE name = 'Hoyts';
 UPDATE brands SET logo_url = 'living-rewards.png' WHERE name = 'Living Rewards';
-UPDATE brands SET logo_url = 'muffin-break.png' WHERE name = 'Muffin Break';
+UPDATE brands SET logo_url = 'muffin-break.jpg' WHERE name = 'Muffin Break';
 UPDATE brands SET logo_url = 'new-world.png' WHERE name = 'New World';
 UPDATE brands SET logo_url = 'pak-n-save.png' WHERE name = 'PAK''nSAVE';
 UPDATE brands SET logo_url = 'strandbags.png' WHERE name = 'Strandbags';
 UPDATE brands SET logo_url = 'subway.png' WHERE name = 'Subway';
 UPDATE brands SET logo_url = 'supercheap-auto.jpg' WHERE name = 'Supercheap Auto';
-UPDATE brands SET logo_url = 'the-athlete-s-foot.png' WHERE name = 'The Athlete''s Foot';
+UPDATE brands SET logo_url = 'the-athletes-foot.png' WHERE name = 'The Athlete''s Foot';

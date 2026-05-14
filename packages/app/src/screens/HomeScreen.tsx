@@ -6,7 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { type GetApiV1CardsResponse, getApiV1Cards } from "@/lib/api-client";
 import { FAB } from "../components/FAB";
-import { LoyaltyCard } from "../components/LoyaltyCard";
+import { LoyaltyBrandLogo } from "../components/LoyaltyBrandLogo";
 import { SearchBar } from "../components/SearchBar";
 import { spacing } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
@@ -107,7 +107,7 @@ export const HomeScreen = () => {
         value={searchQuery}
         onChangeText={setSearchQuery}
         placeholder="Search cards..."
-        style={{ marginBottom: spacing.md }}
+        style={styles.searchBar}
         autoCapitalize="none"
         autoCorrect={false}
       />
@@ -119,11 +119,15 @@ export const HomeScreen = () => {
       ) : null}
 
       <FlatList
-        style={styles.list}
         data={filteredCards}
         keyExtractor={(item) => item.id}
+        numColumns={2}
+        showsVerticalScrollIndicator={false}
+        columnWrapperStyle={styles.columnWrapper}
         contentContainerStyle={
-          filteredCards.length === 0 ? styles.listContentEmpty : undefined
+          filteredCards.length === 0
+            ? styles.listContentEmpty
+            : styles.listContent
         }
         ListEmptyComponent={listEmpty}
         refreshControl={
@@ -135,10 +139,14 @@ export const HomeScreen = () => {
           />
         }
         renderItem={({ item }) => (
-          <LoyaltyCard
-            brand={item.label ?? item.brand?.name ?? item.cardNumber}
-            logo={item.brand?.logoUrl ?? PLACEHOLDER_LOGO_URI}
-          />
+          <View style={styles.card}>
+            <LoyaltyBrandLogo
+              brand={item.label ?? item.brand?.name ?? item.cardNumber}
+              logo={item.brand?.logoUrl}
+              backgroundColor={item.brand?.backgroundColor}
+              height={100}
+            />
+          </View>
         )}
       />
 
@@ -152,14 +160,26 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
-  list: {
-    flex: 1,
+  listContent: {
+    paddingBottom: spacing.xl,
+    gap: spacing.sm,
   },
   listContentEmpty: {
     flexGrow: 1,
   },
   errorBanner: {
     marginBottom: 8,
+  },
+  searchBar: {
+    marginBottom: spacing.md,
+  },
+  columnWrapper: {
+    justifyContent: "space-between",
+    gap: spacing.sm,
+  },
+  card: {
+    gap: spacing.md,
+    flex: 0.5,
   },
   emptyState: {
     flex: 1,
