@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import {
   FlatList,
   Image,
+  Pressable,
   RefreshControl,
   StyleSheet,
   Text,
@@ -12,7 +13,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { type GetApiV1CardsResponse, getApiV1Cards } from "@/lib/api-client";
-import { FAB } from "../components/FAB";
 import { LoyaltyBrandLogo } from "../components/LoyaltyBrandLogo";
 import { SearchBar } from "../components/SearchBar";
 import { colors, radius, spacing } from "../theme/theme";
@@ -109,16 +109,32 @@ export const HomeScreen = () => {
       style={[styles.container, { backgroundColor: colors.background }]}
     >
       <View style={styles.header}>
-        <Image
-          accessibilityLabel="App logo"
-          source={appIcon}
-          style={styles.appLogo}
-        />
-        <View style={styles.titleWrap}>
-          <Text style={[styles.title, { color: colors.textPrimary }]}>
-            Loyalty<Text style={styles.titleHive}>Hive</Text>
-          </Text>
+        <View style={styles.headerMain}>
+          <Image
+            accessibilityLabel="App logo"
+            source={appIcon}
+            style={styles.appLogo}
+          />
+          <View style={styles.titleWrap}>
+            <Text style={[styles.title, { color: colors.textPrimary }]}>
+              Loyalty<Text style={styles.titleHive}>Hive</Text>
+            </Text>
+          </View>
         </View>
+        <Pressable
+          accessibilityLabel="Add loyalty card"
+          accessibilityRole="button"
+          hitSlop={12}
+          style={({ pressed }) => [
+            styles.addButton,
+            pressed && styles.addButtonPressed,
+          ]}
+          onPress={() => router.push("/select-brand")}
+        >
+          <Text style={[styles.addButtonLabel, { color: colors.textPrimary }]}>
+            +
+          </Text>
+        </Pressable>
       </View>
 
       <SearchBar
@@ -167,8 +183,6 @@ export const HomeScreen = () => {
           </View>
         )}
       />
-
-      <FAB onPress={() => router.push("/select-brand")} />
     </SafeAreaView>
   );
 };
@@ -191,8 +205,29 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.sm,
+    justifyContent: "space-between",
     marginBottom: spacing.md,
+  },
+  headerMain: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    minWidth: 0,
+  },
+  addButton: {
+    height: 56,
+    minWidth: 44,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  addButtonPressed: {
+    opacity: 0.55,
+  },
+  addButtonLabel: {
+    fontSize: 34,
+    lineHeight: 38,
+    fontWeight: "300",
   },
   appLogo: {
     width: 56,

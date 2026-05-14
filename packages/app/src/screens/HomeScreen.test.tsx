@@ -2,6 +2,9 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
 
+/** Bun otherwise executes the real PNG when HomeScreen loads `require(...)`. */
+mock.module("../../assets/images/icon.png", () => ({ default: 1 }));
+
 const getApiV1CardsMock = mock(() =>
   Promise.resolve({
     data: [
@@ -13,7 +16,6 @@ const getApiV1CardsMock = mock(() =>
         brand: {
           id: "00000000-0000-4000-8000-0000000000a1",
           name: "ASOS",
-          logoUrl: "https://example.com/asos.png",
         },
         createdAt: "2020-01-01T00:00:00.000Z",
       },
@@ -25,7 +27,6 @@ const getApiV1CardsMock = mock(() =>
         brand: {
           id: "00000000-0000-4000-8000-0000000000a2",
           name: "Cotton On",
-          logoUrl: "https://example.com/cotton.png",
         },
         createdAt: "2020-01-01T00:00:00.000Z",
       },
@@ -79,7 +80,7 @@ describe("HomeScreen", () => {
     });
   });
 
-  it("navigates to select brand when FAB is pressed", async () => {
+  it("navigates to select brand when add button is pressed", async () => {
     const { getByText } = render(<HomeScreen />);
 
     await waitFor(() => expect(getByText("+")).toBeTruthy());
