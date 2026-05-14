@@ -2,6 +2,7 @@ import { asc } from "drizzle-orm";
 import { Hono } from "hono";
 import { describeRoute, resolver } from "hono-openapi";
 import z from "zod";
+import { logoUrl } from "../common/storage.js";
 import { db } from "../db/client.js";
 import { brands } from "../db/schema.js";
 import { requireUserAuth } from "../middleware/auth.middleware.js";
@@ -55,9 +56,10 @@ const app = new Hono<{ Variables: ContextVariables }>()
         .orderBy(asc(brands.name));
 
       return c.json(
-        rows.map((row) => ({
+        rows.map<z.infer<typeof brandSchema>>((row) => ({
           ...row,
-          logoUrl: `${new URL(c.req.url).origin}/static/${row.logoFile}`,
+          createdAt: row.createdAt.toISOString(),
+          logoUrl: logoUrl(row.logoFile),
         })),
       );
     },

@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import z from "zod";
+import { logoUrl } from "../common/storage.js";
 import { db } from "../db/client.js";
 import { brands, cards } from "../db/schema.js";
 import { requireUserAuth } from "../middleware/auth.middleware.js";
@@ -78,14 +79,15 @@ const app = new Hono<{ Variables: ContextVariables }>()
         .where(eq(cards.userId, c.get("userId")));
 
       return c.json(
-        result.map((r) => ({
+        result.map<z.infer<typeof cardSchema>>((r) => ({
           ...r,
+          createdAt: r.createdAt.toISOString(),
           brand: r.brandId
             ? {
                 id: r.brandId,
-                name: r.brandName,
-                logoUrl: `${new URL(c.req.url).origin}/static/${r.brandLogoFile}`,
-                backgroundColor: r.brandBackgroundColor,
+                name: r.brandName ?? "",
+                logoUrl: logoUrl(r.brandLogoFile ?? ""),
+                backgroundColor: r.brandBackgroundColor ?? "#000000",
               }
             : null,
         })),
@@ -154,7 +156,7 @@ const app = new Hono<{ Variables: ContextVariables }>()
                 ? {
                     id: brand.id,
                     name: brand.name,
-                    logoUrl: `${new URL(c.req.url).origin}/static/${brand.logoFile}`,
+                    logoUrl: logoUrl(brand.logoFile),
                     backgroundColor: brand.backgroundColor,
                   }
                 : null,
