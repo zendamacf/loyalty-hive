@@ -1,4 +1,6 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import type { StyleProp, ViewStyle } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { radius, spacing } from "@/theme/theme";
 import { useTheme } from "../theme/useTheme";
@@ -8,6 +10,8 @@ type Props = {
   logo?: string;
   backgroundColor?: string;
   height: number;
+  onPress: () => void;
+  style?: StyleProp<ViewStyle>;
 };
 
 export const LoyaltyBrandLogo = ({
@@ -15,21 +19,55 @@ export const LoyaltyBrandLogo = ({
   logo,
   backgroundColor,
   height,
+  onPress,
+  style,
 }: Props) => {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+  const [pressed, setPressed] = useState(false);
+
+  const content = logo ? (
+    <Image source={{ uri: logo }} style={styles.logo} />
+  ) : (
+    <View>
+      <Text style={[styles.brand, { color: colors.textPrimary }]}>{brand}</Text>
+    </View>
+  );
+
+  const cardBody = (pressed: boolean) => (
+    <View style={[styles.card, { backgroundColor, height }]}>
+      {content}
+      {pressed ? (
+        <View
+          pointerEvents="none"
+          style={[
+            StyleSheet.absoluteFillObject,
+            styles.touchHighlight,
+            {
+              borderRadius: radius.sm,
+              backgroundColor: isDark
+                ? "rgba(255, 255, 255, 0.14)"
+                : "rgba(15, 23, 42, 0.1)",
+            },
+          ]}
+        />
+      ) : null}
+    </View>
+  );
 
   return (
-    <View style={[styles.card, { backgroundColor, height }]}>
-      {logo ? (
-        <Image source={{ uri: logo }} style={styles.logo} />
-      ) : (
-        <View>
-          <Text style={[styles.brand, { color: colors.textPrimary }]}>
-            {brand}
-          </Text>
-        </View>
-      )}
-    </View>
+    <Pressable
+      accessibilityLabel={brand}
+      accessibilityRole="button"
+      style={style}
+      onPressIn={() => setPressed(true)}
+      onPressOut={() => setPressed(false)}
+      onPress={() => {
+        setPressed(false);
+        onPress();
+      }}
+    >
+      {cardBody(pressed)}
+    </Pressable>
   );
 };
 
@@ -39,6 +77,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     padding: spacing.md,
     width: "100%",
+    overflow: "hidden",
+    position: "relative",
+  },
+  touchHighlight: {
+    borderCurve: "continuous",
   },
   logo: {
     width: "100%",

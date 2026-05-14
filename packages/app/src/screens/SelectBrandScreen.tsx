@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
-  Pressable,
   StyleSheet,
   Text,
   View,
@@ -84,7 +83,12 @@ export const SelectBrandScreen = () => {
           columnWrapperStyle={styles.columnWrapper}
           contentContainerStyle={styles.listContent}
           renderItem={({ item }) => (
-            <Pressable
+            <LoyaltyBrandLogo
+              brand={item.name}
+              logo={item.logoUrl}
+              backgroundColor={item.backgroundColor}
+              height={80}
+              style={styles.card}
               onPress={() =>
                 router.push({
                   pathname: "/scan",
@@ -94,15 +98,7 @@ export const SelectBrandScreen = () => {
                   },
                 })
               }
-              style={styles.card}
-            >
-              <LoyaltyBrandLogo
-                brand={item.name}
-                logo={item.logoUrl}
-                backgroundColor={item.backgroundColor}
-                height={80}
-              />
-            </Pressable>
+            />
           )}
         />
       )}
@@ -148,12 +144,6 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   card: {
-    gap: spacing.md,
     flex: 0.5,
-  },
-  logo: {
-    width: "100%",
-    height: 60,
-    resizeMode: "contain",
   },
 });

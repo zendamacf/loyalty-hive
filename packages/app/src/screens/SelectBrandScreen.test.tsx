@@ -9,6 +9,7 @@ const testBrands = [
     id: "00000000-0000-4000-8000-000000000004",
     name: "ASOS",
     logoUrl: "https://logo.clearbit.com/asos.com",
+    backgroundColor: "#FFFFFF",
     defaultView: null,
     createdAt: "2025-01-01T00:00:00.000Z",
   },
@@ -16,6 +17,7 @@ const testBrands = [
     id: "00000000-0000-4000-8000-0000000000aa",
     name: "Uber Eats",
     logoUrl: "https://logo.clearbit.com/ubereats.com",
+    backgroundColor: "#FFFFFF",
     defaultView: null,
     createdAt: "2025-01-01T00:00:00.000Z",
   },
@@ -49,31 +51,30 @@ describe("SelectBrandScreen", () => {
   });
 
   it("renders heading and filters brands by query", async () => {
-    const { getByText, getByPlaceholderText, queryByText } = render(
-      <SelectBrandScreen />,
-    );
+    const { getByText, getByPlaceholderText, getByLabelText, queryByLabelText } =
+      render(<SelectBrandScreen />);
 
     expect(getByText("Choose a brand")).toBeTruthy();
 
     await waitFor(() => {
       expect(getApiV1BrandsMock).toHaveBeenCalled();
-      expect(getByText("ASOS")).toBeTruthy();
+      expect(getByLabelText("ASOS")).toBeTruthy();
     });
 
     fireEvent.changeText(getByPlaceholderText("Search brands..."), "uber");
 
-    expect(getByText("Uber Eats")).toBeTruthy();
-    expect(queryByText("ASOS")).toBeNull();
+    expect(getByLabelText("Uber Eats")).toBeTruthy();
+    expect(queryByLabelText("ASOS")).toBeNull();
   });
 
   it("navigates to scan screen with selected brand", async () => {
-    const { getByText } = render(<SelectBrandScreen />);
+    const { getByLabelText } = render(<SelectBrandScreen />);
 
     await waitFor(() => {
-      expect(getByText("ASOS")).toBeTruthy();
+      expect(getByLabelText("ASOS")).toBeTruthy();
     });
 
-    fireEvent.press(getByText("ASOS"));
+    fireEvent.press(getByLabelText("ASOS"));
 
     expect(__expoRouterMocks.push).toHaveBeenCalledWith({
       pathname: "/scan",

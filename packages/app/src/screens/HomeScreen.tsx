@@ -173,14 +173,14 @@ export const HomeScreen = () => {
           />
         }
         renderItem={({ item }) => (
-          <View style={styles.card}>
-            <LoyaltyBrandLogo
-              brand={item.label ?? item.brand?.name ?? item.cardNumber}
-              logo={item.brand?.logoUrl}
-              backgroundColor={item.brand?.backgroundColor}
-              height={100}
-            />
-          </View>
+          <LoyaltyBrandLogo
+            brand={item.label ?? item.brand?.name ?? item.cardNumber}
+            logo={item.brand?.logoUrl}
+            backgroundColor={item.brand?.backgroundColor}
+            height={100}
+            style={styles.card}
+            onPress={() => {}}
+          />
         )}
       />
     </SafeAreaView>
@@ -254,7 +254,6 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   card: {
-    gap: spacing.md,
     flex: 0.5,
   },
   emptyState: {
