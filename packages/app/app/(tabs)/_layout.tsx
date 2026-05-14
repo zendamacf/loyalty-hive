@@ -1,3 +1,4 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
 import { useColorScheme } from "react-native";
 
@@ -20,8 +21,32 @@ export default function TabsLayout() {
         },
       }}
     >
-      <Tabs.Screen name="cards" options={{ title: "Cards" }} />
-      <Tabs.Screen name="you" options={{ title: "You" }} />
+      <Tabs.Screen
+        name="cards"
+        options={{
+          title: "Cards",
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? "card" : "card-outline"}
+              size={size}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="you"
+        options={{
+          title: "You",
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? "person" : "person-outline"}
+              size={size}
+              color={color}
+            />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
