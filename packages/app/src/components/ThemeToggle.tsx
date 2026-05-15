@@ -9,10 +9,9 @@ import {
   View,
   type ViewStyle,
 } from "react-native";
-import { ICON_SIZE_MD } from "@/constants/ui.constants";
 import { useCrossfadeProgress } from "@/hooks/useCrossfadeProgress";
 import { I18nNamespace } from "@/i18n/i18n.constants";
-import { spacing, typography } from "@/theme/theme";
+import { icon, spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
 const LABEL_SLOT_WIDTH = 60;
@@ -35,7 +34,7 @@ export const ThemeToggle = ({ showLabel = false, style }: ThemeToggleProps) => {
           { opacity: opacityOff, transform: iconTransform },
         ]}
       >
-        <SunIcon color={colors.textPrimary} size={ICON_SIZE_MD} />
+        <SunIcon color={colors.textPrimary} size={icon.md} />
       </Animated.View>
       <Animated.View
         style={[
@@ -43,7 +42,7 @@ export const ThemeToggle = ({ showLabel = false, style }: ThemeToggleProps) => {
           { opacity: opacityOn, transform: iconTransform },
         ]}
       >
-        <MoonIcon color={colors.textPrimary} size={ICON_SIZE_MD} />
+        <MoonIcon color={colors.textPrimary} size={icon.md} />
       </Animated.View>
     </View>
   );
@@ -99,8 +98,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   iconSlot: {
-    width: ICON_SIZE_MD,
-    height: ICON_SIZE_MD,
+    width: icon.md,
+    height: icon.md,
   },
   iconLayer: {
     ...StyleSheet.absoluteFillObject,

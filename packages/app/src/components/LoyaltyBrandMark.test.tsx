@@ -1,9 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { Image } from "react-native";
-import {
-  BRAND_MARK_HEIGHT_DETAIL_BARCODE,
-  BRAND_MARK_HEIGHT_DETAIL_QR,
-} from "@/constants/ui.constants";
+import { brandMark } from "@/theme/theme";
 import { renderWithTheme } from "../../test/render";
 import { LoyaltyBrandMark } from "./LoyaltyBrandMark";
 
@@ -34,7 +31,7 @@ describe("LoyaltyBrandMark", () => {
       <LoyaltyBrandMark
         animateHeight
         brand="Test Brand"
-        height={BRAND_MARK_HEIGHT_DETAIL_BARCODE}
+        height={brandMark.heightDetailBarcode}
         logo="https://example.com/logo.png"
       />,
     );
@@ -43,7 +40,7 @@ describe("LoyaltyBrandMark", () => {
       <LoyaltyBrandMark
         animateHeight
         brand="Test Brand"
-        height={BRAND_MARK_HEIGHT_DETAIL_QR}
+        height={brandMark.heightDetailQr}
         logo="https://example.com/logo.png"
       />,
     );

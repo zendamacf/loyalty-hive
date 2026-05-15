@@ -2,8 +2,7 @@ import { useEffect, useRef } from "react";
 import type { StyleProp, ViewStyle } from "react-native";
 import { Animated, Easing, Image, StyleSheet, Text, View } from "react-native";
 
-import { TRANSITION_MS } from "@/constants/ui.constants";
-import { radius, spacing, typography } from "@/theme/theme";
+import { radius, spacing, transition, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
 type Props = {
@@ -33,7 +32,7 @@ export const LoyaltyBrandMark = ({
 
     Animated.timing(animatedHeight, {
       toValue: height,
-      duration: TRANSITION_MS,
+      duration: transition.ms,
       easing: Easing.out(Easing.cubic),
       useNativeDriver: false,
     }).start();

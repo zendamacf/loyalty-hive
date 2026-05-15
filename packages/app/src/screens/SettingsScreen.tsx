@@ -8,10 +8,9 @@ import { Button } from "@/components/Button";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Routes } from "@/constants/routes.constants";
-import { ICON_SIZE_MD } from "@/constants/ui.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { client } from "@/lib/api-client";
-import { radius, spacing, typography } from "@/theme/theme";
+import { icon, radius, spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
 export const SettingsScreen = () => {
@@ -45,7 +44,7 @@ export const SettingsScreen = () => {
             ]}
             onPress={() => router.back()}
           >
-            <XIcon color={colors.textPrimary} size={ICON_SIZE_MD} />
+            <XIcon color={colors.textPrimary} size={icon.md} />
           </Pressable>
         </View>
 

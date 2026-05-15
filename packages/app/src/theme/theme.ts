@@ -93,3 +93,17 @@ export const typography = {
     fontWeight: fontWeight.regular,
   },
 } as const;
+
+export const icon = {
+  md: 24,
+} as const;
+
+export const transition = {
+  ms: 220,
+} as const;
+
+export const brandMark = {
+  heightList: 100,
+  heightDetailQr: 100,
+  heightDetailBarcode: 200,
+} as const;

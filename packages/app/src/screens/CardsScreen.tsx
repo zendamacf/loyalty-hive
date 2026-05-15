@@ -14,13 +14,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Routes } from "@/constants/routes.constants";
-import { BRAND_MARK_HEIGHT_LIST, ICON_SIZE_MD } from "@/constants/ui.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { type GetApiV1CardsResponse, getApiV1Cards } from "@/lib/api-client";
 import { AppTitle } from "../components/AppTitle";
 import { LoyaltyBrandLogo } from "../components/LoyaltyBrandLogo";
 import { SearchBar } from "../components/SearchBar";
-import { radius, spacing, typography } from "../theme/theme";
+import { brandMark, icon, radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
 const appIcon = require("../../assets/images/icon.png");
@@ -135,7 +134,7 @@ export const CardsScreen = () => {
           ]}
           onPress={() => router.push(Routes.SELECT_BRAND)}
         >
-          <PlusIcon color={colors.textPrimary} size={ICON_SIZE_MD} />
+          <PlusIcon color={colors.textPrimary} size={icon.md} />
         </Pressable>
         <Pressable
           accessibilityLabel={t("openSettingsA11y")}
@@ -146,7 +145,7 @@ export const CardsScreen = () => {
           ]}
           onPress={() => router.push(Routes.SETTINGS)}
         >
-          <SettingsIcon color={colors.textPrimary} size={24} />
+          <SettingsIcon color={colors.textPrimary} size={icon.md} />
         </Pressable>
       </View>
 
@@ -191,7 +190,7 @@ export const CardsScreen = () => {
               brand={item.label ?? item.brand?.name ?? item.cardNumber}
               logo={item.brand?.logoUrl}
               backgroundColor={item.brand?.backgroundColor}
-              height={BRAND_MARK_HEIGHT_LIST}
+              height={brandMark.heightList}
               onPress={() =>
                 router.push({
                   pathname: Routes.CARD_CODE,

@@ -8,14 +8,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { CardCodeDisplay } from "@/components/CardCodeDisplay";
 import { CardCodeViewToggle } from "@/components/CardCodeViewToggle";
 import { LoyaltyBrandMark } from "@/components/LoyaltyBrandMark";
-import {
-  BRAND_MARK_HEIGHT_DETAIL_BARCODE,
-  BRAND_MARK_HEIGHT_DETAIL_QR,
-  ICON_SIZE_MD,
-} from "@/constants/ui.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { type CardView, resolveCardView } from "@/lib/cardView";
-import { spacing, typography } from "@/theme/theme";
+import { brandMark, icon, spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
 export const CardCodeScreen = () => {
@@ -73,7 +68,7 @@ export const CardCodeScreen = () => {
           ]}
           onPress={() => router.back()}
         >
-          <XIcon color={colors.textPrimary} size={ICON_SIZE_MD} />
+          <XIcon color={colors.textPrimary} size={icon.md} />
         </Pressable>
       </View>
 
@@ -85,8 +80,8 @@ export const CardCodeScreen = () => {
           backgroundColor={brandBackgroundColor}
           height={
             displayView === "2D"
-              ? BRAND_MARK_HEIGHT_DETAIL_QR
-              : BRAND_MARK_HEIGHT_DETAIL_BARCODE
+              ? brandMark.heightDetailQr
+              : brandMark.heightDetailBarcode
           }
           style={styles.brandMark}
         />
@@ -117,7 +112,7 @@ export const CardCodeScreen = () => {
             ]}
             onPress={copyCardNumber}
           >
-            <CopyIcon color={colors.textSecondary} size={ICON_SIZE_MD} />
+            <CopyIcon color={colors.textSecondary} size={icon.md} />
           </Pressable>
           <CardCodeViewToggle view={displayView} onToggle={toggleDisplayView} />
         </View>
