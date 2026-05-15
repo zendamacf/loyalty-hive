@@ -12,6 +12,7 @@ type Props = {
   height: number;
   animateHeight?: boolean;
   style?: StyleProp<ViewStyle>;
+  topCardHalf?: boolean;
 };
 
 export const LoyaltyBrandMark = ({
@@ -21,6 +22,7 @@ export const LoyaltyBrandMark = ({
   height,
   animateHeight = false,
   style,
+  topCardHalf,
 }: Props) => {
   const { colors } = useTheme();
   const animatedHeight = useRef(new Animated.Value(height)).current;
@@ -39,7 +41,17 @@ export const LoyaltyBrandMark = ({
   }, [animateHeight, animatedHeight, height]);
 
   const card = (
-    <View style={[styles.card, { backgroundColor }]}>
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor,
+          borderColor: backgroundColor ?? colors.border,
+          borderBottomLeftRadius: topCardHalf ? 0 : undefined,
+          borderBottomRightRadius: topCardHalf ? 0 : undefined,
+        },
+      ]}
+    >
       {logo ? (
         <Image source={{ uri: logo }} style={styles.logo} />
       ) : (

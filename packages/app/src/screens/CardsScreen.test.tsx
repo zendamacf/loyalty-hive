@@ -1,9 +1,12 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fireEvent, waitFor } from "@testing-library/react-native";
 
 import { Routes } from "@/constants/routes.constants";
 import type { GetApiV1CardsResponse } from "@/lib/api-client/gen";
+import { colors } from "@/theme/theme";
+import { THEME_STORAGE_KEY } from "@/theme/theme.constants";
 import { getApiV1CardsMock } from "../../test/mocks/api-client";
 import { renderWithTheme } from "../../test/render";
 
@@ -64,7 +67,8 @@ const { __expoRouterMocks } = globalThis as unknown as {
 const { CardsScreen } = await import("./CardsScreen");
 
 describe("CardsScreen", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    await AsyncStorage.removeItem(THEME_STORAGE_KEY);
     __expoRouterMocks.push.mockClear();
     __expoRouterMocks.replace.mockClear();
     getApiV1CardsMock.mockClear();
@@ -105,6 +109,42 @@ describe("CardsScreen", () => {
     fireEvent.press(getByText("+"));
 
     expect(__expoRouterMocks.push).toHaveBeenCalledWith(Routes.SELECT_BRAND);
+  });
+
+  it("uses theme card fallback background for brand-less cards", async () => {
+    getApiV1CardsMock.mockImplementation(() =>
+      Promise.resolve({
+        data: [
+          {
+            id: "00000000-0000-4000-8000-0000000000c1",
+            userId: "00000000-0000-4000-8000-000000000099",
+            cardNumber: "333",
+            label: "Gym membership",
+            view: null,
+            brand: null,
+            createdAt: "2020-01-01T00:00:00.000Z",
+          },
+        ],
+        error: undefined,
+      }),
+    );
+
+    const { getByLabelText } = renderWithTheme(<CardsScreen />);
+
+    await waitFor(() => expect(getByLabelText("Gym membership")).toBeTruthy());
+
+    fireEvent.press(getByLabelText("Gym membership"));
+
+    expect(__expoRouterMocks.push).toHaveBeenCalledWith({
+      pathname: Routes.CARD_CODE,
+      params: {
+        cardNumber: "333",
+        view: "1D",
+        title: "Gym membership",
+        logoUrl: "",
+        backgroundColor: colors.cardFallbackLight,
+      },
+    });
   });
 
   it("navigates to card code when a loyalty card is pressed", async () => {

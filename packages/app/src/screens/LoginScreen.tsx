@@ -153,6 +153,8 @@ export const LoginScreen = () => {
         />
         <TextInput
           ref={passwordRef}
+          autoCapitalize="none"
+          autoCorrect={false}
           editable={!isSubmitting}
           placeholder={t("password")}
           placeholderTextColor={colors.textSecondary}

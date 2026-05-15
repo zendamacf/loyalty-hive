@@ -1,21 +1,21 @@
 import { router } from "expo-router";
-import { XIcon } from "lucide-react-native";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 import { Button } from "@/components/Button";
+import { CloseButton } from "@/components/CloseButton";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { client } from "@/lib/api-client";
-import { icon, radius, spacing, typography } from "@/theme/theme";
+import { radius, spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
 export const SettingsScreen = () => {
   const { t } = useTranslation(I18nNamespace.Settings);
-  const { t: tCommon } = useTranslation(I18nNamespace.Common);
   const { colors } = useTheme();
 
   const signOut = useCallback(() => {
@@ -35,17 +35,7 @@ export const SettingsScreen = () => {
           >
             {t("title")}
           </Text>
-          <Pressable
-            accessibilityLabel={tCommon("close")}
-            accessibilityRole="button"
-            style={({ pressed }) => [
-              styles.closeButton,
-              pressed && styles.closeButtonPressed,
-            ]}
-            onPress={() => router.back()}
-          >
-            <XIcon color={colors.textPrimary} size={icon.md} />
-          </Pressable>
+          <CloseButton />
         </View>
 
         <View
@@ -97,15 +87,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.sm,
-  },
-  closeButton: {
-    height: 44,
-    width: 44,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  closeButtonPressed: {
-    opacity: 0.55,
   },
   content: {
     flex: 1,

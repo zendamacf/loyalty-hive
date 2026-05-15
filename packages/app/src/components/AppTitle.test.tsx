@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+
 import { APP_NAME } from "@/constants/branding.constants";
 import { renderWithTheme } from "../../test/render";
 import { AppTitle } from "./AppTitle";
@@ -21,10 +22,14 @@ describe("AppTitle", () => {
     const { getByRole } = renderWithTheme(<AppTitle align="left" />);
 
     const title = getByRole("header");
-    const styles = Array.isArray(title.props.style)
-      ? title.props.style
-      : [title.props.style];
+    const styleProp = title.props.style;
+    const styles = Array.isArray(styleProp) ? styleProp : [styleProp];
 
-    expect(styles.some((s) => s?.textAlign === "left")).toBe(true);
+    expect(
+      styles.some(
+        (s) =>
+          typeof s === "object" && s !== null && "textAlign" in s && s.textAlign === "left",
+      ),
+    ).toBe(true);
   });
 });

@@ -1,6 +1,6 @@
 import { router } from "expo-router";
-import { XIcon } from "lucide-react-native";
-import { useEffect, useMemo, useState } from "react";
+import { PlusIcon } from "lucide-react-native";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
@@ -8,25 +8,30 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import { Button } from "@/components/Button";
+import { CloseButton } from "@/components/CloseButton";
 import { LoyaltyBrandLogo } from "@/components/LoyaltyBrandLogo";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { type GetApiV1BrandsResponse, getApiV1Brands } from "@/lib/api-client";
 import { SearchBar } from "../components/SearchBar";
-import { icon, spacing, typography } from "../theme/theme";
+import { icon, radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
 export const SelectBrandScreen = () => {
   const { t } = useTranslation(I18nNamespace.Brands);
-  const { t: tCommon } = useTranslation(I18nNamespace.Common);
   const { colors } = useTheme();
   const [query, setQuery] = useState("");
   const [brands, setBrands] = useState<GetApiV1BrandsResponse>([]);
   const [error, setError] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [isCustomLabelOpen, setIsCustomLabelOpen] = useState(false);
+  const [customLabel, setCustomLabel] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -51,6 +56,90 @@ export const SelectBrandScreen = () => {
     );
   }, [brands, query]);
 
+  const trimmedCustomLabel = customLabel.trim();
+  const canContinueToScan = trimmedCustomLabel.length > 0;
+
+  const continueToCustomScan = useCallback(() => {
+    if (!canContinueToScan) {
+      return;
+    }
+    router.push({
+      pathname: Routes.SCAN,
+      params: { label: trimmedCustomLabel },
+    });
+  }, [canContinueToScan, trimmedCustomLabel]);
+
+  const renderCustomFooter = useCallback(
+    () => (
+      <View style={styles.customFooter}>
+        {!isCustomLabelOpen ? (
+          <Pressable
+            accessibilityLabel={t("customCardTitle")}
+            accessibilityRole="button"
+            style={({ pressed }) => [
+              styles.customCardButton,
+              {
+                borderColor: colors.border,
+                backgroundColor: colors.surface,
+              },
+              pressed && styles.customCardButtonPressed,
+            ]}
+            onPress={() => setIsCustomLabelOpen(true)}
+          >
+            <PlusIcon color={colors.textPrimary} size={icon.md} />
+            <Text
+              style={[styles.customCardTitle, { color: colors.textPrimary }]}
+            >
+              {t("customCardTitle")}
+            </Text>
+          </Pressable>
+        ) : (
+          <View style={styles.customLabelForm}>
+            <Text
+              style={[styles.customLabelHeading, { color: colors.textPrimary }]}
+            >
+              {t("customCardLabel")}
+            </Text>
+            <TextInput
+              accessibilityLabel={t("customCardLabel")}
+              value={customLabel}
+              onChangeText={setCustomLabel}
+              placeholder={t("customCardPlaceholder")}
+              placeholderTextColor={colors.textSecondary}
+              autoCapitalize="words"
+              autoCorrect={false}
+              style={[
+                styles.customLabelInput,
+                {
+                  borderColor: colors.border,
+                  color: colors.textPrimary,
+                  backgroundColor: colors.background,
+                },
+              ]}
+            />
+            <Button
+              title={t("continueToScan")}
+              onPress={continueToCustomScan}
+              disabled={!canContinueToScan}
+            />
+          </View>
+        )}
+      </View>
+    ),
+    [
+      canContinueToScan,
+      colors.background,
+      colors.border,
+      colors.surface,
+      colors.textPrimary,
+      colors.textSecondary,
+      continueToCustomScan,
+      customLabel,
+      isCustomLabelOpen,
+      t,
+    ],
+  );
+
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
@@ -62,17 +151,7 @@ export const SelectBrandScreen = () => {
         >
           {t("title")}
         </Text>
-        <Pressable
-          accessibilityLabel={tCommon("close")}
-          accessibilityRole="button"
-          style={({ pressed }) => [
-            styles.closeButton,
-            pressed && styles.closeButtonPressed,
-          ]}
-          onPress={() => router.back()}
-        >
-          <XIcon color={colors.textPrimary} size={icon.md} />
-        </Pressable>
+        <CloseButton />
       </View>
       <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
         {t("subtitle")}
@@ -98,32 +177,35 @@ export const SelectBrandScreen = () => {
         </View>
       )}
       {loaded && !error && (
-        <FlatList
-          data={filteredBrands}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          showsVerticalScrollIndicator={false}
-          columnWrapperStyle={styles.columnWrapper}
-          contentContainerStyle={styles.listContent}
-          renderItem={({ item }) => (
-            <LoyaltyBrandLogo
-              brand={item.name}
-              logo={item.logoUrl}
-              backgroundColor={item.backgroundColor}
-              height={80}
-              style={styles.card}
-              onPress={() =>
-                router.push({
-                  pathname: Routes.SCAN,
-                  params: {
-                    brandId: item.id,
-                    brandName: item.name,
-                  },
-                })
-              }
-            />
-          )}
-        />
+        <View style={styles.listSection}>
+          <FlatList
+            data={filteredBrands}
+            keyExtractor={(item) => item.id}
+            numColumns={2}
+            showsVerticalScrollIndicator={false}
+            columnWrapperStyle={styles.columnWrapper}
+            contentContainerStyle={styles.listContent}
+            renderItem={({ item }) => (
+              <LoyaltyBrandLogo
+                brand={item.name}
+                logo={item.logoUrl}
+                backgroundColor={item.backgroundColor}
+                height={80}
+                style={styles.card}
+                onPress={() =>
+                  router.push({
+                    pathname: Routes.SCAN,
+                    params: {
+                      brandId: item.id,
+                      brandName: item.name,
+                    },
+                  })
+                }
+              />
+            )}
+          />
+          {renderCustomFooter()}
+        </View>
       )}
     </SafeAreaView>
   );
@@ -139,15 +221,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.sm,
     marginBottom: spacing.xs,
-  },
-  closeButton: {
-    height: 44,
-    width: 44,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  closeButtonPressed: {
-    opacity: 0.55,
   },
   title: {
     ...typography.title,
@@ -172,8 +245,11 @@ const styles = StyleSheet.create({
   loadingLabel: {
     ...typography.caption,
   },
+  listSection: {
+    flex: 1,
+  },
   listContent: {
-    paddingBottom: spacing.xl,
+    paddingBottom: spacing.md,
     gap: spacing.sm,
   },
   columnWrapper: {
@@ -182,5 +258,39 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 0.5,
+  },
+  customFooter: {
+    paddingTop: spacing.md,
+    width: "100%",
+  },
+  customCardButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.sm,
+    borderWidth: 1,
+    borderRadius: radius.sm,
+    borderStyle: "dashed",
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.md,
+  },
+  customCardButtonPressed: {
+    opacity: 0.7,
+  },
+  customCardTitle: {
+    ...typography.bodySemibold,
+  },
+  customLabelForm: {
+    gap: spacing.sm,
+  },
+  customLabelHeading: {
+    ...typography.label,
+  },
+  customLabelInput: {
+    borderWidth: 1,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    ...typography.body,
   },
 });

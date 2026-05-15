@@ -5,6 +5,7 @@ import { colors } from "./theme";
 const fallbackColors = (isDark: boolean) => ({
   background: isDark ? colors.backgroundDark : colors.backgroundLight,
   surface: isDark ? colors.surfaceDark : colors.surfaceLight,
+  cardFallback: isDark ? colors.cardFallbackDark : colors.cardFallbackLight,
   textPrimary: isDark ? colors.textPrimaryDark : colors.textPrimaryLight,
   textSecondary: colors.textSecondary,
   border: colors.border,

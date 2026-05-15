@@ -19,6 +19,7 @@ import {
 type ThemeColors = {
   background: string;
   surface: string;
+  cardFallback: string;
   textPrimary: string;
   textSecondary: string;
   border: string;
@@ -39,6 +40,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 const themeColorsForMode = (isDark: boolean): ThemeColors => ({
   background: isDark ? colors.backgroundDark : colors.backgroundLight,
   surface: isDark ? colors.surfaceDark : colors.surfaceLight,
+  cardFallback: isDark ? colors.cardFallbackDark : colors.cardFallbackLight,
   textPrimary: isDark ? colors.textPrimaryDark : colors.textPrimaryLight,
   textSecondary: colors.textSecondary,
   border: colors.border,

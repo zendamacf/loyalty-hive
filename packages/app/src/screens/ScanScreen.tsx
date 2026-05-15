@@ -22,11 +22,14 @@ export const ScanScreen = () => {
   const params = useLocalSearchParams<{
     brandName?: string;
     brandId?: string;
+    label?: string;
   }>();
   const selectedBrandName =
     typeof params.brandName === "string" ? params.brandName : null;
   const selectedBrandId =
     typeof params.brandId === "string" ? params.brandId : null;
+  const customLabel =
+    typeof params.label === "string" ? params.label.trim() : null;
   const [permission, requestPermission] = useCameraPermissions();
   const [isManualEntryOpen, setIsManualEntryOpen] = useState(false);
   const [manualCode, setManualCode] = useState("");
@@ -45,10 +48,11 @@ export const ScanScreen = () => {
       setSaveError(null);
 
       try {
+        const apiLabel = selectedBrandId ? null : customLabel;
         const { data, error } = await postApiV1Cards({
           body: {
             cardNumber: trimmed,
-            label: selectedBrandName,
+            label: apiLabel,
             brandId: selectedBrandId,
             view: cardType,
           },
@@ -67,7 +71,7 @@ export const ScanScreen = () => {
         setIsSaving(false);
       }
     },
-    [selectedBrandId, selectedBrandName],
+    [customLabel, selectedBrandId],
   );
 
   const handleScan = (result: BarcodeScanningResult) => {
@@ -143,9 +147,14 @@ export const ScanScreen = () => {
       />
 
       <View style={styles.overlay}>
-        {selectedBrandName ? (
+        {selectedBrandId && selectedBrandName ? (
           <Text style={styles.brandTag}>
             {t("addingCard", { brand: selectedBrandName })}
+          </Text>
+        ) : null}
+        {!selectedBrandId && customLabel ? (
+          <Text style={styles.brandTag}>
+            {t("addingCustomCard", { label: customLabel })}
           </Text>
         ) : null}
         <Text style={styles.overlayTitle}>

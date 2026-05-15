@@ -16,7 +16,7 @@ const { __expoRouterMocks, __expoClipboardMocks } = globalThis as unknown as {
 
 mock.module("react-native-barcode-svg", () => ({
   default: (props: Record<string, unknown>) =>
-    React.createElement("Barcode", { testID: "barcode", ...props }),
+    React.createElement("Barcode", props),
 }));
 
 mock.module("react-native-qrcode-svg", () => ({

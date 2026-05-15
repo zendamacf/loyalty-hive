@@ -1,12 +1,14 @@
 import * as Clipboard from "expo-clipboard";
-import { router, useLocalSearchParams } from "expo-router";
-import { CopyIcon, XIcon } from "lucide-react-native";
+import { useLocalSearchParams } from "expo-router";
+import { CopyIcon } from "lucide-react-native";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 import { CardCodeDisplay } from "@/components/CardCodeDisplay";
 import { CardCodeViewToggle } from "@/components/CardCodeViewToggle";
+import { CloseButton } from "@/components/CloseButton";
 import { LoyaltyBrandMark } from "@/components/LoyaltyBrandMark";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { type CardView, resolveCardView } from "@/lib/cardView";
@@ -15,7 +17,6 @@ import { useTheme } from "@/theme/useTheme";
 
 export const CardCodeScreen = () => {
   const { t } = useTranslation(I18nNamespace.Cards);
-  const { t: tCommon } = useTranslation(I18nNamespace.Common);
   const { colors } = useTheme();
   const params = useLocalSearchParams<{
     cardNumber?: string;
@@ -59,17 +60,13 @@ export const CardCodeScreen = () => {
       style={[styles.container, { backgroundColor: colors.background }]}
     >
       <View style={styles.header}>
-        <Pressable
-          accessibilityLabel={tCommon("close")}
-          accessibilityRole="button"
-          style={({ pressed }) => [
-            styles.closeButton,
-            pressed && styles.closeButtonPressed,
-          ]}
-          onPress={() => router.back()}
+        <Text
+          style={[styles.title, { color: colors.textPrimary }]}
+          accessibilityRole="header"
         >
-          <XIcon color={colors.textPrimary} size={icon.md} />
-        </Pressable>
+          {brandName}
+        </Text>
+        <CloseButton />
       </View>
 
       <View style={styles.content}>
@@ -84,36 +81,40 @@ export const CardCodeScreen = () => {
               : brandMark.heightDetailBarcode
           }
           style={styles.brandMark}
+          topCardHalf
         />
 
         <CardCodeDisplay
           cardNumber={cardNumber}
           view={displayView}
+          bottomCardHalf
           borderColor={colors.border}
         />
       </View>
 
       <View style={styles.footer}>
         <View style={styles.footerRow}>
-          <Text
-            style={[styles.cardNumber, { color: colors.textSecondary }]}
-            numberOfLines={1}
-          >
-            {cardNumber}
-          </Text>
-          <Pressable
-            accessibilityLabel={t("copyCardNumberA11y")}
-            accessibilityRole="button"
-            disabled={!cardNumber}
-            hitSlop={12}
-            style={({ pressed }) => [
-              styles.footerIconButton,
-              pressed && styles.footerIconButtonPressed,
-            ]}
-            onPress={copyCardNumber}
-          >
-            <CopyIcon color={colors.textSecondary} size={icon.md} />
-          </Pressable>
+          <View style={styles.cardNumberContainer}>
+            <Text
+              style={[styles.cardNumber, { color: colors.textSecondary }]}
+              numberOfLines={1}
+            >
+              {cardNumber}
+            </Text>
+            <Pressable
+              accessibilityLabel={t("copyCardNumberA11y")}
+              accessibilityRole="button"
+              disabled={!cardNumber}
+              hitSlop={12}
+              style={({ pressed }) => [
+                styles.footerIconButton,
+                pressed && styles.footerIconButtonPressed,
+              ]}
+              onPress={copyCardNumber}
+            >
+              <CopyIcon color={colors.textSecondary} size={icon.md} />
+            </Pressable>
+          </View>
           <CardCodeViewToggle view={displayView} onToggle={toggleDisplayView} />
         </View>
       </View>
@@ -125,26 +126,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
   },
   header: {
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "flex-end",
     paddingVertical: spacing.sm,
   },
-  closeButton: {
-    height: 44,
-    width: 44,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  closeButtonPressed: {
-    opacity: 0.55,
+  title: {
+    ...typography.title,
+    flex: 1,
   },
   content: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    gap: spacing.lg,
   },
   footer: {
     paddingBottom: spacing.md,
@@ -159,13 +156,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.sm,
   },
+  cardNumberContainer: {
+    flex: 1,
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
   cardNumber: {
     ...typography.body,
-    flex: 1,
   },
   footerIconButton: {
-    height: 44,
-    width: 44,
+    width: icon.md,
+    height: icon.md,
     alignItems: "center",
     justifyContent: "center",
   },

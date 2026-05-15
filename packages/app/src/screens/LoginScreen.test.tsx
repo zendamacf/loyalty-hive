@@ -3,6 +3,10 @@ import { fireEvent, waitFor } from "@testing-library/react-native";
 import { Pressable, TouchableOpacity } from "react-native";
 import { APP_NAME } from "@/constants/branding.constants";
 import { Routes } from "@/constants/routes.constants";
+import type {
+  PostApiV1AuthLoginResponse,
+  PostApiV1AuthSignupResponse,
+} from "@/lib/api-client";
 import {
   postApiV1AuthLoginMock,
   postApiV1AuthSignupMock,
@@ -33,7 +37,10 @@ describe("LoginScreen", () => {
     );
     postApiV1AuthSignupMock.mockImplementation(() =>
       Promise.resolve({
-        data: { id: "00000000-0000-4000-8000-000000000099" },
+        data: {
+          id: "00000000-0000-4000-8000-000000000099",
+          email: "test@example.com",
+        },
         error: undefined,
       }),
     );
@@ -207,7 +214,10 @@ describe("LoginScreen", () => {
 
   it("shows fallback when login returns no token", async () => {
     postApiV1AuthLoginMock.mockImplementation(() =>
-      Promise.resolve({ data: {}, error: undefined }),
+      Promise.resolve({
+        data: {} as PostApiV1AuthLoginResponse,
+        error: undefined,
+      }),
     );
 
     const { getByText, getByPlaceholderText } = renderWithTheme(
@@ -249,7 +259,10 @@ describe("LoginScreen", () => {
 
   it("shows fallback when signup returns no id", async () => {
     postApiV1AuthSignupMock.mockImplementation(() =>
-      Promise.resolve({ data: {}, error: undefined }),
+      Promise.resolve({
+        data: {} as PostApiV1AuthSignupResponse,
+        error: undefined,
+      }),
     );
 
     const { getByText, getByPlaceholderText } = renderWithTheme(

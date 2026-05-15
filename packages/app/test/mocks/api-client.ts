@@ -4,39 +4,75 @@ import type {
   GetApiV1BrandsResponse,
   GetApiV1CardsByIdResponse,
   GetApiV1CardsResponse,
+  PostApiV1AuthLoginResponse,
+  PostApiV1AuthSignupResponse,
   PostApiV1CardsResponse,
 } from "@/lib/api-client";
+
+export type ApiMockResult<TData, TError = { error: string }> =
+  | { data: TData; error: undefined }
+  | { data: undefined; error: TError };
 
 export const setConfigMock = mock(() => {});
 export const getConfigMock = mock(() => ({
   auth: undefined as string | undefined,
 }));
 
-export const postApiV1AuthLoginMock = mock(() =>
-  Promise.resolve({ data: { token: "test-token" }, error: undefined }),
+export const postApiV1AuthLoginMock = mock(
+  (): Promise<ApiMockResult<PostApiV1AuthLoginResponse>> =>
+    Promise.resolve({
+      data: { token: "test-token" },
+      error: undefined,
+    }),
 );
 
-export const postApiV1AuthSignupMock = mock(() =>
-  Promise.resolve({
-    data: { id: "00000000-0000-4000-8000-000000000099" },
-    error: undefined,
-  }),
+export const postApiV1AuthSignupMock = mock(
+  (): Promise<ApiMockResult<PostApiV1AuthSignupResponse>> =>
+    Promise.resolve({
+      data: {
+        id: "00000000-0000-4000-8000-000000000099",
+        email: "test@example.com",
+      },
+      error: undefined,
+    }),
 );
 
-export const getApiV1BrandsMock = mock(() =>
-  Promise.resolve({ data: [] as GetApiV1BrandsResponse, error: undefined }),
+export const getApiV1BrandsMock = mock(
+  (): Promise<ApiMockResult<GetApiV1BrandsResponse>> =>
+    Promise.resolve({ data: [], error: undefined }),
 );
 
-export const getApiV1CardsMock = mock(() =>
-  Promise.resolve({ data: [] as GetApiV1CardsResponse, error: undefined }),
+export const getApiV1CardsMock = mock(
+  (): Promise<ApiMockResult<GetApiV1CardsResponse>> =>
+    Promise.resolve({ data: [], error: undefined }),
 );
 
-export const postApiV1CardsMock = mock(() =>
-  Promise.resolve({ data: {} as PostApiV1CardsResponse, error: undefined }),
+export const postApiV1CardsMock = mock(
+  (): Promise<ApiMockResult<PostApiV1CardsResponse>> =>
+    Promise.resolve({
+      data: {
+        id: "card-1",
+        userId: "00000000-0000-4000-8000-000000000001",
+        cardNumber: "123456",
+        brand: null,
+        createdAt: new Date().toISOString(),
+      },
+      error: undefined,
+    }),
 );
 
-export const getApiV1CardsByIdMock = mock(() =>
-  Promise.resolve({ data: {} as GetApiV1CardsByIdResponse, error: undefined }),
+export const getApiV1CardsByIdMock = mock(
+  (): Promise<ApiMockResult<GetApiV1CardsByIdResponse>> =>
+    Promise.resolve({
+      data: {
+        id: "card-1",
+        userId: "00000000-0000-4000-8000-000000000001",
+        cardNumber: "123456",
+        brand: null,
+        createdAt: new Date().toISOString(),
+      },
+      error: undefined,
+    }),
 );
 
 export const deleteApiV1CardsByIdMock = mock(() =>

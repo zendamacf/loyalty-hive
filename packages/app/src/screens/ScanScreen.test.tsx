@@ -91,7 +91,7 @@ describe("ScanScreen", () => {
         expect.objectContaining({
           body: {
             cardNumber: "123456",
-            label: "ASOS",
+            label: null,
             brandId: "00000000-0000-4000-8000-000000000004",
             view: null,
           },
@@ -115,7 +115,7 @@ describe("ScanScreen", () => {
         expect.objectContaining({
           body: {
             cardNumber: "987654",
-            label: "ASOS",
+            label: null,
             brandId: "00000000-0000-4000-8000-000000000004",
             view: "2D",
           },
@@ -139,7 +139,7 @@ describe("ScanScreen", () => {
         expect.objectContaining({
           body: {
             cardNumber: "987654",
-            label: "ASOS",
+            label: null,
             brandId: "00000000-0000-4000-8000-000000000004",
             view: "1D",
           },
@@ -153,6 +153,33 @@ describe("ScanScreen", () => {
     const { getByText } = render(<ScanScreen />);
 
     expect(getByText("Adding card for ASOS")).toBeTruthy();
+  });
+
+  it("creates a custom card with label and no brand", async () => {
+    permissionState = { granted: true };
+    __expoRouterMocks.params = { label: "Gym membership" };
+    const { getByTestId, getByText } = render(<ScanScreen />);
+
+    expect(getByText("Adding Gym membership")).toBeTruthy();
+
+    fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
+      type: "qr",
+      data: "111222",
+    });
+
+    await waitFor(() => {
+      expect(postApiV1CardsMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: {
+            cardNumber: "111222",
+            label: "Gym membership",
+            brandId: null,
+            view: "2D",
+          },
+        }),
+      );
+      expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith(Routes.CARDS);
+    });
   });
 
   it("shows save error and does not navigate when API returns error", async () => {

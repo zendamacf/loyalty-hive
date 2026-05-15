@@ -9,6 +9,10 @@ export const colors = {
   surfaceLight: "#F8FAFC",
   surfaceDark: "#1E293B",
 
+  /** Brand-less loyalty card tile background (distinct from app background). */
+  cardFallbackLight: "#E8EEF5",
+  cardFallbackDark: "#243B56",
+
   textPrimaryLight: "#0F172A",
   textPrimaryDark: "#F1F5F9",
   textSecondary: "#64748B",

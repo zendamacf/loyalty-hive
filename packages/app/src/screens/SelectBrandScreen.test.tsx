@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, type mock } from "bun:test";
+
 import { fireEvent, waitFor } from "@testing-library/react-native";
+
 import { Routes } from "@/constants/routes.constants";
 import type { GetApiV1BrandsResponse } from "@/lib/api-client/gen";
 import { getApiV1BrandsMock } from "../../test/mocks/api-client";
@@ -11,7 +13,6 @@ const testBrands = [
     name: "ASOS",
     logoUrl: "https://logo.clearbit.com/asos.com",
     backgroundColor: "#FFFFFF",
-    defaultView: null,
     createdAt: "2025-01-01T00:00:00.000Z",
   },
   {
@@ -19,7 +20,6 @@ const testBrands = [
     name: "Uber Eats",
     logoUrl: "https://logo.clearbit.com/ubereats.com",
     backgroundColor: "#FFFFFF",
-    defaultView: null,
     createdAt: "2025-01-01T00:00:00.000Z",
   },
 ] satisfies GetApiV1BrandsResponse;
@@ -108,12 +108,50 @@ describe("SelectBrandScreen", () => {
   it("shows loading state before brands load", () => {
     getApiV1BrandsMock.mockImplementation(() => new Promise(() => {}));
 
-    const { getByText, getByPlaceholderText } = renderWithProviders(
-      <SelectBrandScreen />,
-    );
+    const { getByText, getByPlaceholderText, queryByLabelText } =
+      renderWithProviders(<SelectBrandScreen />);
 
     expect(getByText("Loading brands…")).toBeTruthy();
     expect(getByPlaceholderText("Search brands...").props.editable).toBe(false);
+    expect(queryByLabelText("Custom card")).toBeNull();
+  });
+
+  it("keeps custom card option visible when search matches no brands", async () => {
+    const { getByPlaceholderText, getByLabelText, queryByLabelText } =
+      renderWithProviders(<SelectBrandScreen />);
+
+    await waitFor(() => {
+      expect(getByLabelText("ASOS")).toBeTruthy();
+    });
+
+    fireEvent.changeText(
+      getByPlaceholderText("Search brands..."),
+      "no matching brands",
+    );
+
+    expect(queryByLabelText("ASOS")).toBeNull();
+    expect(getByLabelText("Custom card")).toBeTruthy();
+  });
+
+  it("navigates to scan with custom label after entering label", async () => {
+    const { getByLabelText, getByPlaceholderText, getByText } =
+      renderWithProviders(<SelectBrandScreen />);
+
+    await waitFor(() => {
+      expect(getByLabelText("Custom card")).toBeTruthy();
+    });
+
+    fireEvent.press(getByLabelText("Custom card"));
+    fireEvent.changeText(
+      getByPlaceholderText("e.g. Gym membership"),
+      "Gym membership",
+    );
+    fireEvent.press(getByText("Continue to scan"));
+
+    expect(__expoRouterMocks.push).toHaveBeenCalledWith({
+      pathname: Routes.SCAN,
+      params: { label: "Gym membership" },
+    });
   });
 
   it("shows API error when brands fetch fails", async () => {

@@ -184,28 +184,33 @@ export const CardsScreen = () => {
             colors={[colors.primary]}
           />
         }
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <LoyaltyBrandLogo
-              brand={item.label ?? item.brand?.name ?? item.cardNumber}
-              logo={item.brand?.logoUrl}
-              backgroundColor={item.brand?.backgroundColor}
-              height={brandMark.heightList}
-              onPress={() =>
-                router.push({
-                  pathname: Routes.CARD_CODE,
-                  params: {
-                    cardNumber: item.cardNumber,
-                    view: item.view ?? "1D",
-                    title: item.label ?? item.brand?.name ?? item.cardNumber,
-                    logoUrl: item.brand?.logoUrl ?? "",
-                    backgroundColor: item.brand?.backgroundColor ?? "",
-                  },
-                })
-              }
-            />
-          </View>
-        )}
+        renderItem={({ item }) => {
+          const cardBackgroundColor =
+            item.brand?.backgroundColor ?? colors.cardFallback;
+
+          return (
+            <View style={styles.card}>
+              <LoyaltyBrandLogo
+                brand={item.label ?? item.brand?.name ?? item.cardNumber}
+                logo={item.brand?.logoUrl}
+                backgroundColor={cardBackgroundColor}
+                height={brandMark.heightList}
+                onPress={() =>
+                  router.push({
+                    pathname: Routes.CARD_CODE,
+                    params: {
+                      cardNumber: item.cardNumber,
+                      view: item.view ?? "1D",
+                      title: item.label ?? item.brand?.name ?? item.cardNumber,
+                      logoUrl: item.brand?.logoUrl ?? "",
+                      backgroundColor: cardBackgroundColor,
+                    },
+                  })
+                }
+              />
+            </View>
+          );
+        }}
       />
     </SafeAreaView>
   );

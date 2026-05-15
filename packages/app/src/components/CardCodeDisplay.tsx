@@ -14,12 +14,14 @@ type CardCodeDisplayProps = {
   cardNumber: string;
   view: CardView;
   borderColor: string;
+  bottomCardHalf?: boolean;
 };
 
 export const CardCodeDisplay = ({
   cardNumber,
   view,
   borderColor,
+  bottomCardHalf,
 }: CardCodeDisplayProps) => {
   const isQr = view === "2D";
   const { progress, opacityOff, opacityOn } = useCrossfadeProgress(isQr, {
@@ -33,20 +35,30 @@ export const CardCodeDisplay = ({
   });
 
   return (
-    <View style={[styles.codePanel, { borderColor }]}>
+    <View
+      style={[
+        styles.codePanel,
+        {
+          borderColor,
+          borderTopLeftRadius: bottomCardHalf ? 0 : undefined,
+          borderTopRightRadius: bottomCardHalf ? 0 : undefined,
+        },
+      ]}
+    >
       <Animated.View style={[styles.codeSlot, { height: slotHeight }]}>
         <Animated.View
           pointerEvents={isQr ? "none" : "auto"}
           style={[styles.codeLayer, { opacity: opacityOff }]}
         >
-          <Barcode
-            testID="barcode"
-            value={cardNumber}
-            format="CODE128"
-            singleBarWidth={2}
-            height={BARCODE_HEIGHT}
-            maxWidth={BARCODE_MAX_WIDTH}
-          />
+          <View testID="barcode">
+            <Barcode
+              value={cardNumber}
+              format="CODE128"
+              singleBarWidth={2}
+              height={BARCODE_HEIGHT}
+              maxWidth={BARCODE_MAX_WIDTH}
+            />
+          </View>
         </Animated.View>
         <Animated.View
           pointerEvents={isQr ? "auto" : "none"}
