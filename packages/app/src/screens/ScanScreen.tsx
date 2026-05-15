@@ -10,6 +10,7 @@ import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Routes } from "@/constants/routes.constants";
 import { postApiV1Cards } from "@/lib/api-client";
+import { type CardView, resolveCardViewFromBarcodeType } from "@/lib/cardView";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import { radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
@@ -33,7 +34,7 @@ export const ScanScreen = () => {
   const saveLockRef = useRef(false);
 
   const saveCard = useCallback(
-    async (cardNumber: string) => {
+    async (cardNumber: string, cardType: CardView | null) => {
       const trimmed = cardNumber.trim();
       if (!trimmed || saveLockRef.current) {
         return;
@@ -48,6 +49,7 @@ export const ScanScreen = () => {
             cardNumber: trimmed,
             label: selectedBrandName,
             brandId: selectedBrandId,
+            view: cardType,
           },
         });
 
@@ -68,7 +70,7 @@ export const ScanScreen = () => {
   );
 
   const handleScan = (result: BarcodeScanningResult) => {
-    void saveCard(result.data);
+    void saveCard(result.data, resolveCardViewFromBarcodeType(result.type));
   };
 
   const submitManualCode = () => {
@@ -78,7 +80,7 @@ export const ScanScreen = () => {
     }
 
     setIsManualEntryOpen(false);
-    void saveCard(normalizedCode);
+    void saveCard(normalizedCode, null);
   };
 
   if (!permission) {

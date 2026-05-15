@@ -12,7 +12,6 @@ export const brandSchema = z.object({
   name: z.string(),
   logoUrl: z.string(),
   backgroundColor: z.string(),
-  defaultView: z.enum(["1D", "2D"]).nullable(),
   createdAt: z.string(),
 });
 
@@ -51,7 +50,6 @@ const app = new Hono<{ Variables: ContextVariables }>()
           name: brands.name,
           logoFile: brands.logoFile,
           backgroundColor: brands.backgroundColor,
-          defaultView: brands.defaultView,
           createdAt: brands.createdAt,
         })
         .from(brands)
@@ -63,7 +61,6 @@ const app = new Hono<{ Variables: ContextVariables }>()
           id: row.id,
           logoUrl: logoUrl(row.logoFile),
           backgroundColor: row.backgroundColor,
-          defaultView: row.defaultView,
           createdAt: row.createdAt.toISOString(),
         })),
       );

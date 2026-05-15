@@ -93,6 +93,7 @@ describe("ScanScreen", () => {
             cardNumber: "123456",
             label: "ASOS",
             brandId: "00000000-0000-4000-8000-000000000004",
+            view: null,
           },
         }),
       );
@@ -100,7 +101,7 @@ describe("ScanScreen", () => {
     });
   });
 
-  it("creates a card when a barcode is scanned", async () => {
+  it("creates a card when a QR code is scanned with 2D view", async () => {
     permissionState = { granted: true };
     const { getByTestId } = render(<ScanScreen />);
 
@@ -116,10 +117,34 @@ describe("ScanScreen", () => {
             cardNumber: "987654",
             label: "ASOS",
             brandId: "00000000-0000-4000-8000-000000000004",
+            view: "2D",
           },
         }),
       );
       expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith(Routes.CARDS);
+    });
+  });
+
+  it("creates a card when a linear barcode is scanned with 1D view", async () => {
+    permissionState = { granted: true };
+    const { getByTestId } = render(<ScanScreen />);
+
+    fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
+      type: "code128",
+      data: "987654",
+    });
+
+    await waitFor(() => {
+      expect(postApiV1CardsMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: {
+            cardNumber: "987654",
+            label: "ASOS",
+            brandId: "00000000-0000-4000-8000-000000000004",
+            view: "1D",
+          },
+        }),
+      );
     });
   });
 

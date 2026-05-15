@@ -30,14 +30,12 @@ beforeAll(async () => {
         name: "Beta Brand",
         logoFile: "beta.png",
         backgroundColor: "#000000",
-        defaultView: "2D",
       },
       {
         id: BRAND_A_ID,
         name: "Alpha Brand",
         logoFile: "alpha.png",
         backgroundColor: "#000000",
-        defaultView: null,
       },
     ])
     .onConflictDoNothing();
@@ -62,7 +60,6 @@ describe("brands routes", () => {
       id: string;
       name: string;
       logoUrl: string;
-      defaultView: string | null;
       createdAt: string;
     }>;
 
@@ -70,8 +67,6 @@ describe("brands routes", () => {
     expect(ours).toHaveLength(2);
     expect(ours[0].name).toBe("Alpha Brand");
     expect(ours[1].name).toBe("Beta Brand");
-    expect(ours[0].defaultView).toBeNull();
-    expect(ours[1].defaultView).toBe("2D");
     expect(ours[0].createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
     expect(ours[0].logoUrl).toBe(
       `${config.server.fileStorageUrl}logos/alpha.png`,

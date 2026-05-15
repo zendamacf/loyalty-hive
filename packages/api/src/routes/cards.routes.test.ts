@@ -55,7 +55,6 @@ beforeAll(async () => {
       name: "Test Brand",
       logoFile: "testbrand.png",
       backgroundColor: "#000000",
-      defaultView: "1D",
     })
     .onConflictDoNothing();
 
@@ -67,6 +66,7 @@ beforeAll(async () => {
         userId: USER_ID,
         cardNumber: "4242424242424242",
         label: "Personal",
+        view: "1D",
         brandId: BRAND_ID,
       },
       {
@@ -74,6 +74,7 @@ beforeAll(async () => {
         userId: OTHER_USER_ID,
         cardNumber: "1111222233334444",
         label: "Other",
+        view: "1D",
         brandId: BRAND_ID,
       },
     ])
@@ -98,6 +99,7 @@ describe("cards routes", () => {
     expect(response.status).toBe(200);
     const body = (await response.json()) as Array<{
       id: string;
+      view: "1D" | "2D" | null;
       brand: {
         id: string;
         name: string;
@@ -109,6 +111,7 @@ describe("cards routes", () => {
     const card = body.find((c) => c.id === CARD_ID);
     expect(card).toMatchObject({
       id: CARD_ID,
+      view: "1D",
       brand: {
         id: BRAND_ID,
         name: "Test Brand",
@@ -268,143 +271,6 @@ describe("cards routes", () => {
     });
   });
 
-  it("updates brandId on put", async () => {
-    const app = createApiApp();
-    const createRes = await app.request("/api/v1/cards", {
-      method: "POST",
-      headers: {
-        ...authHeaders(authToken),
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        cardNumber: "put-test-card-number",
-        label: "Before update",
-      }),
-    });
-    const { id } = (await createRes.json()) as { id: string };
-
-    const response = await app.request(`/api/v1/cards/${id}`, {
-      method: "PUT",
-      headers: {
-        ...authHeaders(authToken),
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        cardNumber: "put-test-card-number",
-        brandId: BRAND_ID,
-      }),
-    });
-
-    expect(response.status).toBe(200);
-    expect(await response.json()).toMatchObject({
-      id,
-      brand: { id: BRAND_ID },
-    });
-  });
-
-  it("does not update cardNumber or label on put", async () => {
-    const app = createApiApp();
-    const createRes = await app.request("/api/v1/cards", {
-      method: "POST",
-      headers: {
-        ...authHeaders(authToken),
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        cardNumber: "immutable-card-number",
-        label: "Original label",
-      }),
-    });
-    const { id } = (await createRes.json()) as { id: string };
-
-    await app.request(`/api/v1/cards/${id}`, {
-      method: "PUT",
-      headers: {
-        ...authHeaders(authToken),
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        cardNumber: "changed-number",
-        label: "Changed label",
-        brandId: BRAND_ID,
-      }),
-    });
-
-    const [row] = await db.select().from(cards).where(eq(cards.id, id));
-    expect(row.cardNumber).toBe("immutable-card-number");
-    expect(row.label).toBe("Original label");
-  });
-
-  it("returns 404 on put for missing card", async () => {
-    const app = createApiApp();
-
-    const response = await app.request(`/api/v1/cards/${UNKNOWN_CARD_ID}`, {
-      method: "PUT",
-      headers: {
-        ...authHeaders(authToken),
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        cardNumber: "unused",
-        brandId: BRAND_ID,
-      }),
-    });
-
-    expect(response.status).toBe(404);
-    expect(await response.json()).toEqual({ error: "Card not found" });
-  });
-
-  it("returns 404 on put for another user's card", async () => {
-    const app = createApiApp();
-
-    const response = await app.request(`/api/v1/cards/${OTHER_USER_CARD_ID}`, {
-      method: "PUT",
-      headers: {
-        ...authHeaders(authToken),
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        cardNumber: "1111222233334444",
-        brandId: BRAND_ID,
-      }),
-    });
-
-    expect(response.status).toBe(404);
-  });
-
-  it("returns 400 on put when brandId does not exist", async () => {
-    const app = createApiApp();
-    const createRes = await app.request("/api/v1/cards", {
-      method: "POST",
-      headers: {
-        ...authHeaders(authToken),
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        cardNumber: "put-fk-test-number",
-        label: "FK test",
-      }),
-    });
-    const { id } = (await createRes.json()) as { id: string };
-
-    const response = await app.request(`/api/v1/cards/${id}`, {
-      method: "PUT",
-      headers: {
-        ...authHeaders(authToken),
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        cardNumber: "put-fk-test-number",
-        brandId: UNKNOWN_BRAND_ID,
-      }),
-    });
-
-    expect(response.status).toBe(400);
-    expect(await response.json()).toEqual({
-      error: "Referenced userId or brandId does not exist",
-    });
-  });
-
   it("returns 404 on delete for non-existent card", async () => {
     const app = createApiApp();
 
@@ -426,6 +292,7 @@ describe("cards routes", () => {
       userId: USER_ID,
       cardNumber: "delete-me-424242424242",
       label: "Disposable",
+      view: "1D",
       brandId: BRAND_ID,
     });
 
@@ -445,6 +312,7 @@ describe("cards routes", () => {
       body: JSON.stringify({
         cardNumber: "recreated-after-delete",
         label: "Recreated",
+        view: "1D",
         brandId: BRAND_ID,
       }),
     });
@@ -455,6 +323,7 @@ describe("cards routes", () => {
       userId: USER_ID,
       cardNumber: "recreated-after-delete",
       label: "Recreated",
+      view: "1D",
       brand: { id: BRAND_ID },
     });
 
@@ -467,6 +336,7 @@ describe("cards routes", () => {
       userId: USER_ID,
       cardNumber: "recreated-after-delete",
       label: "Recreated",
+      view: "1D",
       brandId: BRAND_ID,
     });
   });

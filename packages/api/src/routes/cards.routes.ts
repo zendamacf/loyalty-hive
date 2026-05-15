@@ -33,6 +33,7 @@ const idParamSchema = z.object({
 const cardWriteSchema = z.object({
   cardNumber: z.string(),
   label: z.string().nullable().optional(),
+  view: z.enum(["1D", "2D"]).nullable().optional(),
   brandId: z.uuid().nullable().optional(),
 });
 
@@ -61,8 +62,8 @@ const cardWithBrandSelect = {
   userId: cards.userId,
   cardNumber: cards.cardNumber,
   label: cards.label,
+  view: cards.view,
   brandId: cards.brandId,
-  defaultView: brands.defaultView,
   brandName: brands.name,
   brandLogoFile: brands.logoFile,
   brandBackgroundColor: brands.backgroundColor,
@@ -74,8 +75,8 @@ type CardWithBrandRow = {
   userId: string;
   cardNumber: string;
   label: string | null;
+  view: "1D" | "2D" | null;
   brandId: string | null;
-  defaultView: "1D" | "2D" | null;
   brandName: string | null;
   brandLogoFile: string | null;
   brandBackgroundColor: string | null;
@@ -95,7 +96,7 @@ function toCardResponse(row: CardWithBrandRow): z.infer<typeof cardSchema> {
     userId: row.userId,
     cardNumber: row.cardNumber,
     label: row.label,
-    view: row.defaultView ?? null,
+    view: row.view,
     brand: row.brandId
       ? {
           id: row.brandId,
@@ -178,6 +179,7 @@ const app = new Hono<{ Variables: ContextVariables }>()
             userId: c.get("userId"),
             cardNumber: body.cardNumber,
             label: body.label ?? null,
+            view: body.view ?? null,
             brandId: body.brandId ?? null,
           })
           .returning();
@@ -211,46 +213,6 @@ const app = new Hono<{ Variables: ContextVariables }>()
         return c.json({ error: "Card not found" }, 404);
       }
       return c.json(toCardResponse(card));
-    },
-  )
-  .put(
-    "/:id",
-    describeRoute({
-      description: "Update a card by id",
-      security: [{ bearerAuth: [] }],
-      responses: {
-        200: {
-          description: "Successful response",
-          content: { "application/json": { schema: resolver(cardSchema) } },
-        },
-        401: errorResponse("Unauthorized"),
-        404: errorResponse("Card not found"),
-      },
-    }),
-    validator("param", idParamSchema),
-    validator("json", cardWriteSchema),
-    async (c) => {
-      const { id } = c.req.valid("param");
-      const body = c.req.valid("json");
-
-      try {
-        const [updated] = await db
-          .update(cards)
-          .set({
-            brandId: body.brandId ?? null,
-          })
-          .where(and(eq(cards.id, id), eq(cards.userId, c.get("userId"))))
-          .returning();
-
-        if (!updated) {
-          return c.json({ error: "Card not found" }, 404);
-        }
-        const card = await getCardForUser(c.get("userId"), updated.id);
-        if (!card) throw new Error("Card missing after update");
-        return c.json(toCardResponse(card));
-      } catch (error) {
-        return handleFkViolation(c, error);
-      }
     },
   )
   .delete(

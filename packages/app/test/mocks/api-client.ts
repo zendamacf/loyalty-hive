@@ -1,11 +1,11 @@
-import {
-  type GetApiV1BrandsResponse,
-  type GetApiV1CardsByIdResponse,
-  type GetApiV1CardsResponse,
-  type PostApiV1CardsResponse,
-  type PutApiV1CardsByIdResponse,
-} from "@/lib/api-client";
 import { mock } from "bun:test";
+
+import type {
+  GetApiV1BrandsResponse,
+  GetApiV1CardsByIdResponse,
+  GetApiV1CardsResponse,
+  PostApiV1CardsResponse,
+} from "@/lib/api-client";
 
 export const setConfigMock = mock(() => {});
 export const getConfigMock = mock(() => ({
@@ -43,10 +43,6 @@ export const deleteApiV1CardsByIdMock = mock(() =>
   Promise.resolve({ data: null, error: undefined }),
 );
 
-export const putApiV1CardsByIdMock = mock(() =>
-  Promise.resolve({ data: {} as PutApiV1CardsByIdResponse, error: undefined }),
-);
-
 mock.module("@/lib/api-client", () => ({
   client: {
     getConfig: getConfigMock,
@@ -59,5 +55,4 @@ mock.module("@/lib/api-client", () => ({
   postApiV1Cards: postApiV1CardsMock,
   getApiV1CardsById: getApiV1CardsByIdMock,
   deleteApiV1CardsById: deleteApiV1CardsByIdMock,
-  putApiV1CardsById: putApiV1CardsByIdMock,
 }));

@@ -12,7 +12,6 @@ export const brands = pgTable("brands", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
   logoFile: text("logo_file").notNull(),
-  defaultView: text("default_view", { enum: ["1D", "2D"] }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   backgroundColor: text("background_color").notNull(),
 });
@@ -35,6 +34,7 @@ export const cards = pgTable("cards", {
     .references(() => users.id, { onDelete: "cascade" }),
   label: text("label"),
   cardNumber: text("card_number").notNull(),
+  view: text("view", { enum: ["1D", "2D"] }),
   brandId: uuid("brand_id").references(() => brands.id, {
     onDelete: "set null",
   }),

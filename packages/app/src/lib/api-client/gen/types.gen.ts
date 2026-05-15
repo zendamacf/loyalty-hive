@@ -110,7 +110,6 @@ export type GetApiV1BrandsResponses = {
         name: string;
         logoUrl: string;
         backgroundColor: string;
-        defaultView: '1D' | '2D' | null;
         createdAt: string;
     }>;
 };
@@ -161,6 +160,7 @@ export type PostApiV1CardsData = {
     body: {
         cardNumber: string;
         label?: string | null;
+        view?: '1D' | '2D' | null;
         brandId?: string | null;
     };
     path?: never;
@@ -295,55 +295,3 @@ export type GetApiV1CardsByIdResponses = {
 };
 
 export type GetApiV1CardsByIdResponse = GetApiV1CardsByIdResponses[keyof GetApiV1CardsByIdResponses];
-
-export type PutApiV1CardsByIdData = {
-    body: {
-        cardNumber: string;
-        label?: string | null;
-        brandId?: string | null;
-    };
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/api/v1/cards/{id}';
-};
-
-export type PutApiV1CardsByIdErrors = {
-    /**
-     * Unauthorized
-     */
-    401: {
-        error: string;
-    };
-    /**
-     * Card not found
-     */
-    404: {
-        error: string;
-    };
-};
-
-export type PutApiV1CardsByIdError = PutApiV1CardsByIdErrors[keyof PutApiV1CardsByIdErrors];
-
-export type PutApiV1CardsByIdResponses = {
-    /**
-     * Successful response
-     */
-    200: {
-        id: string;
-        userId: string;
-        cardNumber: string;
-        label?: string | null;
-        view?: '1D' | '2D' | null;
-        brand: {
-            id: string;
-            name: string;
-            logoUrl: string;
-            backgroundColor: string;
-        } | null;
-        createdAt: string;
-    };
-};
-
-export type PutApiV1CardsByIdResponse = PutApiV1CardsByIdResponses[keyof PutApiV1CardsByIdResponses];
