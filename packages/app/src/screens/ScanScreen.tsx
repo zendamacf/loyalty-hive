@@ -5,6 +5,7 @@ import {
 } from "expo-camera";
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Routes } from "@/constants/routes.constants";
@@ -14,6 +15,7 @@ import { radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
 export const ScanScreen = () => {
+  const { t } = useTranslation("scan");
   const { colors } = useTheme();
   const params = useLocalSearchParams<{
     brandName?: string;
@@ -85,7 +87,7 @@ export const ScanScreen = () => {
         style={[styles.container, { backgroundColor: colors.background }]}
       >
         <Text style={[styles.message, { color: colors.textPrimary }]}>
-          Checking camera permissions...
+          {t("checkingPermissions")}
         </Text>
       </SafeAreaView>
     );
@@ -97,16 +99,16 @@ export const ScanScreen = () => {
         style={[styles.container, { backgroundColor: colors.background }]}
       >
         <Text style={[styles.title, { color: colors.textPrimary }]}>
-          Camera access needed
+          {t("cameraAccessTitle")}
         </Text>
         <Text style={[styles.message, { color: colors.textSecondary }]}>
-          Allow camera permission to scan QR codes and barcodes.
+          {t("cameraAccessMessage")}
         </Text>
         <Pressable
           onPress={() => void requestPermission()}
           style={[styles.button, { backgroundColor: colors.primary }]}
         >
-          <Text style={styles.buttonText}>Allow camera</Text>
+          <Text style={styles.buttonText}>{t("allowCamera")}</Text>
         </Pressable>
       </SafeAreaView>
     );
@@ -140,11 +142,11 @@ export const ScanScreen = () => {
       <View style={styles.overlay}>
         {selectedBrandName ? (
           <Text style={styles.brandTag}>
-            Adding card for {selectedBrandName}
+            {t("addingCard", { brand: selectedBrandName })}
           </Text>
         ) : null}
         <Text style={styles.overlayTitle}>
-          {isSaving ? "Saving card..." : "Scan a loyalty card QR or barcode"}
+          {isSaving ? t("savingCard") : t("scanPrompt")}
         </Text>
 
         {saveError ? (
@@ -160,9 +162,7 @@ export const ScanScreen = () => {
               style={styles.secondaryButton}
             >
               <Text style={styles.secondaryButtonText}>
-                {isManualEntryOpen
-                  ? "Close manual entry"
-                  : "Enter card number manually"}
+                {isManualEntryOpen ? t("closeManualEntry") : t("enterManually")}
               </Text>
             </Pressable>
 
@@ -171,7 +171,7 @@ export const ScanScreen = () => {
                 <TextInput
                   value={manualCode}
                   onChangeText={setManualCode}
-                  placeholder="Card number"
+                  placeholder={t("cardNumber")}
                   placeholderTextColor="#94A3B8"
                   keyboardType="number-pad"
                   autoCapitalize="none"
@@ -189,7 +189,9 @@ export const ScanScreen = () => {
                     { backgroundColor: colors.primary },
                   ]}
                 >
-                  <Text style={styles.primaryButtonText}>Use card number</Text>
+                  <Text style={styles.primaryButtonText}>
+                    {t("useCardNumber")}
+                  </Text>
                 </Pressable>
               </View>
             ) : null}

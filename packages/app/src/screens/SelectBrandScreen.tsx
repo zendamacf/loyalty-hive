@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   FlatList,
@@ -17,6 +18,7 @@ import { spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
 export const SelectBrandScreen = () => {
+  const { t } = useTranslation("brands");
   const { colors } = useTheme();
   const [query, setQuery] = useState("");
   const [brands, setBrands] = useState<GetApiV1BrandsResponse>([]);
@@ -51,16 +53,16 @@ export const SelectBrandScreen = () => {
       style={[styles.container, { backgroundColor: colors.background }]}
     >
       <Text style={[styles.title, { color: colors.textPrimary }]}>
-        Choose a brand
+        {t("title")}
       </Text>
       <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-        Select the loyalty brand before scanning your card.
+        {t("subtitle")}
       </Text>
 
       <SearchBar
         value={query}
         onChangeText={setQuery}
-        placeholder="Search brands..."
+        placeholder={t("searchPlaceholder")}
         editable={loaded && !error}
         style={styles.searchBar}
       />
@@ -72,7 +74,7 @@ export const SelectBrandScreen = () => {
         <View style={styles.loading}>
           <ActivityIndicator color={colors.textPrimary} />
           <Text style={[styles.loadingLabel, { color: colors.textSecondary }]}>
-            Loading brands…
+            {t("loading")}
           </Text>
         </View>
       )}

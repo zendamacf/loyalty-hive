@@ -1,3 +1,5 @@
+import i18n from "@/i18n";
+
 export function getErrorMessage(err: unknown): string {
   if (
     err &&
@@ -11,5 +13,5 @@ export function getErrorMessage(err: unknown): string {
     return err;
   }
   console.error(err);
-  return "Something went wrong. Please try again.";
+  return i18n.t("common:errors.generic");
 }

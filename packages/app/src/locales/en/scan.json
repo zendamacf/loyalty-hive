@@ -1,0 +1,13 @@
+{
+  "checkingPermissions": "Checking camera permissions...",
+  "cameraAccessTitle": "Camera access needed",
+  "cameraAccessMessage": "Allow camera permission to scan QR codes and barcodes.",
+  "allowCamera": "Allow camera",
+  "addingCard": "Adding card for {{brand}}",
+  "savingCard": "Saving card...",
+  "scanPrompt": "Scan a loyalty card QR or barcode",
+  "closeManualEntry": "Close manual entry",
+  "enterManually": "Enter card number manually",
+  "cardNumber": "Card number",
+  "useCardNumber": "Use card number"
+}

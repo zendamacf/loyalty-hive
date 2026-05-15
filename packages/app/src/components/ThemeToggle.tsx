@@ -1,5 +1,8 @@
+import { spacing, typography } from "@/theme/theme";
+import { useTheme } from "@/theme/useTheme";
 import { MoonIcon, SunIcon } from "lucide-react-native";
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Animated,
   Easing,
@@ -10,11 +13,10 @@ import {
   View,
   type ViewStyle,
 } from "react-native";
-import { spacing, typography } from "@/theme/theme";
-import { useTheme } from "@/theme/useTheme";
 
 const ICON_SIZE = 24;
 const TRANSITION_MS = 220;
+const LABEL_SLOT_WIDTH = 60;
 
 type ThemeToggleProps = {
   showLabel?: boolean;
@@ -22,6 +24,7 @@ type ThemeToggleProps = {
 };
 
 export const ThemeToggle = ({ showLabel = false, style }: ThemeToggleProps) => {
+  const { t } = useTranslation("common");
   const { colors, isDark, setThemeMode } = useTheme();
   const progress = useRef(new Animated.Value(isDark ? 1 : 0)).current;
 
@@ -80,7 +83,7 @@ export const ThemeToggle = ({ showLabel = false, style }: ThemeToggleProps) => {
 
   return (
     <Pressable
-      accessibilityLabel={isDark ? "Use light theme" : "Use dark theme"}
+      accessibilityLabel={isDark ? t("useLightTheme") : t("useDarkTheme")}
       accessibilityRole="button"
       hitSlop={12}
       style={[styles.pressable, style]}
@@ -93,15 +96,21 @@ export const ThemeToggle = ({ showLabel = false, style }: ThemeToggleProps) => {
             <Animated.View
               style={[styles.labelStacked, { opacity: sunOpacity }]}
             >
-              <Text style={[styles.label, { color: colors.textPrimary }]}>
-                Light
+              <Text
+                numberOfLines={1}
+                style={[styles.label, { color: colors.textPrimary }]}
+              >
+                {t("light")}
               </Text>
             </Animated.View>
             <Animated.View
               style={[styles.labelStacked, { opacity: moonOpacity }]}
             >
-              <Text style={[styles.label, { color: colors.textPrimary }]}>
-                Dark
+              <Text
+                numberOfLines={1}
+                style={[styles.label, { color: colors.textPrimary }]}
+              >
+                {t("dark")}
               </Text>
             </Animated.View>
           </View>
@@ -132,7 +141,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   labelSlot: {
-    minWidth: 36,
+    width: LABEL_SLOT_WIDTH,
     height: typography.label.fontSize * 1.25,
     justifyContent: "center",
   },

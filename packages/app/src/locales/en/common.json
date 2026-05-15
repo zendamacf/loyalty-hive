@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "generic": "Something went wrong. Please try again."
+  },
+  "clearSearch": "Clear search",
+  "useLightTheme": "Use light theme",
+  "useDarkTheme": "Use dark theme",
+  "light": "Light",
+  "dark": "Dark",
+  "appLogo": "App logo"
+}

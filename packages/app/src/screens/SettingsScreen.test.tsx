@@ -18,11 +18,14 @@ describe("SettingsScreen", () => {
     setConfigMock.mockClear();
   });
 
-  it("renders theme toggle and sign out button", () => {
+  it("renders theme toggle, language picker, and sign out button", () => {
     const { getByText, getByLabelText } = renderWithTheme(<SettingsScreen />);
 
     expect(getByText("Settings")).toBeTruthy();
     expect(getByText("Theme")).toBeTruthy();
+    expect(getByText("Language")).toBeTruthy();
+    expect(getByText("English")).toBeTruthy();
+    expect(getByText("Español")).toBeTruthy();
     expect(getByLabelText("Use dark theme")).toBeTruthy();
     expect(getByText("Sign out")).toBeTruthy();
   });

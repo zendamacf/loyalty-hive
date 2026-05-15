@@ -1,8 +1,10 @@
 import { router } from "expo-router";
 import { useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "@/components/Button";
+import { LanguagePicker } from "@/components/LanguagePicker";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Routes } from "@/constants/routes.constants";
 import { client } from "@/lib/api-client";
@@ -10,6 +12,7 @@ import { radius, spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
 export const SettingsScreen = () => {
+  const { t } = useTranslation("settings");
   const { colors } = useTheme();
 
   const signOut = useCallback(() => {
@@ -23,27 +26,43 @@ export const SettingsScreen = () => {
     >
       <View style={styles.content}>
         <Text style={[styles.title, { color: colors.textPrimary }]}>
-          Settings
+          {t("title")}
         </Text>
 
         <View
           style={[
-            styles.themeRow,
+            styles.settingRow,
             {
               backgroundColor: colors.surface,
               borderColor: colors.border,
             },
           ]}
         >
-          <Text style={[styles.themeLabel, { color: colors.textPrimary }]}>
-            Theme
+          <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>
+            {t("theme")}
           </Text>
           <ThemeToggle showLabel style={styles.themeToggle} />
+        </View>
+
+        <View
+          style={[
+            styles.settingRow,
+            styles.languageRow,
+            {
+              backgroundColor: colors.surface,
+              borderColor: colors.border,
+            },
+          ]}
+        >
+          <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>
+            {t("language")}
+          </Text>
+          <LanguagePicker />
         </View>
       </View>
 
       <View style={styles.footer}>
-        <Button title="Sign out" onPress={signOut} />
+        <Button title={t("signOut")} onPress={signOut} />
       </View>
     </SafeAreaView>
   );
@@ -63,7 +82,7 @@ const styles = StyleSheet.create({
   title: {
     ...typography.title,
   },
-  themeRow: {
+  settingRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -72,10 +91,14 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
   },
+  languageRow: {
+    alignItems: "flex-start",
+    gap: spacing.sm,
+  },
   themeToggle: {
     padding: 0,
   },
-  themeLabel: {
+  settingLabel: {
     ...typography.label,
   },
   footer: {

@@ -1,6 +1,7 @@
 import { mock } from "bun:test";
 import React from "react";
 
+import "./mocks/expo-localization";
 import "./mocks/api-client";
 
 const asyncStorage = new Map<string, string>();

@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Image,
   Pressable,
@@ -28,6 +29,7 @@ const icon = require("../../assets/images/icon.png");
 type AuthMode = "login" | "signup";
 
 export const LoginScreen = () => {
+  const { t } = useTranslation(["auth", "common"]);
   const { colors } = useTheme();
   const passwordRef = useRef<TextInput>(null);
   const [mode, setMode] = useState<AuthMode>("login");
@@ -59,7 +61,7 @@ export const LoginScreen = () => {
     if (data?.token) {
       completeWithToken(data.token);
     } else {
-      setError("Unexpected response from server.");
+      setError(t("unexpectedResponse"));
     }
   };
 
@@ -74,7 +76,7 @@ export const LoginScreen = () => {
     }
 
     if (!data?.id) {
-      setError("Unexpected response from server.");
+      setError(t("unexpectedResponse"));
       return;
     }
 
@@ -85,7 +87,7 @@ export const LoginScreen = () => {
     setError(null);
     const trimmedEmail = email.trim();
     if (!trimmedEmail || !password) {
-      setError("Enter your email and password.");
+      setError(t("enterEmailPassword"));
       return;
     }
 
@@ -104,11 +106,11 @@ export const LoginScreen = () => {
   const primaryLabel =
     mode === "login"
       ? isSubmitting
-        ? "Signing in…"
-        : "Sign in"
+        ? t("signingIn")
+        : t("signIn")
       : isSubmitting
-        ? "Creating account…"
-        : "Create account";
+        ? t("creatingAccount")
+        : t("createAccount");
 
   return (
     <SafeAreaView
@@ -119,15 +121,13 @@ export const LoginScreen = () => {
       </View>
       <View style={styles.content}>
         <Image
-          accessibilityLabel="App logo"
+          accessibilityLabel={t("appLogo", { ns: "common" })}
           source={icon}
           style={styles.logo}
         />
         <AppTitle />
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-          {mode === "login"
-            ? "Sign in to manage your loyalty cards"
-            : "Create an account to get started"}
+          {mode === "login" ? t("subtitleLogin") : t("subtitleSignup")}
         </Text>
 
         <TextInput
@@ -135,7 +135,7 @@ export const LoginScreen = () => {
           autoCorrect={false}
           editable={!isSubmitting}
           keyboardType="email-address"
-          placeholder="Email"
+          placeholder={t("email")}
           placeholderTextColor={colors.textSecondary}
           returnKeyType="next"
           submitBehavior="submit"
@@ -154,7 +154,7 @@ export const LoginScreen = () => {
         <TextInput
           ref={passwordRef}
           editable={!isSubmitting}
-          placeholder="Password"
+          placeholder={t("password")}
           placeholderTextColor={colors.textSecondary}
           returnKeyType="go"
           secureTextEntry
@@ -192,9 +192,7 @@ export const LoginScreen = () => {
           onPress={() => switchMode(mode === "login" ? "signup" : "login")}
         >
           <Text style={[styles.modeToggle, { color: colors.primary }]}>
-            {mode === "login"
-              ? "Need an account? Sign up"
-              : "Already have an account? Sign in"}
+            {mode === "login" ? t("needAccount") : t("alreadyHaveAccount")}
           </Text>
         </Pressable>
       </View>

@@ -1,0 +1,9 @@
+{
+  "noCardsTitle": "No loyalty cards yet",
+  "noCardsSubtitle": "Tap the + button to add your first card.",
+  "noMatchingTitle": "No matching cards",
+  "noMatchingSubtitle": "Try a different search.",
+  "searchPlaceholder": "Search cards...",
+  "addCardA11y": "Add loyalty card",
+  "openSettingsA11y": "Open settings"
+}

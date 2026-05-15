@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { StyleProp, TextInputProps, ViewStyle } from "react-native";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
@@ -23,6 +24,7 @@ export const SearchBar = ({
   autoCapitalize,
   autoCorrect,
 }: SearchBarProps) => {
+  const { t } = useTranslation("common");
   const { colors } = useTheme();
 
   return (
@@ -40,7 +42,7 @@ export const SearchBar = ({
         />
         {value.length > 0 ? (
           <Pressable
-            accessibilityLabel="Clear search"
+            accessibilityLabel={t("clearSearch")}
             hitSlop={8}
             onPress={() => onChangeText("")}
             style={styles.clearButton}

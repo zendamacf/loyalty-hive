@@ -2,6 +2,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { router } from "expo-router";
 import { PlusIcon, SettingsIcon } from "lucide-react-native";
 import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   FlatList,
   Image,
@@ -39,6 +40,7 @@ function filterCards(
 }
 
 export const CardsScreen = () => {
+  const { t } = useTranslation(["cards", "common"]);
   const { colors } = useTheme();
   const [cards, setCards] = useState<GetApiV1CardsResponse>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -86,11 +88,11 @@ export const CardsScreen = () => {
   let emptySubtitle: string | null = null;
   if (loaded && !error) {
     if (cards.length === 0) {
-      emptyTitle = "No loyalty cards yet";
-      emptySubtitle = "Tap the + button to add your first card.";
+      emptyTitle = t("noCardsTitle");
+      emptySubtitle = t("noCardsSubtitle");
     } else if (filteredCards.length === 0 && searchQuery.trim()) {
-      emptyTitle = "No matching cards";
-      emptySubtitle = "Try a different search.";
+      emptyTitle = t("noMatchingTitle");
+      emptySubtitle = t("noMatchingSubtitle");
     }
   }
 
@@ -114,7 +116,7 @@ export const CardsScreen = () => {
       <View style={styles.header}>
         <View style={styles.headerMain}>
           <Image
-            accessibilityLabel="App logo"
+            accessibilityLabel={t("appLogo", { ns: "common" })}
             source={appIcon}
             style={styles.logo}
           />
@@ -123,7 +125,7 @@ export const CardsScreen = () => {
           </View>
         </View>
         <Pressable
-          accessibilityLabel="Add loyalty card"
+          accessibilityLabel={t("addCardA11y")}
           accessibilityRole="button"
           style={({ pressed }) => [
             styles.headerButton,
@@ -134,7 +136,7 @@ export const CardsScreen = () => {
           <PlusIcon color={colors.textPrimary} size={24} />
         </Pressable>
         <Pressable
-          accessibilityLabel="Open settings"
+          accessibilityLabel={t("openSettingsA11y")}
           accessibilityRole="button"
           style={({ pressed }) => [
             styles.headerButton,
@@ -149,7 +151,7 @@ export const CardsScreen = () => {
       <SearchBar
         value={searchQuery}
         onChangeText={setSearchQuery}
-        placeholder="Search cards..."
+        placeholder={t("searchPlaceholder")}
         style={styles.searchBar}
         autoCapitalize="none"
         autoCorrect={false}
