@@ -8,8 +8,8 @@ import {
   View,
   type ViewStyle,
 } from "react-native";
-
 import { useCrossfadeProgress } from "@/hooks/useCrossfadeProgress";
+import { I18nNamespace } from "@/i18n/i18n.constants";
 import type { CardView } from "@/lib/cardView";
 import { spacing } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
@@ -27,7 +27,7 @@ export const CardCodeViewToggle = ({
   onToggle,
   style,
 }: CardCodeViewToggleProps) => {
-  const { t } = useTranslation("cards");
+  const { t } = useTranslation(I18nNamespace.Cards);
   const { colors } = useTheme();
   const isQr = view === "2D";
   const { opacityOff, opacityOn, iconTransform } = useCrossfadeProgress(isQr);

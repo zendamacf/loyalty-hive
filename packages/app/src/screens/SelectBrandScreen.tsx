@@ -11,9 +11,9 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 import { LoyaltyBrandLogo } from "@/components/LoyaltyBrandLogo";
 import { Routes } from "@/constants/routes.constants";
+import { I18nNamespace } from "@/i18n/i18n.constants";
 import { type GetApiV1BrandsResponse, getApiV1Brands } from "@/lib/api-client";
 import { SearchBar } from "../components/SearchBar";
 import { spacing, typography } from "../theme/theme";
@@ -22,8 +22,8 @@ import { useTheme } from "../theme/useTheme";
 const HEADER_ICON_SIZE = 24;
 
 export const SelectBrandScreen = () => {
-  const { t } = useTranslation("brands");
-  const { t: tCommon } = useTranslation("common");
+  const { t } = useTranslation(I18nNamespace.Brands);
+  const { t: tCommon } = useTranslation(I18nNamespace.Common);
   const { colors } = useTheme();
   const [query, setQuery] = useState("");
   const [brands, setBrands] = useState<GetApiV1BrandsResponse>([]);

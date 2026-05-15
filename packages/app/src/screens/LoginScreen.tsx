@@ -10,8 +10,8 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 import { Routes } from "@/constants/routes.constants";
+import { I18nNamespace } from "@/i18n/i18n.constants";
 import {
   client,
   postApiV1AuthLogin,
@@ -29,7 +29,7 @@ const icon = require("../../assets/images/icon.png");
 type AuthMode = "login" | "signup";
 
 export const LoginScreen = () => {
-  const { t } = useTranslation(["auth", "common"]);
+  const { t } = useTranslation([I18nNamespace.Auth, I18nNamespace.Common]);
   const { colors } = useTheme();
   const passwordRef = useRef<TextInput>(null);
   const [mode, setMode] = useState<AuthMode>("login");
@@ -121,7 +121,7 @@ export const LoginScreen = () => {
       </View>
       <View style={styles.content}>
         <Image
-          accessibilityLabel={t("appLogo", { ns: "common" })}
+          accessibilityLabel={t("appLogo", { ns: I18nNamespace.Common })}
           source={icon}
           style={styles.logo}
         />

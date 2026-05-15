@@ -1,6 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { SUPPORTED_LOCALES, type SupportedLocale } from "@/i18n/i18n.constants";
+import {
+  I18nNamespace,
+  SUPPORTED_LOCALES,
+  type SupportedLocale,
+} from "@/i18n/i18n.constants";
 import { useLanguage } from "@/i18n/useLanguage";
 import { radius, spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
@@ -14,7 +18,7 @@ const PREFERENCE_LABEL_KEYS: Record<
 };
 
 export const LanguagePicker = () => {
-  const { t } = useTranslation("settings");
+  const { t } = useTranslation(I18nNamespace.Settings);
   const { colors } = useTheme();
   const { preference, setLanguagePreference } = useLanguage();
 

@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import type { StyleProp, TextInputProps, ViewStyle } from "react-native";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { I18nNamespace } from "@/i18n/i18n.constants";
 
 import { radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
@@ -24,7 +25,7 @@ export const SearchBar = ({
   autoCapitalize,
   autoCorrect,
 }: SearchBarProps) => {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation(I18nNamespace.Common);
   const { colors } = useTheme();
 
   return (

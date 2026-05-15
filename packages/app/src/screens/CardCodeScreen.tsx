@@ -8,6 +8,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { CardCodeDisplay } from "@/components/CardCodeDisplay";
 import { CardCodeViewToggle } from "@/components/CardCodeViewToggle";
 import { LoyaltyBrandMark } from "@/components/LoyaltyBrandMark";
+import { I18nNamespace } from "@/i18n/i18n.constants";
 import { type CardView, resolveCardView } from "@/lib/cardView";
 import { spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
@@ -18,8 +19,8 @@ const BRAND_MARK_HEIGHT_BARCODE = 200;
 const BRAND_MARK_HEIGHT_QR = 100;
 
 export const CardCodeScreen = () => {
-  const { t } = useTranslation("cards");
-  const { t: tCommon } = useTranslation("common");
+  const { t } = useTranslation(I18nNamespace.Cards);
+  const { t: tCommon } = useTranslation(I18nNamespace.Common);
   const { colors } = useTheme();
   const params = useLocalSearchParams<{
     cardNumber?: string;

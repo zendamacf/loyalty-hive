@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Routes } from "@/constants/routes.constants";
+import { I18nNamespace } from "@/i18n/i18n.constants";
 import { type GetApiV1CardsResponse, getApiV1Cards } from "@/lib/api-client";
 import { AppTitle } from "../components/AppTitle";
 import { LoyaltyBrandLogo } from "../components/LoyaltyBrandLogo";
@@ -40,7 +41,7 @@ function filterCards(
 }
 
 export const CardsScreen = () => {
-  const { t } = useTranslation(["cards", "common"]);
+  const { t } = useTranslation([I18nNamespace.Cards, I18nNamespace.Common]);
   const { colors } = useTheme();
   const [cards, setCards] = useState<GetApiV1CardsResponse>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -116,7 +117,7 @@ export const CardsScreen = () => {
       <View style={styles.header}>
         <View style={styles.headerMain}>
           <Image
-            accessibilityLabel={t("appLogo", { ns: "common" })}
+            accessibilityLabel={t("appLogo", { ns: I18nNamespace.Common })}
             source={appIcon}
             style={styles.logo}
           />

@@ -1,6 +1,7 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
+import { I18N_NAMESPACES, I18nNamespace } from "@/i18n/i18n.constants";
 import enAuth from "@/locales/en/auth.json";
 import enBrands from "@/locales/en/brands.json";
 import enCards from "@/locales/en/cards.json";
@@ -36,8 +37,8 @@ void i18n.use(initReactI18next).init({
   lng: "en",
   fallbackLng: "en",
   supportedLngs: ["en", "es"],
-  defaultNS: "common",
-  ns: ["common", "auth", "cards", "brands", "scan", "settings"],
+  defaultNS: I18nNamespace.Common,
+  ns: I18N_NAMESPACES,
   interpolation: { escapeValue: false },
   react: { useSuspense: false },
 });

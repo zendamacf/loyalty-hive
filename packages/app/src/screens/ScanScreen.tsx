@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Routes } from "@/constants/routes.constants";
+import { I18nNamespace } from "@/i18n/i18n.constants";
 import { postApiV1Cards } from "@/lib/api-client";
 import { type CardView, resolveCardViewFromBarcodeType } from "@/lib/cardView";
 import { getErrorMessage } from "@/lib/getErrorMessage";
@@ -16,7 +17,7 @@ import { radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
 export const ScanScreen = () => {
-  const { t } = useTranslation("scan");
+  const { t } = useTranslation(I18nNamespace.Scan);
   const { colors } = useTheme();
   const params = useLocalSearchParams<{
     brandName?: string;

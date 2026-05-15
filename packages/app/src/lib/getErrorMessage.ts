@@ -1,4 +1,5 @@
 import i18n from "@/i18n";
+import { I18nNamespace } from "@/i18n/i18n.constants";
 
 export function getErrorMessage(err: unknown): string {
   if (
@@ -13,5 +14,5 @@ export function getErrorMessage(err: unknown): string {
     return err;
   }
   console.error(err);
-  return i18n.t("common:errors.generic");
+  return i18n.t(`${I18nNamespace.Common}:errors.generic`);
 }

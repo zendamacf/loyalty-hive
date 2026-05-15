@@ -8,6 +8,7 @@ import { Button } from "@/components/Button";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Routes } from "@/constants/routes.constants";
+import { I18nNamespace } from "@/i18n/i18n.constants";
 import { client } from "@/lib/api-client";
 import { radius, spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
@@ -15,8 +16,8 @@ import { useTheme } from "@/theme/useTheme";
 const HEADER_ICON_SIZE = 24;
 
 export const SettingsScreen = () => {
-  const { t } = useTranslation("settings");
-  const { t: tCommon } = useTranslation("common");
+  const { t } = useTranslation(I18nNamespace.Settings);
+  const { t: tCommon } = useTranslation(I18nNamespace.Common);
   const { colors } = useTheme();
 
   const signOut = useCallback(() => {

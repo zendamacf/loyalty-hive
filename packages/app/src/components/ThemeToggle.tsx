@@ -9,8 +9,8 @@ import {
   View,
   type ViewStyle,
 } from "react-native";
-
 import { useCrossfadeProgress } from "@/hooks/useCrossfadeProgress";
+import { I18nNamespace } from "@/i18n/i18n.constants";
 import { spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
@@ -23,7 +23,7 @@ type ThemeToggleProps = {
 };
 
 export const ThemeToggle = ({ showLabel = false, style }: ThemeToggleProps) => {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation(I18nNamespace.Common);
   const { colors, isDark, setThemeMode } = useTheme();
   const { opacityOff, opacityOn, iconTransform } = useCrossfadeProgress(isDark);
 
