@@ -1,8 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import React from "react";
-
+import { Routes } from "@/constants/routes.constants";
 import { getConfigMock, postApiV1CardsMock } from "../../test/mocks/api-client";
 
 const testUserId = "00000000-0000-4000-8000-000000000001";
@@ -80,7 +79,7 @@ describe("ScanScreen", () => {
 
     await waitFor(() => {
       expect(postApiV1CardsMock).toHaveBeenCalledTimes(1);
-      expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith("/(tabs)/cards");
+      expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith(Routes.CARDS);
     });
   });
 
@@ -95,7 +94,7 @@ describe("ScanScreen", () => {
 
     await waitFor(() => {
       expect(postApiV1CardsMock).toHaveBeenCalledTimes(1);
-      expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith("/(tabs)/cards");
+      expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith(Routes.CARDS);
     });
   });
 });

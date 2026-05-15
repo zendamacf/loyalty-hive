@@ -1,5 +1,6 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { router } from "expo-router";
+import { PlusIcon, SettingsIcon } from "lucide-react-native";
 import { useCallback, useMemo, useState } from "react";
 import {
   FlatList,
@@ -11,11 +12,12 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import { Routes } from "@/constants/routes.constants";
 import { type GetApiV1CardsResponse, getApiV1Cards } from "@/lib/api-client";
+import { AppTitle } from "../components/AppTitle";
 import { LoyaltyBrandLogo } from "../components/LoyaltyBrandLogo";
 import { SearchBar } from "../components/SearchBar";
-import { colors, radius, spacing } from "../theme/theme";
+import { radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
 const appIcon = require("../../assets/images/icon.png");
@@ -114,27 +116,33 @@ export const CardsScreen = () => {
           <Image
             accessibilityLabel="App logo"
             source={appIcon}
-            style={styles.appLogo}
+            style={styles.logo}
           />
           <View style={styles.titleWrap}>
-            <Text style={[styles.title, { color: colors.textPrimary }]}>
-              Loyalty<Text style={styles.titleHive}>Hive</Text>
-            </Text>
+            <AppTitle align="left" />
           </View>
         </View>
         <Pressable
           accessibilityLabel="Add loyalty card"
           accessibilityRole="button"
-          hitSlop={12}
           style={({ pressed }) => [
-            styles.addButton,
-            pressed && styles.addButtonPressed,
+            styles.headerButton,
+            pressed && styles.headerButtonPressed,
           ]}
-          onPress={() => router.push("/select-brand")}
+          onPress={() => router.push(Routes.SELECT_BRAND)}
         >
-          <Text style={[styles.addButtonLabel, { color: colors.textPrimary }]}>
-            +
-          </Text>
+          <PlusIcon color={colors.textPrimary} size={24} />
+        </Pressable>
+        <Pressable
+          accessibilityLabel="Open settings"
+          accessibilityRole="button"
+          style={({ pressed }) => [
+            styles.headerButton,
+            pressed && styles.headerButtonPressed,
+          ]}
+          onPress={() => router.push(Routes.SETTINGS)}
+        >
+          <SettingsIcon color={colors.textPrimary} size={24} />
         </Pressable>
       </View>
 
@@ -219,21 +227,16 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     minWidth: 0,
   },
-  addButton: {
+  headerButton: {
     height: 56,
     minWidth: 44,
     justifyContent: "center",
     alignItems: "center",
   },
-  addButtonPressed: {
+  headerButtonPressed: {
     opacity: 0.55,
   },
-  addButtonLabel: {
-    fontSize: 34,
-    lineHeight: 38,
-    fontWeight: "300",
-  },
-  appLogo: {
+  logo: {
     width: 56,
     height: 56,
     borderRadius: radius.md,
@@ -241,14 +244,6 @@ const styles = StyleSheet.create({
   titleWrap: {
     height: 56,
     justifyContent: "center",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    textAlign: "left",
-  },
-  titleHive: {
-    color: colors.primary,
   },
   searchBar: {
     marginBottom: spacing.md,
@@ -268,12 +263,11 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: "600",
+    ...typography.heading,
     textAlign: "center",
   },
   emptySubtitle: {
-    fontSize: 15,
+    ...typography.subtitle,
     textAlign: "center",
     lineHeight: 22,
   },

@@ -10,9 +10,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { LoyaltyBrandLogo } from "@/components/LoyaltyBrandLogo";
+import { Routes } from "@/constants/routes.constants";
 import { type GetApiV1BrandsResponse, getApiV1Brands } from "@/lib/api-client";
 import { SearchBar } from "../components/SearchBar";
-import { spacing } from "../theme/theme";
+import { spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
 export const SelectBrandScreen = () => {
@@ -92,7 +93,7 @@ export const SelectBrandScreen = () => {
               style={styles.card}
               onPress={() =>
                 router.push({
-                  pathname: "/scan",
+                  pathname: Routes.SCAN,
                   params: {
                     brandId: item.id,
                     brandName: item.name,
@@ -113,20 +114,19 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "700",
+    ...typography.title,
   },
   subtitle: {
     marginTop: spacing.xs,
     marginBottom: spacing.md,
-    fontSize: 14,
+    ...typography.caption,
   },
   searchBar: {
     marginBottom: spacing.md,
   },
   errorText: {
     marginTop: spacing.sm,
-    fontSize: 14,
+    ...typography.caption,
   },
   loading: {
     marginTop: spacing.lg,
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   loadingLabel: {
-    fontSize: 14,
+    ...typography.caption,
   },
   listContent: {
     paddingBottom: spacing.xl,

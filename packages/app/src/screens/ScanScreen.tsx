@@ -7,25 +7,11 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Routes } from "@/constants/routes.constants";
 import { postApiV1Cards } from "@/lib/api-client";
-import { radius, spacing } from "../theme/theme";
+import { getErrorMessage } from "@/lib/getErrorMessage";
+import { radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
-
-function messageFromApiError(err: unknown): string {
-  if (
-    err &&
-    typeof err === "object" &&
-    "error" in err &&
-    typeof (err as { error: unknown }).error === "string"
-  ) {
-    return (err as { error: string }).error;
-  }
-  if (typeof err === "string") {
-    return err;
-  }
-  console.error(err);
-  return "Something went wrong. Please try again.";
-}
 
 export const ScanScreen = () => {
   const { colors } = useTheme();
@@ -64,12 +50,12 @@ export const ScanScreen = () => {
         });
 
         if (error) {
-          setSaveError(messageFromApiError(error));
+          setSaveError(getErrorMessage(error));
           return;
         }
 
         if (data) {
-          router.dismissTo("/(tabs)/cards");
+          router.dismissTo(Routes.CARDS);
         }
       } finally {
         saveLockRef.current = false;
@@ -222,13 +208,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontSize: 24,
-    fontWeight: "700",
+    ...typography.title,
     marginBottom: spacing.sm,
     textAlign: "center",
   },
   message: {
-    fontSize: 16,
+    ...typography.body,
     textAlign: "center",
     marginBottom: spacing.lg,
   },
@@ -239,8 +224,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#0D1B2A",
-    fontSize: 16,
-    fontWeight: "600",
+    ...typography.bodySemibold,
   },
   overlay: {
     position: "absolute",
@@ -253,17 +237,16 @@ const styles = StyleSheet.create({
   },
   overlayTitle: {
     color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
+    ...typography.bodySemibold,
   },
   brandTag: {
     color: "#E2E8F0",
-    fontSize: 13,
+    ...typography.small,
     marginBottom: spacing.xs,
   },
   saveError: {
     marginTop: spacing.sm,
-    fontSize: 14,
+    ...typography.caption,
   },
   manualEntryWrapper: {
     marginTop: spacing.sm,
@@ -277,7 +260,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-    fontSize: 16,
+    ...typography.body,
     backgroundColor: "rgba(15, 23, 42, 0.9)",
   },
   secondaryButton: {
@@ -290,7 +273,7 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: "#E2E8F0",
-    fontWeight: "600",
+    ...typography.bodySemibold,
   },
   primaryButton: {
     flex: 1,
@@ -303,6 +286,6 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: "#0D1B2A",
-    fontWeight: "700",
+    ...typography.bodyBold,
   },
 });

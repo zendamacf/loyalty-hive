@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, type mock } from "bun:test";
-
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
-
+import { Routes } from "@/constants/routes.constants";
 import type { GetApiV1BrandsResponse } from "@/lib/api-client/gen";
 import { getApiV1BrandsMock } from "../../test/mocks/api-client";
 
@@ -78,7 +77,7 @@ describe("SelectBrandScreen", () => {
     fireEvent.press(getByLabelText("ASOS"));
 
     expect(__expoRouterMocks.push).toHaveBeenCalledWith({
-      pathname: "/scan",
+      pathname: Routes.SCAN,
       params: {
         brandId: "00000000-0000-4000-8000-000000000004",
         brandName: "ASOS",

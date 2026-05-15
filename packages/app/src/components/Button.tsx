@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
-import { radius, spacing } from "../theme/theme";
+import { radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
 type ButtonProps = {
@@ -39,7 +39,6 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   text: {
-    fontSize: 16,
-    fontWeight: "600",
+    ...typography.bodySemibold,
   },
 });

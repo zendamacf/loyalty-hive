@@ -5,6 +5,7 @@ import {
   initialWindowMetrics,
   SafeAreaProvider,
 } from "react-native-safe-area-context";
+import { ThemeProvider } from "@/theme/ThemeProvider";
 
 Sentry.init({
   environment: process.env.NODE_ENV ?? "development",
@@ -25,7 +26,9 @@ export default Sentry.wrap(function Layout() {
         isAndroid15 ? { marginBottom: initialWindowMetrics?.insets.bottom } : {}
       }
     >
-      <Stack screenOptions={{ headerShown: false }} />
+      <ThemeProvider>
+        <Stack screenOptions={{ headerShown: false }} />
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 });

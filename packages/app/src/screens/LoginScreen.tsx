@@ -9,31 +9,21 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import { Routes } from "@/constants/routes.constants";
 import {
   client,
   postApiV1AuthLogin,
   postApiV1AuthSignup,
 } from "@/lib/api-client";
+import { getErrorMessage } from "@/lib/getErrorMessage";
+import { AppTitle } from "../components/AppTitle";
 import { Button } from "../components/Button";
-import { colors, radius, spacing } from "../theme/theme";
+import { ThemeToggle } from "../components/ThemeToggle";
+import { radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
 const icon = require("../../assets/images/icon.png");
-
-function messageFromApiError(err: unknown): string {
-  if (
-    err &&
-    typeof err === "object" &&
-    "error" in err &&
-    typeof (err as { error: unknown }).error === "string"
-  ) {
-    return (err as { error: string }).error;
-  }
-  if (typeof err === "string") {
-    return err;
-  }
-  return "Something went wrong. Please try again.";
-}
 
 type AuthMode = "login" | "signup";
 
@@ -53,7 +43,7 @@ export const LoginScreen = () => {
 
   const completeWithToken = (token: string) => {
     client.setConfig({ auth: token });
-    router.replace("/(tabs)/cards");
+    router.replace(Routes.CARDS);
   };
 
   const submitLogin = async (trimmedEmail: string, pwd: string) => {
@@ -62,7 +52,7 @@ export const LoginScreen = () => {
     });
 
     if (apiError) {
-      setError(messageFromApiError(apiError));
+      setError(getErrorMessage(apiError));
       return;
     }
 
@@ -79,7 +69,7 @@ export const LoginScreen = () => {
     });
 
     if (apiError) {
-      setError(messageFromApiError(apiError));
+      setError(getErrorMessage(apiError));
       return;
     }
 
@@ -124,15 +114,16 @@ export const LoginScreen = () => {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
     >
+      <View style={styles.header}>
+        <ThemeToggle />
+      </View>
       <View style={styles.content}>
         <Image
           accessibilityLabel="App logo"
           source={icon}
           style={styles.logo}
         />
-        <Text style={[styles.title, { color: colors.textPrimary }]}>
-          Loyalty<Text style={styles.titleHive}>Hive</Text>
-        </Text>
+        <AppTitle />
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
           {mode === "login"
             ? "Sign in to manage your loyalty cards"
@@ -215,6 +206,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  header: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
+  },
   content: {
     flex: 1,
     justifyContent: "center",
@@ -222,22 +219,13 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   logo: {
-    width: 96,
-    height: 96,
+    width: 160,
+    height: 160,
     alignSelf: "center",
     borderRadius: radius.lg,
-    marginBottom: spacing.sm,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    textAlign: "center",
-  },
-  titleHive: {
-    color: colors.primary,
   },
   subtitle: {
-    fontSize: 15,
+    ...typography.subtitle,
     textAlign: "center",
     marginBottom: spacing.md,
   },
@@ -246,15 +234,14 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm + 2,
-    fontSize: 16,
+    ...typography.body,
   },
   error: {
-    fontSize: 14,
+    ...typography.caption,
     textAlign: "center",
   },
   modeToggle: {
-    fontSize: 15,
-    fontWeight: "600",
+    ...typography.link,
     textAlign: "center",
     marginTop: spacing.sm,
   },

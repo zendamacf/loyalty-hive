@@ -3,6 +3,23 @@ import React from "react";
 
 import "./mocks/api-client";
 
+const asyncStorage = new Map<string, string>();
+
+mock.module("@react-native-async-storage/async-storage", () => ({
+  default: {
+    getItem: async (key: string) => asyncStorage.get(key) ?? null,
+    setItem: async (key: string, value: string) => {
+      asyncStorage.set(key, value);
+    },
+    removeItem: async (key: string) => {
+      asyncStorage.delete(key);
+    },
+    clear: async () => {
+      asyncStorage.clear();
+    },
+  },
+}));
+
 /// This is a bunch of mocks to allow testing of React Native components.
 /// TODO: There must be a better solution for this.
 
@@ -22,6 +39,55 @@ function createPrimitive(name: string) {
   Primitive.displayName = name;
   return Primitive;
 }
+
+class AnimatedValue {
+  _value: number;
+
+  constructor(initial: number) {
+    this._value = initial;
+  }
+
+  interpolate(config: {
+    inputRange: number[];
+    outputRange: (number | string)[];
+  }) {
+    const { inputRange, outputRange } = config;
+    if (this._value <= inputRange[0]) {
+      return outputRange[0];
+    }
+    if (this._value >= inputRange[inputRange.length - 1]) {
+      return outputRange[outputRange.length - 1];
+    }
+    return outputRange[outputRange.length - 1];
+  }
+}
+
+const Animated = {
+  Value: AnimatedValue,
+  View: createPrimitive("Animated.View"),
+  Text: createPrimitive("Animated.Text"),
+  timing: (
+    value: AnimatedValue,
+    config: { toValue: number; duration?: number; useNativeDriver?: boolean },
+  ) => ({
+    start: (callback?: (result: { finished: boolean }) => void) => {
+      value._value = config.toValue;
+      callback?.({ finished: true });
+    },
+  }),
+};
+
+const Easing = {
+  out: (easing: (value: number) => number) => easing,
+  cubic: (value: number) => value,
+};
+
+mock.module("lucide-react-native", () => ({
+  MoonIcon: () => React.createElement("Text", null, "moon"),
+  SunIcon: () => React.createElement("Text", null, "sun"),
+  PlusIcon: () => React.createElement("Text", null, "+"),
+  SettingsIcon: () => React.createElement("Text", null, "⚙"),
+}));
 
 mock.module("react-native", () => ({
   FlatList: (props: {
@@ -74,6 +140,19 @@ mock.module("react-native", () => ({
   View: createPrimitive("View"),
   TextInput: createPrimitive("TextInput"),
   Image: createPrimitive("Image"),
+  Switch: (props: {
+    value?: boolean;
+    onValueChange?: (value: boolean) => void;
+    accessibilityLabel?: string;
+  }) =>
+    React.createElement("Switch", {
+      ...props,
+      accessibilityRole: "switch",
+      accessibilityState: { checked: props.value },
+      onPress: () => props.onValueChange?.(!props.value),
+    }),
+  Animated,
+  Easing,
   useColorScheme: () => "light",
 }));
 

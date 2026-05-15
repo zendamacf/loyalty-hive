@@ -1,7 +1,7 @@
 import type { StyleProp, TextInputProps, ViewStyle } from "react-native";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
-import { radius, spacing } from "../theme/theme";
+import { radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
 export type SearchBarProps = {
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    ...typography.body,
     paddingVertical: 0,
   },
   clearButton: {
@@ -77,8 +77,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   clearLabel: {
-    fontSize: 22,
+    ...typography.clearIcon,
     lineHeight: 24,
-    fontWeight: "400",
   },
 });

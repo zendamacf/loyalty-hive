@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { StyleProp, ViewStyle } from "react-native";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
-import { radius, spacing } from "@/theme/theme";
+import { radius, spacing, typography } from "@/theme/theme";
 import { useTheme } from "../theme/useTheme";
 
 type Props = {
@@ -89,8 +89,7 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   brand: {
-    fontSize: 16,
-    fontWeight: "600",
+    ...typography.bodySemibold,
     textAlign: "center",
   },
 });

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-
-import { fireEvent, render, waitFor } from "@testing-library/react-native";
-
+import { fireEvent, waitFor } from "@testing-library/react-native";
+import { Routes } from "@/constants/routes.constants";
 import { getApiV1CardsMock } from "../../test/mocks/api-client";
+import { renderWithTheme } from "../../test/render";
 
 /** Bun otherwise executes the real PNG when CardsScreen loads `require(...)`. */
 mock.module("../../assets/images/icon.png", () => ({ default: 1 }));
@@ -41,6 +41,7 @@ const { __expoRouterMocks } = globalThis as unknown as {
   __expoRouterMocks: {
     push: ReturnType<typeof mock>;
     back: ReturnType<typeof mock>;
+    replace: ReturnType<typeof mock>;
     params: Record<string, string | undefined>;
   };
 };
@@ -50,11 +51,14 @@ const { CardsScreen } = await import("./CardsScreen");
 describe("CardsScreen", () => {
   beforeEach(() => {
     __expoRouterMocks.push.mockClear();
+    __expoRouterMocks.replace.mockClear();
     getApiV1CardsMock.mockClear();
   });
 
   it("renders search and loyalty cards", async () => {
-    const { getByPlaceholderText, getByText } = render(<CardsScreen />);
+    const { getByPlaceholderText, getByText } = renderWithTheme(
+      <CardsScreen />,
+    );
 
     expect(getByPlaceholderText("Search cards...")).toBeTruthy();
     await waitFor(() => {
@@ -64,7 +68,7 @@ describe("CardsScreen", () => {
   });
 
   it("filters cards by search query", async () => {
-    const { getByPlaceholderText, getByText, queryByText } = render(
+    const { getByPlaceholderText, getByText, queryByText } = renderWithTheme(
       <CardsScreen />,
     );
 
@@ -79,12 +83,22 @@ describe("CardsScreen", () => {
   });
 
   it("navigates to select brand when add button is pressed", async () => {
-    const { getByText } = render(<CardsScreen />);
+    const { getByText } = renderWithTheme(<CardsScreen />);
 
     await waitFor(() => expect(getByText("+")).toBeTruthy());
 
     fireEvent.press(getByText("+"));
 
-    expect(__expoRouterMocks.push).toHaveBeenCalledWith("/select-brand");
+    expect(__expoRouterMocks.push).toHaveBeenCalledWith(Routes.SELECT_BRAND);
+  });
+
+  it("navigates to settings when settings button is pressed", async () => {
+    const { getByLabelText } = renderWithTheme(<CardsScreen />);
+
+    await waitFor(() => expect(getApiV1CardsMock).toHaveBeenCalled());
+
+    fireEvent.press(getByLabelText("Open settings"));
+
+    expect(__expoRouterMocks.push).toHaveBeenCalledWith(Routes.SETTINGS);
   });
 });

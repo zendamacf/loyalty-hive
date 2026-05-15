@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-
-import { fireEvent, render, waitFor } from "@testing-library/react-native";
-
+import { fireEvent, waitFor } from "@testing-library/react-native";
+import { Routes } from "@/constants/routes.constants";
 import {
   postApiV1AuthLoginMock,
   postApiV1AuthSignupMock,
   setConfigMock,
 } from "../../test/mocks/api-client";
+import { renderWithTheme } from "../../test/render";
 
 /** Bun otherwise executes the real PNG file when LoginScreen loads `require(...)`. */
 mock.module("../../assets/images/icon.png", () => ({ default: 1 }));
@@ -38,8 +38,12 @@ describe("LoginScreen", () => {
   });
 
   it("renders login fields and copy by default", () => {
-    const { getByText, getByPlaceholderText } = render(<LoginScreen />);
+    const { getByText, getByPlaceholderText, getByLabelText } = renderWithTheme(
+      <LoginScreen />,
+    );
 
+    expect(getByLabelText("Use dark theme")).toBeTruthy();
+    expect(getByText("sun")).toBeTruthy();
     expect(getByText("LoyaltyHive")).toBeTruthy();
     expect(getByText("Sign in to manage your loyalty cards")).toBeTruthy();
     expect(getByPlaceholderText("Email")).toBeTruthy();
@@ -47,8 +51,22 @@ describe("LoginScreen", () => {
     expect(getByText("Sign in")).toBeTruthy();
   });
 
+  it("toggles theme from the header control", async () => {
+    const { getByLabelText, getByText } = renderWithTheme(<LoginScreen />);
+
+    expect(getByLabelText("Use dark theme")).toBeTruthy();
+    expect(getByText("sun")).toBeTruthy();
+
+    fireEvent.press(getByLabelText("Use dark theme"));
+
+    await waitFor(() => {
+      expect(getByLabelText("Use light theme")).toBeTruthy();
+      expect(getByText("moon")).toBeTruthy();
+    });
+  });
+
   it("shows validation when email or password is missing", () => {
-    const { getByText } = render(<LoginScreen />);
+    const { getByText } = renderWithTheme(<LoginScreen />);
 
     fireEvent.press(getByText("Sign in"));
 
@@ -56,7 +74,7 @@ describe("LoginScreen", () => {
   });
 
   it("toggles between login and signup copy", () => {
-    const { getByText, queryByText } = render(<LoginScreen />);
+    const { getByText, queryByText } = renderWithTheme(<LoginScreen />);
 
     fireEvent.press(getByText("Need an account? Sign up"));
 
@@ -70,7 +88,7 @@ describe("LoginScreen", () => {
   });
 
   it("clears error when switching auth mode", () => {
-    const { getByText } = render(<LoginScreen />);
+    const { getByText } = renderWithTheme(<LoginScreen />);
 
     fireEvent.press(getByText("Sign in"));
     expect(getByText("Enter your email and password.")).toBeTruthy();
@@ -81,7 +99,9 @@ describe("LoginScreen", () => {
   });
 
   it("trims email, sets auth token, and replaces route on successful login", async () => {
-    const { getByText, getByPlaceholderText } = render(<LoginScreen />);
+    const { getByText, getByPlaceholderText } = renderWithTheme(
+      <LoginScreen />,
+    );
 
     fireEvent.changeText(getByPlaceholderText("Email"), "  hi@example.com ");
     fireEvent.changeText(getByPlaceholderText("Password"), "secret");
@@ -94,12 +114,14 @@ describe("LoginScreen", () => {
         }),
       );
       expect(setConfigMock).toHaveBeenCalledWith({ auth: "test-token" });
-      expect(__expoRouterMocks.replace).toHaveBeenCalledWith("/(tabs)/cards");
+      expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
     });
   });
 
   it("shows validation when pressing Enter on the password field with empty fields", () => {
-    const { getByPlaceholderText, getByText } = render(<LoginScreen />);
+    const { getByPlaceholderText, getByText } = renderWithTheme(
+      <LoginScreen />,
+    );
 
     fireEvent(getByPlaceholderText("Password"), "submitEditing");
 
@@ -107,7 +129,7 @@ describe("LoginScreen", () => {
   });
 
   it("submits login when pressing Enter on the password field", async () => {
-    const { getByPlaceholderText } = render(<LoginScreen />);
+    const { getByPlaceholderText } = renderWithTheme(<LoginScreen />);
 
     fireEvent.changeText(getByPlaceholderText("Email"), "hi@example.com");
     fireEvent.changeText(getByPlaceholderText("Password"), "secret");
@@ -120,12 +142,12 @@ describe("LoginScreen", () => {
         }),
       );
       expect(setConfigMock).toHaveBeenCalledWith({ auth: "test-token" });
-      expect(__expoRouterMocks.replace).toHaveBeenCalledWith("/(tabs)/cards");
+      expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
     });
   });
 
   it("does not submit login when pressing Enter on the email field (only focuses password)", () => {
-    const { getByPlaceholderText } = render(<LoginScreen />);
+    const { getByPlaceholderText } = renderWithTheme(<LoginScreen />);
 
     fireEvent.changeText(getByPlaceholderText("Email"), "hi@example.com");
     fireEvent.changeText(getByPlaceholderText("Password"), "secret");
@@ -135,7 +157,9 @@ describe("LoginScreen", () => {
   });
 
   it("signs up then logs in when pressing Enter on the password field in signup mode", async () => {
-    const { getByText, getByPlaceholderText } = render(<LoginScreen />);
+    const { getByText, getByPlaceholderText } = renderWithTheme(
+      <LoginScreen />,
+    );
 
     fireEvent.press(getByText("Need an account? Sign up"));
     fireEvent.changeText(getByPlaceholderText("Email"), "new@example.com");
@@ -154,7 +178,7 @@ describe("LoginScreen", () => {
         }),
       );
       expect(setConfigMock).toHaveBeenCalledWith({ auth: "test-token" });
-      expect(__expoRouterMocks.replace).toHaveBeenCalledWith("/(tabs)/cards");
+      expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
     });
   });
 
@@ -166,7 +190,9 @@ describe("LoginScreen", () => {
       }),
     );
 
-    const { getByText, getByPlaceholderText } = render(<LoginScreen />);
+    const { getByText, getByPlaceholderText } = renderWithTheme(
+      <LoginScreen />,
+    );
 
     fireEvent.changeText(getByPlaceholderText("Email"), "a@b.co");
     fireEvent.changeText(getByPlaceholderText("Password"), "wrong");
@@ -182,7 +208,9 @@ describe("LoginScreen", () => {
       Promise.resolve({ data: {}, error: undefined }),
     );
 
-    const { getByText, getByPlaceholderText } = render(<LoginScreen />);
+    const { getByText, getByPlaceholderText } = renderWithTheme(
+      <LoginScreen />,
+    );
 
     fireEvent.changeText(getByPlaceholderText("Email"), "a@b.co");
     fireEvent.changeText(getByPlaceholderText("Password"), "ok");
@@ -195,7 +223,9 @@ describe("LoginScreen", () => {
   });
 
   it("signs up then logs in on successful signup", async () => {
-    const { getByText, getByPlaceholderText } = render(<LoginScreen />);
+    const { getByText, getByPlaceholderText } = renderWithTheme(
+      <LoginScreen />,
+    );
 
     fireEvent.press(getByText("Need an account? Sign up"));
     fireEvent.changeText(getByPlaceholderText("Email"), "new@example.com");
@@ -214,7 +244,7 @@ describe("LoginScreen", () => {
         }),
       );
       expect(setConfigMock).toHaveBeenCalledWith({ auth: "test-token" });
-      expect(__expoRouterMocks.replace).toHaveBeenCalledWith("/(tabs)/cards");
+      expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
     });
   });
 });
