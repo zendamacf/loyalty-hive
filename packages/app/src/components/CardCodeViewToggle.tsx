@@ -8,13 +8,12 @@ import {
   View,
   type ViewStyle,
 } from "react-native";
+import { ICON_SIZE_MD } from "@/constants/ui.constants";
 import { useCrossfadeProgress } from "@/hooks/useCrossfadeProgress";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import type { CardView } from "@/lib/cardView";
 import { spacing } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
-
-const ICON_SIZE = 24;
 
 type CardCodeViewToggleProps = {
   view: CardView;
@@ -47,7 +46,7 @@ export const CardCodeViewToggle = ({
             { opacity: opacityOff, transform: iconTransform },
           ]}
         >
-          <BarcodeIcon color={colors.textPrimary} size={ICON_SIZE} />
+          <BarcodeIcon color={colors.textPrimary} size={ICON_SIZE_MD} />
         </Animated.View>
         <Animated.View
           style={[
@@ -55,7 +54,7 @@ export const CardCodeViewToggle = ({
             { opacity: opacityOn, transform: iconTransform },
           ]}
         >
-          <QrCodeIcon color={colors.textPrimary} size={ICON_SIZE} />
+          <QrCodeIcon color={colors.textPrimary} size={ICON_SIZE_MD} />
         </Animated.View>
       </View>
     </Pressable>
@@ -67,8 +66,8 @@ const styles = StyleSheet.create({
     padding: spacing.xs,
   },
   iconSlot: {
-    width: ICON_SIZE,
-    height: ICON_SIZE,
+    width: ICON_SIZE_MD,
+    height: ICON_SIZE_MD,
   },
   iconLayer: {
     ...StyleSheet.absoluteFillObject,

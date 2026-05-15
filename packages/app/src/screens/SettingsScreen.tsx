@@ -8,12 +8,11 @@ import { Button } from "@/components/Button";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Routes } from "@/constants/routes.constants";
+import { ICON_SIZE_MD } from "@/constants/ui.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { client } from "@/lib/api-client";
 import { radius, spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
-
-const HEADER_ICON_SIZE = 24;
 
 export const SettingsScreen = () => {
   const { t } = useTranslation(I18nNamespace.Settings);
@@ -46,7 +45,7 @@ export const SettingsScreen = () => {
             ]}
             onPress={() => router.back()}
           >
-            <XIcon color={colors.textPrimary} size={HEADER_ICON_SIZE} />
+            <XIcon color={colors.textPrimary} size={ICON_SIZE_MD} />
           </Pressable>
         </View>
 

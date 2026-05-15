@@ -13,13 +13,12 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LoyaltyBrandLogo } from "@/components/LoyaltyBrandLogo";
 import { Routes } from "@/constants/routes.constants";
+import { ICON_SIZE_MD } from "@/constants/ui.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { type GetApiV1BrandsResponse, getApiV1Brands } from "@/lib/api-client";
 import { SearchBar } from "../components/SearchBar";
 import { spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
-
-const HEADER_ICON_SIZE = 24;
 
 export const SelectBrandScreen = () => {
   const { t } = useTranslation(I18nNamespace.Brands);
@@ -73,7 +72,7 @@ export const SelectBrandScreen = () => {
           ]}
           onPress={() => router.back()}
         >
-          <XIcon color={colors.textPrimary} size={HEADER_ICON_SIZE} />
+          <XIcon color={colors.textPrimary} size={ICON_SIZE_MD} />
         </Pressable>
       </View>
       <Text style={[styles.subtitle, { color: colors.textSecondary }]}>

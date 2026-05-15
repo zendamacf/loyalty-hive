@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Routes } from "@/constants/routes.constants";
+import { BRAND_MARK_HEIGHT_LIST, ICON_SIZE_MD } from "@/constants/ui.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { type GetApiV1CardsResponse, getApiV1Cards } from "@/lib/api-client";
 import { AppTitle } from "../components/AppTitle";
@@ -134,7 +135,7 @@ export const CardsScreen = () => {
           ]}
           onPress={() => router.push(Routes.SELECT_BRAND)}
         >
-          <PlusIcon color={colors.textPrimary} size={24} />
+          <PlusIcon color={colors.textPrimary} size={ICON_SIZE_MD} />
         </Pressable>
         <Pressable
           accessibilityLabel={t("openSettingsA11y")}
@@ -190,7 +191,7 @@ export const CardsScreen = () => {
               brand={item.label ?? item.brand?.name ?? item.cardNumber}
               logo={item.brand?.logoUrl}
               backgroundColor={item.brand?.backgroundColor}
-              height={100}
+              height={BRAND_MARK_HEIGHT_LIST}
               onPress={() =>
                 router.push({
                   pathname: Routes.CARD_CODE,

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { fireEvent, waitFor } from "@testing-library/react-native";
 import { Pressable, TouchableOpacity } from "react-native";
+import { APP_NAME } from "@/constants/branding.constants";
 import { Routes } from "@/constants/routes.constants";
 import {
   postApiV1AuthLoginMock,
@@ -45,7 +46,7 @@ describe("LoginScreen", () => {
 
     expect(getByLabelText("Use dark theme")).toBeTruthy();
     expect(getByText("sun")).toBeTruthy();
-    expect(getByText("LoyaltyHive")).toBeTruthy();
+    expect(getByText(APP_NAME)).toBeTruthy();
     expect(getByText("Sign in to manage your loyalty cards")).toBeTruthy();
     expect(getByPlaceholderText("Email")).toBeTruthy();
     expect(getByPlaceholderText("Password")).toBeTruthy();

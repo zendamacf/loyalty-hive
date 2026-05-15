@@ -1,7 +1,9 @@
 import { useEffect, useRef } from "react";
 import { Animated, Easing, type TransformsStyle } from "react-native";
 
-export const CROSSFADE_MS = 220;
+import { TRANSITION_MS } from "@/constants/ui.constants";
+
+export { TRANSITION_MS as CROSSFADE_MS };
 
 type UseCrossfadeProgressOptions = {
   useNativeDriver?: boolean;
@@ -19,7 +21,7 @@ export function useCrossfadeProgress(
   useEffect(() => {
     Animated.timing(progress, {
       toValue: active ? 1 : 0,
-      duration: CROSSFADE_MS,
+      duration: TRANSITION_MS,
       easing: Easing.out(Easing.cubic),
       useNativeDriver,
     }).start();
