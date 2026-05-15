@@ -7,7 +7,6 @@ import {
   FlatList,
   Image,
   Pressable,
-  RefreshControl,
   StyleSheet,
   Text,
   View,
@@ -19,6 +18,8 @@ import { type GetApiV1CardsResponse, getApiV1Cards } from "@/lib/api-client";
 import { AppTitle } from "../components/AppTitle";
 import { LoyaltyBrandLogo } from "../components/LoyaltyBrandLogo";
 import { SearchBar } from "../components/SearchBar";
+import { ThemedRefreshControl } from "../components/ThemedRefreshControl";
+import { usePullToRefresh } from "../hooks/usePullToRefresh";
 import { brandMark, icon, radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
@@ -47,7 +48,6 @@ export const CardsScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
 
   const filteredCards = useMemo(
     () => filterCards(cards, searchQuery),
@@ -76,14 +76,7 @@ export const CardsScreen = () => {
     }, [fetchCards]),
   );
 
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    try {
-      await fetchCards();
-    } finally {
-      setRefreshing(false);
-    }
-  }, [fetchCards]);
+  const { refreshing, onRefresh } = usePullToRefresh(fetchCards);
 
   let emptyTitle: string | null = null;
   let emptySubtitle: string | null = null;
@@ -177,12 +170,7 @@ export const CardsScreen = () => {
         }
         ListEmptyComponent={listEmpty}
         refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={colors.primary}
-            colors={[colors.primary]}
-          />
+          <ThemedRefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         renderItem={({ item }) => {
           const cardBackgroundColor =

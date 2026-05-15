@@ -20,6 +20,8 @@ import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { type GetApiV1BrandsResponse, getApiV1Brands } from "@/lib/api-client";
 import { SearchBar } from "../components/SearchBar";
+import { ThemedRefreshControl } from "../components/ThemedRefreshControl";
+import { usePullToRefresh } from "../hooks/usePullToRefresh";
 import { icon, radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
@@ -33,17 +35,22 @@ export const SelectBrandScreen = () => {
   const [isCustomLabelOpen, setIsCustomLabelOpen] = useState(false);
   const [customLabel, setCustomLabel] = useState("");
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const { data, error: apiError } = await getApiV1Brands();
-        if (apiError) setError(apiError.error);
-        if (data) setBrands(data);
-      } finally {
-        setLoaded(true);
-      }
-    })();
+  const fetchBrands = useCallback(async () => {
+    setError(null);
+    try {
+      const { data, error: apiError } = await getApiV1Brands();
+      if (apiError) setError(apiError.error);
+      if (data) setBrands(data);
+    } finally {
+      setLoaded(true);
+    }
   }, []);
+
+  useEffect(() => {
+    void fetchBrands();
+  }, [fetchBrands]);
+
+  const { refreshing, onRefresh } = usePullToRefresh(fetchBrands);
 
   const filteredBrands = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -185,6 +192,12 @@ export const SelectBrandScreen = () => {
             showsVerticalScrollIndicator={false}
             columnWrapperStyle={styles.columnWrapper}
             contentContainerStyle={styles.listContent}
+            refreshControl={
+              <ThemedRefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+              />
+            }
             renderItem={({ item }) => (
               <LoyaltyBrandLogo
                 brand={item.name}

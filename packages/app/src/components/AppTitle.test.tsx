@@ -28,7 +28,10 @@ describe("AppTitle", () => {
     expect(
       styles.some(
         (s) =>
-          typeof s === "object" && s !== null && "textAlign" in s && s.textAlign === "left",
+          typeof s === "object" &&
+          s !== null &&
+          "textAlign" in s &&
+          s.textAlign === "left",
       ),
     ).toBe(true);
   });

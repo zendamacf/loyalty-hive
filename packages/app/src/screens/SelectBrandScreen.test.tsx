@@ -154,6 +154,18 @@ describe("SelectBrandScreen", () => {
     });
   });
 
+  it("refetches brands on pull-to-refresh", async () => {
+    const { UNSAFE_getByType } = renderWithProviders(<SelectBrandScreen />);
+
+    await waitFor(() => expect(getApiV1BrandsMock).toHaveBeenCalledTimes(1));
+
+    const { RefreshControl } = await import("react-native");
+    const refreshControl = UNSAFE_getByType(RefreshControl);
+    fireEvent(refreshControl, "refresh");
+
+    await waitFor(() => expect(getApiV1BrandsMock).toHaveBeenCalledTimes(2));
+  });
+
   it("shows API error when brands fetch fails", async () => {
     getApiV1BrandsMock.mockImplementation(() =>
       Promise.resolve({
