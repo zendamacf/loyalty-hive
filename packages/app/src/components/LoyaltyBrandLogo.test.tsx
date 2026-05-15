@@ -1,5 +1,6 @@
-import { fireEvent, render } from "@testing-library/react-native";
 import { describe, expect, it, mock } from "bun:test";
+
+import { fireEvent, render } from "@testing-library/react-native";
 import { Image } from "react-native";
 
 import { LoyaltyBrandLogo } from "./LoyaltyBrandLogo";
@@ -11,6 +12,7 @@ describe("LoyaltyBrandLogo", () => {
         brand="Test Brand"
         height={48}
         logo="https://example.com/logo.png"
+        onPress={() => {}}
       />,
     );
 
@@ -20,7 +22,7 @@ describe("LoyaltyBrandLogo", () => {
 
   it("renders placeholder if no logo is provided", () => {
     const { getByText } = render(
-      <LoyaltyBrandLogo brand="Test Brand" height={48} />,
+      <LoyaltyBrandLogo brand="Test Brand" height={48} onPress={() => {}} />,
     );
 
     expect(getByText("Test Brand")).toBeTruthy();

@@ -9,13 +9,12 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-import { Button } from "../components/Button";
 import {
   client,
   postApiV1AuthLogin,
   postApiV1AuthSignup,
-} from "../lib/api-client";
+} from "@/lib/api-client";
+import { Button } from "../components/Button";
 import { colors, radius, spacing } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 

@@ -1,8 +1,9 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { beforeEach, describe, expect, it, type mock } from "bun:test";
 
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
 
-import type { GetApiV1BrandsResponse } from "@/lib/api-client";
+import type { GetApiV1BrandsResponse } from "@/lib/api-client/gen";
+import { getApiV1BrandsMock } from "../../test/mocks/api-client";
 
 const testBrands = [
   {
@@ -23,16 +24,12 @@ const testBrands = [
   },
 ] satisfies GetApiV1BrandsResponse;
 
-const getApiV1BrandsMock = mock(() =>
+getApiV1BrandsMock.mockImplementation(() =>
   Promise.resolve({
     data: testBrands,
     error: undefined,
   }),
 );
-
-mock.module("@/lib/api-client", () => ({
-  getApiV1Brands: getApiV1BrandsMock,
-}));
 
 const { __expoRouterMocks } = globalThis as unknown as {
   __expoRouterMocks: {
@@ -51,8 +48,12 @@ describe("SelectBrandScreen", () => {
   });
 
   it("renders heading and filters brands by query", async () => {
-    const { getByText, getByPlaceholderText, getByLabelText, queryByLabelText } =
-      render(<SelectBrandScreen />);
+    const {
+      getByText,
+      getByPlaceholderText,
+      getByLabelText,
+      queryByLabelText,
+    } = render(<SelectBrandScreen />);
 
     expect(getByText("Choose a brand")).toBeTruthy();
 

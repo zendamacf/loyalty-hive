@@ -22,11 +22,20 @@ function createApiApp() {
 beforeAll(async () => {
   authToken = await sign({ sub: USER_ID }, config.jwt.accessSecret);
 
-  await db.insert(users).values({
-    id: USER_ID,
-    email: "test.user@example.com",
-    passwordHash: "hashed-password",
-  });
+  await db
+    .insert(users)
+    .values({
+      id: USER_ID,
+      email: "test.user@example.com",
+      passwordHash: "hashed-password",
+    })
+    .onConflictDoUpdate({
+      target: [users.id],
+      set: {
+        email: "test.user@example.com",
+        passwordHash: "hashed-password",
+      },
+    });
 
   await db.insert(brands).values({
     id: BRAND_ID,

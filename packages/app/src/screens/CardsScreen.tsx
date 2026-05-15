@@ -180,6 +180,9 @@ export const CardsScreen = () => {
               logo={item.brand?.logoUrl}
               backgroundColor={item.brand?.backgroundColor}
               height={100}
+              onPress={() => {
+                console.log("TODO: Add card details screen");
+              }}
             />
           </View>
         )}

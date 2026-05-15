@@ -1,6 +1,8 @@
 import { mock } from "bun:test";
 import React from "react";
 
+import "./mocks/api-client";
+
 /// This is a bunch of mocks to allow testing of React Native components.
 /// TODO: There must be a better solution for this.
 

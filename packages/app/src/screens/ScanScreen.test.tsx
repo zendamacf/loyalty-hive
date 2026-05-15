@@ -3,33 +3,23 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import React from "react";
 
+import { getConfigMock, postApiV1CardsMock } from "../../test/mocks/api-client";
+
 const testUserId = "00000000-0000-4000-8000-000000000001";
 const fakeJwt = `h.${Buffer.from(JSON.stringify({ sub: testUserId })).toString("base64url")}.s`;
 
-const postApiV1CardsMock = mock(
-  (): Promise<{
-    data: Record<string, unknown>;
-    error: undefined;
-  }> =>
-    Promise.resolve({
-      data: {
-        id: "card-1",
-        userId: testUserId,
-        cardNumber: "123456",
-        brand: null,
-        createdAt: new Date().toISOString(),
-      },
-      error: undefined,
-    }),
+postApiV1CardsMock.mockImplementation(() =>
+  Promise.resolve({
+    data: {
+      id: "card-1",
+      userId: testUserId,
+      cardNumber: "123456",
+      brand: null,
+      createdAt: new Date().toISOString(),
+    },
+    error: undefined,
+  }),
 );
-
-mock.module("@/lib/api-client", () => ({
-  client: {
-    getConfig: () => ({ auth: fakeJwt }),
-    setConfig: mock(() => {}),
-  },
-  postApiV1Cards: postApiV1CardsMock,
-}));
 
 type PermissionState = { granted: boolean } | null;
 
@@ -59,6 +49,7 @@ describe("ScanScreen", () => {
     __expoRouterMocks.dismissTo.mockClear();
     requestPermissionMock.mockClear();
     postApiV1CardsMock.mockClear();
+    getConfigMock.mockImplementation(() => ({ auth: fakeJwt }));
     __expoRouterMocks.params = { brandName: "ASOS" };
   });
 

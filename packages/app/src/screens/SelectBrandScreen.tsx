@@ -1,5 +1,3 @@
-import { LoyaltyBrandLogo } from "@/components/LoyaltyBrandLogo";
-import { type GetApiV1BrandsResponse, getApiV1Brands } from "@/lib/api-client";
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -10,6 +8,9 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import { LoyaltyBrandLogo } from "@/components/LoyaltyBrandLogo";
+import { type GetApiV1BrandsResponse, getApiV1Brands } from "@/lib/api-client";
 import { SearchBar } from "../components/SearchBar";
 import { spacing } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";

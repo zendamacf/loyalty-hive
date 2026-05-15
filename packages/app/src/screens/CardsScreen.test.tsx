@@ -2,10 +2,12 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
 
+import { getApiV1CardsMock } from "../../test/mocks/api-client";
+
 /** Bun otherwise executes the real PNG when CardsScreen loads `require(...)`. */
 mock.module("../../assets/images/icon.png", () => ({ default: 1 }));
 
-const getApiV1CardsMock = mock(() =>
+getApiV1CardsMock.mockImplementation(() =>
   Promise.resolve({
     data: [
       {
@@ -34,10 +36,6 @@ const getApiV1CardsMock = mock(() =>
     error: undefined,
   }),
 );
-
-mock.module("@/lib/api-client", () => ({
-  getApiV1Cards: getApiV1CardsMock,
-}));
 
 const { __expoRouterMocks } = globalThis as unknown as {
   __expoRouterMocks: {

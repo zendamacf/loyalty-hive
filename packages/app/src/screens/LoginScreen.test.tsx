@@ -2,29 +2,14 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
 
+import {
+  postApiV1AuthLoginMock,
+  postApiV1AuthSignupMock,
+  setConfigMock,
+} from "../../test/mocks/api-client";
+
 /** Bun otherwise executes the real PNG file when LoginScreen loads `require(...)`. */
 mock.module("../../assets/images/icon.png", () => ({ default: 1 }));
-
-const setConfigMock = mock(() => {});
-
-const postApiV1AuthLoginMock = mock(() =>
-  Promise.resolve({ data: { token: "test-token" }, error: undefined }),
-);
-
-const postApiV1AuthSignupMock = mock(() =>
-  Promise.resolve({
-    data: { id: "00000000-0000-4000-8000-000000000099" },
-    error: undefined,
-  }),
-);
-
-mock.module("@/lib/api-client", () => ({
-  client: {
-    setConfig: setConfigMock,
-  },
-  postApiV1AuthLogin: postApiV1AuthLoginMock,
-  postApiV1AuthSignup: postApiV1AuthSignupMock,
-}));
 
 const { __expoRouterMocks } = globalThis as unknown as {
   __expoRouterMocks: {
