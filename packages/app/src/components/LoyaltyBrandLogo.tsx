@@ -1,9 +1,10 @@
 import { useState } from "react";
 import type { StyleProp, ViewStyle } from "react-native";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
-import { radius, spacing, typography } from "@/theme/theme";
+import { radius } from "@/theme/theme";
 import { useTheme } from "../theme/useTheme";
+import { LoyaltyBrandMark } from "./LoyaltyBrandMark";
 
 type Props = {
   brand: string;
@@ -22,20 +23,17 @@ export const LoyaltyBrandLogo = ({
   onPress,
   style,
 }: Props) => {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
   const [pressed, setPressed] = useState(false);
 
-  const content = logo ? (
-    <Image source={{ uri: logo }} style={styles.logo} />
-  ) : (
-    <View>
-      <Text style={[styles.brand, { color: colors.textPrimary }]}>{brand}</Text>
-    </View>
-  );
-
   const cardBody = (pressed: boolean) => (
-    <View style={[styles.card, { backgroundColor, height }]}>
-      {content}
+    <View style={styles.cardWrap}>
+      <LoyaltyBrandMark
+        brand={brand}
+        logo={logo}
+        backgroundColor={backgroundColor}
+        height={height}
+      />
       {pressed ? (
         <View
           pointerEvents="none"
@@ -72,24 +70,11 @@ export const LoyaltyBrandLogo = ({
 };
 
 const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-    borderRadius: radius.sm,
-    padding: spacing.md,
+  cardWrap: {
     width: "100%",
-    overflow: "hidden",
     position: "relative",
   },
   touchHighlight: {
     borderCurve: "continuous",
-  },
-  logo: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "contain",
-  },
-  brand: {
-    ...typography.bodySemibold,
-    textAlign: "center",
   },
 });

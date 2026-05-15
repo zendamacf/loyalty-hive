@@ -5,5 +5,8 @@
   "noMatchingSubtitle": "Prueba con otra búsqueda.",
   "searchPlaceholder": "Buscar tarjetas...",
   "addCardA11y": "Añadir tarjeta de fidelidad",
-  "openSettingsA11y": "Abrir ajustes"
+  "openSettingsA11y": "Abrir ajustes",
+  "codeViewBarcode": "Código de barras",
+  "codeViewQr": "Código QR",
+  "copyCardNumberA11y": "Copiar número de tarjeta"
 }

@@ -1,7 +1,8 @@
 import { router } from "expo-router";
+import { XIcon } from "lucide-react-native";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "@/components/Button";
 import { LanguagePicker } from "@/components/LanguagePicker";
@@ -11,8 +12,11 @@ import { client } from "@/lib/api-client";
 import { radius, spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
+const HEADER_ICON_SIZE = 24;
+
 export const SettingsScreen = () => {
   const { t } = useTranslation("settings");
+  const { t: tCommon } = useTranslation("common");
   const { colors } = useTheme();
 
   const signOut = useCallback(() => {
@@ -25,9 +29,25 @@ export const SettingsScreen = () => {
       style={[styles.container, { backgroundColor: colors.background }]}
     >
       <View style={styles.content}>
-        <Text style={[styles.title, { color: colors.textPrimary }]}>
-          {t("title")}
-        </Text>
+        <View style={styles.titleRow}>
+          <Text
+            style={[styles.title, { color: colors.textPrimary }]}
+            accessibilityRole="header"
+          >
+            {t("title")}
+          </Text>
+          <Pressable
+            accessibilityLabel={tCommon("close")}
+            accessibilityRole="button"
+            style={({ pressed }) => [
+              styles.closeButton,
+              pressed && styles.closeButtonPressed,
+            ]}
+            onPress={() => router.back()}
+          >
+            <XIcon color={colors.textPrimary} size={HEADER_ICON_SIZE} />
+          </Pressable>
+        </View>
 
         <View
           style={[
@@ -74,6 +94,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.lg,
   },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  closeButton: {
+    height: 44,
+    width: 44,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  closeButtonPressed: {
+    opacity: 0.55,
+  },
   content: {
     flex: 1,
     paddingTop: spacing.md,
@@ -81,6 +115,7 @@ const styles = StyleSheet.create({
   },
   title: {
     ...typography.title,
+    flex: 1,
   },
   settingRow: {
     flexDirection: "row",

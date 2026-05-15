@@ -87,7 +87,20 @@ mock.module("lucide-react-native", () => ({
   SunIcon: () => React.createElement("Text", null, "sun"),
   PlusIcon: () => React.createElement("Text", null, "+"),
   SettingsIcon: () => React.createElement("Text", null, "⚙"),
+  BarcodeIcon: () => React.createElement("Text", null, "barcode"),
+  QrCodeIcon: () => React.createElement("Text", null, "qr"),
+  CopyIcon: () => React.createElement("Text", null, "copy"),
+  ChevronLeftIcon: () => React.createElement("Text", null, "back"),
+  XIcon: () => React.createElement("Text", null, "close"),
 }));
+
+const setStringAsyncMock = mock(() => Promise.resolve());
+
+mock.module("expo-clipboard", () => ({
+  setStringAsync: setStringAsyncMock,
+}));
+
+Object.assign(globalThis, { __expoClipboardMocks: { setStringAsync: setStringAsyncMock } });
 
 mock.module("react-native", () => ({
   FlatList: (props: {

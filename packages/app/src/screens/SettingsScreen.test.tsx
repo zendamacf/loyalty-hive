@@ -6,6 +6,7 @@ import { renderWithTheme } from "../../test/render";
 
 const { __expoRouterMocks } = globalThis as unknown as {
   __expoRouterMocks: {
+    back: ReturnType<typeof import("bun:test").mock>;
     replace: ReturnType<typeof import("bun:test").mock>;
   };
 };
@@ -14,6 +15,7 @@ const { SettingsScreen } = await import("./SettingsScreen");
 
 describe("SettingsScreen", () => {
   beforeEach(() => {
+    __expoRouterMocks.back.mockClear();
     __expoRouterMocks.replace.mockClear();
     setConfigMock.mockClear();
   });
@@ -43,6 +45,14 @@ describe("SettingsScreen", () => {
       expect(getByText("moon")).toBeTruthy();
       expect(getByText("Dark")).toBeTruthy();
     });
+  });
+
+  it("navigates back when close button is pressed", () => {
+    const { getByLabelText } = renderWithTheme(<SettingsScreen />);
+
+    fireEvent.press(getByLabelText("Close"));
+
+    expect(__expoRouterMocks.back).toHaveBeenCalled();
   });
 
   it("signs out when sign out is pressed", () => {

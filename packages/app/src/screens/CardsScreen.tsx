@@ -190,9 +190,18 @@ export const CardsScreen = () => {
               logo={item.brand?.logoUrl}
               backgroundColor={item.brand?.backgroundColor}
               height={100}
-              onPress={() => {
-                console.log("TODO: Add card details screen");
-              }}
+              onPress={() =>
+                router.push({
+                  pathname: Routes.CARD_CODE,
+                  params: {
+                    cardNumber: item.cardNumber,
+                    view: item.view ?? "1D",
+                    title: item.label ?? item.brand?.name ?? item.cardNumber,
+                    logoUrl: item.brand?.logoUrl ?? "",
+                    backgroundColor: item.brand?.backgroundColor ?? "",
+                  },
+                })
+              }
             />
           </View>
         )}

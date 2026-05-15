@@ -1,9 +1,7 @@
 import { MoonIcon, SunIcon } from "lucide-react-native";
-import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Animated,
-  Easing,
   Pressable,
   type StyleProp,
   StyleSheet,
@@ -12,11 +10,11 @@ import {
   type ViewStyle,
 } from "react-native";
 
+import { useCrossfadeProgress } from "@/hooks/useCrossfadeProgress";
 import { spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
 const ICON_SIZE = 24;
-const TRANSITION_MS = 220;
 const LABEL_SLOT_WIDTH = 60;
 
 type ThemeToggleProps = {
@@ -27,46 +25,14 @@ type ThemeToggleProps = {
 export const ThemeToggle = ({ showLabel = false, style }: ThemeToggleProps) => {
   const { t } = useTranslation("common");
   const { colors, isDark, setThemeMode } = useTheme();
-  const progress = useRef(new Animated.Value(isDark ? 1 : 0)).current;
-
-  useEffect(() => {
-    Animated.timing(progress, {
-      toValue: isDark ? 1 : 0,
-      duration: TRANSITION_MS,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
-    }).start();
-  }, [isDark, progress]);
-
-  const sunOpacity = progress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 0],
-  });
-  const moonOpacity = progress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 1],
-  });
-  const iconTransform = [
-    {
-      rotate: progress.interpolate({
-        inputRange: [0, 1],
-        outputRange: ["180deg", "0deg"],
-      }),
-    },
-    {
-      scale: progress.interpolate({
-        inputRange: [0, 0.5, 1],
-        outputRange: [1, 0.82, 1],
-      }),
-    },
-  ];
+  const { opacityOff, opacityOn, iconTransform } = useCrossfadeProgress(isDark);
 
   const icons = (
     <View style={styles.iconSlot}>
       <Animated.View
         style={[
           styles.iconLayer,
-          { opacity: sunOpacity, transform: iconTransform },
+          { opacity: opacityOff, transform: iconTransform },
         ]}
       >
         <SunIcon color={colors.textPrimary} size={ICON_SIZE} />
@@ -74,7 +40,7 @@ export const ThemeToggle = ({ showLabel = false, style }: ThemeToggleProps) => {
       <Animated.View
         style={[
           styles.iconLayer,
-          { opacity: moonOpacity, transform: iconTransform },
+          { opacity: opacityOn, transform: iconTransform },
         ]}
       >
         <MoonIcon color={colors.textPrimary} size={ICON_SIZE} />
@@ -95,7 +61,7 @@ export const ThemeToggle = ({ showLabel = false, style }: ThemeToggleProps) => {
           {icons}
           <View style={styles.labelSlot}>
             <Animated.View
-              style={[styles.labelStacked, { opacity: sunOpacity }]}
+              style={[styles.labelStacked, { opacity: opacityOff }]}
             >
               <Text
                 numberOfLines={1}
@@ -105,7 +71,7 @@ export const ThemeToggle = ({ showLabel = false, style }: ThemeToggleProps) => {
               </Text>
             </Animated.View>
             <Animated.View
-              style={[styles.labelStacked, { opacity: moonOpacity }]}
+              style={[styles.labelStacked, { opacity: opacityOn }]}
             >
               <Text
                 numberOfLines={1}

@@ -1,9 +1,11 @@
 import { router } from "expo-router";
+import { XIcon } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   FlatList,
+  Pressable,
   StyleSheet,
   Text,
   View,
@@ -17,8 +19,11 @@ import { SearchBar } from "../components/SearchBar";
 import { spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
+const HEADER_ICON_SIZE = 24;
+
 export const SelectBrandScreen = () => {
   const { t } = useTranslation("brands");
+  const { t: tCommon } = useTranslation("common");
   const { colors } = useTheme();
   const [query, setQuery] = useState("");
   const [brands, setBrands] = useState<GetApiV1BrandsResponse>([]);
@@ -52,9 +57,25 @@ export const SelectBrandScreen = () => {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
     >
-      <Text style={[styles.title, { color: colors.textPrimary }]}>
-        {t("title")}
-      </Text>
+      <View style={styles.titleRow}>
+        <Text
+          style={[styles.title, { color: colors.textPrimary }]}
+          accessibilityRole="header"
+        >
+          {t("title")}
+        </Text>
+        <Pressable
+          accessibilityLabel={tCommon("close")}
+          accessibilityRole="button"
+          style={({ pressed }) => [
+            styles.closeButton,
+            pressed && styles.closeButtonPressed,
+          ]}
+          onPress={() => router.back()}
+        >
+          <XIcon color={colors.textPrimary} size={HEADER_ICON_SIZE} />
+        </Pressable>
+      </View>
       <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
         {t("subtitle")}
       </Text>
@@ -115,11 +136,26 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: spacing.md,
   },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  closeButton: {
+    height: 44,
+    width: 44,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  closeButtonPressed: {
+    opacity: 0.55,
+  },
   title: {
     ...typography.title,
+    flex: 1,
   },
   subtitle: {
-    marginTop: spacing.xs,
     marginBottom: spacing.md,
     ...typography.caption,
   },

@@ -5,5 +5,8 @@
   "noMatchingSubtitle": "Try a different search.",
   "searchPlaceholder": "Search cards...",
   "addCardA11y": "Add loyalty card",
-  "openSettingsA11y": "Open settings"
+  "openSettingsA11y": "Open settings",
+  "codeViewBarcode": "Barcode",
+  "codeViewQr": "QR code",
+  "copyCardNumberA11y": "Copy card number"
 }
