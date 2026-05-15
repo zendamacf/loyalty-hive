@@ -1,0 +1,1 @@
+ALTER TABLE "brands" RENAME COLUMN "logo_url" TO "logo_file";

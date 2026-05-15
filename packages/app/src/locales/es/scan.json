@@ -1,0 +1,14 @@
+{
+  "checkingPermissions": "Comprobando permisos de la cámara...",
+  "cameraAccessTitle": "Se necesita acceso a la cámara",
+  "cameraAccessMessage": "Permite el acceso a la cámara para escanear códigos QR y de barras.",
+  "allowCamera": "Permitir cámara",
+  "addingCard": "Añadiendo tarjeta de {{brand}}",
+  "addingCustomCard": "Añadiendo {{label}}",
+  "savingCard": "Guardando tarjeta...",
+  "scanPrompt": "Escanea el código QR o de barras de la tarjeta",
+  "closeManualEntry": "Cerrar entrada manual",
+  "enterManually": "Introducir número de tarjeta manualmente",
+  "cardNumber": "Número de tarjeta",
+  "useCardNumber": "Usar número de tarjeta"
+}

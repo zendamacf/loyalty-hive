@@ -1,0 +1,10 @@
+{
+  "title": "Choose a brand",
+  "subtitle": "Select the loyalty brand before scanning your card.",
+  "searchPlaceholder": "Search brands...",
+  "loading": "Loading brands…",
+  "customCardTitle": "Custom card",
+  "customCardLabel": "Card label",
+  "customCardPlaceholder": "e.g. Gym membership",
+  "continueToScan": "Continue to scan"
+}

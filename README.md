@@ -2,19 +2,12 @@
 
 A clean, minimal mobile app for storing loyalty cards.
 
-## 🚀 Getting Started
+## Get Started
 
-```bash
-npm install
-npx expo start
+```sh
+# Install dependencies
+bun install
+# Start up backend & frontend respectively
+(cd packages/api; bun dev)
+(cd packages/app; bun start)
 ```
-
-## 📱 Features
-- Light & dark mode
-- Loyalty card storage UI
-- Clean, minimal design system
-
-## 🛠 Tech
-- Expo
-- React Native
-- Expo Router

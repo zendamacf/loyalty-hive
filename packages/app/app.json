@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "LoyaltyHive",
+    "slug": "loyaltyhive",
+    "scheme": "loyaltyhive",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0D1B2A"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#0D1B2A"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "loyalty-hive",
+          "organization": "kalopsiadev"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "title": "Elige una marca",
+  "subtitle": "Selecciona la marca de fidelidad antes de escanear tu tarjeta.",
+  "searchPlaceholder": "Buscar marcas...",
+  "loading": "Cargando marcas…",
+  "customCardTitle": "Tarjeta personalizada",
+  "customCardLabel": "Etiqueta de la tarjeta",
+  "customCardPlaceholder": "p. ej. Membresía del gimnasio",
+  "continueToScan": "Continuar al escaneo"
+}

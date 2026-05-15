@@ -1,0 +1,12 @@
+{
+  "noCardsTitle": "Aún no hay tarjetas de fidelidad",
+  "noCardsSubtitle": "Pulsa el botón + para añadir tu primera tarjeta.",
+  "noMatchingTitle": "No hay tarjetas coincidentes",
+  "noMatchingSubtitle": "Prueba con otra búsqueda.",
+  "searchPlaceholder": "Buscar tarjetas...",
+  "addCardA11y": "Añadir tarjeta de fidelidad",
+  "openSettingsA11y": "Abrir ajustes",
+  "codeViewBarcode": "Código de barras",
+  "codeViewQr": "Código QR",
+  "copyCardNumberA11y": "Copiar número de tarjeta"
+}
