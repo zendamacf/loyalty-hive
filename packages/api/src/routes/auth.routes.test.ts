@@ -1,27 +1,18 @@
 import { beforeAll, describe, expect, it } from "bun:test";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
-import { Hono } from "hono";
 import { verify } from "hono/jwt";
+import { createApiRouterApp } from "../../test/create-app";
 import { config } from "../common/config";
 import { BCRYPT_COST } from "../common/constants";
 import { db } from "../db/client";
 import { users } from "../db/schema";
-import authRouter from "./auth.routes";
 
 const USER_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const TEST_EMAIL = "auth.test@example.com";
 const TEST_PASSWORD = "correct-horse-battery-staple";
 
-function createApiApp() {
-  const app = new Hono();
-  app.route("/api/v1/auth", authRouter);
-  return app;
-}
-
 beforeAll(async () => {
-  process.env.JWT_ACCESS_SECRET ??= "test-secret";
-
   const passwordHash = bcrypt.hashSync(TEST_PASSWORD, BCRYPT_COST);
 
   await db.insert(users).values({
@@ -32,8 +23,8 @@ beforeAll(async () => {
 });
 
 describe("auth routes", () => {
-  it("returns 401 for wrong password", async () => {
-    const app = createApiApp();
+  it("returns 401 with error message for wrong password", async () => {
+    const app = createApiRouterApp();
     const response = await app.request("/api/v1/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -44,10 +35,13 @@ describe("auth routes", () => {
     });
 
     expect(response.status).toBe(401);
+    expect(await response.json()).toEqual({
+      error: "Invalid email or password",
+    });
   });
 
   it("returns 401 for unknown email", async () => {
-    const app = createApiApp();
+    const app = createApiRouterApp();
     const response = await app.request("/api/v1/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -61,7 +55,7 @@ describe("auth routes", () => {
   });
 
   it("returns a JWT for valid credentials", async () => {
-    const app = createApiApp();
+    const app = createApiRouterApp();
     const response = await app.request("/api/v1/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -79,8 +73,64 @@ describe("auth routes", () => {
     expect(payload.sub).toBe(USER_ID);
   });
 
+  it("logs in with different email casing and surrounding whitespace", async () => {
+    const app = createApiRouterApp();
+    const response = await app.request("/api/v1/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: `  ${TEST_EMAIL.toUpperCase()}  `,
+        password: TEST_PASSWORD,
+      }),
+    });
+
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { token: string };
+    const payload = await verify(body.token, config.jwt.accessSecret, "HS256");
+    expect(payload.sub).toBe(USER_ID);
+  });
+
+  it("returns 400 for invalid email on login", async () => {
+    const app = createApiRouterApp();
+    const response = await app.request("/api/v1/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: "not-an-email",
+        password: TEST_PASSWORD,
+      }),
+    });
+
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 for empty password on login", async () => {
+    const app = createApiRouterApp();
+    const response = await app.request("/api/v1/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: TEST_EMAIL,
+        password: "",
+      }),
+    });
+
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 for malformed JSON on login", async () => {
+    const app = createApiRouterApp();
+    const response = await app.request("/api/v1/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{",
+    });
+
+    expect(response.status).toBe(400);
+  });
+
   it("creates a user and stores a bcrypt password hash", async () => {
-    const app = createApiApp();
+    const app = createApiRouterApp();
     const email = "new.user@example.com";
     const password = "signup-password-123";
 
@@ -103,7 +153,7 @@ describe("auth routes", () => {
   });
 
   it("returns 409 when email is already registered", async () => {
-    const app = createApiApp();
+    const app = createApiRouterApp();
     const response = await app.request("/api/v1/auth/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -117,7 +167,7 @@ describe("auth routes", () => {
   });
 
   it("allows login after signup", async () => {
-    const app = createApiApp();
+    const app = createApiRouterApp();
     const email = "login.after.signup@example.com";
     const password = "after-signup-secret";
 

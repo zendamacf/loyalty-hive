@@ -12,7 +12,7 @@ import { db } from "../db/client.js";
 import { lower, users } from "../db/schema.js";
 
 const credentialsBodySchema = z.object({
-  email: z.email(),
+  email: z.string().trim().toLowerCase().pipe(z.email()),
   password: z.string().min(1),
 });
 
@@ -71,7 +71,7 @@ const app = new Hono()
           passwordHash: users.passwordHash,
         })
         .from(users)
-        .where(eq(lower(users.email), email.trim().toLowerCase()));
+        .where(eq(lower(users.email), email));
 
       const valid =
         user &&
@@ -121,14 +121,13 @@ const app = new Hono()
     validator("json", credentialsBodySchema),
     async (c) => {
       const { email, password } = c.req.valid("json");
-      const normalizedEmail = email.trim().toLowerCase();
       const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
 
       try {
         const [created] = await db
           .insert(users)
           .values({
-            email: normalizedEmail,
+            email,
             passwordHash,
           })
           .returning({

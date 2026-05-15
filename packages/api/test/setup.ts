@@ -11,6 +11,8 @@ const testDatabaseUrl = resolveTestDatabaseUrl();
 
 process.env.NODE_ENV = "test";
 process.env.DATABASE_URL = testDatabaseUrl;
+process.env.JWT_ACCESS_SECRET ??= "test-secret";
+process.env.FILE_STORAGE_URL ??= "https://cdn.test/";
 
 await recreateDatabase(testDatabaseUrl);
 await migrateDatabase(testDatabaseUrl);

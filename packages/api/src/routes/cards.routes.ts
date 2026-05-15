@@ -166,10 +166,7 @@ const app = new Hono<{ Variables: ContextVariables }>()
         }
         return c.json({ ...created, brand: null }, 201);
       } catch (error) {
-        if (isPgError(error) && error.code === "23505") {
-          return c.json({ error: "Card for user already exists" }, 409);
-        }
-        if (isPgError(error) && error.code === "23503") {
+        if (pgErrorCode(error) === "23503") {
           return c.json(
             { error: "Referenced userId or brandId does not exist" },
             400,
@@ -271,10 +268,7 @@ const app = new Hono<{ Variables: ContextVariables }>()
         }
         return c.json(updated);
       } catch (error) {
-        if (isPgError(error) && error.code === "23505") {
-          return c.json({ error: "Card for user already exists" }, 409);
-        }
-        if (isPgError(error) && error.code === "23503") {
+        if (pgErrorCode(error) === "23503") {
           return c.json(
             { error: "Referenced userId or brandId does not exist" },
             400,
@@ -325,11 +319,15 @@ const app = new Hono<{ Variables: ContextVariables }>()
     },
   );
 
-function isPgError(error: unknown): error is {
-  code?: string;
-  detail?: string;
-} {
-  return typeof error === "object" && error !== null && "code" in error;
+function pgErrorCode(error: unknown): string | undefined {
+  if (typeof error === "object" && error !== null && "code" in error) {
+    const code = (error as { code: unknown }).code;
+    if (typeof code === "string") return code;
+  }
+  if (error instanceof Error && error.cause !== undefined) {
+    return pgErrorCode(error.cause);
+  }
+  return undefined;
 }
 
 export default app;

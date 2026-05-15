@@ -1,10 +1,8 @@
 import { beforeAll, describe, expect, it } from "bun:test";
-import { Hono } from "hono";
-import { sign } from "hono/jwt";
+import { createApiRouterApp, signTestToken } from "../../test/create-app";
 import { config } from "../common/config";
 import { db } from "../db/client";
 import { brands, users } from "../db/schema";
-import brandsRouter from "./brands.routes";
 
 const USER_ID = "44444444-4444-4444-8444-444444444444";
 const BRAND_A_ID = "55555555-5555-4555-8555-555555555555";
@@ -12,14 +10,8 @@ const BRAND_B_ID = "66666666-6666-4666-8666-666666666666";
 
 let authToken: string;
 
-function createApiApp() {
-  const app = new Hono();
-  app.route("/api/v1/brands", brandsRouter);
-  return app;
-}
-
 beforeAll(async () => {
-  authToken = await sign({ sub: USER_ID }, config.jwt.accessSecret);
+  authToken = await signTestToken(USER_ID);
 
   await db.insert(users).values({
     id: USER_ID,
@@ -47,14 +39,14 @@ beforeAll(async () => {
 
 describe("brands routes", () => {
   it("requires authentication", async () => {
-    const app = createApiApp();
+    const app = createApiRouterApp();
     const response = await app.request("/api/v1/brands");
 
     expect(response.status).toBe(401);
   });
 
-  it("returns brands sorted by name", async () => {
-    const app = createApiApp();
+  it("returns brands sorted by name with logoUrl", async () => {
+    const app = createApiRouterApp();
     const response = await app.request("/api/v1/brands", {
       headers: { Authorization: `Bearer ${authToken}` },
     });
@@ -75,5 +67,11 @@ describe("brands routes", () => {
     expect(ours[0].defaultView).toBeNull();
     expect(ours[1].defaultView).toBe("2D");
     expect(ours[0].createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    expect(ours[0].logoUrl).toBe(
+      `${config.server.fileStorageUrl}logos/alpha.png`,
+    );
+    expect(ours[1].logoUrl).toBe(
+      `${config.server.fileStorageUrl}logos/beta.png`,
+    );
   });
 });
