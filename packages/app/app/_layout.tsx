@@ -10,8 +10,9 @@ import { LanguageProvider } from "@/i18n/LanguageProvider";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 
 Sentry.init({
-  environment: process.env.NODE_ENV ?? "development",
-  dsn: process.env.SENTRY_DSN,
+  enabled: !__DEV__,
+  environment: __DEV__ ? "development" : (process.env.NODE_ENV ?? "production"),
+  dsn: __DEV__ ? undefined : process.env.SENTRY_DSN,
   sendDefaultPii: true,
   enableLogs: true,
   replaysSessionSampleRate: 0.1,
