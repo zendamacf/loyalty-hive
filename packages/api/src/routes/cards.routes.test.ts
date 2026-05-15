@@ -146,7 +146,7 @@ describe("cards routes", () => {
     expect(response.status).toBe(400);
   });
 
-  it("returns a card by id as a raw database row", async () => {
+  it("returns a card by id with enriched brand and view", async () => {
     const app = createApiApp();
 
     const response = await app.request(`/api/v1/cards/${CARD_ID}`, {
@@ -160,9 +160,14 @@ describe("cards routes", () => {
       userId: USER_ID,
       cardNumber: "4242424242424242",
       label: "Personal",
-      brandId: BRAND_ID,
+      view: "1D",
+      brand: {
+        id: BRAND_ID,
+        name: "Test Brand",
+        logoUrl: `${config.server.fileStorageUrl}logos/testbrand.png`,
+        backgroundColor: "#000000",
+      },
     });
-    expect(body.brand).toBeUndefined();
     expect(body.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   });
 
@@ -208,7 +213,6 @@ describe("cards routes", () => {
       userId: USER_ID,
       cardNumber: "9999888877776666",
       label: "No brand",
-      brandId: null,
       brand: null,
     });
   });
@@ -234,7 +238,6 @@ describe("cards routes", () => {
       userId: USER_ID,
       cardNumber: "5555555555554444",
       label: "Work",
-      brandId: BRAND_ID,
       brand: {
         id: BRAND_ID,
         name: "Test Brand",
@@ -295,7 +298,7 @@ describe("cards routes", () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({
       id,
-      brandId: BRAND_ID,
+      brand: { id: BRAND_ID },
     });
   });
 
@@ -452,7 +455,7 @@ describe("cards routes", () => {
       userId: USER_ID,
       cardNumber: "recreated-after-delete",
       label: "Recreated",
-      brandId: BRAND_ID,
+      brand: { id: BRAND_ID },
     });
 
     const persisted = await db

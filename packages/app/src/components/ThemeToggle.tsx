@@ -1,5 +1,3 @@
-import { spacing, typography } from "@/theme/theme";
-import { useTheme } from "@/theme/useTheme";
 import { MoonIcon, SunIcon } from "lucide-react-native";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -13,6 +11,9 @@ import {
   View,
   type ViewStyle,
 } from "react-native";
+
+import { spacing, typography } from "@/theme/theme";
+import { useTheme } from "@/theme/useTheme";
 
 const ICON_SIZE = 24;
 const TRANSITION_MS = 220;

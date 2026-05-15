@@ -13,28 +13,34 @@ let authToken: string;
 beforeAll(async () => {
   authToken = await signTestToken(USER_ID);
 
-  await db.insert(users).values({
-    id: USER_ID,
-    email: "brands.tester@example.com",
-    passwordHash: "hashed-password",
-  });
+  await db
+    .insert(users)
+    .values({
+      id: USER_ID,
+      email: "brands.tester@example.com",
+      passwordHash: "hashed-password",
+    })
+    .onConflictDoNothing();
 
-  await db.insert(brands).values([
-    {
-      id: BRAND_B_ID,
-      name: "Beta Brand",
-      logoFile: "beta.png",
-      backgroundColor: "#000000",
-      defaultView: "2D",
-    },
-    {
-      id: BRAND_A_ID,
-      name: "Alpha Brand",
-      logoFile: "alpha.png",
-      backgroundColor: "#000000",
-      defaultView: null,
-    },
-  ]);
+  await db
+    .insert(brands)
+    .values([
+      {
+        id: BRAND_B_ID,
+        name: "Beta Brand",
+        logoFile: "beta.png",
+        backgroundColor: "#000000",
+        defaultView: "2D",
+      },
+      {
+        id: BRAND_A_ID,
+        name: "Alpha Brand",
+        logoFile: "alpha.png",
+        backgroundColor: "#000000",
+        defaultView: null,
+      },
+    ])
+    .onConflictDoNothing();
 });
 
 describe("brands routes", () => {

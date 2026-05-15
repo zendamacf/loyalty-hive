@@ -1,4 +1,6 @@
 import { and, eq } from "drizzle-orm";
+import type { Context } from "hono";
+
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import z from "zod";
@@ -12,6 +14,7 @@ export const cardSchema = z.object({
   userId: z.uuid(),
   cardNumber: z.string(),
   label: z.string().nullable().optional(),
+  view: z.enum(["1D", "2D"]).nullable().optional(),
   brand: z
     .object({
       id: z.uuid(),
@@ -33,8 +36,98 @@ const cardWriteSchema = z.object({
   brandId: z.uuid().nullable().optional(),
 });
 
+const errorJson = {
+  "application/json": {
+    schema: resolver(z.object({ error: z.string() })),
+  },
+} as const;
+
+function errorResponse(description: string) {
+  return { description, content: errorJson };
+}
+
+const fkViolationBody = {
+  error: "Referenced userId or brandId does not exist",
+} as const;
+
 interface ContextVariables {
   userId: string;
+}
+
+type AppContext = Context<{ Variables: ContextVariables }>;
+
+const cardWithBrandSelect = {
+  id: cards.id,
+  userId: cards.userId,
+  cardNumber: cards.cardNumber,
+  label: cards.label,
+  brandId: cards.brandId,
+  defaultView: brands.defaultView,
+  brandName: brands.name,
+  brandLogoFile: brands.logoFile,
+  brandBackgroundColor: brands.backgroundColor,
+  createdAt: cards.createdAt,
+};
+
+type CardWithBrandRow = {
+  id: string;
+  userId: string;
+  cardNumber: string;
+  label: string | null;
+  brandId: string | null;
+  defaultView: "1D" | "2D" | null;
+  brandName: string | null;
+  brandLogoFile: string | null;
+  brandBackgroundColor: string | null;
+  createdAt: Date;
+};
+
+function cardWithBrandQuery() {
+  return db
+    .select(cardWithBrandSelect)
+    .from(cards)
+    .leftJoin(brands, eq(cards.brandId, brands.id));
+}
+
+function toCardResponse(row: CardWithBrandRow): z.infer<typeof cardSchema> {
+  return {
+    id: row.id,
+    userId: row.userId,
+    cardNumber: row.cardNumber,
+    label: row.label,
+    view: row.defaultView ?? null,
+    brand: row.brandId
+      ? {
+          id: row.brandId,
+          name: row.brandName ?? "",
+          logoUrl: logoUrl(row.brandLogoFile ?? ""),
+          backgroundColor: row.brandBackgroundColor ?? "#000000",
+        }
+      : null,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
+
+async function listCardsForUser(userId: string) {
+  return cardWithBrandQuery().where(eq(cards.userId, userId));
+}
+
+async function getCardForUser(userId: string, cardId: string) {
+  const [card] = await cardWithBrandQuery()
+    .where(and(eq(cards.id, cardId), eq(cards.userId, userId)))
+    .limit(1);
+  return card;
+}
+
+function respondFkViolation(c: AppContext) {
+  return c.json(fkViolationBody, 400);
+}
+
+function handleFkViolation(c: AppContext, error: unknown) {
+  if (pgErrorCode(error) === "23503") {
+    return respondFkViolation(c);
+  }
+  throw error;
 }
 
 const app = new Hono<{ Variables: ContextVariables }>()
@@ -51,47 +144,12 @@ const app = new Hono<{ Variables: ContextVariables }>()
             "application/json": { schema: resolver(z.array(cardSchema)) },
           },
         },
-        401: {
-          description: "Unauthorized",
-          content: {
-            "application/json": {
-              schema: resolver(z.object({ error: z.string() })),
-            },
-          },
-        },
+        401: errorResponse("Unauthorized"),
       },
     }),
     async (c) => {
-      const result = await db
-        .select({
-          id: cards.id,
-          userId: cards.userId,
-          cardNumber: cards.cardNumber,
-          label: cards.label,
-          brandId: cards.brandId,
-          brandName: brands.name,
-          brandLogoFile: brands.logoFile,
-          brandBackgroundColor: brands.backgroundColor,
-          createdAt: cards.createdAt,
-        })
-        .from(cards)
-        .leftJoin(brands, eq(cards.brandId, brands.id))
-        .where(eq(cards.userId, c.get("userId")));
-
-      return c.json(
-        result.map<z.infer<typeof cardSchema>>((r) => ({
-          ...r,
-          createdAt: r.createdAt.toISOString(),
-          brand: r.brandId
-            ? {
-                id: r.brandId,
-                name: r.brandName ?? "",
-                logoUrl: logoUrl(r.brandLogoFile ?? ""),
-                backgroundColor: r.brandBackgroundColor ?? "#000000",
-              }
-            : null,
-        })),
-      );
+      const rows = await listCardsForUser(c.get("userId"));
+      return c.json(rows.map(toCardResponse));
     },
   )
   .post(
@@ -104,30 +162,9 @@ const app = new Hono<{ Variables: ContextVariables }>()
           description: "Successful response",
           content: { "application/json": { schema: resolver(cardSchema) } },
         },
-        401: {
-          description: "Unauthorized",
-          content: {
-            "application/json": {
-              schema: resolver(z.object({ error: z.string() })),
-            },
-          },
-        },
-        409: {
-          description: "Card for user already exists",
-          content: {
-            "application/json": {
-              schema: resolver(z.object({ error: z.string() })),
-            },
-          },
-        },
-        400: {
-          description: "Referenced userId or brandId does not exist",
-          content: {
-            "application/json": {
-              schema: resolver(z.object({ error: z.string() })),
-            },
-          },
-        },
+        401: errorResponse("Unauthorized"),
+        409: errorResponse("Card for user already exists"),
+        400: errorResponse("Referenced userId or brandId does not exist"),
       },
     }),
     validator("json", cardWriteSchema),
@@ -144,35 +181,11 @@ const app = new Hono<{ Variables: ContextVariables }>()
             brandId: body.brandId ?? null,
           })
           .returning();
-        if (created.brandId) {
-          const [brand] = await db
-            .select()
-            .from(brands)
-            .where(eq(brands.id, created.brandId));
-          return c.json(
-            {
-              ...created,
-              brand: brand.id
-                ? {
-                    id: brand.id,
-                    name: brand.name,
-                    logoUrl: logoUrl(brand.logoFile),
-                    backgroundColor: brand.backgroundColor,
-                  }
-                : null,
-            },
-            201,
-          );
-        }
-        return c.json({ ...created, brand: null }, 201);
+        const card = await getCardForUser(c.get("userId"), created.id);
+        if (!card) throw new Error("Card missing after insert");
+        return c.json(toCardResponse(card), 201);
       } catch (error) {
-        if (pgErrorCode(error) === "23503") {
-          return c.json(
-            { error: "Referenced userId or brandId does not exist" },
-            400,
-          );
-        }
-        throw error;
+        return handleFkViolation(c, error);
       }
     },
   )
@@ -186,38 +199,18 @@ const app = new Hono<{ Variables: ContextVariables }>()
           description: "Successful response",
           content: { "application/json": { schema: resolver(cardSchema) } },
         },
-        401: {
-          description: "Unauthorized",
-          content: {
-            "application/json": {
-              schema: resolver(z.object({ error: z.string() })),
-            },
-          },
-        },
-        404: {
-          description: "Card not found",
-          content: {
-            "application/json": {
-              schema: resolver(z.object({ error: z.string() })),
-            },
-          },
-        },
+        401: errorResponse("Unauthorized"),
+        404: errorResponse("Card not found"),
       },
     }),
     validator("param", idParamSchema),
     async (c) => {
       const { id } = c.req.valid("param");
-
-      const [card] = await db
-        .select()
-        .from(cards)
-        .where(and(eq(cards.id, id), eq(cards.userId, c.get("userId"))))
-        .limit(1);
+      const card = await getCardForUser(c.get("userId"), id);
       if (!card) {
         return c.json({ error: "Card not found" }, 404);
       }
-
-      return c.json(card);
+      return c.json(toCardResponse(card));
     },
   )
   .put(
@@ -230,22 +223,8 @@ const app = new Hono<{ Variables: ContextVariables }>()
           description: "Successful response",
           content: { "application/json": { schema: resolver(cardSchema) } },
         },
-        401: {
-          description: "Unauthorized",
-          content: {
-            "application/json": {
-              schema: resolver(z.object({ error: z.string() })),
-            },
-          },
-        },
-        404: {
-          description: "Card not found",
-          content: {
-            "application/json": {
-              schema: resolver(z.object({ error: z.string() })),
-            },
-          },
-        },
+        401: errorResponse("Unauthorized"),
+        404: errorResponse("Card not found"),
       },
     }),
     validator("param", idParamSchema),
@@ -266,15 +245,11 @@ const app = new Hono<{ Variables: ContextVariables }>()
         if (!updated) {
           return c.json({ error: "Card not found" }, 404);
         }
-        return c.json(updated);
+        const card = await getCardForUser(c.get("userId"), updated.id);
+        if (!card) throw new Error("Card missing after update");
+        return c.json(toCardResponse(card));
       } catch (error) {
-        if (pgErrorCode(error) === "23503") {
-          return c.json(
-            { error: "Referenced userId or brandId does not exist" },
-            400,
-          );
-        }
-        throw error;
+        return handleFkViolation(c, error);
       }
     },
   )
@@ -285,22 +260,8 @@ const app = new Hono<{ Variables: ContextVariables }>()
       security: [{ bearerAuth: [] }],
       responses: {
         204: { description: "Successful response" },
-        401: {
-          description: "Unauthorized",
-          content: {
-            "application/json": {
-              schema: resolver(z.object({ error: z.string() })),
-            },
-          },
-        },
-        404: {
-          description: "Card not found",
-          content: {
-            "application/json": {
-              schema: resolver(z.object({ error: z.string() })),
-            },
-          },
-        },
+        401: errorResponse("Unauthorized"),
+        404: errorResponse("Card not found"),
       },
     }),
     validator("param", idParamSchema),

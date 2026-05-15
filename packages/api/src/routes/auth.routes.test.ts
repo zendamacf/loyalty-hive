@@ -15,11 +15,14 @@ const TEST_PASSWORD = "correct-horse-battery-staple";
 beforeAll(async () => {
   const passwordHash = bcrypt.hashSync(TEST_PASSWORD, BCRYPT_COST);
 
-  await db.insert(users).values({
-    id: USER_ID,
-    email: TEST_EMAIL,
-    passwordHash,
-  });
+  await db
+    .insert(users)
+    .values({
+      id: USER_ID,
+      email: TEST_EMAIL,
+      passwordHash,
+    })
+    .onConflictDoNothing();
 });
 
 describe("auth routes", () => {

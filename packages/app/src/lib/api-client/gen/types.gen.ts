@@ -144,6 +144,7 @@ export type GetApiV1CardsResponses = {
         userId: string;
         cardNumber: string;
         label?: string | null;
+        view?: '1D' | '2D' | null;
         brand: {
             id: string;
             name: string;
@@ -199,6 +200,7 @@ export type PostApiV1CardsResponses = {
         userId: string;
         cardNumber: string;
         label?: string | null;
+        view?: '1D' | '2D' | null;
         brand: {
             id: string;
             name: string;
@@ -281,6 +283,7 @@ export type GetApiV1CardsByIdResponses = {
         userId: string;
         cardNumber: string;
         label?: string | null;
+        view?: '1D' | '2D' | null;
         brand: {
             id: string;
             name: string;
@@ -332,6 +335,7 @@ export type PutApiV1CardsByIdResponses = {
         userId: string;
         cardNumber: string;
         label?: string | null;
+        view?: '1D' | '2D' | null;
         brand: {
             id: string;
             name: string;
