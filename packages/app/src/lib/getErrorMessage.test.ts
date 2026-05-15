@@ -17,4 +17,13 @@ describe("getErrorMessage", () => {
       "Something went wrong. Please try again.",
     );
   });
+
+  it("returns fallback when error field is not a string", () => {
+    expect(getErrorMessage({ error: 123 })).toBe(
+      "Something went wrong. Please try again.",
+    );
+    expect(getErrorMessage({ message: "Server error" })).toBe(
+      "Something went wrong. Please try again.",
+    );
+  });
 });

@@ -23,6 +23,14 @@ describe("ThemeProvider", () => {
     await AsyncStorage.removeItem(THEME_STORAGE_KEY);
   });
 
+  it("ignores invalid stored theme and uses system scheme", async () => {
+    await AsyncStorage.setItem(THEME_STORAGE_KEY, "invalid");
+
+    const { getByText } = renderWithTheme(<ThemeProbe />);
+
+    await waitFor(() => expect(getByText("light")).toBeTruthy());
+  });
+
   it("persists theme preference across remounts", async () => {
     const first = renderWithTheme(<ThemeProbe />);
 

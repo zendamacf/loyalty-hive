@@ -23,12 +23,17 @@ const testBrands = [
   },
 ] satisfies GetApiV1BrandsResponse;
 
-getApiV1BrandsMock.mockImplementation(() =>
-  Promise.resolve({
-    data: testBrands,
-    error: undefined,
-  }),
-);
+const defaultBrandsResponse = {
+  data: testBrands,
+  error: undefined,
+};
+
+const mockBrandsSuccess = () =>
+  getApiV1BrandsMock.mockImplementation(() =>
+    Promise.resolve(defaultBrandsResponse),
+  );
+
+mockBrandsSuccess();
 
 const { __expoRouterMocks } = globalThis as unknown as {
   __expoRouterMocks: {
@@ -44,6 +49,7 @@ describe("SelectBrandScreen", () => {
   beforeEach(() => {
     __expoRouterMocks.push.mockClear();
     getApiV1BrandsMock.mockClear();
+    mockBrandsSuccess();
   });
 
   it("renders heading and filters brands by query", async () => {
@@ -83,5 +89,30 @@ describe("SelectBrandScreen", () => {
         brandName: "ASOS",
       },
     });
+  });
+
+  it("shows loading state before brands load", () => {
+    getApiV1BrandsMock.mockImplementation(() => new Promise(() => {}));
+
+    const { getByText, getByPlaceholderText } = render(<SelectBrandScreen />);
+
+    expect(getByText("Loading brands…")).toBeTruthy();
+    expect(getByPlaceholderText("Search brands...").props.editable).toBe(false);
+  });
+
+  it("shows API error when brands fetch fails", async () => {
+    getApiV1BrandsMock.mockImplementation(() =>
+      Promise.resolve({
+        data: undefined,
+        error: { error: "Could not load brands" },
+      }),
+    );
+
+    const { getByText, queryByLabelText } = render(<SelectBrandScreen />);
+
+    await waitFor(() => {
+      expect(getByText("Could not load brands")).toBeTruthy();
+    });
+    expect(queryByLabelText("ASOS")).toBeNull();
   });
 });

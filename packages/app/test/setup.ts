@@ -65,7 +65,6 @@ class AnimatedValue {
 const Animated = {
   Value: AnimatedValue,
   View: createPrimitive("Animated.View"),
-  Text: createPrimitive("Animated.Text"),
   timing: (
     value: AnimatedValue,
     config: { toValue: number; duration?: number; useNativeDriver?: boolean },
@@ -128,29 +127,51 @@ mock.module("react-native", () => ({
     );
   },
   RefreshControl: createPrimitive("RefreshControl"),
-  Pressable: createPrimitive("Pressable"),
+  Pressable: (props: {
+    disabled?: boolean;
+    onPress?: () => void;
+    children?: React.ReactNode;
+    [key: string]: unknown;
+  }) => {
+    const { onPress, disabled, children, ...rest } = props;
+    return React.createElement(
+      "Pressable",
+      {
+        ...rest,
+        disabled,
+        ...(disabled ? {} : { onPress }),
+      },
+      children,
+    );
+  },
   ActivityIndicator: createPrimitive("ActivityIndicator"),
   StyleSheet: {
     create: (styles: object) => styles,
     flatten: (style: unknown) => style,
+    absoluteFill: {},
     absoluteFillObject: {},
   },
   Text: createPrimitive("Text"),
-  TouchableOpacity: createPrimitive("TouchableOpacity"),
+  TouchableOpacity: (props: {
+    disabled?: boolean;
+    onPress?: () => void;
+    children?: React.ReactNode;
+    [key: string]: unknown;
+  }) => {
+    const { onPress, disabled, children, ...rest } = props;
+    return React.createElement(
+      "TouchableOpacity",
+      {
+        ...rest,
+        disabled,
+        ...(disabled ? {} : { onPress }),
+      },
+      children,
+    );
+  },
   View: createPrimitive("View"),
   TextInput: createPrimitive("TextInput"),
   Image: createPrimitive("Image"),
-  Switch: (props: {
-    value?: boolean;
-    onValueChange?: (value: boolean) => void;
-    accessibilityLabel?: string;
-  }) =>
-    React.createElement("Switch", {
-      ...props,
-      accessibilityRole: "switch",
-      accessibilityState: { checked: props.value },
-      onPress: () => props.onValueChange?.(!props.value),
-    }),
   Animated,
   Easing,
   useColorScheme: () => "light",

@@ -7,18 +7,23 @@ import { getConfigMock, postApiV1CardsMock } from "../../test/mocks/api-client";
 const testUserId = "00000000-0000-4000-8000-000000000001";
 const fakeJwt = `h.${Buffer.from(JSON.stringify({ sub: testUserId })).toString("base64url")}.s`;
 
-postApiV1CardsMock.mockImplementation(() =>
-  Promise.resolve({
-    data: {
-      id: "card-1",
-      userId: testUserId,
-      cardNumber: "123456",
-      brand: null,
-      createdAt: new Date().toISOString(),
-    },
-    error: undefined,
-  }),
-);
+const defaultCardSaveResponse = {
+  data: {
+    id: "card-1",
+    userId: testUserId,
+    cardNumber: "123456",
+    brand: null,
+    createdAt: new Date().toISOString(),
+  },
+  error: undefined,
+};
+
+const mockCardSaveSuccess = () =>
+  postApiV1CardsMock.mockImplementation(() =>
+    Promise.resolve(defaultCardSaveResponse),
+  );
+
+mockCardSaveSuccess();
 
 type PermissionState = { granted: boolean } | null;
 
@@ -48,8 +53,12 @@ describe("ScanScreen", () => {
     __expoRouterMocks.dismissTo.mockClear();
     requestPermissionMock.mockClear();
     postApiV1CardsMock.mockClear();
+    mockCardSaveSuccess();
     getConfigMock.mockImplementation(() => ({ auth: fakeJwt }));
-    __expoRouterMocks.params = { brandName: "ASOS" };
+    __expoRouterMocks.params = {
+      brandName: "ASOS",
+      brandId: "00000000-0000-4000-8000-000000000004",
+    };
   });
 
   it("shows loading message while camera permission is being checked", () => {
@@ -78,7 +87,15 @@ describe("ScanScreen", () => {
     expect(getByText("Saving card...")).toBeTruthy();
 
     await waitFor(() => {
-      expect(postApiV1CardsMock).toHaveBeenCalledTimes(1);
+      expect(postApiV1CardsMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: {
+            cardNumber: "123456",
+            label: "ASOS",
+            brandId: "00000000-0000-4000-8000-000000000004",
+          },
+        }),
+      );
       expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith(Routes.CARDS);
     });
   });
@@ -93,8 +110,55 @@ describe("ScanScreen", () => {
     });
 
     await waitFor(() => {
-      expect(postApiV1CardsMock).toHaveBeenCalledTimes(1);
+      expect(postApiV1CardsMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: {
+            cardNumber: "987654",
+            label: "ASOS",
+            brandId: "00000000-0000-4000-8000-000000000004",
+          },
+        }),
+      );
       expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith(Routes.CARDS);
     });
+  });
+
+  it("shows brand context when brand name param is set", () => {
+    permissionState = { granted: true };
+    const { getByText } = render(<ScanScreen />);
+
+    expect(getByText("Adding card for ASOS")).toBeTruthy();
+  });
+
+  it("shows save error and does not navigate when API returns error", async () => {
+    permissionState = { granted: true };
+    postApiV1CardsMock.mockImplementation(() =>
+      Promise.resolve({
+        data: undefined,
+        error: { error: "Card already exists" },
+      }),
+    );
+
+    const { getByTestId, getByText } = render(<ScanScreen />);
+
+    fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
+      type: "qr",
+      data: "987654",
+    });
+
+    await waitFor(() => {
+      expect(getByText("Card already exists")).toBeTruthy();
+    });
+    expect(__expoRouterMocks.dismissTo).not.toHaveBeenCalled();
+  });
+
+  it("does not save when manual entry is empty", () => {
+    permissionState = { granted: true };
+    const { getByText } = render(<ScanScreen />);
+
+    fireEvent.press(getByText("Enter card number manually"));
+    fireEvent.press(getByText("Use card number"));
+
+    expect(postApiV1CardsMock).not.toHaveBeenCalled();
   });
 });

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { fireEvent, waitFor } from "@testing-library/react-native";
+import { Pressable, TouchableOpacity } from "react-native";
 import { Routes } from "@/constants/routes.constants";
 import {
   postApiV1AuthLoginMock,
@@ -220,6 +221,101 @@ describe("LoginScreen", () => {
       expect(getByText("Unexpected response from server.")).toBeTruthy();
     });
     expect(__expoRouterMocks.replace).not.toHaveBeenCalled();
+  });
+
+  it("shows API error message from signup", async () => {
+    postApiV1AuthSignupMock.mockImplementation(() =>
+      Promise.resolve({
+        data: undefined,
+        error: { error: "Email already registered" },
+      }),
+    );
+
+    const { getByText, getByPlaceholderText } = renderWithTheme(
+      <LoginScreen />,
+    );
+
+    fireEvent.press(getByText("Need an account? Sign up"));
+    fireEvent.changeText(getByPlaceholderText("Email"), "taken@example.com");
+    fireEvent.changeText(getByPlaceholderText("Password"), "pw");
+    fireEvent.press(getByText("Create account"));
+
+    await waitFor(() => {
+      expect(getByText("Email already registered")).toBeTruthy();
+    });
+    expect(__expoRouterMocks.replace).not.toHaveBeenCalled();
+  });
+
+  it("shows fallback when signup returns no id", async () => {
+    postApiV1AuthSignupMock.mockImplementation(() =>
+      Promise.resolve({ data: {}, error: undefined }),
+    );
+
+    const { getByText, getByPlaceholderText } = renderWithTheme(
+      <LoginScreen />,
+    );
+
+    fireEvent.press(getByText("Need an account? Sign up"));
+    fireEvent.changeText(getByPlaceholderText("Email"), "new@example.com");
+    fireEvent.changeText(getByPlaceholderText("Password"), "pw");
+    fireEvent.press(getByText("Create account"));
+
+    await waitFor(() => {
+      expect(getByText("Unexpected response from server.")).toBeTruthy();
+    });
+    expect(postApiV1AuthLoginMock).not.toHaveBeenCalled();
+    expect(__expoRouterMocks.replace).not.toHaveBeenCalled();
+  });
+
+  it("shows submitting state while login is in progress", async () => {
+    postApiV1AuthLoginMock.mockImplementation(() => new Promise(() => {}));
+
+    const {
+      getByText,
+      getByPlaceholderText,
+      UNSAFE_getByType,
+      UNSAFE_getAllByType,
+    } = renderWithTheme(<LoginScreen />);
+
+    fireEvent.changeText(getByPlaceholderText("Email"), "hi@example.com");
+    fireEvent.changeText(getByPlaceholderText("Password"), "secret");
+    fireEvent.press(getByText("Sign in"));
+
+    await waitFor(() => {
+      expect(getByText("Signing in…")).toBeTruthy();
+    });
+
+    expect(UNSAFE_getByType(TouchableOpacity).props.disabled).toBe(true);
+    expect(
+      UNSAFE_getAllByType(Pressable).some((p) => p.props.disabled === true),
+    ).toBe(true);
+    expect(getByPlaceholderText("Email").props.editable).toBe(false);
+  });
+
+  it("shows submitting state while signup is in progress", async () => {
+    postApiV1AuthSignupMock.mockImplementation(() => new Promise(() => {}));
+
+    const {
+      getByText,
+      getByPlaceholderText,
+      UNSAFE_getByType,
+      UNSAFE_getAllByType,
+    } = renderWithTheme(<LoginScreen />);
+
+    fireEvent.press(getByText("Need an account? Sign up"));
+    fireEvent.changeText(getByPlaceholderText("Email"), "new@example.com");
+    fireEvent.changeText(getByPlaceholderText("Password"), "pw");
+    fireEvent.press(getByText("Create account"));
+
+    await waitFor(() => {
+      expect(getByText("Creating account…")).toBeTruthy();
+    });
+
+    expect(UNSAFE_getByType(TouchableOpacity).props.disabled).toBe(true);
+    expect(
+      UNSAFE_getAllByType(Pressable).some((p) => p.props.disabled === true),
+    ).toBe(true);
+    expect(getByPlaceholderText("Email").props.editable).toBe(false);
   });
 
   it("signs up then logs in on successful signup", async () => {
