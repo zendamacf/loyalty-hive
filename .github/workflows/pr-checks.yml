@@ -42,9 +42,10 @@ jobs:
 
   run-checks:
     name: ${{ matrix.package }} / ${{ matrix.script }}
+    needs: create_neon_branch
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: "${{ steps.create_neon_branch.outputs.db_url_with_pooler }}"
+      DATABASE_URL: "${{ needs.create_neon_branch.outputs.db_url_with_pooler }}"
     strategy:
       fail-fast: false
       matrix:
