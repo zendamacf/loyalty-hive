@@ -1,4 +1,5 @@
 import { router } from "expo-router";
+import { EyeIcon, EyeOffIcon } from "lucide-react-native";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -21,7 +22,7 @@ import { getErrorMessage } from "@/lib/getErrorMessage";
 import { AppTitle } from "../components/AppTitle";
 import { Button } from "../components/Button";
 import { ThemeToggle } from "../components/ThemeToggle";
-import { radius, spacing, typography } from "../theme/theme";
+import { icon as iconSize, radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
 const icon = require("../../assets/images/icon.png");
@@ -35,6 +36,7 @@ export const LoginScreen = () => {
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -151,29 +153,48 @@ export const LoginScreen = () => {
           onChangeText={setEmail}
           onSubmitEditing={() => passwordRef.current?.focus()}
         />
-        <TextInput
-          ref={passwordRef}
-          autoCapitalize="none"
-          autoCorrect={false}
-          editable={!isSubmitting}
-          placeholder={t("password")}
-          placeholderTextColor={colors.textSecondary}
-          returnKeyType="go"
-          secureTextEntry
+        <View
           style={[
-            styles.input,
+            styles.passwordField,
             {
               backgroundColor: colors.surface,
               borderColor: colors.border,
-              color: colors.textPrimary,
             },
           ]}
-          value={password}
-          onChangeText={setPassword}
-          onSubmitEditing={() => {
-            if (!isSubmitting) void submit();
-          }}
-        />
+        >
+          <TextInput
+            ref={passwordRef}
+            autoCapitalize="none"
+            autoCorrect={false}
+            editable={!isSubmitting}
+            placeholder={t("password")}
+            placeholderTextColor={colors.textSecondary}
+            returnKeyType="go"
+            secureTextEntry={!showPassword}
+            style={[styles.passwordInput, { color: colors.textPrimary }]}
+            value={password}
+            onChangeText={setPassword}
+            onSubmitEditing={() => {
+              if (!isSubmitting) void submit();
+            }}
+          />
+          <Pressable
+            accessibilityLabel={
+              showPassword ? t("hidePassword") : t("showPassword")
+            }
+            accessibilityRole="button"
+            disabled={isSubmitting}
+            hitSlop={8}
+            style={styles.passwordToggle}
+            onPress={() => setShowPassword((visible) => !visible)}
+          >
+            {showPassword ? (
+              <EyeOffIcon color={colors.textSecondary} size={iconSize.md} />
+            ) : (
+              <EyeIcon color={colors.textSecondary} size={iconSize.md} />
+            )}
+          </Pressable>
+        </View>
 
         {error && (
           <Text style={[styles.error, { color: colors.error }]}>{error}</Text>
@@ -235,6 +256,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm + 2,
     ...typography.body,
+  },
+  passwordField: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderRadius: radius.md,
+    paddingRight: spacing.xs,
+  },
+  passwordInput: {
+    flex: 1,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm + 2,
+    ...typography.body,
+  },
+  passwordToggle: {
+    padding: spacing.xs,
   },
   error: {
     ...typography.caption,
