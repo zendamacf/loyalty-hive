@@ -3,7 +3,6 @@ import { PlusIcon } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
   StyleSheet,
@@ -15,13 +14,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "@/components/Button";
 import { CloseButton } from "@/components/CloseButton";
+import { DataLoadStatus } from "@/components/DataLoadStatus";
 import { LoyaltyBrandLogo } from "@/components/LoyaltyBrandLogo";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { type GetApiV1BrandsResponse, getApiV1Brands } from "@/lib/api-client";
 import { SearchBar } from "../components/SearchBar";
-import { ThemedRefreshControl } from "../components/ThemedRefreshControl";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
+import { useThemedRefreshControl } from "../hooks/useThemedRefreshControl";
 import { icon, radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
@@ -51,6 +51,7 @@ export const SelectBrandScreen = () => {
   }, [fetchBrands]);
 
   const { refreshing, onRefresh } = usePullToRefresh(fetchBrands);
+  const refreshControl = useThemedRefreshControl(refreshing, onRefresh);
 
   const filteredBrands = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -172,18 +173,7 @@ export const SelectBrandScreen = () => {
         style={styles.searchBar}
       />
 
-      {error && (
-        <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
-      )}
-      {!loaded && !error && (
-        <View style={styles.loading}>
-          <ActivityIndicator color={colors.textPrimary} />
-          <Text style={[styles.loadingLabel, { color: colors.textSecondary }]}>
-            {t("loading")}
-          </Text>
-        </View>
-      )}
-      {loaded && !error && (
+      <DataLoadStatus error={error} loaded={loaded} loadingLabel={t("loading")}>
         <View style={styles.listSection}>
           <FlatList
             data={filteredBrands}
@@ -192,12 +182,7 @@ export const SelectBrandScreen = () => {
             showsVerticalScrollIndicator={false}
             columnWrapperStyle={styles.columnWrapper}
             contentContainerStyle={styles.listContent}
-            refreshControl={
-              <ThemedRefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-              />
-            }
+            refreshControl={refreshControl}
             renderItem={({ item }) => (
               <LoyaltyBrandLogo
                 brand={item.name}
@@ -219,7 +204,7 @@ export const SelectBrandScreen = () => {
           />
           {renderCustomFooter()}
         </View>
-      )}
+      </DataLoadStatus>
     </SafeAreaView>
   );
 };
@@ -245,18 +230,6 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     marginBottom: spacing.md,
-  },
-  errorText: {
-    marginTop: spacing.sm,
-    ...typography.caption,
-  },
-  loading: {
-    marginTop: spacing.lg,
-    alignItems: "center",
-    gap: spacing.sm,
-  },
-  loadingLabel: {
-    ...typography.caption,
   },
   listSection: {
     flex: 1,

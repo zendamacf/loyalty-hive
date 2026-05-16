@@ -4,6 +4,7 @@
   "noMatchingTitle": "No hay tarjetas coincidentes",
   "noMatchingSubtitle": "Prueba con otra búsqueda.",
   "searchPlaceholder": "Buscar tarjetas...",
+  "loading": "Cargando tarjetas…",
   "addCardA11y": "Añadir tarjeta de fidelidad",
   "openSettingsA11y": "Abrir ajustes",
   "codeViewBarcode": "Código de barras",
