@@ -23,7 +23,7 @@ jobs:
     name: Create Neon Branch
     outputs:
       db_url: ${{ steps.create_neon_branch_encode.outputs.db_url }}
-      db_url_with_pooler: ${{ steps.create_neon_branch_encode.outputs.db_url_with_pooler }}
+      db_url_pooled: ${{ steps.create_neon_branch_encode.outputs.db_url_pooled }}
     needs: setup
     if: |
       github.event_name == 'pull_request' && (
@@ -34,7 +34,7 @@ jobs:
     steps:
       - name: Create Neon Branch
         id: create_neon_branch
-        uses: neondatabase/create-branch-action@v5
+        uses: neondatabase/create-branch-action@v6
         with:
           project_id: ${{ vars.NEON_PROJECT_ID }}
           branch_name: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
@@ -45,7 +45,7 @@ jobs:
     needs: create_neon_branch
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: ${{ needs.create_neon_branch.outputs.db_url_with_pooler }}
+      DATABASE_URL: ${{ needs.create_neon_branch.outputs.db_url_pooled }}
     strategy:
       fail-fast: false
       matrix:
