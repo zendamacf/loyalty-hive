@@ -1,12 +1,14 @@
 import { defineConfig } from "@hey-api/openapi-ts";
 import "dotenv/config";
 
-if (!process.env.API_URL) {
-  throw new Error("API_URL is required");
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
+if (!apiUrl) {
+  throw new Error("EXPO_PUBLIC_API_URL is required");
 }
 
 export default defineConfig({
-  input: `${process.env.API_URL}/openapi`,
+  input: `${apiUrl}/openapi`,
   output: "src/lib/api-client/gen",
   plugins: [
     {
