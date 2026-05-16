@@ -6,6 +6,7 @@ import {
   SafeAreaProvider,
 } from "react-native-safe-area-context";
 import "@/i18n";
+import { KeyboardAvoidingShell } from "@/components/KeyboardAvoidingShell";
 import { LanguageProvider } from "@/i18n/LanguageProvider";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 
@@ -31,7 +32,9 @@ export default Sentry.wrap(function Layout() {
     >
       <LanguageProvider>
         <ThemeProvider>
-          <Stack screenOptions={{ headerShown: false }} />
+          <KeyboardAvoidingShell>
+            <Stack screenOptions={{ headerShown: false }} />
+          </KeyboardAvoidingShell>
         </ThemeProvider>
       </LanguageProvider>
     </SafeAreaProvider>
