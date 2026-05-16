@@ -5,9 +5,6 @@ on:
     branches:
       - main
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-
 jobs:
   setup:
     name: Setup
@@ -19,10 +16,13 @@ jobs:
         id: branch_name
         uses: tj-actions/branch-names@v8
 
-  create_neon_branch:
-    name: Create Neon Branch
+  check-api:
+    name: api / ${{ matrix.script }}
     needs: setup
     runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-api
+      cancel-in-progress: false
     steps:
       - name: Create Neon Branch
         id: create-branch
@@ -31,26 +31,10 @@ jobs:
           project_id: ${{ vars.NEON_PROJECT_ID }}
           branch_name: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
           api_key: ${{ secrets.NEON_API_KEY }}
-      - name: Store url
-        run: |
-          DB_URL_POOLED=${{ steps.create-branch.outputs.db_url_pooled }}
-          echo "::add-mask::$DB_URL_POOLED"
-          echo "::set-output name=db_url_pooled::$DB_URL_POOLED"
 
-  check-api:
-    name: api / ${{ matrix.script }}
-    needs: create_neon_branch
-    runs-on: ubuntu-latest
-    env:
-      DATABASE_URL: ${{ needs.create_neon_branch.outputs.db_url_pooled }}
-    strategy:
-      fail-fast: false
-      matrix:
-        script: [lint, typecheck, test]
-    defaults:
-      run:
-        working-directory: packages/api
-    steps:
+      - name: Set DATABASE_URL
+        run: echo "DATABASE_URL=${{ steps.create-branch.outputs.db_url_pooled }}" >> $GITHUB_ENV
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -62,9 +46,19 @@ jobs:
 
       - name: Run Migrations
         run: bun run db:migrate
+        working-directory: packages/api
 
-      - name: Run ${{ matrix.script }}
-        run: bun run ${{ matrix.script }}
+      - name: Run lint
+        run: bun run lint
+        working-directory: packages/api
+
+      - name: Run typecheck
+        run: bun run typecheck
+        working-directory: packages/api
+
+      - name: Run test
+        run: bun run test
+        working-directory: packages/api
 
   check-app:
     name: app / ${{ matrix.script }}
@@ -73,9 +67,6 @@ jobs:
       fail-fast: false
       matrix:
         script: [lint, typecheck, test]
-    defaults:
-      run:
-        working-directory: packages/app
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -88,6 +79,7 @@ jobs:
 
       - name: Run ${{ matrix.script }}
         run: bun run ${{ matrix.script }}
+        working-directory: packages/app
 
   delete_neon_branch:
     name: Delete Neon Branch
