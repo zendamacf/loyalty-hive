@@ -5,7 +5,6 @@ import { migrate } from "drizzle-orm/node-postgres/migrator";
 import pg from "pg";
 
 const { Pool } = pg;
-const TEST_DB_SUFFIX = "_test";
 
 const testDatabaseUrl = resolveTestDatabaseUrl();
 
@@ -23,13 +22,6 @@ function resolveTestDatabaseUrl() {
   }
 
   const parsed = new URL(process.env.DATABASE_URL);
-  const databaseName = parsed.pathname.replace(/^\//, "");
-  const fallbackName = databaseName || "postgres";
-
-  if (!fallbackName.endsWith(TEST_DB_SUFFIX)) {
-    parsed.pathname = `/${fallbackName}${TEST_DB_SUFFIX}`;
-  }
-
   return parsed.toString();
 }
 

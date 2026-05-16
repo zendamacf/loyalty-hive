@@ -2,8 +2,14 @@ name: PR Checks
 
 on:
   pull_request:
-    branches:
-      - main
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - closed
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
 
 permissions:
   contents: read
@@ -23,6 +29,11 @@ jobs:
   check-api:
     name: check-api
     needs: setup
+    if: |
+      github.event_name == 'pull_request' && (
+      github.event.action == 'synchronize'
+      || github.event.action == 'opened'
+      || github.event.action == 'reopened')
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-api
@@ -75,6 +86,11 @@ jobs:
 
   check-app:
     name: check-app / ${{ matrix.script }}
+    if: |
+      github.event_name == 'pull_request' && (
+      github.event.action == 'synchronize'
+      || github.event.action == 'opened'
+      || github.event.action == 'reopened')
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
