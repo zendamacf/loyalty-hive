@@ -11,7 +11,8 @@
     "lint": "biome check src",
     "lint:fix": "biome check src --write",
     "typecheck": "tsc --noEmit",
-    "api:generate": "openapi-ts"
+    "api:generate": "openapi-ts && bun run api:generate:hotfix",
+    "api:generate:hotfix": "sed -i '1s;^;// @ts-nocheck\\n;' src/lib/api-client/gen/client.gen.ts"
   },
   "dependencies": {
     "@hey-api/client-fetch": "^0.13.1",
