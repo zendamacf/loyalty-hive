@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import { compare as bcryptCompare, hash as bcryptHash } from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { sign } from "hono/jwt";
@@ -75,7 +75,7 @@ const app = new Hono()
 
       const valid =
         user &&
-        (await bcrypt.compare(password, user.passwordHash).catch(() => false));
+        (await bcryptCompare(password, user.passwordHash).catch(() => false));
 
       if (!valid) throw Unauthorized("Invalid email or password");
 
@@ -121,7 +121,7 @@ const app = new Hono()
     validator("json", credentialsBodySchema),
     async (c) => {
       const { email, password } = c.req.valid("json");
-      const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
+      const passwordHash = await bcryptHash(password, BCRYPT_COST);
 
       try {
         const [created] = await db

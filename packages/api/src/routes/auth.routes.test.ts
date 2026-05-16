@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from "bun:test";
-import bcrypt from "bcryptjs";
+
+import { compare as bcryptCompare, hash as bcryptHash } from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { verify } from "hono/jwt";
 import { createApiRouterApp } from "../../test/create-app";
@@ -13,7 +14,7 @@ const TEST_EMAIL = "auth.test@example.com";
 const TEST_PASSWORD = "correct-horse-battery-staple";
 
 beforeAll(async () => {
-  const passwordHash = bcrypt.hashSync(TEST_PASSWORD, BCRYPT_COST);
+  const passwordHash = await bcryptHash(TEST_PASSWORD, BCRYPT_COST);
 
   await db
     .insert(users)
@@ -152,7 +153,7 @@ describe("auth routes", () => {
       .from(users)
       .where(eq(users.id, body.id));
 
-    expect(await bcrypt.compare(password, row.passwordHash)).toBe(true);
+    expect(await bcryptCompare(password, row.passwordHash)).toBe(true);
   });
 
   it("returns 409 when email is already registered", async () => {
