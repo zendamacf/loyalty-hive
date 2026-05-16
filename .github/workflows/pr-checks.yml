@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-api
+      cancel-in-progress: false
     strategy:
       fail-fast: false
       matrix:
