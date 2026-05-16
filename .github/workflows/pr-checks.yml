@@ -23,10 +23,6 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-api
       cancel-in-progress: false
-    strategy:
-      fail-fast: false
-      matrix:
-        script: [lint, typecheck, test]
     steps:
       - name: Create Neon Branch
         id: create-branch
@@ -52,8 +48,16 @@ jobs:
         run: bun run db:migrate
         working-directory: packages/api
 
-      - name: Run ${{ matrix.script }}
-        run: bun run ${{ matrix.script }}
+      - name: Run lint
+        run: bun run lint
+        working-directory: packages/api
+
+      - name: Run typecheck
+        run: bun run typecheck
+        working-directory: packages/api
+
+      - name: Run test
+        run: bun run test
         working-directory: packages/api
 
   check-app:
