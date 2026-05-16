@@ -8,6 +8,9 @@ on:
       - synchronize
       - closed
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
 permissions:
   contents: read
   pull-requests: write
