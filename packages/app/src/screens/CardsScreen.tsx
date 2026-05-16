@@ -12,14 +12,16 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import { DataLoadStatus } from "@/components/DataLoadStatus";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { type GetApiV1CardsResponse, getApiV1Cards } from "@/lib/api-client";
 import { AppTitle } from "../components/AppTitle";
 import { LoyaltyBrandLogo } from "../components/LoyaltyBrandLogo";
 import { SearchBar } from "../components/SearchBar";
-import { ThemedRefreshControl } from "../components/ThemedRefreshControl";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
+import { useThemedRefreshControl } from "../hooks/useThemedRefreshControl";
 import { brandMark, icon, radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
@@ -77,6 +79,7 @@ export const CardsScreen = () => {
   );
 
   const { refreshing, onRefresh } = usePullToRefresh(fetchCards);
+  const refreshControl = useThemedRefreshControl(refreshing, onRefresh);
 
   let emptyTitle: string | null = null;
   let emptySubtitle: string | null = null;
@@ -151,55 +154,50 @@ export const CardsScreen = () => {
         autoCorrect={false}
       />
 
-      {error ? (
-        <Text style={[styles.errorBanner, { color: colors.error }]}>
-          {error}
-        </Text>
-      ) : null}
+      <DataLoadStatus error={error} loaded={loaded} loadingLabel={t("loading")}>
+        <FlatList
+          data={filteredCards}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          showsVerticalScrollIndicator={false}
+          columnWrapperStyle={styles.columnWrapper}
+          contentContainerStyle={
+            filteredCards.length === 0
+              ? styles.listContentEmpty
+              : styles.listContent
+          }
+          ListEmptyComponent={listEmpty}
+          refreshControl={refreshControl}
+          renderItem={({ item }) => {
+            const cardBackgroundColor =
+              item.brand?.backgroundColor ?? colors.cardFallback;
 
-      <FlatList
-        data={filteredCards}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        showsVerticalScrollIndicator={false}
-        columnWrapperStyle={styles.columnWrapper}
-        contentContainerStyle={
-          filteredCards.length === 0
-            ? styles.listContentEmpty
-            : styles.listContent
-        }
-        ListEmptyComponent={listEmpty}
-        refreshControl={
-          <ThemedRefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        renderItem={({ item }) => {
-          const cardBackgroundColor =
-            item.brand?.backgroundColor ?? colors.cardFallback;
-
-          return (
-            <View style={styles.card}>
-              <LoyaltyBrandLogo
-                brand={item.label ?? item.brand?.name ?? item.cardNumber}
-                logo={item.brand?.logoUrl}
-                backgroundColor={cardBackgroundColor}
-                height={brandMark.heightList}
-                onPress={() =>
-                  router.push({
-                    pathname: Routes.CARD_CODE,
-                    params: {
-                      cardNumber: item.cardNumber,
-                      view: item.view ?? "1D",
-                      title: item.label ?? item.brand?.name ?? item.cardNumber,
-                      logoUrl: item.brand?.logoUrl ?? "",
-                      backgroundColor: cardBackgroundColor,
-                    },
-                  })
-                }
-              />
-            </View>
-          );
-        }}
-      />
+            return (
+              <View style={styles.card}>
+                <LoyaltyBrandLogo
+                  brand={item.label ?? item.brand?.name ?? item.cardNumber}
+                  logo={item.brand?.logoUrl}
+                  backgroundColor={cardBackgroundColor}
+                  height={brandMark.heightList}
+                  onPress={() =>
+                    router.push({
+                      pathname: Routes.CARD_CODE,
+                      params: {
+                        cardNumber: item.cardNumber,
+                        view: item.view ?? "1D",
+                        title:
+                          item.label ?? item.brand?.name ?? item.cardNumber,
+                        logoUrl: item.brand?.logoUrl ?? "",
+                        backgroundColor: cardBackgroundColor,
+                      },
+                    })
+                  }
+                />
+              </View>
+            );
+          }}
+        />
+      </DataLoadStatus>
     </SafeAreaView>
   );
 };
@@ -215,9 +213,6 @@ const styles = StyleSheet.create({
   },
   listContentEmpty: {
     flexGrow: 1,
-  },
-  errorBanner: {
-    marginBottom: 8,
   },
   header: {
     flexDirection: "row",
