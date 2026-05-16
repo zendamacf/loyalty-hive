@@ -4,6 +4,7 @@
   "noMatchingTitle": "No matching cards",
   "noMatchingSubtitle": "Try a different search.",
   "searchPlaceholder": "Search cards...",
+  "loading": "Loading cards…",
   "addCardA11y": "Add loyalty card",
   "openSettingsA11y": "Open settings",
   "codeViewBarcode": "Barcode",
