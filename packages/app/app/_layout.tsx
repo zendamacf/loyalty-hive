@@ -1,12 +1,12 @@
 import * as Sentry from "@sentry/react-native";
 import { Stack } from "expo-router";
-import { Platform } from "react-native";
 import {
   initialWindowMetrics,
   SafeAreaProvider,
 } from "react-native-safe-area-context";
 import "@/i18n";
 import { KeyboardAvoidingShell } from "@/components/KeyboardAvoidingShell";
+import { ThemedRoot } from "@/components/ThemedRoot";
 import { LanguageProvider } from "@/i18n/LanguageProvider";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 
@@ -22,19 +22,15 @@ Sentry.init({
 });
 
 export default Sentry.wrap(function Layout() {
-  // Workaround for https://github.com/AppAndFlow/react-native-safe-area-context/issues/667
-  const isAndroid15 = Platform.OS === "android" && Platform.Version >= 35;
   return (
-    <SafeAreaProvider
-      style={
-        isAndroid15 ? { marginBottom: initialWindowMetrics?.insets.bottom } : {}
-      }
-    >
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <LanguageProvider>
         <ThemeProvider>
-          <KeyboardAvoidingShell>
-            <Stack screenOptions={{ headerShown: false }} />
-          </KeyboardAvoidingShell>
+          <ThemedRoot>
+            <KeyboardAvoidingShell>
+              <Stack screenOptions={{ headerShown: false }} />
+            </KeyboardAvoidingShell>
+          </ThemedRoot>
         </ThemeProvider>
       </LanguageProvider>
     </SafeAreaProvider>
