@@ -57,7 +57,30 @@ describe("LoginScreen", () => {
     expect(getByText("Sign in to manage your loyalty cards")).toBeTruthy();
     expect(getByPlaceholderText("Email")).toBeTruthy();
     expect(getByPlaceholderText("Password")).toBeTruthy();
+    expect(getByLabelText("Show password")).toBeTruthy();
+    expect(getByText("eye")).toBeTruthy();
     expect(getByText("Sign in")).toBeTruthy();
+  });
+
+  it("toggles password visibility", () => {
+    const { getByPlaceholderText, getByLabelText, getByText } = renderWithTheme(
+      <LoginScreen />,
+    );
+
+    const passwordInput = getByPlaceholderText("Password");
+
+    expect(passwordInput.props.secureTextEntry).toBe(true);
+
+    fireEvent.press(getByLabelText("Show password"));
+
+    expect(passwordInput.props.secureTextEntry).toBe(false);
+    expect(getByLabelText("Hide password")).toBeTruthy();
+    expect(getByText("eye-off")).toBeTruthy();
+
+    fireEvent.press(getByLabelText("Hide password"));
+
+    expect(passwordInput.props.secureTextEntry).toBe(true);
+    expect(getByLabelText("Show password")).toBeTruthy();
   });
 
   it("toggles theme from the header control", async () => {

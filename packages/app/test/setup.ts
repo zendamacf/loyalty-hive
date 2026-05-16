@@ -92,6 +92,8 @@ mock.module("lucide-react-native", () => ({
   CopyIcon: () => React.createElement("Text", null, "copy"),
   ChevronLeftIcon: () => React.createElement("Text", null, "back"),
   XIcon: () => React.createElement("Text", null, "close"),
+  EyeIcon: () => React.createElement("Text", null, "eye"),
+  EyeOffIcon: () => React.createElement("Text", null, "eye-off"),
 }));
 
 const setStringAsyncMock = mock(() => Promise.resolve());

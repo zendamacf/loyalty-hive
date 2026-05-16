@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FlatList,
+  type ListRenderItem,
   Pressable,
   StyleSheet,
   Text,
@@ -24,6 +25,8 @@ import { usePullToRefresh } from "../hooks/usePullToRefresh";
 import { useThemedRefreshControl } from "../hooks/useThemedRefreshControl";
 import { icon, radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
+
+type Brand = GetApiV1BrandsResponse[number];
 
 export const SelectBrandScreen = () => {
   const { t } = useTranslation(I18nNamespace.Brands);
@@ -77,75 +80,81 @@ export const SelectBrandScreen = () => {
     });
   }, [canContinueToScan, trimmedCustomLabel]);
 
-  const renderCustomFooter = useCallback(
-    () => (
-      <View style={styles.customFooter}>
-        {!isCustomLabelOpen ? (
-          <Pressable
-            accessibilityLabel={t("customCardTitle")}
-            accessibilityRole="button"
-            style={({ pressed }) => [
-              styles.customCardButton,
+  const customCardSection = (
+    <View style={styles.customFooter}>
+      {!isCustomLabelOpen ? (
+        <Pressable
+          accessibilityLabel={t("customCardTitle")}
+          accessibilityRole="button"
+          style={({ pressed }) => [
+            styles.customCardButton,
+            {
+              borderColor: colors.border,
+              backgroundColor: colors.surface,
+            },
+            pressed && styles.customCardButtonPressed,
+          ]}
+          onPress={() => setIsCustomLabelOpen(true)}
+        >
+          <PlusIcon color={colors.textPrimary} size={icon.md} />
+          <Text style={[styles.customCardTitle, { color: colors.textPrimary }]}>
+            {t("customCardTitle")}
+          </Text>
+        </Pressable>
+      ) : (
+        <View style={styles.customLabelForm}>
+          <Text
+            style={[styles.customLabelHeading, { color: colors.textPrimary }]}
+          >
+            {t("customCardLabel")}
+          </Text>
+          <TextInput
+            accessibilityLabel={t("customCardLabel")}
+            value={customLabel}
+            onChangeText={setCustomLabel}
+            placeholder={t("customCardPlaceholder")}
+            placeholderTextColor={colors.textSecondary}
+            autoCapitalize="words"
+            autoCorrect={false}
+            style={[
+              styles.customLabelInput,
               {
                 borderColor: colors.border,
-                backgroundColor: colors.surface,
+                color: colors.textPrimary,
+                backgroundColor: colors.background,
               },
-              pressed && styles.customCardButtonPressed,
             ]}
-            onPress={() => setIsCustomLabelOpen(true)}
-          >
-            <PlusIcon color={colors.textPrimary} size={icon.md} />
-            <Text
-              style={[styles.customCardTitle, { color: colors.textPrimary }]}
-            >
-              {t("customCardTitle")}
-            </Text>
-          </Pressable>
-        ) : (
-          <View style={styles.customLabelForm}>
-            <Text
-              style={[styles.customLabelHeading, { color: colors.textPrimary }]}
-            >
-              {t("customCardLabel")}
-            </Text>
-            <TextInput
-              accessibilityLabel={t("customCardLabel")}
-              value={customLabel}
-              onChangeText={setCustomLabel}
-              placeholder={t("customCardPlaceholder")}
-              placeholderTextColor={colors.textSecondary}
-              autoCapitalize="words"
-              autoCorrect={false}
-              style={[
-                styles.customLabelInput,
-                {
-                  borderColor: colors.border,
-                  color: colors.textPrimary,
-                  backgroundColor: colors.background,
-                },
-              ]}
-            />
-            <Button
-              title={t("continueToScan")}
-              onPress={continueToCustomScan}
-              disabled={!canContinueToScan}
-            />
-          </View>
-        )}
-      </View>
+          />
+          <Button
+            title={t("continueToScan")}
+            onPress={continueToCustomScan}
+            disabled={!canContinueToScan}
+          />
+        </View>
+      )}
+    </View>
+  );
+
+  const renderBrand: ListRenderItem<Brand> = useCallback(
+    ({ item }) => (
+      <LoyaltyBrandLogo
+        brand={item.name}
+        logo={item.logoUrl}
+        backgroundColor={item.backgroundColor}
+        height={80}
+        style={styles.card}
+        onPress={() =>
+          router.push({
+            pathname: Routes.SCAN,
+            params: {
+              brandId: item.id,
+              brandName: item.name,
+            },
+          })
+        }
+      />
     ),
-    [
-      canContinueToScan,
-      colors.background,
-      colors.border,
-      colors.surface,
-      colors.textPrimary,
-      colors.textSecondary,
-      continueToCustomScan,
-      customLabel,
-      isCustomLabelOpen,
-      t,
-    ],
+    [],
   );
 
   return (
@@ -179,30 +188,15 @@ export const SelectBrandScreen = () => {
             data={filteredBrands}
             keyExtractor={(item) => item.id}
             numColumns={2}
+            style={styles.list}
             showsVerticalScrollIndicator={false}
             columnWrapperStyle={styles.columnWrapper}
             contentContainerStyle={styles.listContent}
+            keyboardShouldPersistTaps="handled"
             refreshControl={refreshControl}
-            renderItem={({ item }) => (
-              <LoyaltyBrandLogo
-                brand={item.name}
-                logo={item.logoUrl}
-                backgroundColor={item.backgroundColor}
-                height={80}
-                style={styles.card}
-                onPress={() =>
-                  router.push({
-                    pathname: Routes.SCAN,
-                    params: {
-                      brandId: item.id,
-                      brandName: item.name,
-                    },
-                  })
-                }
-              />
-            )}
+            renderItem={renderBrand}
           />
-          {renderCustomFooter()}
+          {customCardSection}
         </View>
       </DataLoadStatus>
     </SafeAreaView>
@@ -234,6 +228,9 @@ const styles = StyleSheet.create({
   listSection: {
     flex: 1,
   },
+  list: {
+    flex: 1,
+  },
   listContent: {
     paddingBottom: spacing.md,
     gap: spacing.sm,
@@ -247,6 +244,7 @@ const styles = StyleSheet.create({
   },
   customFooter: {
     paddingTop: spacing.md,
+    flexShrink: 0,
     width: "100%",
   },
   customCardButton: {

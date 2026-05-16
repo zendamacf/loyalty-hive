@@ -1,18 +1,22 @@
-import * as Sentry from "@sentry/react-native";
 import { Stack } from "expo-router";
-import { Platform } from "react-native";
 import {
   initialWindowMetrics,
   SafeAreaProvider,
 } from "react-native-safe-area-context";
+
+import { KeyboardAvoidingShell } from "@/components/KeyboardAvoidingShell";
+import { ThemedRoot } from "@/components/ThemedRoot";
 import "@/i18n";
+
+import * as Sentry from "@sentry/react-native";
+
 import { LanguageProvider } from "@/i18n/LanguageProvider";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 
 Sentry.init({
   enabled: !__DEV__,
   environment: __DEV__ ? "development" : (process.env.NODE_ENV ?? "production"),
-  dsn: __DEV__ ? undefined : process.env.SENTRY_DSN,
+  dsn: __DEV__ ? undefined : process.env.EXPO_PUBLIC_SENTRY_DSN,
   sendDefaultPii: true,
   enableLogs: true,
   replaysSessionSampleRate: 0.1,
@@ -21,17 +25,15 @@ Sentry.init({
 });
 
 export default Sentry.wrap(function Layout() {
-  // Workaround for https://github.com/AppAndFlow/react-native-safe-area-context/issues/667
-  const isAndroid15 = Platform.OS === "android" && Platform.Version >= 35;
   return (
-    <SafeAreaProvider
-      style={
-        isAndroid15 ? { marginBottom: initialWindowMetrics?.insets.bottom } : {}
-      }
-    >
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <LanguageProvider>
         <ThemeProvider>
-          <Stack screenOptions={{ headerShown: false }} />
+          <ThemedRoot>
+            <KeyboardAvoidingShell>
+              <Stack screenOptions={{ headerShown: false }} />
+            </KeyboardAvoidingShell>
+          </ThemedRoot>
         </ThemeProvider>
       </LanguageProvider>
     </SafeAreaProvider>
