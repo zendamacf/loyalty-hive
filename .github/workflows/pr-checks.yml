@@ -27,9 +27,6 @@ jobs:
       fail-fast: false
       matrix:
         script: [lint, typecheck, test]
-    defaults:
-      run:
-        working-directory: packages/api
     steps:
       - name: Create Neon Branch
         id: create-branch
@@ -38,7 +35,9 @@ jobs:
           project_id: ${{ vars.NEON_PROJECT_ID }}
           branch_name: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
           api_key: ${{ secrets.NEON_API_KEY }}
-      - run: echo "DATABASE_URL=${{ steps.create-branch.outputs.db_url_pooled }}" >> $GITHUB_ENV
+
+      - name: Set DATABASE_URL
+        run: echo "DATABASE_URL=${{ steps.create-branch.outputs.db_url_pooled }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -51,9 +50,11 @@ jobs:
 
       - name: Run Migrations
         run: bun run db:migrate
+        working-directory: packages/api
 
       - name: Run ${{ matrix.script }}
         run: bun run ${{ matrix.script }}
+        working-directory: packages/api
 
   check-app:
     name: app / ${{ matrix.script }}
@@ -62,9 +63,6 @@ jobs:
       fail-fast: false
       matrix:
         script: [lint, typecheck, test]
-    defaults:
-      run:
-        working-directory: packages/app
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -77,6 +75,7 @@ jobs:
 
       - name: Run ${{ matrix.script }}
         run: bun run ${{ matrix.script }}
+        working-directory: packages/app
 
   delete_neon_branch:
     name: Delete Neon Branch
