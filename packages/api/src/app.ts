@@ -30,7 +30,10 @@ app
           },
         },
         servers: [
-          { url: "http://localhost:3000", description: "Local server" },
+          {
+            url: "https://rut-roman-cubicle.ngrok-free.dev",
+            description: "Local server",
+          },
           {
             url: "https://loyaltyhive.kalopsia.dev",
             description: "Production server",
