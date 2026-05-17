@@ -1,7 +1,14 @@
-import { describe, expect, it } from "bun:test";
-import { createApiRouterApp, signTestToken } from "../test/create-app";
+import { beforeAll, describe, expect, it } from "bun:test";
+import {
+  apiKeyHeaders,
+  createApiRouterApp,
+  signTestToken,
+} from "../test/create-app";
+import { seedTestApiKey } from "../test/seed-api-key";
 
 const USER_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+
+beforeAll(seedTestApiKey);
 
 describe("api router", () => {
   it("returns JSON error for HTTPException from protected routes", async () => {
@@ -18,7 +25,7 @@ describe("api router", () => {
     const app = createApiRouterApp();
     const response = await app.request("/api/v1/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({
         email: "nobody@example.com",
         password: "wrong",

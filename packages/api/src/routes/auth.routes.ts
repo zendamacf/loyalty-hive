@@ -3,13 +3,19 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { sign } from "hono/jwt";
 
-import { describeRoute, resolver, validator } from "hono-openapi";
+import { describeRoute, validator } from "hono-openapi";
 import z from "zod";
 import { config } from "../common/config.js";
-import { BCRYPT_COST } from "../common/constants.js";
+import { API_KEY_HEADER, BCRYPT_COST } from "../common/constants.js";
 import { Unauthorized } from "../common/error.js";
+import {
+  errorResponse,
+  jsonResponse,
+  validationErrorResponse,
+} from "../common/openapi-responses.js";
 import { db } from "../db/client.js";
 import { lower, users } from "../db/schema.js";
+import { requireApiKey } from "../middleware/api-key.middleware.js";
 
 const credentialsBodySchema = z.object({
   email: z.string().trim().toLowerCase().pipe(z.email()),
@@ -25,42 +31,26 @@ const signupResponseSchema = z.object({
   email: z.string(),
 });
 
+const apiKeyHeaderSchema = z.object({
+  [API_KEY_HEADER]: z.string().min(1),
+});
+
 const app = new Hono()
+  .use(requireApiKey)
   .post(
     "/login",
     describeRoute({
       description:
         "Sign in with email and password; returns a JWT access token",
+      security: [{ apiKeyAuth: [] }],
       responses: {
-        200: {
-          description: "Successful response",
-          content: {
-            "application/json": { schema: resolver(loginResponseSchema) },
-          },
-        },
-        401: {
-          description: "Invalid email or password",
-          content: {
-            "application/json": {
-              schema: resolver(z.object({ error: z.string() })),
-            },
-          },
-        },
-        400: {
-          description: "Invalid request input",
-          content: {
-            "application/json": {
-              schema: resolver(
-                z.object({
-                  error: z.string(),
-                  issues: z.array(z.unknown()),
-                }),
-              ),
-            },
-          },
-        },
+        200: jsonResponse("Successful response", loginResponseSchema),
+        401: errorResponse("Invalid email or password"),
+        403: errorResponse("Invalid API key"),
+        400: validationErrorResponse(),
       },
     }),
+    validator("header", apiKeyHeaderSchema),
     validator("json", credentialsBodySchema),
     async (c) => {
       const { email, password } = c.req.valid("json");
@@ -88,36 +78,15 @@ const app = new Hono()
     "/signup",
     describeRoute({
       description: "Create a new user account",
+      security: [{ apiKeyAuth: [] }],
       responses: {
-        201: {
-          description: "Account created",
-          content: {
-            "application/json": { schema: resolver(signupResponseSchema) },
-          },
-        },
-        409: {
-          description: "Email already registered",
-          content: {
-            "application/json": {
-              schema: resolver(z.object({ error: z.string() })),
-            },
-          },
-        },
-        400: {
-          description: "Invalid request input",
-          content: {
-            "application/json": {
-              schema: resolver(
-                z.object({
-                  error: z.string(),
-                  issues: z.array(z.unknown()),
-                }),
-              ),
-            },
-          },
-        },
+        201: jsonResponse("Account created", signupResponseSchema),
+        403: errorResponse("Invalid API key"),
+        409: errorResponse("Email already registered"),
+        400: validationErrorResponse(),
       },
     }),
+    validator("header", apiKeyHeaderSchema),
     validator("json", credentialsBodySchema),
     async (c) => {
       const { email, password } = c.req.valid("json");

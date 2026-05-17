@@ -11,8 +11,10 @@ process.env.DATABASE_URL = testDatabaseUrl;
 process.env.JWT_ACCESS_SECRET ??= "test-secret";
 process.env.FILE_STORAGE_URL ??= "https://cdn.test/";
 
-await recreateDatabase(testDatabaseUrl);
 await migrateDatabase(testDatabaseUrl);
+
+const { seedTestApiKey } = await import("./seed-api-key.ts");
+await seedTestApiKey();
 
 function resolveTestDatabaseUrl() {
   if (!process.env.DATABASE_URL) {
@@ -21,27 +23,6 @@ function resolveTestDatabaseUrl() {
 
   const parsed = new URL(process.env.DATABASE_URL);
   return parsed.toString();
-}
-
-async function recreateDatabase(databaseUrl: string) {
-  const parsed = new URL(databaseUrl);
-  const databaseName = parsed.pathname.replace(/^\//, "");
-
-  if (!databaseName) {
-    throw new Error("Could not derive test database name from DATABASE_URL");
-  }
-
-  parsed.pathname = "/postgres";
-  const adminPool = new Pool({ connectionString: parsed.toString() });
-  const quotedName = quoteIdentifier(databaseName);
-
-  try {
-    console.log(`Dropping & recreating database ${quotedName}`);
-    await adminPool.query(`DROP DATABASE IF EXISTS ${quotedName} WITH (FORCE)`);
-    await adminPool.query(`CREATE DATABASE ${quotedName}`);
-  } finally {
-    await adminPool.end();
-  }
 }
 
 async function migrateDatabase(databaseUrl: string) {
@@ -56,8 +37,4 @@ async function migrateDatabase(databaseUrl: string) {
   } finally {
     await pool.end();
   }
-}
-
-function quoteIdentifier(value: string) {
-  return `"${value.replaceAll('"', '""')}"`;
 }
