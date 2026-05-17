@@ -13,7 +13,7 @@ process.env.FILE_STORAGE_URL ??= "https://cdn.test/";
 
 await migrateDatabase(testDatabaseUrl);
 
-const { seedTestApiKey } = await import("./seed-api-key.ts");
+const { seedTestApiKey } = await import("./seed-api-key");
 await seedTestApiKey();
 
 function resolveTestDatabaseUrl() {
