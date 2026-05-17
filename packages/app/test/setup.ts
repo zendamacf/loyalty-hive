@@ -1,8 +1,8 @@
 import { mock } from "bun:test";
 import React from "react";
 
-import "./mocks/expo-localization";
 import "./mocks/api-client";
+import "./mocks/expo-localization";
 
 const asyncStorage = new Map<string, string>();
 
@@ -90,6 +90,7 @@ mock.module("lucide-react-native", () => ({
   BarcodeIcon: () => React.createElement("Text", null, "barcode"),
   QrCodeIcon: () => React.createElement("Text", null, "qr"),
   CopyIcon: () => React.createElement("Text", null, "copy"),
+  EllipsisVerticalIcon: () => React.createElement("Text", null, "more"),
   ChevronLeftIcon: () => React.createElement("Text", null, "back"),
   XIcon: () => React.createElement("Text", null, "close"),
   EyeIcon: () => React.createElement("Text", null, "eye"),
@@ -102,7 +103,13 @@ mock.module("expo-clipboard", () => ({
   setStringAsync: setStringAsyncMock,
 }));
 
-Object.assign(globalThis, { __expoClipboardMocks: { setStringAsync: setStringAsyncMock } });
+Object.assign(globalThis, {
+  __expoClipboardMocks: { setStringAsync: setStringAsyncMock },
+});
+
+const alertMock = mock(() => {});
+
+Object.assign(globalThis, { __reactNativeAlertMocks: { alert: alertMock } });
 
 mock.module("react-native", () => ({
   FlatList: (props: {
@@ -161,6 +168,9 @@ mock.module("react-native", () => ({
     );
   },
   ActivityIndicator: createPrimitive("ActivityIndicator"),
+  Alert: {
+    alert: alertMock,
+  },
   StyleSheet: {
     create: (styles: object) => styles,
     flatten: (style: unknown) => style,
@@ -195,6 +205,12 @@ mock.module("react-native", () => ({
 
 mock.module("react-native-safe-area-context", () => ({
   SafeAreaView: createPrimitive("SafeAreaView"),
+  useSafeAreaInsets: () => ({
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  }),
 }));
 
 mock.module("@react-navigation/native", () => ({

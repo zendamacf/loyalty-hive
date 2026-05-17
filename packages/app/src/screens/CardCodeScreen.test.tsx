@@ -2,15 +2,15 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { fireEvent } from "@testing-library/react-native";
 import React from "react";
 import { Image } from "react-native";
+
+import { Routes } from "@/constants/routes.constants";
 import { renderWithTheme } from "../../test/render";
 
-const { __expoRouterMocks, __expoClipboardMocks } = globalThis as unknown as {
+const { __expoRouterMocks } = globalThis as unknown as {
   __expoRouterMocks: {
     back: ReturnType<typeof mock>;
+    push: ReturnType<typeof mock>;
     params: Record<string, string | undefined>;
-  };
-  __expoClipboardMocks: {
-    setStringAsync: ReturnType<typeof mock>;
   };
 };
 
@@ -29,10 +29,14 @@ const { CardCodeScreen } = await import("./CardCodeScreen");
 describe("CardCodeScreen", () => {
   beforeEach(() => {
     __expoRouterMocks.back.mockClear();
-    __expoClipboardMocks.setStringAsync.mockClear();
+    __expoRouterMocks.push.mockClear();
     __expoRouterMocks.params = {
+      id: "00000000-0000-4000-8000-000000000001",
       cardNumber: "1234567890",
       title: "ASOS",
+      brandName: "ASOS",
+      label: "",
+      createdAt: "2020-01-01T00:00:00.000Z",
       view: "1D",
       logoUrl: "https://logo.clearbit.com/asos.com",
       backgroundColor: "#FFFFFF",
@@ -40,7 +44,7 @@ describe("CardCodeScreen", () => {
   });
 
   it("renders a barcode for 1D view", () => {
-    const { getByTestId, getByText, UNSAFE_getByType } = renderWithTheme(
+    const { getByTestId, UNSAFE_getByType } = renderWithTheme(
       <CardCodeScreen />,
     );
 
@@ -49,7 +53,6 @@ describe("CardCodeScreen", () => {
     expect(UNSAFE_getByType(Image).props.source).toEqual({
       uri: "https://logo.clearbit.com/asos.com",
     });
-    expect(getByText("1234567890")).toBeTruthy();
   });
 
   it("renders a QR code for 2D view", () => {
@@ -85,7 +88,24 @@ describe("CardCodeScreen", () => {
     expect(__expoRouterMocks.back).toHaveBeenCalled();
   });
 
-  it("switches to QR code when the toggle is pressed", () => {
+  it("navigates to card settings when configure is pressed", () => {
+    const { getByLabelText } = renderWithTheme(<CardCodeScreen />);
+
+    fireEvent.press(getByLabelText("Configure card"));
+
+    expect(__expoRouterMocks.push).toHaveBeenCalledWith({
+      pathname: Routes.CARD_SETTINGS,
+      params: {
+        id: "00000000-0000-4000-8000-000000000001",
+        cardNumber: "1234567890",
+        brandName: "ASOS",
+        label: "",
+        createdAt: "2020-01-01T00:00:00.000Z",
+      },
+    });
+  });
+
+  it("switches to QR code when QR code is selected", () => {
     const { getByLabelText, getByTestId } = renderWithTheme(<CardCodeScreen />);
 
     expect(getByTestId("barcode")).toBeTruthy();
@@ -96,17 +116,7 @@ describe("CardCodeScreen", () => {
     expect(getByTestId("barcode")).toBeTruthy();
   });
 
-  it("copies card number when copy is pressed", () => {
-    const { getByLabelText } = renderWithTheme(<CardCodeScreen />);
-
-    fireEvent.press(getByLabelText("Copy card number"));
-
-    expect(__expoClipboardMocks.setStringAsync).toHaveBeenCalledWith(
-      "1234567890",
-    );
-  });
-
-  it("switches to barcode when the toggle is pressed", () => {
+  it("switches to barcode when barcode is selected", () => {
     __expoRouterMocks.params = {
       cardNumber: "1234567890",
       title: "ASOS",

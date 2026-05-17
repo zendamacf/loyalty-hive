@@ -9,5 +9,15 @@
   "openSettingsA11y": "Open settings",
   "codeViewBarcode": "Barcode",
   "codeViewQr": "QR code",
-  "copyCardNumberA11y": "Copy card number"
+  "codeViewToggleA11y": "Barcode or QR code",
+  "copyCardNumberA11y": "Copy card number",
+  "configureCardA11y": "Configure card",
+  "cardNumberLabel": "Card number",
+  "createdOnLabel": "Added on",
+  "deleteCard": "Delete card",
+  "deleteCardA11y": "Delete card",
+  "deleteCardConfirmTitle": "Delete card?",
+  "deleteCardConfirmMessage": "This card will be removed from your wallet. This cannot be undone.",
+  "deleteCardErrorTitle": "Could not delete card",
+  "cancel": "Cancel"
 }

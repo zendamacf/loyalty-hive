@@ -11,9 +11,9 @@ import {
   Text,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-
 import { DataLoadStatus } from "@/components/DataLoadStatus";
+import { ScreenHeader } from "@/components/ScreenHeader";
+import { ScreenShell } from "@/components/ScreenShell";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { type GetApiV1CardsResponse, getApiV1Cards } from "@/lib/api-client";
@@ -106,11 +106,36 @@ export const CardsScreen = () => {
     ) : null;
 
   return (
-    <SafeAreaView
-      edges={["top", "left", "right"]}
-      style={[styles.container, { backgroundColor: colors.background }]}
-    >
-      <View style={styles.header}>
+    <ScreenShell edges={["top", "left", "right"]} style={styles.container}>
+      <ScreenHeader
+        style={styles.header}
+        actions={
+          <>
+            <Pressable
+              accessibilityLabel={t("addCardA11y")}
+              accessibilityRole="button"
+              style={({ pressed }) => [
+                styles.headerButton,
+                pressed && styles.headerButtonPressed,
+              ]}
+              onPress={() => router.push(Routes.SELECT_BRAND)}
+            >
+              <PlusIcon color={colors.textPrimary} size={icon.md} />
+            </Pressable>
+            <Pressable
+              accessibilityLabel={t("openSettingsA11y")}
+              accessibilityRole="button"
+              style={({ pressed }) => [
+                styles.headerButton,
+                pressed && styles.headerButtonPressed,
+              ]}
+              onPress={() => router.push(Routes.SETTINGS)}
+            >
+              <SettingsIcon color={colors.textPrimary} size={icon.md} />
+            </Pressable>
+          </>
+        }
+      >
         <View style={styles.headerMain}>
           <Image
             accessibilityLabel={t("appLogo", { ns: I18nNamespace.Common })}
@@ -121,29 +146,7 @@ export const CardsScreen = () => {
             <AppTitle align="left" />
           </View>
         </View>
-        <Pressable
-          accessibilityLabel={t("addCardA11y")}
-          accessibilityRole="button"
-          style={({ pressed }) => [
-            styles.headerButton,
-            pressed && styles.headerButtonPressed,
-          ]}
-          onPress={() => router.push(Routes.SELECT_BRAND)}
-        >
-          <PlusIcon color={colors.textPrimary} size={icon.md} />
-        </Pressable>
-        <Pressable
-          accessibilityLabel={t("openSettingsA11y")}
-          accessibilityRole="button"
-          style={({ pressed }) => [
-            styles.headerButton,
-            pressed && styles.headerButtonPressed,
-          ]}
-          onPress={() => router.push(Routes.SETTINGS)}
-        >
-          <SettingsIcon color={colors.textPrimary} size={icon.md} />
-        </Pressable>
-      </View>
+      </ScreenHeader>
 
       <SearchBar
         value={searchQuery}
@@ -183,10 +186,14 @@ export const CardsScreen = () => {
                     router.push({
                       pathname: Routes.CARD_CODE,
                       params: {
+                        id: item.id,
                         cardNumber: item.cardNumber,
                         view: item.view ?? "1D",
                         title:
                           item.label ?? item.brand?.name ?? item.cardNumber,
+                        brandName: item.brand?.name ?? "",
+                        label: item.label ?? "",
+                        createdAt: item.createdAt,
                         logoUrl: item.brand?.logoUrl ?? "",
                         backgroundColor: cardBackgroundColor,
                       },
@@ -198,14 +205,13 @@ export const CardsScreen = () => {
           }}
         />
       </DataLoadStatus>
-    </SafeAreaView>
+    </ScreenShell>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 16,
+    paddingBottom: spacing.md,
   },
   listContent: {
     paddingBottom: spacing.xl,

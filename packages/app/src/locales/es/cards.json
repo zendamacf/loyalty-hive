@@ -9,5 +9,15 @@
   "openSettingsA11y": "Abrir ajustes",
   "codeViewBarcode": "Código de barras",
   "codeViewQr": "Código QR",
-  "copyCardNumberA11y": "Copiar número de tarjeta"
+  "codeViewToggleA11y": "Código de barras o código QR",
+  "copyCardNumberA11y": "Copiar número de tarjeta",
+  "configureCardA11y": "Configurar tarjeta",
+  "cardNumberLabel": "Número de tarjeta",
+  "createdOnLabel": "Añadida el",
+  "deleteCard": "Eliminar tarjeta",
+  "deleteCardA11y": "Eliminar tarjeta",
+  "deleteCardConfirmTitle": "¿Eliminar tarjeta?",
+  "deleteCardConfirmMessage": "Esta tarjeta se eliminará de tu cartera. No se puede deshacer.",
+  "deleteCardErrorTitle": "No se pudo eliminar la tarjeta",
+  "cancel": "Cancelar"
 }

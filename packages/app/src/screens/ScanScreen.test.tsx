@@ -155,6 +155,15 @@ describe("ScanScreen", () => {
     expect(getByText("Adding card for ASOS")).toBeTruthy();
   });
 
+  it("navigates back when close is pressed", () => {
+    permissionState = { granted: true };
+    const { getByLabelText } = render(<ScanScreen />);
+
+    fireEvent.press(getByLabelText("Close"));
+
+    expect(__expoRouterMocks.back).toHaveBeenCalled();
+  });
+
   it("creates a custom card with label and no brand", async () => {
     permissionState = { granted: true };
     __expoRouterMocks.params = { label: "Gym membership" };

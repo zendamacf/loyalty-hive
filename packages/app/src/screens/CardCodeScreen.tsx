@@ -1,34 +1,45 @@
-import * as Clipboard from "expo-clipboard";
-import { useLocalSearchParams } from "expo-router";
-import { CopyIcon } from "lucide-react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { EllipsisVerticalIcon } from "lucide-react-native";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Pressable, StyleSheet, View } from "react-native";
 
 import { CardCodeDisplay } from "@/components/CardCodeDisplay";
 import { CardCodeViewToggle } from "@/components/CardCodeViewToggle";
 import { CloseButton } from "@/components/CloseButton";
 import { LoyaltyBrandMark } from "@/components/LoyaltyBrandMark";
+import { ScreenHeader } from "@/components/ScreenHeader";
+import { ScreenShell } from "@/components/ScreenShell";
+import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { type CardView, resolveCardView } from "@/lib/cardView";
-import { brandMark, icon, spacing, typography } from "@/theme/theme";
+import { brandMark, icon, spacing } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
 export const CardCodeScreen = () => {
   const { t } = useTranslation(I18nNamespace.Cards);
   const { colors } = useTheme();
   const params = useLocalSearchParams<{
+    id?: string;
     cardNumber?: string;
     view?: string;
     title?: string;
     logoUrl?: string;
     backgroundColor?: string;
+    brandName?: string;
+    label?: string;
+    createdAt?: string;
   }>();
 
+  const cardId = typeof params.id === "string" ? params.id : "";
   const cardNumber =
     typeof params.cardNumber === "string" ? params.cardNumber : "";
   const brandName =
+    typeof params.brandName === "string" ? params.brandName : "";
+  const label = typeof params.label === "string" ? params.label : "";
+  const createdAt =
+    typeof params.createdAt === "string" ? params.createdAt : "";
+  const displayName =
     typeof params.title === "string" && params.title.trim()
       ? params.title
       : cardNumber;
@@ -49,30 +60,47 @@ export const CardCodeScreen = () => {
     setDisplayView((current) => (current === "1D" ? "2D" : "1D"));
   }, []);
 
-  const copyCardNumber = useCallback(() => {
-    if (cardNumber) {
-      void Clipboard.setStringAsync(cardNumber);
-    }
-  }, [cardNumber]);
+  const openCardSettings = useCallback(() => {
+    router.push({
+      pathname: Routes.CARD_SETTINGS,
+      params: {
+        id: cardId,
+        cardNumber,
+        brandName,
+        label,
+        createdAt,
+      },
+    });
+  }, [brandName, cardId, cardNumber, createdAt, label]);
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: colors.background }]}
-    >
-      <View style={styles.header}>
-        <Text
-          style={[styles.title, { color: colors.textPrimary }]}
-          accessibilityRole="header"
-        >
-          {brandName}
-        </Text>
-        <CloseButton />
-      </View>
+    <ScreenShell>
+      <ScreenHeader
+        title={displayName}
+        actions={
+          <>
+            <Pressable
+              accessibilityLabel={t("configureCardA11y")}
+              accessibilityRole="button"
+              disabled={!cardId}
+              hitSlop={12}
+              style={({ pressed }) => [
+                styles.headerIconButton,
+                pressed && styles.headerIconButtonPressed,
+              ]}
+              onPress={openCardSettings}
+            >
+              <EllipsisVerticalIcon color={colors.textPrimary} size={icon.md} />
+            </Pressable>
+            <CloseButton />
+          </>
+        }
+      />
 
       <View style={styles.content}>
         <LoyaltyBrandMark
           animateHeight
-          brand={brandName}
+          brand={displayName}
           logo={logoUrl}
           backgroundColor={brandBackgroundColor}
           height={
@@ -93,50 +121,25 @@ export const CardCodeScreen = () => {
       </View>
 
       <View style={styles.footer}>
-        <View style={styles.footerRow}>
-          <View style={styles.cardNumberContainer}>
-            <Text
-              style={[styles.cardNumber, { color: colors.textSecondary }]}
-              numberOfLines={1}
-            >
-              {cardNumber}
-            </Text>
-            <Pressable
-              accessibilityLabel={t("copyCardNumberA11y")}
-              accessibilityRole="button"
-              disabled={!cardNumber}
-              hitSlop={12}
-              style={({ pressed }) => [
-                styles.footerIconButton,
-                pressed && styles.footerIconButtonPressed,
-              ]}
-              onPress={copyCardNumber}
-            >
-              <CopyIcon color={colors.textSecondary} size={icon.md} />
-            </Pressable>
-          </View>
-          <CardCodeViewToggle view={displayView} onToggle={toggleDisplayView} />
-        </View>
+        <CardCodeViewToggle
+          view={displayView}
+          activeSegmentColor={brandBackgroundColor}
+          onToggle={toggleDisplayView}
+        />
       </View>
-    </SafeAreaView>
+    </ScreenShell>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-  },
-  header: {
-    flexDirection: "row",
+  headerIconButton: {
+    width: icon.md,
+    height: icon.md,
     alignItems: "center",
-    justifyContent: "flex-end",
-    paddingVertical: spacing.sm,
+    justifyContent: "center",
   },
-  title: {
-    ...typography.title,
-    flex: 1,
+  headerIconButtonPressed: {
+    opacity: 0.55,
   },
   content: {
     flex: 1,
@@ -144,33 +147,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   footer: {
+    alignSelf: "stretch",
+    alignItems: "center",
     paddingBottom: spacing.md,
   },
   brandMark: {
     alignSelf: "stretch",
     maxWidth: 320,
-  },
-  footerRow: {
-    alignSelf: "stretch",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-  },
-  cardNumberContainer: {
-    flex: 1,
-    flexDirection: "row",
-    gap: spacing.sm,
-  },
-  cardNumber: {
-    ...typography.body,
-  },
-  footerIconButton: {
-    width: icon.md,
-    height: icon.md,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  footerIconButtonPressed: {
-    opacity: 0.55,
   },
 });

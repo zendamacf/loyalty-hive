@@ -4,20 +4,26 @@ import {
   useCameraPermissions,
 } from "expo-camera";
 import { router, useLocalSearchParams } from "expo-router";
+import { XIcon } from "lucide-react-native";
 import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import { ScreenHeader } from "@/components/ScreenHeader";
+import { ScreenShell } from "@/components/ScreenShell";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { postApiV1Cards } from "@/lib/api-client";
 import { type CardView, resolveCardViewFromBarcodeType } from "@/lib/cardView";
 import { getErrorMessage } from "@/lib/getErrorMessage";
-import { radius, spacing, typography } from "../theme/theme";
+import { icon, radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
 export const ScanScreen = () => {
-  const { t } = useTranslation(I18nNamespace.Scan);
+  const { t } = useTranslation([I18nNamespace.Scan, I18nNamespace.Common]);
   const { colors } = useTheme();
   const params = useLocalSearchParams<{
     brandName?: string;
@@ -36,6 +42,7 @@ export const ScanScreen = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const saveLockRef = useRef(false);
+  const insets = useSafeAreaInsets();
 
   const saveCard = useCallback(
     async (cardNumber: string, cardType: CardView | null) => {
@@ -88,6 +95,10 @@ export const ScanScreen = () => {
     void saveCard(normalizedCode, null);
   };
 
+  const abortScan = useCallback(() => {
+    router.back();
+  }, []);
+
   if (!permission) {
     return (
       <SafeAreaView
@@ -102,12 +113,12 @@ export const ScanScreen = () => {
 
   if (!permission.granted) {
     return (
-      <SafeAreaView
-        style={[styles.container, { backgroundColor: colors.background }]}
-      >
-        <Text style={[styles.title, { color: colors.textPrimary }]}>
-          {t("cameraAccessTitle")}
-        </Text>
+      <ScreenShell style={styles.permissionContainer}>
+        <ScreenHeader
+          title={t("cameraAccessTitle")}
+          align="center"
+          style={styles.permissionHeader}
+        />
         <Text style={[styles.message, { color: colors.textSecondary }]}>
           {t("cameraAccessMessage")}
         </Text>
@@ -117,7 +128,7 @@ export const ScanScreen = () => {
         >
           <Text style={styles.buttonText}>{t("allowCamera")}</Text>
         </Pressable>
-      </SafeAreaView>
+      </ScreenShell>
     );
   }
 
@@ -146,17 +157,34 @@ export const ScanScreen = () => {
         }}
       />
 
-      <View style={styles.overlay}>
-        {selectedBrandId && selectedBrandName ? (
-          <Text style={styles.brandTag}>
-            {t("addingCard", { brand: selectedBrandName })}
-          </Text>
-        ) : null}
-        {!selectedBrandId && customLabel ? (
-          <Text style={styles.brandTag}>
-            {t("addingCustomCard", { label: customLabel })}
-          </Text>
-        ) : null}
+      <View style={[styles.overlay, { bottom: spacing.lg + insets.bottom }]}>
+        <View style={styles.overlayHeader}>
+          <View style={styles.overlayHeaderText}>
+            {selectedBrandId && selectedBrandName ? (
+              <Text style={styles.brandTag}>
+                {t("addingCard", { brand: selectedBrandName })}
+              </Text>
+            ) : null}
+            {!selectedBrandId && customLabel ? (
+              <Text style={styles.brandTag}>
+                {t("addingCustomCard", { label: customLabel })}
+              </Text>
+            ) : null}
+          </View>
+          <Pressable
+            accessibilityLabel={t("close", { ns: I18nNamespace.Common })}
+            accessibilityRole="button"
+            disabled={isSaving}
+            hitSlop={12}
+            style={({ pressed }) => [
+              styles.overlayClose,
+              pressed && styles.overlayClosePressed,
+            ]}
+            onPress={abortScan}
+          >
+            <XIcon color="#FFFFFF" size={icon.md} />
+          </Pressable>
+        </View>
         <Text style={styles.overlayTitle}>
           {isSaving ? t("savingCard") : t("scanPrompt")}
         </Text>
@@ -221,10 +249,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  title: {
-    ...typography.title,
+  permissionContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  permissionHeader: {
     marginBottom: spacing.sm,
-    textAlign: "center",
   },
   message: {
     ...typography.body,
@@ -244,10 +274,28 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: spacing.md,
     right: spacing.md,
-    bottom: spacing.lg,
     backgroundColor: "rgba(13, 27, 42, 0.85)",
     borderRadius: radius.lg,
     padding: spacing.md,
+  },
+  overlayHeader: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  overlayHeaderText: {
+    flex: 1,
+    minWidth: 0,
+  },
+  overlayClose: {
+    width: icon.md,
+    height: icon.md,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  overlayClosePressed: {
+    opacity: 0.55,
   },
   overlayTitle: {
     color: "#FFFFFF",
@@ -256,7 +304,6 @@ const styles = StyleSheet.create({
   brandTag: {
     color: "#E2E8F0",
     ...typography.small,
-    marginBottom: spacing.xs,
   },
   saveError: {
     marginTop: spacing.sm,

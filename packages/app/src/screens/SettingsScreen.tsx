@@ -2,11 +2,12 @@ import { router } from "expo-router";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "@/components/Button";
 import { CloseButton } from "@/components/CloseButton";
 import { LanguagePicker } from "@/components/LanguagePicker";
+import { ScreenHeader } from "@/components/ScreenHeader";
+import { ScreenShell } from "@/components/ScreenShell";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
@@ -24,19 +25,15 @@ export const SettingsScreen = () => {
   }, []);
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: colors.background }]}
-    >
-      <View style={styles.content}>
-        <View style={styles.titleRow}>
-          <Text
-            style={[styles.title, { color: colors.textPrimary }]}
-            accessibilityRole="header"
-          >
-            {t("title")}
-          </Text>
-          <CloseButton />
+    <ScreenShell
+      footer={
+        <View style={styles.footer}>
+          <Button title={t("signOut")} onPress={signOut} />
         </View>
+      }
+    >
+      <ScreenShell.Body>
+        <ScreenHeader title={t("title")} actions={<CloseButton />} embedded />
 
         <View
           style={[
@@ -68,35 +65,12 @@ export const SettingsScreen = () => {
           </Text>
           <LanguagePicker />
         </View>
-      </View>
-
-      <View style={styles.footer}>
-        <Button title={t("signOut")} onPress={signOut} />
-      </View>
-    </SafeAreaView>
+      </ScreenShell.Body>
+    </ScreenShell>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.lg,
-  },
-  titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-  },
-  content: {
-    flex: 1,
-    paddingTop: spacing.md,
-    gap: spacing.lg,
-  },
-  title: {
-    ...typography.title,
-    flex: 1,
-  },
   settingRow: {
     flexDirection: "row",
     alignItems: "center",

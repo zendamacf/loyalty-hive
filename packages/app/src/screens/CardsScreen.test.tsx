@@ -138,9 +138,13 @@ describe("CardsScreen", () => {
     expect(__expoRouterMocks.push).toHaveBeenCalledWith({
       pathname: Routes.CARD_CODE,
       params: {
+        id: "00000000-0000-4000-8000-0000000000c1",
         cardNumber: "333",
         view: "1D",
         title: "Gym membership",
+        brandName: "",
+        label: "Gym membership",
+        createdAt: "2020-01-01T00:00:00.000Z",
         logoUrl: "",
         backgroundColor: colors.cardFallbackLight,
       },
@@ -157,9 +161,13 @@ describe("CardsScreen", () => {
     expect(__expoRouterMocks.push).toHaveBeenCalledWith({
       pathname: Routes.CARD_CODE,
       params: {
+        id: "00000000-0000-4000-8000-000000000001",
         cardNumber: "111",
         view: "1D",
         title: "ASOS",
+        brandName: "ASOS",
+        label: "",
+        createdAt: "2020-01-01T00:00:00.000Z",
         logoUrl: "https://logo.clearbit.com/asos.com",
         backgroundColor: "#FFFFFF",
       },
@@ -183,9 +191,13 @@ describe("CardsScreen", () => {
     expect(__expoRouterMocks.push).toHaveBeenCalledWith({
       pathname: Routes.CARD_CODE,
       params: {
+        id: "00000000-0000-4000-8000-000000000001",
         cardNumber: "111",
         view: "2D",
         title: "ASOS",
+        brandName: "ASOS",
+        label: "",
+        createdAt: "2020-01-01T00:00:00.000Z",
         logoUrl: "https://logo.clearbit.com/asos.com",
         backgroundColor: "#FFFFFF",
       },

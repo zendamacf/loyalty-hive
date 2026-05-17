@@ -11,12 +11,12 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-
 import { Button } from "@/components/Button";
 import { CloseButton } from "@/components/CloseButton";
 import { DataLoadStatus } from "@/components/DataLoadStatus";
 import { LoyaltyBrandLogo } from "@/components/LoyaltyBrandLogo";
+import { ScreenHeader } from "@/components/ScreenHeader";
+import { ScreenShell } from "@/components/ScreenShell";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { type GetApiV1BrandsResponse, getApiV1Brands } from "@/lib/api-client";
@@ -158,21 +158,14 @@ export const SelectBrandScreen = () => {
   );
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: colors.background }]}
-    >
-      <View style={styles.titleRow}>
-        <Text
-          style={[styles.title, { color: colors.textPrimary }]}
-          accessibilityRole="header"
-        >
-          {t("title")}
-        </Text>
-        <CloseButton />
-      </View>
-      <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-        {t("subtitle")}
-      </Text>
+    <ScreenShell>
+      <ScreenHeader
+        title={t("title")}
+        subtitle={t("subtitle")}
+        subtitleVariant="caption"
+        actions={<CloseButton />}
+        style={styles.header}
+      />
 
       <SearchBar
         value={query}
@@ -199,28 +192,13 @@ export const SelectBrandScreen = () => {
           {customCardSection}
         </View>
       </DataLoadStatus>
-    </SafeAreaView>
+    </ScreenShell>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: spacing.md,
-  },
-  titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-    marginBottom: spacing.xs,
-  },
-  title: {
-    ...typography.title,
-    flex: 1,
-  },
-  subtitle: {
+  header: {
     marginBottom: spacing.md,
-    ...typography.caption,
   },
   searchBar: {
     marginBottom: spacing.md,
