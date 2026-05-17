@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { postApiV1AuthLogin, postApiV1AuthSignup } from "@/lib/api-client";
+import { authApiHeaders } from "@/lib/api-client/auth-api-headers";
 import { useAuth } from "@/lib/auth";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import { AppTitle } from "../components/AppTitle";
@@ -51,6 +52,7 @@ export const LoginScreen = () => {
   const submitLogin = async (trimmedEmail: string, pwd: string) => {
     const { data, error: apiError } = await postApiV1AuthLogin({
       body: { email: trimmedEmail, password: pwd },
+      headers: authApiHeaders(),
     });
 
     if (apiError) {
@@ -68,6 +70,7 @@ export const LoginScreen = () => {
   const submitSignup = async (trimmedEmail: string, pwd: string) => {
     const { data, error: apiError } = await postApiV1AuthSignup({
       body: { email: trimmedEmail, password: pwd },
+      headers: authApiHeaders(),
     });
 
     if (apiError) {

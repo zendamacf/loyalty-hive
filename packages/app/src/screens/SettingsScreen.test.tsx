@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "bun:test";
 import { fireEvent, waitFor } from "@testing-library/react-native";
 import { Routes } from "@/constants/routes.constants";
+import { getBearerToken, setBearerToken } from "@/lib/api-client/setup";
 import { AUTH_TOKEN_STORAGE_KEY } from "@/lib/auth/auth.constants";
-import { setConfigMock } from "../../test/mocks/api-client";
 import {
   clearSecureStoreMock,
   secureStoreDeleteMock,
@@ -21,9 +21,9 @@ const { SettingsScreen } = await import("./SettingsScreen");
 describe("SettingsScreen", () => {
   beforeEach(() => {
     clearSecureStoreMock();
+    setBearerToken(undefined);
     __expoRouterMocks.back.mockClear();
     __expoRouterMocks.replace.mockClear();
-    setConfigMock.mockClear();
     secureStoreDeleteMock.mockClear();
   });
 
@@ -68,7 +68,7 @@ describe("SettingsScreen", () => {
     fireEvent.press(getByText("Sign out"));
 
     await waitFor(() => {
-      expect(setConfigMock).toHaveBeenCalledWith({ auth: undefined });
+      expect(getBearerToken()).toBeUndefined();
       expect(secureStoreDeleteMock).toHaveBeenCalledWith(
         AUTH_TOKEN_STORAGE_KEY,
       );

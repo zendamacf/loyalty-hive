@@ -1,10 +1,10 @@
 import * as SecureStore from "expo-secure-store";
 
-import { client } from "@/lib/api-client";
+import { setBearerToken } from "@/lib/api-client/setup";
 import { AUTH_TOKEN_STORAGE_KEY } from "./auth.constants";
 
 export function setClientAuth(token: string | undefined) {
-  client.setConfig({ auth: token });
+  setBearerToken(token);
 }
 
 export async function loadAuthToken(): Promise<string | null> {

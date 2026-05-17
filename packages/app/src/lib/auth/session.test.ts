@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "bun:test";
-import { setConfigMock } from "../../../test/mocks/api-client";
+import { getBearerToken, setBearerToken } from "@/lib/api-client/setup";
 import {
   clearSecureStoreMock,
   secureStoreDeleteMock,
@@ -18,7 +18,7 @@ import {
 describe("auth session", () => {
   beforeEach(() => {
     clearSecureStoreMock();
-    setConfigMock.mockClear();
+    setBearerToken(undefined);
     secureStoreGetMock.mockClear();
     secureStoreSetMock.mockClear();
     secureStoreDeleteMock.mockClear();
@@ -43,13 +43,13 @@ describe("auth session", () => {
     await expect(loadAuthToken()).resolves.toBeNull();
   });
 
-  it("updates the API client auth header", () => {
+  it("stores the bearer token for authenticated API requests", () => {
     setClientAuth("jwt-456");
 
-    expect(setConfigMock).toHaveBeenCalledWith({ auth: "jwt-456" });
+    expect(getBearerToken()).toBe("jwt-456");
 
     setClientAuth(undefined);
 
-    expect(setConfigMock).toHaveBeenCalledWith({ auth: undefined });
+    expect(getBearerToken()).toBeUndefined();
   });
 });
