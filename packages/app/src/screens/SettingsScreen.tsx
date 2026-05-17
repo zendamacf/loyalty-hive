@@ -11,20 +11,21 @@ import { ScreenShell } from "@/components/ScreenShell";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
-import { client } from "@/lib/api-client";
-import { queryClient } from "@/lib/query-client";
+import { useAuth } from "@/lib/auth";
 import { radius, spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
 export const SettingsScreen = () => {
   const { t } = useTranslation(I18nNamespace.Settings);
   const { colors } = useTheme();
+  const { signOut: clearSession } = useAuth();
 
   const signOut = useCallback(() => {
-    queryClient.clear();
-    client.setConfig({ auth: undefined });
-    router.replace(Routes.LOGIN);
-  }, []);
+    void (async () => {
+      await clearSession();
+      router.replace(Routes.LOGIN);
+    })();
+  }, [clearSession]);
 
   return (
     <ScreenShell

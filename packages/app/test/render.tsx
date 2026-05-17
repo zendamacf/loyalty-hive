@@ -7,6 +7,7 @@ import {
 import type { ReactElement, ReactNode } from "react";
 import { I18nextProvider } from "react-i18next";
 import i18n from "@/i18n";
+import { AuthProvider } from "@/lib/auth";
 import { QUERY_STALE_TIME_MS } from "@/lib/query-client";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 import { TestLanguageProvider } from "./TestLanguageProvider";
@@ -26,11 +27,13 @@ export function createTestQueryClient() {
 
 const Providers = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={createTestQueryClient()}>
-    <I18nextProvider i18n={i18n}>
-      <TestLanguageProvider>
-        <ThemeProvider>{children}</ThemeProvider>
-      </TestLanguageProvider>
-    </I18nextProvider>
+    <AuthProvider>
+      <I18nextProvider i18n={i18n}>
+        <TestLanguageProvider>
+          <ThemeProvider>{children}</ThemeProvider>
+        </TestLanguageProvider>
+      </I18nextProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
@@ -38,11 +41,13 @@ export function createQueryClientWrapper(queryClient: QueryClient) {
   return function QueryClientWrapper({ children }: { children: ReactNode }) {
     return (
       <QueryClientProvider client={queryClient}>
-        <I18nextProvider i18n={i18n}>
-          <TestLanguageProvider>
-            <ThemeProvider>{children}</ThemeProvider>
-          </TestLanguageProvider>
-        </I18nextProvider>
+        <AuthProvider>
+          <I18nextProvider i18n={i18n}>
+            <TestLanguageProvider>
+              <ThemeProvider>{children}</ThemeProvider>
+            </TestLanguageProvider>
+          </I18nextProvider>
+        </AuthProvider>
       </QueryClientProvider>
     );
   };
