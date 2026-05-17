@@ -1,3 +1,4 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   type BarcodeScanningResult,
   CameraView,
@@ -16,7 +17,10 @@ import { ScreenHeader } from "@/components/ScreenHeader";
 import { ScreenShell } from "@/components/ScreenShell";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
-import { postApiV1Cards } from "@/lib/api-client";
+import {
+  getApiV1CardsQueryKey,
+  postApiV1CardsMutation,
+} from "@/lib/api-client";
 import { type CardView, resolveCardViewFromBarcodeType } from "@/lib/cardView";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import { icon, radius, spacing, typography } from "../theme/theme";
@@ -43,6 +47,14 @@ export const ScanScreen = () => {
   const [saveError, setSaveError] = useState<string | null>(null);
   const saveLockRef = useRef(false);
   const insets = useSafeAreaInsets();
+  const queryClient = useQueryClient();
+
+  const { mutateAsync: createCard } = useMutation({
+    ...postApiV1CardsMutation(),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: getApiV1CardsQueryKey() });
+    },
+  });
 
   const saveCard = useCallback(
     async (cardNumber: string, cardType: CardView | null) => {
@@ -56,7 +68,7 @@ export const ScanScreen = () => {
 
       try {
         const apiLabel = selectedBrandId ? null : customLabel;
-        const { data, error } = await postApiV1Cards({
+        await createCard({
           body: {
             cardNumber: trimmed,
             label: apiLabel,
@@ -64,21 +76,15 @@ export const ScanScreen = () => {
             view: cardType,
           },
         });
-
-        if (error) {
-          setSaveError(getErrorMessage(error));
-          return;
-        }
-
-        if (data) {
-          router.dismissTo(Routes.CARDS);
-        }
+        router.dismissTo(Routes.CARDS);
+      } catch (err) {
+        setSaveError(getErrorMessage(err));
       } finally {
         saveLockRef.current = false;
         setIsSaving(false);
       }
     },
-    [customLabel, selectedBrandId],
+    [createCard, customLabel, selectedBrandId],
   );
 
   const handleScan = (result: BarcodeScanningResult) => {

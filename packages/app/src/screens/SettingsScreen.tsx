@@ -12,6 +12,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { client } from "@/lib/api-client";
+import { queryClient } from "@/lib/query-client";
 import { radius, spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
@@ -20,6 +21,7 @@ export const SettingsScreen = () => {
   const { colors } = useTheme();
 
   const signOut = useCallback(() => {
+    queryClient.clear();
     client.setConfig({ auth: undefined });
     router.replace(Routes.LOGIN);
   }, []);

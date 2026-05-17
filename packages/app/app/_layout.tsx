@@ -1,3 +1,4 @@
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import {
   initialWindowMetrics,
@@ -11,6 +12,7 @@ import "@/i18n";
 import * as Sentry from "@sentry/react-native";
 
 import { LanguageProvider } from "@/i18n/LanguageProvider";
+import { queryClient } from "@/lib/query-client";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 
 Sentry.init({
@@ -26,16 +28,18 @@ Sentry.init({
 
 export default Sentry.wrap(function Layout() {
   return (
-    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-      <LanguageProvider>
-        <ThemeProvider>
-          <ThemedRoot>
-            <KeyboardAvoidingShell>
-              <Stack screenOptions={{ headerShown: false }} />
-            </KeyboardAvoidingShell>
-          </ThemedRoot>
-        </ThemeProvider>
-      </LanguageProvider>
-    </SafeAreaProvider>
+    <QueryClientProvider client={queryClient}>
+      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+        <LanguageProvider>
+          <ThemeProvider>
+            <ThemedRoot>
+              <KeyboardAvoidingShell>
+                <Stack screenOptions={{ headerShown: false }} />
+              </KeyboardAvoidingShell>
+            </ThemedRoot>
+          </ThemeProvider>
+        </LanguageProvider>
+      </SafeAreaProvider>
+    </QueryClientProvider>
   );
 });

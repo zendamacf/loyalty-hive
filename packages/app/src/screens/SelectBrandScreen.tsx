@@ -1,6 +1,7 @@
+import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { PlusIcon } from "lucide-react-native";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FlatList,
@@ -19,7 +20,11 @@ import { ScreenHeader } from "@/components/ScreenHeader";
 import { ScreenShell } from "@/components/ScreenShell";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
-import { type GetApiV1BrandsResponse, getApiV1Brands } from "@/lib/api-client";
+import {
+  type GetApiV1BrandsResponse,
+  getApiV1BrandsOptions,
+} from "@/lib/api-client";
+import { getErrorMessage } from "@/lib/getErrorMessage";
 import { SearchBar } from "../components/SearchBar";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
 import { useThemedRefreshControl } from "../hooks/useThemedRefreshControl";
@@ -32,28 +37,23 @@ export const SelectBrandScreen = () => {
   const { t } = useTranslation(I18nNamespace.Brands);
   const { colors } = useTheme();
   const [query, setQuery] = useState("");
-  const [brands, setBrands] = useState<GetApiV1BrandsResponse>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [loaded, setLoaded] = useState(false);
   const [isCustomLabelOpen, setIsCustomLabelOpen] = useState(false);
   const [customLabel, setCustomLabel] = useState("");
 
-  const fetchBrands = useCallback(async () => {
-    setError(null);
-    try {
-      const { data, error: apiError } = await getApiV1Brands();
-      if (apiError) setError(apiError.error);
-      if (data) setBrands(data);
-    } finally {
-      setLoaded(true);
-    }
-  }, []);
+  const {
+    data: brands = [],
+    error: queryError,
+    isError,
+    isPending,
+    refetch,
+  } = useQuery(getApiV1BrandsOptions());
 
-  useEffect(() => {
-    void fetchBrands();
-  }, [fetchBrands]);
+  const error = isError ? getErrorMessage(queryError) : null;
+  const loaded = !isPending;
 
-  const { refreshing, onRefresh } = usePullToRefresh(fetchBrands);
+  const { refreshing, onRefresh } = usePullToRefresh(async () => {
+    await refetch();
+  });
   const refreshControl = useThemedRefreshControl(refreshing, onRefresh);
 
   const filteredBrands = useMemo(() => {

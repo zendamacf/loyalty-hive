@@ -1,8 +1,14 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-import { fireEvent, render, waitFor } from "@testing-library/react-native";
+import { fireEvent, waitFor } from "@testing-library/react-native";
 import React from "react";
 import { Routes } from "@/constants/routes.constants";
-import { getConfigMock, postApiV1CardsMock } from "../../test/mocks/api-client";
+import type { PostApiV1CardsResponse } from "@/lib/api-client";
+import {
+  getConfigMock,
+  postApiV1CardsMock,
+  resolveApiMock,
+} from "../../test/mocks/api-client";
+import { renderWithProviders } from "../../test/render";
 
 const testUserId = "00000000-0000-4000-8000-000000000001";
 const fakeJwt = `h.${Buffer.from(JSON.stringify({ sub: testUserId })).toString("base64url")}.s`;
@@ -62,14 +68,14 @@ describe("ScanScreen", () => {
   });
 
   it("shows loading message while camera permission is being checked", () => {
-    const { getByText } = render(<ScanScreen />);
+    const { getByText } = renderWithProviders(<ScanScreen />);
 
     expect(getByText("Checking camera permissions...")).toBeTruthy();
   });
 
   it("requests permission when user taps allow camera", () => {
     permissionState = { granted: false };
-    const { getByText } = render(<ScanScreen />);
+    const { getByText } = renderWithProviders(<ScanScreen />);
 
     fireEvent.press(getByText("Allow camera"));
 
@@ -78,7 +84,9 @@ describe("ScanScreen", () => {
 
   it("creates a card from manual entry and returns to cards tab", async () => {
     permissionState = { granted: true };
-    const { getByText, getByPlaceholderText } = render(<ScanScreen />);
+    const { getByText, getByPlaceholderText } = renderWithProviders(
+      <ScanScreen />,
+    );
 
     fireEvent.press(getByText("Enter card number manually"));
     fireEvent.changeText(getByPlaceholderText("Card number"), " 123456 ");
@@ -103,7 +111,7 @@ describe("ScanScreen", () => {
 
   it("creates a card when a QR code is scanned with 2D view", async () => {
     permissionState = { granted: true };
-    const { getByTestId } = render(<ScanScreen />);
+    const { getByTestId } = renderWithProviders(<ScanScreen />);
 
     fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
       type: "qr",
@@ -127,7 +135,7 @@ describe("ScanScreen", () => {
 
   it("creates a card when a linear barcode is scanned with 1D view", async () => {
     permissionState = { granted: true };
-    const { getByTestId } = render(<ScanScreen />);
+    const { getByTestId } = renderWithProviders(<ScanScreen />);
 
     fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
       type: "code128",
@@ -150,14 +158,14 @@ describe("ScanScreen", () => {
 
   it("shows brand context when brand name param is set", () => {
     permissionState = { granted: true };
-    const { getByText } = render(<ScanScreen />);
+    const { getByText } = renderWithProviders(<ScanScreen />);
 
     expect(getByText("Adding card for ASOS")).toBeTruthy();
   });
 
   it("navigates back when close is pressed", () => {
     permissionState = { granted: true };
-    const { getByLabelText } = render(<ScanScreen />);
+    const { getByLabelText } = renderWithProviders(<ScanScreen />);
 
     fireEvent.press(getByLabelText("Close"));
 
@@ -167,7 +175,7 @@ describe("ScanScreen", () => {
   it("creates a custom card with label and no brand", async () => {
     permissionState = { granted: true };
     __expoRouterMocks.params = { label: "Gym membership" };
-    const { getByTestId, getByText } = render(<ScanScreen />);
+    const { getByTestId, getByText } = renderWithProviders(<ScanScreen />);
 
     expect(getByText("Adding Gym membership")).toBeTruthy();
 
@@ -193,14 +201,17 @@ describe("ScanScreen", () => {
 
   it("shows save error and does not navigate when API returns error", async () => {
     permissionState = { granted: true };
-    postApiV1CardsMock.mockImplementation(() =>
-      Promise.resolve({
-        data: undefined,
-        error: { error: "Card already exists" },
-      }),
+    postApiV1CardsMock.mockImplementation((options) =>
+      resolveApiMock<PostApiV1CardsResponse>(
+        {
+          data: undefined,
+          error: { error: "Card already exists" },
+        },
+        options,
+      ),
     );
 
-    const { getByTestId, getByText } = render(<ScanScreen />);
+    const { getByTestId, getByText } = renderWithProviders(<ScanScreen />);
 
     fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
       type: "qr",
@@ -215,7 +226,7 @@ describe("ScanScreen", () => {
 
   it("does not save when manual entry is empty", () => {
     permissionState = { granted: true };
-    const { getByText } = render(<ScanScreen />);
+    const { getByText } = renderWithProviders(<ScanScreen />);
 
     fireEvent.press(getByText("Enter card number manually"));
     fireEvent.press(getByText("Use card number"));

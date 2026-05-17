@@ -71,7 +71,7 @@ describe("CardSettingsScreen", () => {
     );
   });
 
-  it("shows delete confirmation before deleting", () => {
+  it("shows delete confirmation before deleting", async () => {
     const { getByLabelText } = renderWithTheme(<CardSettingsScreen />);
 
     fireEvent.press(getByLabelText("Delete card"));
@@ -84,9 +84,13 @@ describe("CardSettingsScreen", () => {
     const confirm = buttons.find((button) => button.text === "Delete card");
     confirm?.onPress?.();
 
-    expect(deleteApiV1CardsByIdMock).toHaveBeenCalledWith({
-      path: { id: "00000000-0000-4000-8000-000000000001" },
-    });
+    await waitFor(() =>
+      expect(deleteApiV1CardsByIdMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          path: { id: "00000000-0000-4000-8000-000000000001" },
+        }),
+      ),
+    );
   });
 
   it("returns to cards after a successful delete", async () => {

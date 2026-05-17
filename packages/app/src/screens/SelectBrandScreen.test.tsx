@@ -4,8 +4,14 @@ import { fireEvent, waitFor } from "@testing-library/react-native";
 
 import { Routes } from "@/constants/routes.constants";
 import type { GetApiV1BrandsResponse } from "@/lib/api-client/gen";
-import { getApiV1BrandsMock } from "../../test/mocks/api-client";
-import { renderWithProviders } from "../../test/render";
+import {
+  getApiV1BrandsMock,
+  resolveApiMock,
+} from "../../test/mocks/api-client";
+import {
+  renderWithProviders,
+  renderWithSharedQueryClient,
+} from "../../test/render";
 
 const testBrands = [
   {
@@ -155,23 +161,48 @@ describe("SelectBrandScreen", () => {
   });
 
   it("refetches brands on pull-to-refresh", async () => {
-    const { UNSAFE_getByType } = renderWithProviders(<SelectBrandScreen />);
+    const { UNSAFE_getByType, getByLabelText } = renderWithProviders(
+      <SelectBrandScreen />,
+    );
 
-    await waitFor(() => expect(getApiV1BrandsMock).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(getByLabelText("ASOS")).toBeTruthy());
+    expect(getApiV1BrandsMock).toHaveBeenCalledTimes(1);
 
-    const { RefreshControl } = await import("react-native");
-    const refreshControl = UNSAFE_getByType(RefreshControl);
-    fireEvent(refreshControl, "refresh");
+    const { FlatList } = await import("react-native");
+    await waitFor(() => {
+      expect(UNSAFE_getByType(FlatList)).toBeTruthy();
+    });
+    const flatList = UNSAFE_getByType(FlatList);
+    await flatList.props.refreshControl.props.onRefresh();
 
     await waitFor(() => expect(getApiV1BrandsMock).toHaveBeenCalledTimes(2));
   });
 
+  it("serves cached brands without refetching on remount within query client stale time", async () => {
+    const { queryClient, unmount, getByLabelText } =
+      renderWithSharedQueryClient(<SelectBrandScreen />);
+
+    await waitFor(() => expect(getApiV1BrandsMock).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(getByLabelText("ASOS")).toBeTruthy());
+    unmount();
+
+    const remount = renderWithSharedQueryClient(
+      <SelectBrandScreen />,
+      queryClient,
+    );
+    await waitFor(() => expect(remount.getByLabelText("ASOS")).toBeTruthy());
+    expect(getApiV1BrandsMock).toHaveBeenCalledTimes(1);
+  });
+
   it("shows API error when brands fetch fails", async () => {
-    getApiV1BrandsMock.mockImplementation(() =>
-      Promise.resolve({
-        data: undefined,
-        error: { error: "Could not load brands" },
-      }),
+    getApiV1BrandsMock.mockImplementation((options) =>
+      resolveApiMock<GetApiV1BrandsResponse>(
+        {
+          data: undefined,
+          error: { error: "Could not load brands" },
+        },
+        options,
+      ),
     );
 
     const { getByText, queryByLabelText } = renderWithProviders(

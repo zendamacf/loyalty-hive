@@ -1,7 +1,7 @@
-import { useFocusEffect } from "@react-navigation/native";
+import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { PlusIcon, SettingsIcon } from "lucide-react-native";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FlatList,
@@ -16,7 +16,11 @@ import { ScreenHeader } from "@/components/ScreenHeader";
 import { ScreenShell } from "@/components/ScreenShell";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
-import { type GetApiV1CardsResponse, getApiV1Cards } from "@/lib/api-client";
+import {
+  type GetApiV1CardsResponse,
+  getApiV1CardsOptions,
+} from "@/lib/api-client";
+import { getErrorMessage } from "@/lib/getErrorMessage";
 import { AppTitle } from "../components/AppTitle";
 import { LoyaltyBrandLogo } from "../components/LoyaltyBrandLogo";
 import { SearchBar } from "../components/SearchBar";
@@ -46,39 +50,27 @@ function filterCards(
 export const CardsScreen = () => {
   const { t } = useTranslation([I18nNamespace.Cards, I18nNamespace.Common]);
   const { colors } = useTheme();
-  const [cards, setCards] = useState<GetApiV1CardsResponse>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loaded, setLoaded] = useState(false);
+
+  const {
+    data: cards = [],
+    error: queryError,
+    isError,
+    isPending,
+    refetch,
+  } = useQuery(getApiV1CardsOptions());
+
+  const error = isError ? getErrorMessage(queryError) : null;
+  const loaded = !isPending;
 
   const filteredCards = useMemo(
     () => filterCards(cards, searchQuery),
     [cards, searchQuery],
   );
 
-  const fetchCards = useCallback(async () => {
-    setError(null);
-    try {
-      const { data, error } = await getApiV1Cards();
-      if (error) {
-        setError(error.error);
-        return;
-      }
-      if (data) {
-        setCards(data);
-      }
-    } finally {
-      setLoaded(true);
-    }
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      void fetchCards();
-    }, [fetchCards]),
-  );
-
-  const { refreshing, onRefresh } = usePullToRefresh(fetchCards);
+  const { refreshing, onRefresh } = usePullToRefresh(async () => {
+    await refetch();
+  });
   const refreshControl = useThemedRefreshControl(refreshing, onRefresh);
 
   let emptyTitle: string | null = null;

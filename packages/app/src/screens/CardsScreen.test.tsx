@@ -7,8 +7,11 @@ import { Routes } from "@/constants/routes.constants";
 import type { GetApiV1CardsResponse } from "@/lib/api-client/gen";
 import { colors } from "@/theme/theme";
 import { THEME_STORAGE_KEY } from "@/theme/theme.constants";
-import { getApiV1CardsMock } from "../../test/mocks/api-client";
-import { renderWithTheme } from "../../test/render";
+import { getApiV1CardsMock, resolveApiMock } from "../../test/mocks/api-client";
+import {
+  renderWithSharedQueryClient,
+  renderWithTheme,
+} from "../../test/render";
 
 /** Bun otherwise executes the real PNG when CardsScreen loads `require(...)`. */
 mock.module("../../assets/images/icon.png", () => ({ default: 1 }));
@@ -215,11 +218,14 @@ describe("CardsScreen", () => {
   });
 
   it("shows API error banner when fetch fails", async () => {
-    getApiV1CardsMock.mockImplementation(() =>
-      Promise.resolve({
-        data: undefined,
-        error: { error: "Could not load cards" },
-      } as unknown as Awaited<ReturnType<typeof getApiV1CardsMock>>),
+    getApiV1CardsMock.mockImplementation((options) =>
+      resolveApiMock<GetApiV1CardsResponse>(
+        {
+          data: undefined,
+          error: { error: "Could not load cards" },
+        },
+        options,
+      ),
     );
 
     const { getByText, queryByLabelText } = renderWithTheme(<CardsScreen />);
@@ -278,14 +284,33 @@ describe("CardsScreen", () => {
   });
 
   it("refetches cards on pull-to-refresh", async () => {
-    const { UNSAFE_getByType } = renderWithTheme(<CardsScreen />);
+    const { UNSAFE_getByType, getByLabelText } = renderWithTheme(
+      <CardsScreen />,
+    );
 
-    await waitFor(() => expect(getApiV1CardsMock).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(getByLabelText("ASOS")).toBeTruthy());
+    expect(getApiV1CardsMock).toHaveBeenCalledTimes(1);
 
-    const { RefreshControl } = await import("react-native");
-    const refreshControl = UNSAFE_getByType(RefreshControl);
-    fireEvent(refreshControl, "refresh");
+    const { FlatList } = await import("react-native");
+    await waitFor(() => {
+      expect(UNSAFE_getByType(FlatList)).toBeTruthy();
+    });
+    const flatList = UNSAFE_getByType(FlatList);
+    await flatList.props.refreshControl.props.onRefresh();
 
     await waitFor(() => expect(getApiV1CardsMock).toHaveBeenCalledTimes(2));
+  });
+
+  it("serves cached cards without refetching on remount within query client stale time", async () => {
+    const { queryClient, unmount, getByLabelText } =
+      renderWithSharedQueryClient(<CardsScreen />);
+
+    await waitFor(() => expect(getApiV1CardsMock).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(getByLabelText("ASOS")).toBeTruthy());
+    unmount();
+
+    const remount = renderWithSharedQueryClient(<CardsScreen />, queryClient);
+    await waitFor(() => expect(remount.getByLabelText("ASOS")).toBeTruthy());
+    expect(getApiV1CardsMock).toHaveBeenCalledTimes(1);
   });
 });
