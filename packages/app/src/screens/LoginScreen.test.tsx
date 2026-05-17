@@ -7,11 +7,16 @@ import type {
   PostApiV1AuthLoginResponse,
   PostApiV1AuthSignupResponse,
 } from "@/lib/api-client";
+import { AUTH_TOKEN_STORAGE_KEY } from "@/lib/auth/auth.constants";
 import {
   postApiV1AuthLoginMock,
   postApiV1AuthSignupMock,
   setConfigMock,
 } from "../../test/mocks/api-client";
+import {
+  clearSecureStoreMock,
+  secureStoreSetMock,
+} from "../../test/mocks/expo-secure-store";
 import { renderWithTheme } from "../../test/render";
 
 /** Bun otherwise executes the real PNG file when LoginScreen loads `require(...)`. */
@@ -28,8 +33,10 @@ const { LoginScreen } = await import("./LoginScreen");
 
 describe("LoginScreen", () => {
   beforeEach(() => {
+    clearSecureStoreMock();
     __expoRouterMocks.replace.mockClear();
     setConfigMock.mockClear();
+    secureStoreSetMock.mockClear();
     postApiV1AuthLoginMock.mockClear();
     postApiV1AuthSignupMock.mockClear();
     postApiV1AuthLoginMock.mockImplementation(() =>
@@ -146,6 +153,10 @@ describe("LoginScreen", () => {
         }),
       );
       expect(setConfigMock).toHaveBeenCalledWith({ auth: "test-token" });
+      expect(secureStoreSetMock).toHaveBeenCalledWith(
+        AUTH_TOKEN_STORAGE_KEY,
+        "test-token",
+      );
       expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
     });
   });

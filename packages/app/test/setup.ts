@@ -3,6 +3,10 @@ import React from "react";
 
 import "./mocks/api-client";
 import "./mocks/expo-localization";
+import "./mocks/expo-secure-store";
+
+/** Bun otherwise executes the real PNG when screens load `require(...)`. */
+mock.module("../assets/images/icon.png", () => ({ default: 1 }));
 
 const asyncStorage = new Map<string, string>();
 
@@ -241,4 +245,8 @@ mock.module("expo-router", () => ({
       (expoRouterMocks.replace as unknown as (value: unknown) => void)(arg),
   },
   useLocalSearchParams: () => expoRouterMocks.params,
+  Redirect: ({ href }: { href: string }) => {
+    (expoRouterMocks.replace as (value: unknown) => void)(href);
+    return null;
+  },
 }));

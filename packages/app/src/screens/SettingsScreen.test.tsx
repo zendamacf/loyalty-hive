@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, it } from "bun:test";
 import { fireEvent, waitFor } from "@testing-library/react-native";
 import { Routes } from "@/constants/routes.constants";
+import { AUTH_TOKEN_STORAGE_KEY } from "@/lib/auth/auth.constants";
 import { setConfigMock } from "../../test/mocks/api-client";
+import {
+  clearSecureStoreMock,
+  secureStoreDeleteMock,
+} from "../../test/mocks/expo-secure-store";
 import { renderWithTheme } from "../../test/render";
 
 const { __expoRouterMocks } = globalThis as unknown as {
@@ -15,9 +20,11 @@ const { SettingsScreen } = await import("./SettingsScreen");
 
 describe("SettingsScreen", () => {
   beforeEach(() => {
+    clearSecureStoreMock();
     __expoRouterMocks.back.mockClear();
     __expoRouterMocks.replace.mockClear();
     setConfigMock.mockClear();
+    secureStoreDeleteMock.mockClear();
   });
 
   it("renders theme toggle, language picker, and sign out button", () => {
@@ -55,12 +62,17 @@ describe("SettingsScreen", () => {
     expect(__expoRouterMocks.back).toHaveBeenCalled();
   });
 
-  it("signs out when sign out is pressed", () => {
+  it("signs out when sign out is pressed", async () => {
     const { getByText } = renderWithTheme(<SettingsScreen />);
 
     fireEvent.press(getByText("Sign out"));
 
-    expect(setConfigMock).toHaveBeenCalledWith({ auth: undefined });
-    expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.LOGIN);
+    await waitFor(() => {
+      expect(setConfigMock).toHaveBeenCalledWith({ auth: undefined });
+      expect(secureStoreDeleteMock).toHaveBeenCalledWith(
+        AUTH_TOKEN_STORAGE_KEY,
+      );
+      expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.LOGIN);
+    });
   });
 });

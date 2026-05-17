@@ -13,11 +13,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
-import {
-  client,
-  postApiV1AuthLogin,
-  postApiV1AuthSignup,
-} from "@/lib/api-client";
+import { postApiV1AuthLogin, postApiV1AuthSignup } from "@/lib/api-client";
+import { useAuth } from "@/lib/auth";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import { AppTitle } from "../components/AppTitle";
 import { Button } from "../components/Button";
@@ -32,6 +29,7 @@ type AuthMode = "login" | "signup";
 export const LoginScreen = () => {
   const { t } = useTranslation([I18nNamespace.Auth, I18nNamespace.Common]);
   const { colors } = useTheme();
+  const { signIn } = useAuth();
   const passwordRef = useRef<TextInput>(null);
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
@@ -45,8 +43,8 @@ export const LoginScreen = () => {
     setError(null);
   };
 
-  const completeWithToken = (token: string) => {
-    client.setConfig({ auth: token });
+  const completeWithToken = async (token: string) => {
+    await signIn(token);
     router.replace(Routes.CARDS);
   };
 
@@ -61,7 +59,7 @@ export const LoginScreen = () => {
     }
 
     if (data?.token) {
-      completeWithToken(data.token);
+      await completeWithToken(data.token);
     } else {
       setError(t("unexpectedResponse"));
     }

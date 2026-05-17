@@ -12,6 +12,7 @@ import "@/i18n";
 import * as Sentry from "@sentry/react-native";
 
 import { LanguageProvider } from "@/i18n/LanguageProvider";
+import { AuthProvider } from "@/lib/auth";
 import { queryClient } from "@/lib/query-client";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 
@@ -30,15 +31,17 @@ export default Sentry.wrap(function Layout() {
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-        <LanguageProvider>
-          <ThemeProvider>
+        <AuthProvider>
+          <LanguageProvider>
+            <ThemeProvider>
             <ThemedRoot>
               <KeyboardAvoidingShell>
                 <Stack screenOptions={{ headerShown: false }} />
               </KeyboardAvoidingShell>
             </ThemedRoot>
-          </ThemeProvider>
-        </LanguageProvider>
+            </ThemeProvider>
+          </LanguageProvider>
+        </AuthProvider>
       </SafeAreaProvider>
     </QueryClientProvider>
   );
