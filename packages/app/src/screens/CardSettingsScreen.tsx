@@ -1,7 +1,8 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as Clipboard from "expo-clipboard";
 import { router, useLocalSearchParams } from "expo-router";
 import { CopyIcon } from "lucide-react-native";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
@@ -17,8 +18,12 @@ import { ScreenHeader } from "@/components/ScreenHeader";
 import { ScreenShell } from "@/components/ScreenShell";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
-import { deleteApiV1CardsById } from "@/lib/api-client";
+import {
+  deleteApiV1CardsByIdMutation,
+  getApiV1CardsQueryKey,
+} from "@/lib/api-client";
 import { resolveCardHeadings } from "@/lib/cardHeadings";
+import { getErrorMessage } from "@/lib/getErrorMessage";
 import { icon, radius, spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
@@ -64,29 +69,27 @@ export const CardSettingsScreen = () => {
     [createdAt, i18n.language],
   );
 
-  const [isDeleting, setIsDeleting] = useState(false);
+  const queryClient = useQueryClient();
 
-  const deleteCard = useCallback(async () => {
+  const { mutateAsync: deleteCard, isPending: isDeleting } = useMutation({
+    ...deleteApiV1CardsByIdMutation(),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: getApiV1CardsQueryKey() });
+    },
+  });
+
+  const confirmDeleteCard = useCallback(async () => {
     if (!cardId || isDeleting) {
       return;
     }
 
-    setIsDeleting(true);
     try {
-      const { error } = await deleteApiV1CardsById({
-        path: { id: cardId },
-      });
-
-      if (error) {
-        Alert.alert(t("deleteCardErrorTitle"), error.error);
-        return;
-      }
-
+      await deleteCard({ path: { id: cardId } });
       router.dismissTo(Routes.CARDS);
-    } finally {
-      setIsDeleting(false);
+    } catch (err) {
+      Alert.alert(t("deleteCardErrorTitle"), getErrorMessage(err));
     }
-  }, [cardId, isDeleting, t]);
+  }, [cardId, deleteCard, isDeleting, t]);
 
   const confirmDelete = useCallback(() => {
     Alert.alert(t("deleteCardConfirmTitle"), t("deleteCardConfirmMessage"), [
@@ -95,11 +98,11 @@ export const CardSettingsScreen = () => {
         text: t("deleteCard"),
         style: "destructive",
         onPress: () => {
-          void deleteCard();
+          void confirmDeleteCard();
         },
       },
     ]);
-  }, [deleteCard, t]);
+  }, [confirmDeleteCard, t]);
 
   const copyCardNumber = useCallback(() => {
     if (cardNumber) {

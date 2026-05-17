@@ -1,17 +1,63 @@
-import { type RenderOptions, render } from "@testing-library/react-native";
-import type { ReactElement } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  type RenderOptions,
+  type RenderResult,
+  render,
+} from "@testing-library/react-native";
+import type { ReactElement, ReactNode } from "react";
 import { I18nextProvider } from "react-i18next";
 import i18n from "@/i18n";
+import { QUERY_STALE_TIME_MS } from "@/lib/query-client";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 import { TestLanguageProvider } from "./TestLanguageProvider";
 
+export function createTestQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        gcTime: Infinity,
+        staleTime: QUERY_STALE_TIME_MS,
+      },
+      mutations: { retry: false },
+    },
+  });
+}
+
 const Providers = ({ children }: { children: React.ReactNode }) => (
-  <I18nextProvider i18n={i18n}>
-    <TestLanguageProvider>
-      <ThemeProvider>{children}</ThemeProvider>
-    </TestLanguageProvider>
-  </I18nextProvider>
+  <QueryClientProvider client={createTestQueryClient()}>
+    <I18nextProvider i18n={i18n}>
+      <TestLanguageProvider>
+        <ThemeProvider>{children}</ThemeProvider>
+      </TestLanguageProvider>
+    </I18nextProvider>
+  </QueryClientProvider>
 );
+
+export function createQueryClientWrapper(queryClient: QueryClient) {
+  return function QueryClientWrapper({ children }: { children: ReactNode }) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <I18nextProvider i18n={i18n}>
+          <TestLanguageProvider>
+            <ThemeProvider>{children}</ThemeProvider>
+          </TestLanguageProvider>
+        </I18nextProvider>
+      </QueryClientProvider>
+    );
+  };
+}
+
+/** Renders with a single shared QueryClient (for cache / stale-time tests). */
+export function renderWithSharedQueryClient(
+  ui: ReactElement,
+  queryClient = createTestQueryClient(),
+): RenderResult & { queryClient: QueryClient } {
+  return {
+    queryClient,
+    ...render(ui, { wrapper: createQueryClientWrapper(queryClient) }),
+  };
+}
 
 export const renderWithProviders = (
   ui: ReactElement,

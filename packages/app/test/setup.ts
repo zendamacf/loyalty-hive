@@ -200,6 +200,14 @@ mock.module("react-native", () => ({
   Image: createPrimitive("Image"),
   Animated,
   Easing,
+  AppState: {
+    addEventListener: (
+      _event: string,
+      handler: (state: string) => void,
+    ) => ({
+      remove: () => {},
+    }),
+  },
   useColorScheme: () => "light",
 }));
 

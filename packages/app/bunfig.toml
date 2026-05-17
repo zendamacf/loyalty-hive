@@ -2,4 +2,5 @@
 coverage = true
 coveragePathIgnorePatterns = [
   "test/**",
+  "src/lib/api-client/gen/**",
 ]
