@@ -27,6 +27,21 @@ export const users = pgTable(
   (table) => [uniqueIndex("users_email_unique_idx").on(lower(table.email))],
 );
 
+export const apiKeys = pgTable(
+  "api_keys",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    integrationName: text("integration_name").notNull(),
+    keyHash: text("key_hash").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("api_keys_integration_name_unique_idx").on(
+      table.integrationName,
+    ),
+  ],
+);
+
 export const cards = pgTable("cards", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id")
