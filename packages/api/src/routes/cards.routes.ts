@@ -2,8 +2,13 @@ import { and, eq } from "drizzle-orm";
 import type { Context } from "hono";
 
 import { Hono } from "hono";
-import { describeRoute, resolver, validator } from "hono-openapi";
+import { describeRoute, validator } from "hono-openapi";
 import z from "zod";
+import {
+  errorResponse,
+  jsonResponse,
+  noContentResponse,
+} from "../common/openapi-responses.js";
 import { logoUrl } from "../common/storage.js";
 import { db } from "../db/client.js";
 import { brands, cards } from "../db/schema.js";
@@ -36,16 +41,6 @@ const cardWriteSchema = z.object({
   view: z.enum(["1D", "2D"]).nullable().optional(),
   brandId: z.uuid().nullable().optional(),
 });
-
-const errorJson = {
-  "application/json": {
-    schema: resolver(z.object({ error: z.string() })),
-  },
-} as const;
-
-function errorResponse(description: string) {
-  return { description, content: errorJson };
-}
 
 const fkViolationBody = {
   error: "Referenced userId or brandId does not exist",
@@ -139,12 +134,7 @@ const app = new Hono<{ Variables: ContextVariables }>()
       description: "Get all cards for the authenticated user",
       security: [{ bearerAuth: [] }],
       responses: {
-        200: {
-          description: "Successful response",
-          content: {
-            "application/json": { schema: resolver(z.array(cardSchema)) },
-          },
-        },
+        200: jsonResponse("Successful response", z.array(cardSchema)),
         401: errorResponse("Unauthorized"),
       },
     }),
@@ -159,10 +149,7 @@ const app = new Hono<{ Variables: ContextVariables }>()
       description: "Create a new card for the authenticated user",
       security: [{ bearerAuth: [] }],
       responses: {
-        201: {
-          description: "Successful response",
-          content: { "application/json": { schema: resolver(cardSchema) } },
-        },
+        201: jsonResponse("Successful response", cardSchema),
         401: errorResponse("Unauthorized"),
         409: errorResponse("Card for user already exists"),
         400: errorResponse("Referenced userId or brandId does not exist"),
@@ -197,10 +184,7 @@ const app = new Hono<{ Variables: ContextVariables }>()
       description: "Get a card by id",
       security: [{ bearerAuth: [] }],
       responses: {
-        200: {
-          description: "Successful response",
-          content: { "application/json": { schema: resolver(cardSchema) } },
-        },
+        200: jsonResponse("Successful response", cardSchema),
         401: errorResponse("Unauthorized"),
         404: errorResponse("Card not found"),
       },
@@ -221,7 +205,7 @@ const app = new Hono<{ Variables: ContextVariables }>()
       description: "Delete a card by id",
       security: [{ bearerAuth: [] }],
       responses: {
-        204: { description: "Successful response" },
+        204: noContentResponse(),
         401: errorResponse("Unauthorized"),
         404: errorResponse("Card not found"),
       },

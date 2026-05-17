@@ -5,6 +5,7 @@ import { logger } from "hono/logger";
 import { openAPIRouteHandler } from "hono-openapi";
 import apiRouter from "./api.router";
 import { config } from "./common/config";
+import { API_KEY_HEADER } from "./common/constants";
 
 const app = new Hono<{ Variables: { userId?: string } }>();
 
@@ -22,6 +23,11 @@ app
         info: { title: "LoyaltyHive API", version: "1.0.0" },
         components: {
           securitySchemes: {
+            apiKeyAuth: {
+              type: "apiKey",
+              in: "header",
+              name: API_KEY_HEADER,
+            },
             bearerAuth: {
               type: "http",
               scheme: "bearer",

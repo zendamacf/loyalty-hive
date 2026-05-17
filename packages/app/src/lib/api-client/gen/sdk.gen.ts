@@ -22,6 +22,7 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
  * Sign in with email and password; returns a JWT access token
  */
 export const postApiV1AuthLogin = <ThrowOnError extends boolean = false>(options: Options<PostApiV1AuthLoginData, ThrowOnError>) => (options.client ?? client).post<PostApiV1AuthLoginResponses, PostApiV1AuthLoginErrors, ThrowOnError>({
+    security: [{ name: 'x-api-key', type: 'apiKey' }],
     url: '/api/v1/auth/login',
     ...options,
     headers: {
@@ -34,6 +35,7 @@ export const postApiV1AuthLogin = <ThrowOnError extends boolean = false>(options
  * Create a new user account
  */
 export const postApiV1AuthSignup = <ThrowOnError extends boolean = false>(options: Options<PostApiV1AuthSignupData, ThrowOnError>) => (options.client ?? client).post<PostApiV1AuthSignupResponses, PostApiV1AuthSignupErrors, ThrowOnError>({
+    security: [{ name: 'x-api-key', type: 'apiKey' }],
     url: '/api/v1/auth/signup',
     ...options,
     headers: {

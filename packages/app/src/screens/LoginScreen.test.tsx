@@ -7,11 +7,11 @@ import type {
   PostApiV1AuthLoginResponse,
   PostApiV1AuthSignupResponse,
 } from "@/lib/api-client";
+import { getBearerToken, setBearerToken } from "@/lib/api-client/setup";
 import { AUTH_TOKEN_STORAGE_KEY } from "@/lib/auth/auth.constants";
 import {
   postApiV1AuthLoginMock,
   postApiV1AuthSignupMock,
-  setConfigMock,
 } from "../../test/mocks/api-client";
 import {
   clearSecureStoreMock,
@@ -34,8 +34,8 @@ const { LoginScreen } = await import("./LoginScreen");
 describe("LoginScreen", () => {
   beforeEach(() => {
     clearSecureStoreMock();
+    setBearerToken(undefined);
     __expoRouterMocks.replace.mockClear();
-    setConfigMock.mockClear();
     secureStoreSetMock.mockClear();
     postApiV1AuthLoginMock.mockClear();
     postApiV1AuthSignupMock.mockClear();
@@ -152,7 +152,7 @@ describe("LoginScreen", () => {
           body: { email: "hi@example.com", password: "secret" },
         }),
       );
-      expect(setConfigMock).toHaveBeenCalledWith({ auth: "test-token" });
+      expect(getBearerToken()).toBe("test-token");
       expect(secureStoreSetMock).toHaveBeenCalledWith(
         AUTH_TOKEN_STORAGE_KEY,
         "test-token",
@@ -184,7 +184,7 @@ describe("LoginScreen", () => {
           body: { email: "hi@example.com", password: "secret" },
         }),
       );
-      expect(setConfigMock).toHaveBeenCalledWith({ auth: "test-token" });
+      expect(getBearerToken()).toBe("test-token");
       expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
     });
   });
@@ -220,7 +220,7 @@ describe("LoginScreen", () => {
           body: { email: "new@example.com", password: "pw" },
         }),
       );
-      expect(setConfigMock).toHaveBeenCalledWith({ auth: "test-token" });
+      expect(getBearerToken()).toBe("test-token");
       expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
     });
   });
@@ -387,7 +387,7 @@ describe("LoginScreen", () => {
           body: { email: "new@example.com", password: "pw" },
         }),
       );
-      expect(setConfigMock).toHaveBeenCalledWith({ auth: "test-token" });
+      expect(getBearerToken()).toBe("test-token");
       expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
     });
   });

@@ -1,9 +1,11 @@
 import { beforeAll, describe, expect, it } from "bun:test";
+import { randomUUID } from "node:crypto";
 
 import { compare as bcryptCompare, hash as bcryptHash } from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { verify } from "hono/jwt";
-import { createApiRouterApp } from "../../test/create-app";
+import { apiKeyHeaders, createApiRouterApp } from "../../test/create-app";
+import { seedTestApiKey } from "../../test/seed-api-key";
 import { config } from "../common/config";
 import { BCRYPT_COST } from "../common/constants";
 import { db } from "../db/client";
@@ -14,6 +16,8 @@ const TEST_EMAIL = "auth.test@example.com";
 const TEST_PASSWORD = "correct-horse-battery-staple";
 
 beforeAll(async () => {
+  await seedTestApiKey();
+
   const passwordHash = await bcryptHash(TEST_PASSWORD, BCRYPT_COST);
 
   await db
@@ -27,11 +31,48 @@ beforeAll(async () => {
 });
 
 describe("auth routes", () => {
-  it("returns 401 with error message for wrong password", async () => {
+  it("returns 401 when API key header is missing", async () => {
     const app = createApiRouterApp();
     const response = await app.request("/api/v1/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+      }),
+    });
+
+    expect(response.status).toBe(401);
+    expect(await response.json()).toEqual({
+      error: "API key is required",
+    });
+  });
+
+  it("returns 403 when API key is invalid", async () => {
+    const app = createApiRouterApp();
+    const response = await app.request("/api/v1/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": "wrong-key",
+      },
+      body: JSON.stringify({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+      }),
+    });
+
+    expect(response.status).toBe(403);
+    expect(await response.json()).toEqual({
+      error: "Invalid API key",
+    });
+  });
+
+  it("returns 401 with error message for wrong password", async () => {
+    const app = createApiRouterApp();
+    const response = await app.request("/api/v1/auth/login", {
+      method: "POST",
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({
         email: TEST_EMAIL,
         password: "wrong-password",
@@ -48,7 +89,7 @@ describe("auth routes", () => {
     const app = createApiRouterApp();
     const response = await app.request("/api/v1/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({
         email: "nobody@example.com",
         password: TEST_PASSWORD,
@@ -62,7 +103,7 @@ describe("auth routes", () => {
     const app = createApiRouterApp();
     const response = await app.request("/api/v1/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
@@ -81,7 +122,7 @@ describe("auth routes", () => {
     const app = createApiRouterApp();
     const response = await app.request("/api/v1/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({
         email: `  ${TEST_EMAIL.toUpperCase()}  `,
         password: TEST_PASSWORD,
@@ -98,7 +139,7 @@ describe("auth routes", () => {
     const app = createApiRouterApp();
     const response = await app.request("/api/v1/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({
         email: "not-an-email",
         password: TEST_PASSWORD,
@@ -112,7 +153,7 @@ describe("auth routes", () => {
     const app = createApiRouterApp();
     const response = await app.request("/api/v1/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({
         email: TEST_EMAIL,
         password: "",
@@ -126,7 +167,7 @@ describe("auth routes", () => {
     const app = createApiRouterApp();
     const response = await app.request("/api/v1/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
       body: "{",
     });
 
@@ -135,12 +176,12 @@ describe("auth routes", () => {
 
   it("creates a user and stores a bcrypt password hash", async () => {
     const app = createApiRouterApp();
-    const email = "new.user@example.com";
+    const email = `new.user.${randomUUID()}@example.com`;
     const password = "signup-password-123";
 
     const response = await app.request("/api/v1/auth/signup", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({ email, password }),
     });
 
@@ -160,7 +201,7 @@ describe("auth routes", () => {
     const app = createApiRouterApp();
     const response = await app.request("/api/v1/auth/signup", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({
         email: TEST_EMAIL,
         password: "some-password",
@@ -172,19 +213,19 @@ describe("auth routes", () => {
 
   it("allows login after signup", async () => {
     const app = createApiRouterApp();
-    const email = "login.after.signup@example.com";
+    const email = `login.after.signup.${randomUUID()}@example.com`;
     const password = "after-signup-secret";
 
     const signupRes = await app.request("/api/v1/auth/signup", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({ email, password }),
     });
     expect(signupRes.status).toBe(201);
 
     const loginRes = await app.request("/api/v1/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({ email, password }),
     });
 

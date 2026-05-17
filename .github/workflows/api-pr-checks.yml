@@ -50,14 +50,6 @@ jobs:
           api_key: ${{ secrets.NEON_API_KEY }}
           database: loyaltyhive
 
-      - name: Post Schema Diff to PR
-        uses: neondatabase/schema-diff-action@v1
-        with:
-          project_id: ${{ vars.NEON_PROJECT_ID }}
-          compare_branch: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
-          api_key: ${{ secrets.NEON_API_KEY }}
-          database: loyaltyhive
-
       - name: Set DATABASE_URL
         run: echo "DATABASE_URL=${{ steps.create-branch.outputs.db_url_pooled }}" >> $GITHUB_ENV
 
@@ -73,6 +65,14 @@ jobs:
       - name: Run Migrations
         run: bun run db:migrate
         working-directory: packages/api
+
+      - name: Post Schema Diff to PR
+        uses: neondatabase/schema-diff-action@v1
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          compare_branch: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+          database: loyaltyhive
 
       - name: Run lint
         run: bun run lint

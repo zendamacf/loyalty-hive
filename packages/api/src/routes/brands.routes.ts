@@ -1,7 +1,8 @@
 import { asc } from "drizzle-orm";
 import { Hono } from "hono";
-import { describeRoute, resolver } from "hono-openapi";
+import { describeRoute } from "hono-openapi";
 import z from "zod";
+import { errorResponse, jsonResponse } from "../common/openapi-responses.js";
 import { logoUrl } from "../common/storage.js";
 import { db } from "../db/client.js";
 import { brands } from "../db/schema.js";
@@ -27,20 +28,8 @@ const app = new Hono<{ Variables: ContextVariables }>()
       description: "List loyalty brands available in the catalog",
       security: [{ bearerAuth: [] }],
       responses: {
-        200: {
-          description: "Successful response",
-          content: {
-            "application/json": { schema: resolver(z.array(brandSchema)) },
-          },
-        },
-        401: {
-          description: "Unauthorized",
-          content: {
-            "application/json": {
-              schema: resolver(z.object({ error: z.string() })),
-            },
-          },
-        },
+        200: jsonResponse("Successful response", z.array(brandSchema)),
+        401: errorResponse("Unauthorized"),
       },
     }),
     async (c) => {

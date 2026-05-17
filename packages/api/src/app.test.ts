@@ -44,6 +44,31 @@ describe("app", () => {
       }),
     );
     expect(document.servers).toBeArray();
+    expect(document.components.securitySchemes).toEqual(
+      expect.objectContaining({
+        apiKeyAuth: {
+          type: "apiKey",
+          in: "header",
+          name: "x-api-key",
+        },
+        bearerAuth: expect.objectContaining({
+          type: "http",
+          scheme: "bearer",
+        }),
+      }),
+    );
+
+    const login = document.paths["/api/v1/auth/login"]?.post;
+    expect(login?.security).toEqual([{ apiKeyAuth: [] }]);
+    expect(login?.parameters).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          in: "header",
+          name: "x-api-key",
+          required: true,
+        }),
+      ]),
+    );
   });
 
   it("serves authenticated API routes through the full app", async () => {

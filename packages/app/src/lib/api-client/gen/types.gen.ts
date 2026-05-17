@@ -9,6 +9,9 @@ export type PostApiV1AuthLoginData = {
         email: string;
         password: string;
     };
+    headers: {
+        'x-api-key': string;
+    };
     path?: never;
     query?: never;
     url: '/api/v1/auth/login';
@@ -26,6 +29,12 @@ export type PostApiV1AuthLoginErrors = {
      * Invalid email or password
      */
     401: {
+        error: string;
+    };
+    /**
+     * Invalid API key
+     */
+    403: {
         error: string;
     };
 };
@@ -48,6 +57,9 @@ export type PostApiV1AuthSignupData = {
         email: string;
         password: string;
     };
+    headers: {
+        'x-api-key': string;
+    };
     path?: never;
     query?: never;
     url: '/api/v1/auth/signup';
@@ -60,6 +72,12 @@ export type PostApiV1AuthSignupErrors = {
     400: {
         error: string;
         issues: Array<unknown>;
+    };
+    /**
+     * Invalid API key
+     */
+    403: {
+        error: string;
     };
     /**
      * Email already registered

@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from "bun:test";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { signTestToken } from "../../test/create-app";
 import { config } from "../common/config";
@@ -78,7 +78,16 @@ beforeAll(async () => {
         brandId: BRAND_ID,
       },
     ])
-    .onConflictDoNothing();
+    .onConflictDoUpdate({
+      target: cards.id,
+      set: {
+        userId: sql`excluded.user_id`,
+        cardNumber: sql`excluded.card_number`,
+        label: sql`excluded.label`,
+        view: sql`excluded.view`,
+        brandId: sql`excluded.brand_id`,
+      },
+    });
 });
 
 describe("cards routes", () => {
