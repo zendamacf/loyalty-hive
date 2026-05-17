@@ -7,6 +7,8 @@ on:
       - reopened
       - synchronize
       - closed
+    paths:
+      - 'packages/api/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -83,32 +85,6 @@ jobs:
       - name: Run test
         run: bun run test
         working-directory: packages/api
-
-  check-app:
-    name: check-app / ${{ matrix.script }}
-    if: |
-      github.event_name == 'pull_request' && (
-      github.event.action == 'synchronize'
-      || github.event.action == 'opened'
-      || github.event.action == 'reopened')
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        script: [lint, typecheck, test]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Run ${{ matrix.script }}
-        run: bun run ${{ matrix.script }}
-        working-directory: packages/app
 
   delete-neon-branch:
     name: delete-neon-branch
