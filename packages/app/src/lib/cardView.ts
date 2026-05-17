@@ -2,7 +2,7 @@ import type { BarcodeType } from "expo-camera";
 
 export type CardView = "1D" | "2D";
 
-const BARCODE_TYPE_TO_CARD_VIEW = {
+const BARCODE_TYPE_TO_CARD_VIEW: Record<BarcodeType, CardView> = {
   aztec: "2D",
   datamatrix: "2D",
   pdf417: "2D",

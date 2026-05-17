@@ -1,76 +1,200 @@
-import { BarcodeIcon, QrCodeIcon } from "lucide-react-native";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Animated,
+  type LayoutChangeEvent,
   Pressable,
   type StyleProp,
   StyleSheet,
+  Text,
   View,
   type ViewStyle,
 } from "react-native";
+
 import { useCrossfadeProgress } from "@/hooks/useCrossfadeProgress";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import type { CardView } from "@/lib/cardView";
-import { icon, spacing } from "@/theme/theme";
+import { getReadableTextColor } from "@/lib/readableTextColor";
+import {
+  radius,
+  spacing,
+  colors as themeColors,
+  typography,
+} from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
+
+const TRACK_INSET = spacing.xs / 2;
+const TRACK_MAX_WIDTH = 320;
 
 type CardCodeViewToggleProps = {
   view: CardView;
   onToggle: () => void;
+  /** Brand card color for the active segment; falls back to theme primary. */
+  activeSegmentColor?: string;
   style?: StyleProp<ViewStyle>;
 };
 
 export const CardCodeViewToggle = ({
   view,
   onToggle,
+  activeSegmentColor,
   style,
 }: CardCodeViewToggleProps) => {
   const { t } = useTranslation(I18nNamespace.Cards);
   const { colors } = useTheme();
   const isQr = view === "2D";
-  const { opacityOff, opacityOn, iconTransform } = useCrossfadeProgress(isQr);
+  const segmentFillColor = useMemo(() => {
+    const trimmed = activeSegmentColor?.trim();
+    return trimmed ? trimmed : colors.primary;
+  }, [activeSegmentColor, colors.primary]);
+  const segmentTextColor = useMemo(
+    () =>
+      getReadableTextColor(segmentFillColor, {
+        light: themeColors.textPrimaryLight,
+        dark: themeColors.textPrimaryDark,
+      }),
+    [segmentFillColor],
+  );
+  const [segmentWidth, setSegmentWidth] = useState(0);
+  const { progress } = useCrossfadeProgress(isQr, {
+    useNativeDriver: true,
+    includeIconTransform: false,
+  });
+
+  const thumbTranslateX = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, segmentWidth],
+  });
+
+  const onSegmentsLayout = useCallback((event: LayoutChangeEvent) => {
+    const { width } = event.nativeEvent.layout;
+    const nextSegmentWidth = width / 2;
+    setSegmentWidth((current) =>
+      Math.abs(current - nextSegmentWidth) < 0.5 ? current : nextSegmentWidth,
+    );
+  }, []);
+
+  const selectView = useCallback(
+    (useQr: boolean) => {
+      const nextView: CardView = useQr ? "2D" : "1D";
+      if (nextView !== view) {
+        onToggle();
+      }
+    },
+    [onToggle, view],
+  );
 
   return (
-    <Pressable
-      accessibilityLabel={isQr ? t("codeViewBarcode") : t("codeViewQr")}
-      accessibilityRole="button"
-      hitSlop={12}
-      style={[styles.pressable, style]}
-      onPress={onToggle}
+    <View
+      accessibilityLabel={t("codeViewToggleA11y")}
+      accessibilityRole="radiogroup"
+      style={[styles.track, { backgroundColor: colors.border }, style]}
+      testID="code-view-switch"
     >
-      <View style={styles.iconSlot}>
-        <Animated.View
-          style={[
-            styles.iconLayer,
-            { opacity: opacityOff, transform: iconTransform },
-          ]}
-        >
-          <BarcodeIcon color={colors.textPrimary} size={icon.md} />
-        </Animated.View>
-        <Animated.View
-          style={[
-            styles.iconLayer,
-            { opacity: opacityOn, transform: iconTransform },
-          ]}
-        >
-          <QrCodeIcon color={colors.textPrimary} size={icon.md} />
-        </Animated.View>
+      <View style={styles.inner} onLayout={onSegmentsLayout}>
+        {segmentWidth > 0 ? (
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              styles.thumb,
+              {
+                width: segmentWidth,
+                backgroundColor: segmentFillColor,
+                transform: [{ translateX: thumbTranslateX }],
+              },
+            ]}
+          />
+        ) : null}
+        <View style={styles.segments}>
+          <Pressable
+            accessibilityLabel={t("codeViewBarcode")}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: !isQr }}
+            style={({ pressed }) => [
+              styles.segment,
+              pressed && styles.segmentPressed,
+            ]}
+            onPress={() => selectView(false)}
+          >
+            <Text
+              style={[
+                styles.segmentLabel,
+                {
+                  color: !isQr ? segmentTextColor : colors.textSecondary,
+                },
+                !isQr && styles.segmentLabelSelected,
+              ]}
+            >
+              {t("codeViewBarcode")}
+            </Text>
+          </Pressable>
+          <Pressable
+            accessibilityLabel={t("codeViewQr")}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: isQr }}
+            style={({ pressed }) => [
+              styles.segment,
+              pressed && styles.segmentPressed,
+            ]}
+            onPress={() => selectView(true)}
+          >
+            <Text
+              style={[
+                styles.segmentLabel,
+                {
+                  color: isQr ? segmentTextColor : colors.textSecondary,
+                },
+                isQr && styles.segmentLabelSelected,
+              ]}
+            >
+              {t("codeViewQr")}
+            </Text>
+          </Pressable>
+        </View>
       </View>
-    </Pressable>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  pressable: {
-    padding: spacing.xs,
+  track: {
+    alignSelf: "stretch",
+    width: "100%",
+    maxWidth: TRACK_MAX_WIDTH,
+    borderRadius: radius.xl,
+    padding: TRACK_INSET,
   },
-  iconSlot: {
-    width: icon.md,
-    height: icon.md,
+  inner: {
+    position: "relative",
+    overflow: "hidden",
+    borderRadius: radius.xl - TRACK_INSET,
   },
-  iconLayer: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: "center",
+  thumb: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    borderRadius: radius.xl - TRACK_INSET,
+  },
+  segments: {
+    flexDirection: "row",
+  },
+  segment: {
+    flex: 1,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
     alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1,
+  },
+  segmentPressed: {
+    opacity: 0.85,
+  },
+  segmentLabel: {
+    ...typography.label,
+    textAlign: "center",
+  },
+  segmentLabelSelected: {
+    fontWeight: typography.bodySemibold.fontWeight,
   },
 });
