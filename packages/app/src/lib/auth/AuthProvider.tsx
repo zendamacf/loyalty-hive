@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import {
   createContext,
   type ReactNode,
@@ -5,9 +6,15 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
+import { Routes } from "@/constants/routes.constants";
+import {
+  installUnauthorizedInterceptor,
+  setUnauthorizedHandler,
+} from "@/lib/api-client/unauthorized";
 import { queryClient } from "@/lib/query-client";
 
 import {
@@ -26,9 +33,12 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+installUnauthorizedInterceptor();
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isReady, setIsReady] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const signOutRef = useRef<() => Promise<void>>(async () => {});
 
   useEffect(() => {
     let cancelled = false;
@@ -63,6 +73,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setClientAuth(undefined);
     setIsAuthenticated(false);
     queryClient.clear();
+  }, []);
+
+  signOutRef.current = signOut;
+
+  useEffect(() => {
+    setUnauthorizedHandler(async () => {
+      await signOutRef.current();
+      router.replace(Routes.LOGIN);
+    });
+
+    return () => {
+      setUnauthorizedHandler(undefined);
+    };
   }, []);
 
   const value = useMemo(
