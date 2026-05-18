@@ -228,7 +228,9 @@ describe("CardsScreen", () => {
       ),
     );
 
-    const { getByText, queryByLabelText } = await renderWithTheme(<CardsScreen />);
+    const { getByText, queryByLabelText } = await renderWithTheme(
+      <CardsScreen />,
+    );
 
     await waitFor(() => {
       expect(getByText("Could not load cards")).toBeTruthy();
@@ -252,9 +254,8 @@ describe("CardsScreen", () => {
   });
 
   it("shows no-match empty state when search has no results", async () => {
-    const { getByLabelText, getByPlaceholderText, getByText } = await renderWithTheme(
-      <CardsScreen />,
-    );
+    const { getByLabelText, getByPlaceholderText, getByText } =
+      await renderWithTheme(<CardsScreen />);
 
     await waitFor(() => expect(getByLabelText("ASOS")).toBeTruthy());
 
@@ -311,7 +312,10 @@ describe("CardsScreen", () => {
     await waitFor(() => expect(getByLabelText("ASOS")).toBeTruthy());
     unmount();
 
-    const remount = await renderWithSharedQueryClient(<CardsScreen />, queryClient);
+    const remount = await renderWithSharedQueryClient(
+      <CardsScreen />,
+      queryClient,
+    );
     await waitFor(() => expect(remount.getByLabelText("ASOS")).toBeTruthy());
     expect(getApiV1CardsMock).toHaveBeenCalledTimes(1);
   });

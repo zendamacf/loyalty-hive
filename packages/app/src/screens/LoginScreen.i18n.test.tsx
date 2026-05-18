@@ -33,7 +33,9 @@ describe("LoginScreen i18n", () => {
 
     expect(await findByText("Iniciar sesión")).toBeTruthy();
     expect(
-      await findByText("Inicia sesión para gestionar tus tarjetas de fidelidad"),
+      await findByText(
+        "Inicia sesión para gestionar tus tarjetas de fidelidad",
+      ),
     ).toBeTruthy();
   });
 });

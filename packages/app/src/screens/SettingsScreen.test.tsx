@@ -28,7 +28,9 @@ describe("SettingsScreen", () => {
   });
 
   it("renders theme toggle, language picker, and sign out button", async () => {
-    const { getByText, getByLabelText } = await renderWithTheme(<SettingsScreen />);
+    const { getByText, getByLabelText } = await renderWithTheme(
+      <SettingsScreen />,
+    );
 
     expect(getByText("Settings")).toBeTruthy();
     expect(getByText("Theme")).toBeTruthy();
@@ -40,7 +42,9 @@ describe("SettingsScreen", () => {
   });
 
   it("toggles dark theme from the theme control", async () => {
-    const { getByLabelText, getByText } = await renderWithTheme(<SettingsScreen />);
+    const { getByLabelText, getByText } = await renderWithTheme(
+      <SettingsScreen />,
+    );
 
     expect(getByLabelText("Use dark theme")).toBeTruthy();
     expect(getByText("sun")).toBeTruthy();

@@ -106,7 +106,9 @@ describe("CardCodeScreen", () => {
   });
 
   it("switches to QR code when QR code is selected", async () => {
-    const { getByLabelText, getByTestId } = await renderWithTheme(<CardCodeScreen />);
+    const { getByLabelText, getByTestId } = await renderWithTheme(
+      <CardCodeScreen />,
+    );
 
     expect(getByTestId("barcode")).toBeTruthy();
 
@@ -123,7 +125,9 @@ describe("CardCodeScreen", () => {
       view: "2D",
     };
 
-    const { getByLabelText, getByTestId } = await renderWithTheme(<CardCodeScreen />);
+    const { getByLabelText, getByTestId } = await renderWithTheme(
+      <CardCodeScreen />,
+    );
 
     expect(getByTestId("qrcode")).toBeTruthy();
 

@@ -54,9 +54,8 @@ describe("LoginScreen", () => {
   });
 
   it("renders login fields and copy by default", async () => {
-    const { getByText, getByPlaceholderText, getByLabelText } = await renderWithTheme(
-      <LoginScreen />,
-    );
+    const { getByText, getByPlaceholderText, getByLabelText } =
+      await renderWithTheme(<LoginScreen />);
 
     expect(getByLabelText("Use dark theme")).toBeTruthy();
     expect(getByText("sun")).toBeTruthy();
@@ -70,9 +69,8 @@ describe("LoginScreen", () => {
   });
 
   it("toggles password visibility", async () => {
-    const { getByPlaceholderText, getByLabelText, getByText } = await renderWithTheme(
-      <LoginScreen />,
-    );
+    const { getByPlaceholderText, getByLabelText, getByText } =
+      await renderWithTheme(<LoginScreen />);
 
     const passwordInput = getByPlaceholderText("Password");
 
@@ -91,7 +89,9 @@ describe("LoginScreen", () => {
   });
 
   it("toggles theme from the header control", async () => {
-    const { getByLabelText, getByText } = await renderWithTheme(<LoginScreen />);
+    const { getByLabelText, getByText } = await renderWithTheme(
+      <LoginScreen />,
+    );
 
     expect(getByLabelText("Use dark theme")).toBeTruthy();
     expect(getByText("sun")).toBeTruthy();

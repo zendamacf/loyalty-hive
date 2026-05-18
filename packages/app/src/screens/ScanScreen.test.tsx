@@ -175,7 +175,9 @@ describe("ScanScreen", () => {
   it("creates a custom card with label and no brand", async () => {
     permissionState = { granted: true };
     __expoRouterMocks.params = { label: "Gym membership" };
-    const { getByTestId, getByText } = await renderWithProviders(<ScanScreen />);
+    const { getByTestId, getByText } = await renderWithProviders(
+      <ScanScreen />,
+    );
 
     expect(getByText("Adding Gym membership")).toBeTruthy();
 
@@ -211,7 +213,9 @@ describe("ScanScreen", () => {
       ),
     );
 
-    const { getByTestId, getByText } = await renderWithProviders(<ScanScreen />);
+    const { getByTestId, getByText } = await renderWithProviders(
+      <ScanScreen />,
+    );
 
     fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
       type: "qr",

@@ -54,7 +54,9 @@ describe("CardSettingsScreen", () => {
       createdAt: "2020-01-01T00:00:00.000Z",
     };
 
-    const { getByText, queryByText } = await renderWithTheme(<CardSettingsScreen />);
+    const { getByText, queryByText } = await renderWithTheme(
+      <CardSettingsScreen />,
+    );
 
     expect(getByText("Gym membership")).toBeTruthy();
     expect(queryByText("Card number")).toBeTruthy();
