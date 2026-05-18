@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "bun:test";
+import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { act, renderHook, waitFor } from "@testing-library/react-native";
 import type { ReactNode } from "react";
 
@@ -13,9 +13,15 @@ import {
 import {
   clearUnauthorizedHandlerMock,
   getUnauthorizedHandler,
+  installUnauthorizedInterceptorMock,
   setUnauthorizedHandlerMock,
 } from "../../../test/mocks/unauthorized";
 import { AUTH_TOKEN_STORAGE_KEY } from "./auth.constants";
+
+mock.module("@/lib/api-client/unauthorized", () => ({
+  installUnauthorizedInterceptor: installUnauthorizedInterceptorMock,
+  setUnauthorizedHandler: setUnauthorizedHandlerMock,
+}));
 
 const { AuthProvider, useAuth } = await import("./AuthProvider");
 

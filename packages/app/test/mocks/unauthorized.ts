@@ -19,8 +19,3 @@ export const setUnauthorizedHandlerMock = mock(
     capturedUnauthorizedHandler = handler;
   },
 );
-
-mock.module("@/lib/api-client/unauthorized", () => ({
-  installUnauthorizedInterceptor: installUnauthorizedInterceptorMock,
-  setUnauthorizedHandler: setUnauthorizedHandlerMock,
-}));

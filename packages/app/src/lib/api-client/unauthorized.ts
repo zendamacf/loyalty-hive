@@ -24,6 +24,9 @@ export function setUnauthorizedHandler(
   handler: UnauthorizedHandler | undefined,
 ): void {
   onUnauthorized = handler;
+  if (handler === undefined) {
+    handlingUnauthorized = false;
+  }
 }
 
 async function handleUnauthorized(): Promise<void> {
