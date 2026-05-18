@@ -7,6 +7,19 @@ import {
   setUnauthorizedHandler,
 } from "./unauthorized";
 
+function mockUnauthorizedFetch(): typeof fetch {
+  return Object.assign(
+    () =>
+      Promise.resolve(
+        new Response(JSON.stringify({ error: "Unauthorized" }), {
+          headers: { "Content-Type": "application/json" },
+          status: 401,
+        }),
+      ),
+    fetch,
+  );
+}
+
 describe("requestUsesBearerAuth", () => {
   it("returns true when security includes http bearer", () => {
     expect(
@@ -42,13 +55,7 @@ describe("installUnauthorizedInterceptor", () => {
       createConfig({
         auth: () => "jwt-123",
         baseUrl: "https://example.com",
-        fetch: () =>
-          Promise.resolve(
-            new Response(JSON.stringify({ error: "Unauthorized" }), {
-              headers: { "Content-Type": "application/json" },
-              status: 401,
-            }),
-          ),
+        fetch: mockUnauthorizedFetch(),
       }),
     );
 
@@ -73,13 +80,7 @@ describe("installUnauthorizedInterceptor", () => {
       createConfig({
         auth: () => "api-key",
         baseUrl: "https://example.com",
-        fetch: () =>
-          Promise.resolve(
-            new Response(JSON.stringify({ error: "Unauthorized" }), {
-              headers: { "Content-Type": "application/json" },
-              status: 401,
-            }),
-          ),
+        fetch: mockUnauthorizedFetch(),
       }),
     );
 
@@ -111,13 +112,7 @@ describe("installUnauthorizedInterceptor", () => {
       createConfig({
         auth: () => "jwt-123",
         baseUrl: "https://example.com",
-        fetch: () =>
-          Promise.resolve(
-            new Response(JSON.stringify({ error: "Unauthorized" }), {
-              headers: { "Content-Type": "application/json" },
-              status: 401,
-            }),
-          ),
+        fetch: mockUnauthorizedFetch(),
       }),
     );
 
