@@ -26,13 +26,13 @@ describe("ThemeProvider", () => {
   it("ignores invalid stored theme and uses system scheme", async () => {
     await AsyncStorage.setItem(THEME_STORAGE_KEY, "invalid");
 
-    const { getByText } = renderWithTheme(<ThemeProbe />);
+    const { getByText } = await renderWithTheme(<ThemeProbe />);
 
     await waitFor(() => expect(getByText("light")).toBeTruthy());
   });
 
   it("persists theme preference across remounts", async () => {
-    const first = renderWithTheme(<ThemeProbe />);
+    const first = await renderWithTheme(<ThemeProbe />);
 
     await waitFor(() => expect(first.getByText("light")).toBeTruthy());
 
@@ -41,7 +41,7 @@ describe("ThemeProvider", () => {
     await waitFor(() => expect(first.getByText("dark")).toBeTruthy());
     first.unmount();
 
-    const second = renderWithTheme(<ThemeProbe />);
+    const second = await renderWithTheme(<ThemeProbe />);
 
     await waitFor(() => expect(second.getByText("dark")).toBeTruthy());
   });

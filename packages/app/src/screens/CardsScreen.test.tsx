@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { fireEvent, waitFor } from "@testing-library/react-native";
+import { act, fireEvent, waitFor } from "@testing-library/react-native";
 
 import { Routes } from "@/constants/routes.constants";
 import type { GetApiV1CardsResponse } from "@/lib/api-client/gen";
@@ -79,7 +79,7 @@ describe("CardsScreen", () => {
   });
 
   it("renders search and loyalty cards", async () => {
-    const { getByLabelText, getByPlaceholderText } = renderWithTheme(
+    const { getByLabelText, getByPlaceholderText } = await renderWithTheme(
       <CardsScreen />,
     );
 
@@ -92,7 +92,7 @@ describe("CardsScreen", () => {
 
   it("filters cards by search query", async () => {
     const { getByLabelText, getByPlaceholderText, queryByLabelText } =
-      renderWithTheme(<CardsScreen />);
+      await renderWithTheme(<CardsScreen />);
 
     await waitFor(() => expect(getByLabelText("ASOS")).toBeTruthy());
 
@@ -105,7 +105,7 @@ describe("CardsScreen", () => {
   });
 
   it("navigates to select brand when add button is pressed", async () => {
-    const { getByText } = renderWithTheme(<CardsScreen />);
+    const { getByText } = await renderWithTheme(<CardsScreen />);
 
     await waitFor(() => expect(getByText("+")).toBeTruthy());
 
@@ -132,7 +132,7 @@ describe("CardsScreen", () => {
       }),
     );
 
-    const { getByLabelText } = renderWithTheme(<CardsScreen />);
+    const { getByLabelText } = await renderWithTheme(<CardsScreen />);
 
     await waitFor(() => expect(getByLabelText("Gym membership")).toBeTruthy());
 
@@ -155,7 +155,7 @@ describe("CardsScreen", () => {
   });
 
   it("navigates to card code when a loyalty card is pressed", async () => {
-    const { getByLabelText } = renderWithTheme(<CardsScreen />);
+    const { getByLabelText } = await renderWithTheme(<CardsScreen />);
 
     await waitFor(() => expect(getByLabelText("ASOS")).toBeTruthy());
 
@@ -185,7 +185,7 @@ describe("CardsScreen", () => {
       }),
     );
 
-    const { getByLabelText } = renderWithTheme(<CardsScreen />);
+    const { getByLabelText } = await renderWithTheme(<CardsScreen />);
 
     await waitFor(() => expect(getByLabelText("ASOS")).toBeTruthy());
 
@@ -208,7 +208,7 @@ describe("CardsScreen", () => {
   });
 
   it("navigates to settings when settings button is pressed", async () => {
-    const { getByLabelText } = renderWithTheme(<CardsScreen />);
+    const { getByLabelText } = await renderWithTheme(<CardsScreen />);
 
     await waitFor(() => expect(getApiV1CardsMock).toHaveBeenCalled());
 
@@ -228,7 +228,7 @@ describe("CardsScreen", () => {
       ),
     );
 
-    const { getByText, queryByLabelText } = renderWithTheme(<CardsScreen />);
+    const { getByText, queryByLabelText } = await renderWithTheme(<CardsScreen />);
 
     await waitFor(() => {
       expect(getByText("Could not load cards")).toBeTruthy();
@@ -241,7 +241,7 @@ describe("CardsScreen", () => {
       Promise.resolve({ data: [], error: undefined }),
     );
 
-    const { getByText } = renderWithTheme(<CardsScreen />);
+    const { getByText } = await renderWithTheme(<CardsScreen />);
 
     await waitFor(() => {
       expect(getByText("No loyalty cards yet")).toBeTruthy();
@@ -252,7 +252,7 @@ describe("CardsScreen", () => {
   });
 
   it("shows no-match empty state when search has no results", async () => {
-    const { getByLabelText, getByPlaceholderText, getByText } = renderWithTheme(
+    const { getByLabelText, getByPlaceholderText, getByText } = await renderWithTheme(
       <CardsScreen />,
     );
 
@@ -271,7 +271,7 @@ describe("CardsScreen", () => {
 
   it("filters cards by card number", async () => {
     const { getByLabelText, getByPlaceholderText, queryByLabelText } =
-      renderWithTheme(<CardsScreen />);
+      await renderWithTheme(<CardsScreen />);
 
     await waitFor(() => expect(getByLabelText("ASOS")).toBeTruthy());
 
@@ -284,7 +284,7 @@ describe("CardsScreen", () => {
   });
 
   it("refetches cards on pull-to-refresh", async () => {
-    const { UNSAFE_getByType, getByLabelText } = renderWithTheme(
+    const { UNSAFE_getByType, getByLabelText } = await renderWithTheme(
       <CardsScreen />,
     );
 
@@ -296,20 +296,22 @@ describe("CardsScreen", () => {
       expect(UNSAFE_getByType(FlatList)).toBeTruthy();
     });
     const flatList = UNSAFE_getByType(FlatList);
-    await flatList.props.refreshControl.props.onRefresh();
+    await act(async () => {
+      await flatList.props.refreshControl.props.onRefresh();
+    });
 
     await waitFor(() => expect(getApiV1CardsMock).toHaveBeenCalledTimes(2));
   });
 
   it("serves cached cards without refetching on remount within query client stale time", async () => {
     const { queryClient, unmount, getByLabelText } =
-      renderWithSharedQueryClient(<CardsScreen />);
+      await renderWithSharedQueryClient(<CardsScreen />);
 
     await waitFor(() => expect(getApiV1CardsMock).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(getByLabelText("ASOS")).toBeTruthy());
     unmount();
 
-    const remount = renderWithSharedQueryClient(<CardsScreen />, queryClient);
+    const remount = await renderWithSharedQueryClient(<CardsScreen />, queryClient);
     await waitFor(() => expect(remount.getByLabelText("ASOS")).toBeTruthy());
     expect(getApiV1CardsMock).toHaveBeenCalledTimes(1);
   });

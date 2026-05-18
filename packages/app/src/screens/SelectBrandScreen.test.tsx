@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, type mock } from "bun:test";
 
-import { fireEvent, waitFor } from "@testing-library/react-native";
+import { act, fireEvent, waitFor } from "@testing-library/react-native";
 
 import { Routes } from "@/constants/routes.constants";
 import type { GetApiV1BrandsResponse } from "@/lib/api-client/gen";
@@ -66,7 +66,7 @@ describe("SelectBrandScreen", () => {
       getByPlaceholderText,
       getByLabelText,
       queryByLabelText,
-    } = renderWithProviders(<SelectBrandScreen />);
+    } = await renderWithProviders(<SelectBrandScreen />);
 
     expect(getByText("Choose a brand")).toBeTruthy();
 
@@ -82,7 +82,7 @@ describe("SelectBrandScreen", () => {
   });
 
   it("navigates back when close button is pressed", async () => {
-    const { getByLabelText } = renderWithProviders(<SelectBrandScreen />);
+    const { getByLabelText } = await renderWithProviders(<SelectBrandScreen />);
 
     await waitFor(() => {
       expect(getByLabelText("Close")).toBeTruthy();
@@ -94,7 +94,7 @@ describe("SelectBrandScreen", () => {
   });
 
   it("navigates to scan screen with selected brand", async () => {
-    const { getByLabelText } = renderWithProviders(<SelectBrandScreen />);
+    const { getByLabelText } = await renderWithProviders(<SelectBrandScreen />);
 
     await waitFor(() => {
       expect(getByLabelText("ASOS")).toBeTruthy();
@@ -111,11 +111,11 @@ describe("SelectBrandScreen", () => {
     });
   });
 
-  it("shows loading state before brands load", () => {
+  it("shows loading state before brands load", async () => {
     getApiV1BrandsMock.mockImplementation(() => new Promise(() => {}));
 
     const { getByText, getByPlaceholderText, queryByLabelText } =
-      renderWithProviders(<SelectBrandScreen />);
+      await renderWithProviders(<SelectBrandScreen />);
 
     expect(getByText("Loading brands…")).toBeTruthy();
     expect(getByPlaceholderText("Search brands...").props.editable).toBe(false);
@@ -124,7 +124,7 @@ describe("SelectBrandScreen", () => {
 
   it("keeps custom card option visible when search matches no brands", async () => {
     const { getByPlaceholderText, getByLabelText, queryByLabelText } =
-      renderWithProviders(<SelectBrandScreen />);
+      await renderWithProviders(<SelectBrandScreen />);
 
     await waitFor(() => {
       expect(getByLabelText("ASOS")).toBeTruthy();
@@ -141,7 +141,7 @@ describe("SelectBrandScreen", () => {
 
   it("navigates to scan with custom label after entering label", async () => {
     const { getByLabelText, getByPlaceholderText, getByText } =
-      renderWithProviders(<SelectBrandScreen />);
+      await renderWithProviders(<SelectBrandScreen />);
 
     await waitFor(() => {
       expect(getByLabelText("Custom card")).toBeTruthy();
@@ -161,7 +161,7 @@ describe("SelectBrandScreen", () => {
   });
 
   it("refetches brands on pull-to-refresh", async () => {
-    const { UNSAFE_getByType, getByLabelText } = renderWithProviders(
+    const { UNSAFE_getByType, getByLabelText } = await renderWithProviders(
       <SelectBrandScreen />,
     );
 
@@ -173,20 +173,22 @@ describe("SelectBrandScreen", () => {
       expect(UNSAFE_getByType(FlatList)).toBeTruthy();
     });
     const flatList = UNSAFE_getByType(FlatList);
-    await flatList.props.refreshControl.props.onRefresh();
+    await act(async () => {
+      await flatList.props.refreshControl.props.onRefresh();
+    });
 
     await waitFor(() => expect(getApiV1BrandsMock).toHaveBeenCalledTimes(2));
   });
 
   it("serves cached brands without refetching on remount within query client stale time", async () => {
     const { queryClient, unmount, getByLabelText } =
-      renderWithSharedQueryClient(<SelectBrandScreen />);
+      await renderWithSharedQueryClient(<SelectBrandScreen />);
 
     await waitFor(() => expect(getApiV1BrandsMock).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(getByLabelText("ASOS")).toBeTruthy());
     unmount();
 
-    const remount = renderWithSharedQueryClient(
+    const remount = await renderWithSharedQueryClient(
       <SelectBrandScreen />,
       queryClient,
     );
@@ -205,7 +207,7 @@ describe("SelectBrandScreen", () => {
       ),
     );
 
-    const { getByText, queryByLabelText } = renderWithProviders(
+    const { getByText, queryByLabelText } = await renderWithProviders(
       <SelectBrandScreen />,
     );
 

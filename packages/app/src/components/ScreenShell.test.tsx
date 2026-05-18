@@ -6,8 +6,8 @@ import { renderWithTheme } from "../../test/render";
 import { ScreenShell } from "./ScreenShell";
 
 describe("ScreenShell", () => {
-  it("renders children", () => {
-    const { getByText } = renderWithTheme(
+  it("renders children", async () => {
+    const { getByText } = await renderWithTheme(
       <ScreenShell>
         <Text>Main content</Text>
       </ScreenShell>,
@@ -16,8 +16,8 @@ describe("ScreenShell", () => {
     expect(getByText("Main content")).toBeTruthy();
   });
 
-  it("renders footer content", () => {
-    const { getByText } = renderWithTheme(
+  it("renders footer content", async () => {
+    const { getByText } = await renderWithTheme(
       <ScreenShell footer={<Text>Footer action</Text>}>
         <Text>Main content</Text>
       </ScreenShell>,
@@ -27,8 +27,8 @@ describe("ScreenShell", () => {
     expect(getByText("Footer action")).toBeTruthy();
   });
 
-  it("renders ScreenShell.Body children", () => {
-    const { getByText } = renderWithTheme(
+  it("renders ScreenShell.Body children", async () => {
+    const { getByText } = await renderWithTheme(
       <ScreenShell>
         <ScreenShell.Body>
           <Text>Body content</Text>

@@ -53,8 +53,8 @@ describe("LoginScreen", () => {
     );
   });
 
-  it("renders login fields and copy by default", () => {
-    const { getByText, getByPlaceholderText, getByLabelText } = renderWithTheme(
+  it("renders login fields and copy by default", async () => {
+    const { getByText, getByPlaceholderText, getByLabelText } = await renderWithTheme(
       <LoginScreen />,
     );
 
@@ -69,8 +69,8 @@ describe("LoginScreen", () => {
     expect(getByText("Sign in")).toBeTruthy();
   });
 
-  it("toggles password visibility", () => {
-    const { getByPlaceholderText, getByLabelText, getByText } = renderWithTheme(
+  it("toggles password visibility", async () => {
+    const { getByPlaceholderText, getByLabelText, getByText } = await renderWithTheme(
       <LoginScreen />,
     );
 
@@ -91,7 +91,7 @@ describe("LoginScreen", () => {
   });
 
   it("toggles theme from the header control", async () => {
-    const { getByLabelText, getByText } = renderWithTheme(<LoginScreen />);
+    const { getByLabelText, getByText } = await renderWithTheme(<LoginScreen />);
 
     expect(getByLabelText("Use dark theme")).toBeTruthy();
     expect(getByText("sun")).toBeTruthy();
@@ -104,16 +104,16 @@ describe("LoginScreen", () => {
     });
   });
 
-  it("shows validation when email or password is missing", () => {
-    const { getByText } = renderWithTheme(<LoginScreen />);
+  it("shows validation when email or password is missing", async () => {
+    const { getByText } = await renderWithTheme(<LoginScreen />);
 
     fireEvent.press(getByText("Sign in"));
 
     expect(getByText("Enter your email and password.")).toBeTruthy();
   });
 
-  it("toggles between login and signup copy", () => {
-    const { getByText, queryByText } = renderWithTheme(<LoginScreen />);
+  it("toggles between login and signup copy", async () => {
+    const { getByText, queryByText } = await renderWithTheme(<LoginScreen />);
 
     fireEvent.press(getByText("Need an account? Sign up"));
 
@@ -126,8 +126,8 @@ describe("LoginScreen", () => {
     expect(queryByText("Create account")).toBeNull();
   });
 
-  it("clears error when switching auth mode", () => {
-    const { getByText } = renderWithTheme(<LoginScreen />);
+  it("clears error when switching auth mode", async () => {
+    const { getByText } = await renderWithTheme(<LoginScreen />);
 
     fireEvent.press(getByText("Sign in"));
     expect(getByText("Enter your email and password.")).toBeTruthy();
@@ -138,7 +138,7 @@ describe("LoginScreen", () => {
   });
 
   it("trims email, sets auth token, and replaces route on successful login", async () => {
-    const { getByText, getByPlaceholderText } = renderWithTheme(
+    const { getByText, getByPlaceholderText } = await renderWithTheme(
       <LoginScreen />,
     );
 
@@ -161,8 +161,8 @@ describe("LoginScreen", () => {
     });
   });
 
-  it("shows validation when pressing Enter on the password field with empty fields", () => {
-    const { getByPlaceholderText, getByText } = renderWithTheme(
+  it("shows validation when pressing Enter on the password field with empty fields", async () => {
+    const { getByPlaceholderText, getByText } = await renderWithTheme(
       <LoginScreen />,
     );
 
@@ -172,7 +172,7 @@ describe("LoginScreen", () => {
   });
 
   it("submits login when pressing Enter on the password field", async () => {
-    const { getByPlaceholderText } = renderWithTheme(<LoginScreen />);
+    const { getByPlaceholderText } = await renderWithTheme(<LoginScreen />);
 
     fireEvent.changeText(getByPlaceholderText("Email"), "hi@example.com");
     fireEvent.changeText(getByPlaceholderText("Password"), "secret");
@@ -189,8 +189,8 @@ describe("LoginScreen", () => {
     });
   });
 
-  it("does not submit login when pressing Enter on the email field (only focuses password)", () => {
-    const { getByPlaceholderText } = renderWithTheme(<LoginScreen />);
+  it("does not submit login when pressing Enter on the email field (only focuses password)", async () => {
+    const { getByPlaceholderText } = await renderWithTheme(<LoginScreen />);
 
     fireEvent.changeText(getByPlaceholderText("Email"), "hi@example.com");
     fireEvent.changeText(getByPlaceholderText("Password"), "secret");
@@ -200,7 +200,7 @@ describe("LoginScreen", () => {
   });
 
   it("signs up then logs in when pressing Enter on the password field in signup mode", async () => {
-    const { getByText, getByPlaceholderText } = renderWithTheme(
+    const { getByText, getByPlaceholderText } = await renderWithTheme(
       <LoginScreen />,
     );
 
@@ -233,7 +233,7 @@ describe("LoginScreen", () => {
       }),
     );
 
-    const { getByText, getByPlaceholderText } = renderWithTheme(
+    const { getByText, getByPlaceholderText } = await renderWithTheme(
       <LoginScreen />,
     );
 
@@ -254,7 +254,7 @@ describe("LoginScreen", () => {
       }),
     );
 
-    const { getByText, getByPlaceholderText } = renderWithTheme(
+    const { getByText, getByPlaceholderText } = await renderWithTheme(
       <LoginScreen />,
     );
 
@@ -276,7 +276,7 @@ describe("LoginScreen", () => {
       }),
     );
 
-    const { getByText, getByPlaceholderText } = renderWithTheme(
+    const { getByText, getByPlaceholderText } = await renderWithTheme(
       <LoginScreen />,
     );
 
@@ -299,7 +299,7 @@ describe("LoginScreen", () => {
       }),
     );
 
-    const { getByText, getByPlaceholderText } = renderWithTheme(
+    const { getByText, getByPlaceholderText } = await renderWithTheme(
       <LoginScreen />,
     );
 
@@ -323,7 +323,7 @@ describe("LoginScreen", () => {
       getByPlaceholderText,
       UNSAFE_getByType,
       UNSAFE_getAllByType,
-    } = renderWithTheme(<LoginScreen />);
+    } = await renderWithTheme(<LoginScreen />);
 
     fireEvent.changeText(getByPlaceholderText("Email"), "hi@example.com");
     fireEvent.changeText(getByPlaceholderText("Password"), "secret");
@@ -348,7 +348,7 @@ describe("LoginScreen", () => {
       getByPlaceholderText,
       UNSAFE_getByType,
       UNSAFE_getAllByType,
-    } = renderWithTheme(<LoginScreen />);
+    } = await renderWithTheme(<LoginScreen />);
 
     fireEvent.press(getByText("Need an account? Sign up"));
     fireEvent.changeText(getByPlaceholderText("Email"), "new@example.com");
@@ -367,7 +367,7 @@ describe("LoginScreen", () => {
   });
 
   it("signs up then logs in on successful signup", async () => {
-    const { getByText, getByPlaceholderText } = renderWithTheme(
+    const { getByText, getByPlaceholderText } = await renderWithTheme(
       <LoginScreen />,
     );
 

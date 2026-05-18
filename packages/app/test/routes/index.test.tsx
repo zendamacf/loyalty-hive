@@ -27,7 +27,7 @@ describe("app index", () => {
   it("redirects to cards when a stored auth token exists", async () => {
     setSecureStoreItem(AUTH_TOKEN_STORAGE_KEY, "stored-token");
 
-    renderWithProviders(<Index />);
+    await renderWithProviders(<Index />);
 
     await waitFor(() => {
       expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
