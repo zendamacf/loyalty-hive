@@ -65,6 +65,60 @@ bunx eas build --platform android --profile development
 
 Download artifacts from the [Expo dashboard](https://expo.dev) or the CLI link printed when the build finishes.
 
+## Signing (Android)
+
+Release Android builds need a signing key. Use **EAS-managed credentials** unless you have a strong reason not to — EAS generates, stores, and uses the upload keystore for every production build.
+
+### Generate the upload keystore (one-time)
+
+```sh
+cd packages/app
+bunx eas credentials --platform android
+```
+
+In the interactive menu:
+
+1. Choose the `production` build profile.
+2. Select **Keystore: Manage everything needed to build your project** → **Set up a new keystore**.
+
+EAS creates an upload keystore and stores it on the EAS servers. The first `eas build --profile production` will also offer to generate one if you skipped this step.
+
+### Back up the keystore
+
+```sh
+bunx eas credentials --platform android
+# → Keystore → Download credentials
+```
+
+Save the resulting `.jks` file and the printed passwords somewhere durable (1Password, etc.). Losing this key while not using Play App Signing means **you cannot update the app on the Play Store ever again**.
+
+### Play App Signing
+
+Enable **[Play App Signing](https://support.google.com/googleplay/android-developer/answer/9842756)** when creating the app in Play Console (it is the default for new apps). Two keys are involved:
+
+| Key | Held by | Used for |
+|-----|---------|----------|
+| **Upload key** | EAS (the keystore above) | Signing AABs you upload to Play |
+| **App signing key** | Google | Re-signing what end users install |
+
+If your upload key is ever lost or compromised, Google can issue a new one — but only when Play App Signing is enabled. Always keep it enabled.
+
+When Play Console asks for the upload certificate during app setup, run:
+
+```sh
+bunx eas credentials --platform android
+# → Keystore → View keystore fingerprints
+```
+
+…and provide the **SHA-1** and **SHA-256** fingerprints (or upload the certificate `.pem` if it asks for that).
+
+### Verify before the first store upload
+
+- [ ] `bunx eas credentials --platform android` shows a keystore for the `production` profile.
+- [ ] Keystore backup downloaded and stored securely.
+- [ ] Play Console app created with **Play App Signing** enabled.
+- [ ] Upload certificate fingerprint registered in Play Console matches `eas credentials` output.
+
 ## Sentry
 
 The `@sentry/react-native/expo` plugin in `app.json` uses organization `kalopsiadev` and project `loyalty-hive`. After a production build with `SENTRY_AUTH_TOKEN` set, confirm debug symbols appear in Sentry for that release.
