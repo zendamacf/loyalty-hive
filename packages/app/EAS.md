@@ -14,7 +14,7 @@ bunx eas init
 
 `eas init` creates/links the Expo project and writes `expo.extra.eas.projectId` into [`app.json`](app.json). Commit that change.
 
-For CI, create an [Expo access token](https://expo.dev/accounts/[account]/settings/access-tokens) and set `EXPO_TOKEN` in GitHub secrets.
+For CI, create an [Expo access token](https://expo.dev/accounts/[account]/settings/access-tokens) and set `EXPO_TOKEN` in GitHub secrets. The [`app-android-build.yml`](../../.github/workflows/app-android-build.yml) workflow uses it to run `eas build` non-interactively.
 
 ### 2. Configure EAS secrets
 

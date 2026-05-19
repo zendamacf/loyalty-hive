@@ -135,11 +135,20 @@ Play now requires either an in-app deletion flow or a public web form for any ap
 
 ### First release — Internal testing track
 
+Either locally:
+
 ```sh
 cd packages/app
 bun run build:android:production
 # Wait for the EAS build; download the .aab from the dashboard.
 ```
+
+…or via GitHub Actions ([`app-android-build.yml`](../../.github/workflows/app-android-build.yml)):
+
+- **Manual**: Actions → *App Android Build* → *Run workflow* (pick profile).
+- **Tag**: push a tag matching `app-v*` (e.g. `app-v0.1.0`) to trigger a production build automatically.
+
+Requires the `EXPO_TOKEN` GitHub secret.
 
 In Play Console:
 
