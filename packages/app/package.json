@@ -18,7 +18,7 @@
     "typecheck": "tsc --noEmit",
     "api:generate": "openapi-ts && bun run api:generate:hotfix",
     "api:generate:hotfix": "sed -i '1s;^;// @ts-expect-error Generated runtimeConfigPath import uses a .ts extension\\n;' src/lib/api-client/gen/client.gen.ts",
-    "postversion": "react-native-version"
+    "postversion": "react-native-version --never-amend"
   },
   "dependencies": {
     "@hey-api/client-fetch": "^0.13.1",
