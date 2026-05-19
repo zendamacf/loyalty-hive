@@ -16,6 +16,8 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.kalopsiadev.loyaltyhive",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#0D1B2A"
@@ -23,6 +25,7 @@
     },
     "plugins": [
       "expo-router",
+      "expo-camera",
       [
         "@sentry/react-native/expo",
         {
