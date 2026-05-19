@@ -39,4 +39,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+packages/app/android/
+packages/app/ios/
 .vercel
