@@ -67,15 +67,15 @@ describe("ScanScreen", () => {
     };
   });
 
-  it("shows loading message while camera permission is being checked", () => {
-    const { getByText } = renderWithProviders(<ScanScreen />);
+  it("shows loading message while camera permission is being checked", async () => {
+    const { getByText } = await renderWithProviders(<ScanScreen />);
 
     expect(getByText("Checking camera permissions...")).toBeTruthy();
   });
 
-  it("requests permission when user taps allow camera", () => {
+  it("requests permission when user taps allow camera", async () => {
     permissionState = { granted: false };
-    const { getByText } = renderWithProviders(<ScanScreen />);
+    const { getByText } = await renderWithProviders(<ScanScreen />);
 
     fireEvent.press(getByText("Allow camera"));
 
@@ -84,7 +84,7 @@ describe("ScanScreen", () => {
 
   it("creates a card from manual entry and returns to cards tab", async () => {
     permissionState = { granted: true };
-    const { getByText, getByPlaceholderText } = renderWithProviders(
+    const { getByText, getByPlaceholderText } = await renderWithProviders(
       <ScanScreen />,
     );
 
@@ -111,7 +111,7 @@ describe("ScanScreen", () => {
 
   it("creates a card when a QR code is scanned with 2D view", async () => {
     permissionState = { granted: true };
-    const { getByTestId } = renderWithProviders(<ScanScreen />);
+    const { getByTestId } = await renderWithProviders(<ScanScreen />);
 
     fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
       type: "qr",
@@ -135,7 +135,7 @@ describe("ScanScreen", () => {
 
   it("creates a card when a linear barcode is scanned with 1D view", async () => {
     permissionState = { granted: true };
-    const { getByTestId } = renderWithProviders(<ScanScreen />);
+    const { getByTestId } = await renderWithProviders(<ScanScreen />);
 
     fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
       type: "code128",
@@ -156,16 +156,16 @@ describe("ScanScreen", () => {
     });
   });
 
-  it("shows brand context when brand name param is set", () => {
+  it("shows brand context when brand name param is set", async () => {
     permissionState = { granted: true };
-    const { getByText } = renderWithProviders(<ScanScreen />);
+    const { getByText } = await renderWithProviders(<ScanScreen />);
 
     expect(getByText("Adding card for ASOS")).toBeTruthy();
   });
 
-  it("navigates back when close is pressed", () => {
+  it("navigates back when close is pressed", async () => {
     permissionState = { granted: true };
-    const { getByLabelText } = renderWithProviders(<ScanScreen />);
+    const { getByLabelText } = await renderWithProviders(<ScanScreen />);
 
     fireEvent.press(getByLabelText("Close"));
 
@@ -175,7 +175,9 @@ describe("ScanScreen", () => {
   it("creates a custom card with label and no brand", async () => {
     permissionState = { granted: true };
     __expoRouterMocks.params = { label: "Gym membership" };
-    const { getByTestId, getByText } = renderWithProviders(<ScanScreen />);
+    const { getByTestId, getByText } = await renderWithProviders(
+      <ScanScreen />,
+    );
 
     expect(getByText("Adding Gym membership")).toBeTruthy();
 
@@ -211,7 +213,9 @@ describe("ScanScreen", () => {
       ),
     );
 
-    const { getByTestId, getByText } = renderWithProviders(<ScanScreen />);
+    const { getByTestId, getByText } = await renderWithProviders(
+      <ScanScreen />,
+    );
 
     fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
       type: "qr",
@@ -224,9 +228,9 @@ describe("ScanScreen", () => {
     expect(__expoRouterMocks.dismissTo).not.toHaveBeenCalled();
   });
 
-  it("does not save when manual entry is empty", () => {
+  it("does not save when manual entry is empty", async () => {
     permissionState = { granted: true };
-    const { getByText } = renderWithProviders(<ScanScreen />);
+    const { getByText } = await renderWithProviders(<ScanScreen />);
 
     fireEvent.press(getByText("Enter card number manually"));
     fireEvent.press(getByText("Use card number"));

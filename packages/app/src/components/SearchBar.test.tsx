@@ -5,8 +5,8 @@ import { renderWithTheme } from "../../test/render";
 import { SearchBar } from "./SearchBar";
 
 describe("SearchBar", () => {
-  it("renders search input with placeholder", () => {
-    const { getByPlaceholderText } = renderWithTheme(
+  it("renders search input with placeholder", async () => {
+    const { getByPlaceholderText } = await renderWithTheme(
       <SearchBar
         value=""
         onChangeText={() => {}}
@@ -17,16 +17,16 @@ describe("SearchBar", () => {
     expect(getByPlaceholderText("Search cards...")).toBeTruthy();
   });
 
-  it("hides clear control when value is empty", () => {
-    const { queryByLabelText } = renderWithTheme(
+  it("hides clear control when value is empty", async () => {
+    const { queryByLabelText } = await renderWithTheme(
       <SearchBar value="" onChangeText={() => {}} placeholder="Search..." />,
     );
 
     expect(queryByLabelText("Clear search")).toBeNull();
   });
 
-  it("shows clear control when value is non-empty", () => {
-    const { getByLabelText } = renderWithTheme(
+  it("shows clear control when value is non-empty", async () => {
+    const { getByLabelText } = await renderWithTheme(
       <SearchBar
         value="query"
         onChangeText={() => {}}
@@ -37,9 +37,9 @@ describe("SearchBar", () => {
     expect(getByLabelText("Clear search")).toBeTruthy();
   });
 
-  it("clears value when clear control is pressed", () => {
+  it("clears value when clear control is pressed", async () => {
     const onChangeText = mock(() => {});
-    const { getByLabelText } = renderWithTheme(
+    const { getByLabelText } = await renderWithTheme(
       <SearchBar
         value="query"
         onChangeText={onChangeText}
@@ -52,9 +52,9 @@ describe("SearchBar", () => {
     expect(onChangeText).toHaveBeenCalledWith("");
   });
 
-  it("calls onChangeText when typing", () => {
+  it("calls onChangeText when typing", async () => {
     const onChangeText = mock(() => {});
-    const { getByPlaceholderText } = renderWithTheme(
+    const { getByPlaceholderText } = await renderWithTheme(
       <SearchBar
         value=""
         onChangeText={onChangeText}
@@ -67,8 +67,8 @@ describe("SearchBar", () => {
     expect(onChangeText).toHaveBeenCalledWith("asos");
   });
 
-  it("respects editable={false}", () => {
-    const { getByPlaceholderText } = renderWithTheme(
+  it("respects editable={false}", async () => {
+    const { getByPlaceholderText } = await renderWithTheme(
       <SearchBar
         value=""
         onChangeText={() => {}}

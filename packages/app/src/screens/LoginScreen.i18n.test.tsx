@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, mock } from "bun:test";
+import { act } from "@testing-library/react-native";
 import i18n from "@/i18n";
 import { renderWithTheme } from "../../test/render";
 
@@ -7,19 +8,34 @@ mock.module("../../assets/images/icon.png", () => ({ default: 1 }));
 
 const { LoginScreen } = await import("./LoginScreen");
 
+async function flushMicrotasks(): Promise<void> {
+  await act(async () => {
+    await new Promise<void>((resolve) => {
+      setImmediate(resolve);
+    });
+  });
+}
+
 describe("LoginScreen i18n", () => {
   afterEach(async () => {
-    await i18n.changeLanguage("en");
+    await act(async () => {
+      await i18n.changeLanguage("en");
+    });
   });
 
   it("renders Spanish copy when locale is es", async () => {
-    await i18n.changeLanguage("es");
+    await act(async () => {
+      await i18n.changeLanguage("es");
+    });
 
-    const { getByText } = renderWithTheme(<LoginScreen />);
+    const { findByText } = await renderWithTheme(<LoginScreen />);
+    await flushMicrotasks();
 
-    expect(getByText("Iniciar sesión")).toBeTruthy();
+    expect(await findByText("Iniciar sesión")).toBeTruthy();
     expect(
-      getByText("Inicia sesión para gestionar tus tarjetas de fidelidad"),
+      await findByText(
+        "Inicia sesión para gestionar tus tarjetas de fidelidad",
+      ),
     ).toBeTruthy();
   });
 });

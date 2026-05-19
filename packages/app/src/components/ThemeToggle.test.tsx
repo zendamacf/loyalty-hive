@@ -5,8 +5,8 @@ import { renderWithTheme } from "../../test/render";
 const { ThemeToggle } = await import("./ThemeToggle");
 
 describe("ThemeToggle", () => {
-  it("renders icon only by default", () => {
-    const { getByLabelText, getByText, queryByText } = renderWithTheme(
+  it("renders icon only by default", async () => {
+    const { getByLabelText, getByText, queryByText } = await renderWithTheme(
       <ThemeToggle />,
     );
 
@@ -15,15 +15,15 @@ describe("ThemeToggle", () => {
     expect(queryByText("Light")).toBeNull();
   });
 
-  it("renders label when showLabel is true", () => {
-    const { getByText } = renderWithTheme(<ThemeToggle showLabel />);
+  it("renders label when showLabel is true", async () => {
+    const { getByText } = await renderWithTheme(<ThemeToggle showLabel />);
 
     expect(getByText("Light")).toBeTruthy();
     expect(getByText("sun")).toBeTruthy();
   });
 
   it("toggles theme on press", async () => {
-    const { getByLabelText, getByText } = renderWithTheme(
+    const { getByLabelText, getByText } = await renderWithTheme(
       <ThemeToggle showLabel />,
     );
 

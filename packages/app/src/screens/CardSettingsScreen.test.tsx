@@ -36,8 +36,8 @@ describe("CardSettingsScreen", () => {
     };
   });
 
-  it("shows brand title, label subtitle, card number, and created date", () => {
-    const { getByText } = renderWithTheme(<CardSettingsScreen />);
+  it("shows brand title, label subtitle, card number, and created date", async () => {
+    const { getByText } = await renderWithTheme(<CardSettingsScreen />);
 
     expect(getByText("ASOS")).toBeTruthy();
     expect(getByText("Work card")).toBeTruthy();
@@ -45,7 +45,7 @@ describe("CardSettingsScreen", () => {
     expect(getByText("June 15, 2020")).toBeTruthy();
   });
 
-  it("uses label as title when brand is not set", () => {
+  it("uses label as title when brand is not set", async () => {
     __expoRouterMocks.params = {
       id: "00000000-0000-4000-8000-0000000000c1",
       cardNumber: "333",
@@ -54,15 +54,17 @@ describe("CardSettingsScreen", () => {
       createdAt: "2020-01-01T00:00:00.000Z",
     };
 
-    const { getByText, queryByText } = renderWithTheme(<CardSettingsScreen />);
+    const { getByText, queryByText } = await renderWithTheme(
+      <CardSettingsScreen />,
+    );
 
     expect(getByText("Gym membership")).toBeTruthy();
     expect(queryByText("Card number")).toBeTruthy();
     expect(queryByText("Work card")).toBeNull();
   });
 
-  it("copies card number when copy is pressed", () => {
-    const { getByLabelText } = renderWithTheme(<CardSettingsScreen />);
+  it("copies card number when copy is pressed", async () => {
+    const { getByLabelText } = await renderWithTheme(<CardSettingsScreen />);
 
     fireEvent.press(getByLabelText("Copy card number"));
 
@@ -72,7 +74,7 @@ describe("CardSettingsScreen", () => {
   });
 
   it("shows delete confirmation before deleting", async () => {
-    const { getByLabelText } = renderWithTheme(<CardSettingsScreen />);
+    const { getByLabelText } = await renderWithTheme(<CardSettingsScreen />);
 
     fireEvent.press(getByLabelText("Delete card"));
 
@@ -94,7 +96,7 @@ describe("CardSettingsScreen", () => {
   });
 
   it("returns to cards after a successful delete", async () => {
-    const { getByLabelText } = renderWithTheme(<CardSettingsScreen />);
+    const { getByLabelText } = await renderWithTheme(<CardSettingsScreen />);
 
     fireEvent.press(getByLabelText("Delete card"));
 

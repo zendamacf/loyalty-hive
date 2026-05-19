@@ -14,17 +14,17 @@ describe("CloseButton", () => {
     __expoRouterMocks.back.mockClear();
   });
 
-  it("calls router.back by default", () => {
-    const { getByLabelText } = renderWithProviders(<CloseButton />);
+  it("calls router.back by default", async () => {
+    const { getByLabelText } = await renderWithProviders(<CloseButton />);
 
     fireEvent.press(getByLabelText("Close"));
 
     expect(__expoRouterMocks.back).toHaveBeenCalledTimes(1);
   });
 
-  it("calls custom onPress when provided", () => {
+  it("calls custom onPress when provided", async () => {
     const onPress = mock(() => {});
-    const { getByLabelText } = renderWithProviders(
+    const { getByLabelText } = await renderWithProviders(
       <CloseButton onPress={onPress} />,
     );
 

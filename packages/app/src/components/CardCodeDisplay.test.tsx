@@ -15,8 +15,8 @@ mock.module("react-native-qrcode-svg", () => ({
 const { CardCodeDisplay } = await import("./CardCodeDisplay");
 
 describe("CardCodeDisplay", () => {
-  it("renders barcode and QR layers", () => {
-    const { getByTestId } = renderWithTheme(
+  it("renders barcode and QR layers", async () => {
+    const { getByTestId } = await renderWithTheme(
       <CardCodeDisplay
         cardNumber="1234567890"
         view="1D"
@@ -28,8 +28,8 @@ describe("CardCodeDisplay", () => {
     expect(getByTestId("qrcode")).toBeTruthy();
   });
 
-  it("animates when view changes", () => {
-    const { getByTestId, rerender } = renderWithTheme(
+  it("animates when view changes", async () => {
+    const { getByTestId, rerender } = await renderWithTheme(
       <CardCodeDisplay
         cardNumber="1234567890"
         view="1D"

@@ -5,21 +5,21 @@ import { renderWithTheme } from "../../test/render";
 import { AppTitle } from "./AppTitle";
 
 describe("AppTitle", () => {
-  it("renders LoyaltyHive branding", () => {
-    const { getByText, getByRole } = renderWithTheme(<AppTitle />);
+  it("renders LoyaltyHive branding", async () => {
+    const { getByText, getByRole } = await renderWithTheme(<AppTitle />);
 
     expect(getByText(APP_NAME)).toBeTruthy();
     expect(getByRole("header")).toBeTruthy();
   });
 
-  it("exposes the full app name to assistive technologies", () => {
-    const { getByLabelText } = renderWithTheme(<AppTitle />);
+  it("exposes the full app name to assistive technologies", async () => {
+    const { getByLabelText } = await renderWithTheme(<AppTitle />);
 
     expect(getByLabelText(APP_NAME)).toBeTruthy();
   });
 
-  it("applies align prop to title text", () => {
-    const { getByRole } = renderWithTheme(<AppTitle align="left" />);
+  it("applies align prop to title text", async () => {
+    const { getByRole } = await renderWithTheme(<AppTitle align="left" />);
 
     const title = getByRole("header");
     const styleProp = title.props.style;

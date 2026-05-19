@@ -27,8 +27,10 @@ describe("SettingsScreen", () => {
     secureStoreDeleteMock.mockClear();
   });
 
-  it("renders theme toggle, language picker, and sign out button", () => {
-    const { getByText, getByLabelText } = renderWithTheme(<SettingsScreen />);
+  it("renders theme toggle, language picker, and sign out button", async () => {
+    const { getByText, getByLabelText } = await renderWithTheme(
+      <SettingsScreen />,
+    );
 
     expect(getByText("Settings")).toBeTruthy();
     expect(getByText("Theme")).toBeTruthy();
@@ -40,7 +42,9 @@ describe("SettingsScreen", () => {
   });
 
   it("toggles dark theme from the theme control", async () => {
-    const { getByLabelText, getByText } = renderWithTheme(<SettingsScreen />);
+    const { getByLabelText, getByText } = await renderWithTheme(
+      <SettingsScreen />,
+    );
 
     expect(getByLabelText("Use dark theme")).toBeTruthy();
     expect(getByText("sun")).toBeTruthy();
@@ -54,8 +58,8 @@ describe("SettingsScreen", () => {
     });
   });
 
-  it("navigates back when close button is pressed", () => {
-    const { getByLabelText } = renderWithTheme(<SettingsScreen />);
+  it("navigates back when close button is pressed", async () => {
+    const { getByLabelText } = await renderWithTheme(<SettingsScreen />);
 
     fireEvent.press(getByLabelText("Close"));
 
@@ -63,7 +67,7 @@ describe("SettingsScreen", () => {
   });
 
   it("signs out when sign out is pressed", async () => {
-    const { getByText } = renderWithTheme(<SettingsScreen />);
+    const { getByText } = await renderWithTheme(<SettingsScreen />);
 
     fireEvent.press(getByText("Sign out"));
 

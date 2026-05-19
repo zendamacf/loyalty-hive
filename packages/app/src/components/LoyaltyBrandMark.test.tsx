@@ -5,8 +5,8 @@ import { renderWithTheme } from "../../test/render";
 import { LoyaltyBrandMark } from "./LoyaltyBrandMark";
 
 describe("LoyaltyBrandMark", () => {
-  it("renders provided logo", () => {
-    const { UNSAFE_getByType } = renderWithTheme(
+  it("renders provided logo", async () => {
+    const { UNSAFE_getByType } = await renderWithTheme(
       <LoyaltyBrandMark
         brand="Test Brand"
         height={48}
@@ -18,16 +18,16 @@ describe("LoyaltyBrandMark", () => {
     expect(img.props.source).toEqual({ uri: "https://example.com/logo.png" });
   });
 
-  it("renders brand name when no logo is provided", () => {
-    const { getByText } = renderWithTheme(
+  it("renders brand name when no logo is provided", async () => {
+    const { getByText } = await renderWithTheme(
       <LoyaltyBrandMark brand="Test Brand" height={48} />,
     );
 
     expect(getByText("Test Brand")).toBeTruthy();
   });
 
-  it("animates height when animateHeight is enabled", () => {
-    const { rerender } = renderWithTheme(
+  it("animates height when animateHeight is enabled", async () => {
+    const { rerender } = await renderWithTheme(
       <LoyaltyBrandMark
         animateHeight
         brand="Test Brand"

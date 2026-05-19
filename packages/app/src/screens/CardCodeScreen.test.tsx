@@ -43,8 +43,8 @@ describe("CardCodeScreen", () => {
     };
   });
 
-  it("renders a barcode for 1D view", () => {
-    const { getByTestId, UNSAFE_getByType } = renderWithTheme(
+  it("renders a barcode for 1D view", async () => {
+    const { getByTestId, UNSAFE_getByType } = await renderWithTheme(
       <CardCodeScreen />,
     );
 
@@ -55,41 +55,41 @@ describe("CardCodeScreen", () => {
     });
   });
 
-  it("renders a QR code for 2D view", () => {
+  it("renders a QR code for 2D view", async () => {
     __expoRouterMocks.params = {
       cardNumber: "1234567890",
       title: "ASOS",
       view: "2D",
     };
 
-    const { getByTestId } = renderWithTheme(<CardCodeScreen />);
+    const { getByTestId } = await renderWithTheme(<CardCodeScreen />);
 
     expect(getByTestId("qrcode")).toBeTruthy();
     expect(getByTestId("barcode")).toBeTruthy();
   });
 
-  it("defaults to barcode when view is missing", () => {
+  it("defaults to barcode when view is missing", async () => {
     __expoRouterMocks.params = {
       cardNumber: "1234567890",
       title: "ASOS",
     };
 
-    const { getByTestId } = renderWithTheme(<CardCodeScreen />);
+    const { getByTestId } = await renderWithTheme(<CardCodeScreen />);
 
     expect(getByTestId("barcode")).toBeTruthy();
     expect(getByTestId("qrcode")).toBeTruthy();
   });
 
-  it("navigates back when close button is pressed", () => {
-    const { getByLabelText } = renderWithTheme(<CardCodeScreen />);
+  it("navigates back when close button is pressed", async () => {
+    const { getByLabelText } = await renderWithTheme(<CardCodeScreen />);
 
     fireEvent.press(getByLabelText("Close"));
 
     expect(__expoRouterMocks.back).toHaveBeenCalled();
   });
 
-  it("navigates to card settings when configure is pressed", () => {
-    const { getByLabelText } = renderWithTheme(<CardCodeScreen />);
+  it("navigates to card settings when configure is pressed", async () => {
+    const { getByLabelText } = await renderWithTheme(<CardCodeScreen />);
 
     fireEvent.press(getByLabelText("Configure card"));
 
@@ -105,8 +105,10 @@ describe("CardCodeScreen", () => {
     });
   });
 
-  it("switches to QR code when QR code is selected", () => {
-    const { getByLabelText, getByTestId } = renderWithTheme(<CardCodeScreen />);
+  it("switches to QR code when QR code is selected", async () => {
+    const { getByLabelText, getByTestId } = await renderWithTheme(
+      <CardCodeScreen />,
+    );
 
     expect(getByTestId("barcode")).toBeTruthy();
 
@@ -116,14 +118,16 @@ describe("CardCodeScreen", () => {
     expect(getByTestId("barcode")).toBeTruthy();
   });
 
-  it("switches to barcode when barcode is selected", () => {
+  it("switches to barcode when barcode is selected", async () => {
     __expoRouterMocks.params = {
       cardNumber: "1234567890",
       title: "ASOS",
       view: "2D",
     };
 
-    const { getByLabelText, getByTestId } = renderWithTheme(<CardCodeScreen />);
+    const { getByLabelText, getByTestId } = await renderWithTheme(
+      <CardCodeScreen />,
+    );
 
     expect(getByTestId("qrcode")).toBeTruthy();
 
