@@ -16,3 +16,4 @@ bun install
 
 - Local native debug builds: [`packages/app/ANDROID.md`](packages/app/ANDROID.md)
 - Release builds via EAS: [`packages/app/EAS.md`](packages/app/EAS.md)
+- Google Play Store submission: [`packages/app/PLAY-STORE.md`](packages/app/PLAY-STORE.md)
