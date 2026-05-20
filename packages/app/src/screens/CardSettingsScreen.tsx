@@ -68,6 +68,7 @@ export const CardSettingsScreen = () => {
     () => formatCreatedAt(createdAt, i18n.language),
     [createdAt, i18n.language],
   );
+  console.log(createdOnLabel, createdAt, i18n.language);
 
   const queryClient = useQueryClient();
 
@@ -175,9 +176,13 @@ export const CardSettingsScreen = () => {
               >
                 {t("createdOnLabel")}
               </Text>
-              <Text style={[styles.detailValue, { color: colors.textPrimary }]}>
-                {createdOnLabel}
-              </Text>
+              <View style={styles.detailValueRow}>
+                <Text
+                  style={[styles.detailValue, { color: colors.textPrimary }]}
+                >
+                  {createdOnLabel}
+                </Text>
+              </View>
             </View>
           ) : null}
         </View>
