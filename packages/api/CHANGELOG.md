@@ -4,11 +4,11 @@
 
 ### Minor Changes
 
-- c9b0ec0: Adds `x-api-key` header requirement to all auth routes.
+- c9b0ec0: Added `x-api-key` header requirement to all auth routes.
 
 ### Patch Changes
 
-- 82e90d1: Replaces localhost URL in OpenAPI with development proxy URL.
+- 82e90d1: Replaced localhost URL in OpenAPI with development proxy URL.
 
 ## 0.0.1
 
