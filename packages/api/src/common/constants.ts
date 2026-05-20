@@ -1,5 +1,5 @@
 /** bcrypt cost factor for password and API key hashing */
-export const BCRYPT_COST = 12;
+export const BCRYPT_COST = 10;
 
 export const API_KEY_HEADER = "x-api-key";
 
