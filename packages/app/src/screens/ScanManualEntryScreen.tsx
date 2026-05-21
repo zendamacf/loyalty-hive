@@ -123,9 +123,7 @@ export const ScanManualEntryScreen = () => {
 
         {isCustomCard ? (
           <>
-            <Text
-              style={[styles.fieldLabel, { color: colors.textSecondary }]}
-            >
+            <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>
               {t("customCardLabel")}
             </Text>
             <TextInput

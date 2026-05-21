@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { beforeEach, describe, expect, it, type mock } from "bun:test";
 import { fireEvent, waitFor } from "@testing-library/react-native";
 
 import { Routes } from "@/constants/routes.constants";

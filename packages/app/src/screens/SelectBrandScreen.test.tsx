@@ -20,6 +20,7 @@ const testBrands = [
     logoUrl: "https://logo.clearbit.com/asos.com",
     backgroundColor: "#FFFFFF",
     createdAt: "2025-01-01T00:00:00.000Z",
+    defaultView: null,
   },
   {
     id: "00000000-0000-4000-8000-0000000000aa",
@@ -27,6 +28,7 @@ const testBrands = [
     logoUrl: "https://logo.clearbit.com/ubereats.com",
     backgroundColor: "#FFFFFF",
     createdAt: "2025-01-01T00:00:00.000Z",
+    defaultView: null,
   },
 ] satisfies GetApiV1BrandsResponse;
 
