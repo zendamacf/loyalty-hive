@@ -14,6 +14,7 @@ import { I18nextProvider } from "react-i18next";
 import i18n from "@/i18n";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { QUERY_STALE_TIME_MS } from "@/lib/query-client";
+import { OverlayProvider } from "@/components/OverlayProvider";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 import { THEME_STORAGE_KEY } from "@/theme/theme.constants";
 import { TestLanguageProvider } from "./TestLanguageProvider";
@@ -71,7 +72,9 @@ function TestProviders({ children }: { children: ReactNode }) {
         <I18nextProvider i18n={i18n}>
           <TestLanguageProvider>
             <ThemeProvider>
-              <ProvidersSettled>{children}</ProvidersSettled>
+              <OverlayProvider>
+                <ProvidersSettled>{children}</ProvidersSettled>
+              </OverlayProvider>
             </ThemeProvider>
           </TestLanguageProvider>
         </I18nextProvider>
@@ -106,7 +109,9 @@ export function createQueryClientWrapper(queryClient: QueryClient) {
           <I18nextProvider i18n={i18n}>
             <TestLanguageProvider>
               <ThemeProvider>
-                <ProvidersSettled>{children}</ProvidersSettled>
+                <OverlayProvider>
+                  <ProvidersSettled>{children}</ProvidersSettled>
+                </OverlayProvider>
               </ThemeProvider>
             </TestLanguageProvider>
           </I18nextProvider>

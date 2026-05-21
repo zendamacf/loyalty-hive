@@ -52,6 +52,10 @@ class AnimatedValue {
     this._value = initial;
   }
 
+  setValue(value: number) {
+    this._value = value;
+  }
+
   interpolate(config: {
     inputRange: number[];
     outputRange: (number | string)[];
@@ -215,8 +219,16 @@ mock.module("react-native", () => ({
     ref: React.Ref<{ measureInWindow: (callback: (...args: number[]) => void) => void }>,
   ) {
     React.useImperativeHandle(ref, () => ({
-      measureInWindow: (callback: (x: number, y: number, width: number, height: number) => void) => {
+      measureInWindow: (
+        callback: (x: number, y: number, width: number, height: number) => void,
+      ) => {
         callback(0, 0, 200, 44);
+      },
+      measureLayout: (
+        _relativeTo: unknown,
+        onSuccess: (x: number, y: number, width: number, height: number) => void,
+      ) => {
+        onSuccess(0, 0, 200, 44);
       },
     }));
     return React.createElement("View", props, props.children as React.ReactNode);
@@ -238,6 +250,11 @@ mock.module("react-native", () => ({
       _event: string,
       handler: (state: string) => void,
     ) => ({
+      remove: () => {},
+    }),
+  },
+  BackHandler: {
+    addEventListener: (_event: string, _handler: () => boolean) => ({
       remove: () => {},
     }),
   },

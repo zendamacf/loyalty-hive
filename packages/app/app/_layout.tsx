@@ -6,6 +6,7 @@ import {
 } from "react-native-safe-area-context";
 
 import { KeyboardAvoidingShell } from "@/components/KeyboardAvoidingShell";
+import { OverlayProvider } from "@/components/OverlayProvider";
 import { ThemedRoot } from "@/components/ThemedRoot";
 import "@/i18n";
 
@@ -35,9 +36,11 @@ export default Sentry.wrap(function Layout() {
           <LanguageProvider>
             <ThemeProvider>
             <ThemedRoot>
-              <KeyboardAvoidingShell>
-                <Stack screenOptions={{ headerShown: false }} />
-              </KeyboardAvoidingShell>
+              <OverlayProvider>
+                <KeyboardAvoidingShell>
+                  <Stack screenOptions={{ headerShown: false }} />
+                </KeyboardAvoidingShell>
+              </OverlayProvider>
             </ThemedRoot>
             </ThemeProvider>
           </LanguageProvider>
