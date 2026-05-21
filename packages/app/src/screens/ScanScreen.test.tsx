@@ -156,6 +156,36 @@ describe("ScanScreen", () => {
     });
   });
 
+  it("shows barcode scan guide when defaultView is 1D", async () => {
+    permissionState = { granted: true };
+    __expoRouterMocks.params = {
+      ...__expoRouterMocks.params,
+      defaultView: "1D",
+    };
+    const { getByTestId } = await renderWithProviders(<ScanScreen />);
+
+    expect(getByTestId("scan-guide-1d")).toBeTruthy();
+  });
+
+  it("shows QR scan guide when defaultView is 2D", async () => {
+    permissionState = { granted: true };
+    __expoRouterMocks.params = {
+      ...__expoRouterMocks.params,
+      defaultView: "2D",
+    };
+    const { getByTestId } = await renderWithProviders(<ScanScreen />);
+
+    expect(getByTestId("scan-guide-2d")).toBeTruthy();
+  });
+
+  it("does not show scan guide when defaultView is absent", async () => {
+    permissionState = { granted: true };
+    const { queryByTestId } = await renderWithProviders(<ScanScreen />);
+
+    expect(queryByTestId("scan-guide-1d")).toBeNull();
+    expect(queryByTestId("scan-guide-2d")).toBeNull();
+  });
+
   it("shows brand context when brand name param is set", async () => {
     permissionState = { granted: true };
     const { getByText } = await renderWithProviders(<ScanScreen />);

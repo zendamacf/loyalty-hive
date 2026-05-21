@@ -7,6 +7,8 @@
   "addingCustomCard": "Añadiendo {{label}}",
   "savingCard": "Guardando tarjeta...",
   "scanPrompt": "Escanea el código QR o de barras de la tarjeta",
+  "scanPromptQrCode": "Escanea el código QR de la tarjeta",
+  "scanPromptBarcode": "Escanea el código de barras de la tarjeta",
   "closeManualEntry": "Cerrar entrada manual",
   "enterManually": "Introducir número de tarjeta manualmente",
   "cardNumber": "Número de tarjeta",

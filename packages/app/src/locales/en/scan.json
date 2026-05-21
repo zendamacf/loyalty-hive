@@ -7,6 +7,8 @@
   "addingCustomCard": "Adding {{label}}",
   "savingCard": "Saving card...",
   "scanPrompt": "Scan a loyalty card QR or barcode",
+  "scanPromptQrCode": "Scan a loyalty card QR code",
+  "scanPromptBarcode": "Scan a loyalty card barcode",
   "closeManualEntry": "Close manual entry",
   "enterManually": "Enter card number manually",
   "cardNumber": "Card number",

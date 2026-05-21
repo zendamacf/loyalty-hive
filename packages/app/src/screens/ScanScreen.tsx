@@ -1,18 +1,3 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  type BarcodeScanningResult,
-  CameraView,
-  useCameraPermissions,
-} from "expo-camera";
-import { router, useLocalSearchParams } from "expo-router";
-import { XIcon } from "lucide-react-native";
-import { useCallback, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
 import { ScanGuideOverlay } from "@/components/ScanGuideOverlay";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { ScreenShell } from "@/components/ScreenShell";
@@ -24,6 +9,21 @@ import {
 } from "@/lib/api-client";
 import { type CardView, resolveCardViewFromBarcodeType } from "@/lib/cardView";
 import { getErrorMessage } from "@/lib/getErrorMessage";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  type BarcodeScanningResult,
+  CameraView,
+  useCameraPermissions,
+} from "expo-camera";
+import { router, useLocalSearchParams } from "expo-router";
+import { XIcon } from "lucide-react-native";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { icon, radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
@@ -46,6 +46,17 @@ export const ScanScreen = () => {
     params.defaultView === "1D" || params.defaultView === "2D"
       ? params.defaultView
       : null;
+
+  const scanPrompt = useMemo(() => {
+    switch (defaultView) {
+      case "1D":
+        return t("scanPromptBarcode");
+      case "2D":
+        return t("scanPromptQrCode");
+      default:
+        return t("scanPrompt");
+    }
+  }, [defaultView, t]);
 
   const [permission, requestPermission] = useCameraPermissions();
   const [isManualEntryOpen, setIsManualEntryOpen] = useState(false);
@@ -201,7 +212,7 @@ export const ScanScreen = () => {
           </Pressable>
         </View>
         <Text style={styles.overlayTitle}>
-          {isSaving ? t("savingCard") : t("scanPrompt")}
+          {isSaving ? t("savingCard") : scanPrompt}
         </Text>
 
         {saveError ? (
