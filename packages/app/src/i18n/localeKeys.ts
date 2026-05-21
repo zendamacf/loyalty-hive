@@ -26,8 +26,11 @@ const I18N_ENUM_MEMBER_TO_VALUE: Record<string, I18nNamespace> =
     ),
   ) as Record<string, I18nNamespace>;
 
-/** Keys used via dynamic expressions (e.g. t(PREFERENCE_LABEL_KEYS[option])). */
+/** Keys used via dynamic expressions (e.g. t(LABEL_KEYS[option])). */
 export const KNOWN_DYNAMIC_TRANSLATION_KEYS: QualifiedTranslationKey[] = [
+  `${I18nNamespace.Cards}:sortAlphabetical`,
+  `${I18nNamespace.Cards}:sortMostViewed`,
+  `${I18nNamespace.Cards}:sortLastViewed`,
   `${I18nNamespace.Settings}:languageEnglish`,
   `${I18nNamespace.Settings}:languageSpanish`,
 ];
