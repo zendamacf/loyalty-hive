@@ -6,6 +6,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type ReactNode,
 } from "react";
 import {
   Animated,
@@ -29,6 +30,14 @@ export type SelectOption<T extends string> = {
   label: string;
 };
 
+export type SelectTriggerRenderProps = {
+  open: boolean;
+  onPress: () => void;
+  disabled: boolean;
+  accessibilityLabel: string;
+  selectedLabel: string;
+};
+
 export type SelectProps<T extends string> = {
   value: T;
   onValueChange: (value: T) => void;
@@ -36,6 +45,10 @@ export type SelectProps<T extends string> = {
   accessibilityLabel: string;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
+  /** Replaces the default labeled trigger (e.g. icon button). */
+  renderTrigger?: (props: SelectTriggerRenderProps) => ReactNode;
+  /** Minimum width of the dropdown menu (defaults to trigger width). */
+  menuMinWidth?: number;
 };
 
 type MenuAnchor = {
@@ -51,6 +64,8 @@ export const Select = <T extends string>({
   accessibilityLabel,
   disabled = false,
   style,
+  renderTrigger,
+  menuMinWidth,
 }: SelectProps<T>) => {
   const { colors } = useTheme();
   const { layerRef, setOverlay } = useOverlay();
@@ -64,13 +79,16 @@ export const Select = <T extends string>({
   const menuExpand = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    if (renderTrigger != null) {
+      return;
+    }
     Animated.timing(chevronFlip, {
       toValue: open ? 1 : 0,
       duration: transition.ms,
       easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
     }).start();
-  }, [chevronFlip, open]);
+  }, [chevronFlip, open, renderTrigger]);
 
   useEffect(() => {
     if (!overlayShown) {
@@ -170,22 +188,49 @@ export const Select = <T extends string>({
       return;
     }
 
-    const setAnchor = (x: number, y: number, width: number, height: number) => {
+    const placeMenu = (
+      x: number,
+      y: number,
+      triggerWidth: number,
+      triggerHeight: number,
+      layerWidth: number,
+    ) => {
+      const menuWidth = Math.max(triggerWidth, menuMinWidth ?? 0);
+      const triggerRight = x + triggerWidth;
+      const edgePadding = spacing.sm;
+      let menuX = x;
+
+      if (menuX + menuWidth > layerWidth - edgePadding) {
+        menuX = triggerRight - menuWidth;
+      }
+      if (menuX < edgePadding) {
+        menuX = edgePadding;
+      }
+      if (menuX + menuWidth > layerWidth - edgePadding) {
+        menuX = Math.max(edgePadding, layerWidth - edgePadding - menuWidth);
+      }
+
       setMenuAnchor({
-        x,
-        y: y + height + spacing.xs,
-        width,
+        x: menuX,
+        y: y + triggerHeight + spacing.xs,
+        width: menuWidth,
       });
     };
 
-    trigger.measureLayout(layer, setAnchor, () => {
-      layer.measureInWindow((layerX, layerY) => {
-        trigger.measureInWindow((x, y, width, height) => {
-          setAnchor(x - layerX, y - layerY, width, height);
-        });
-      });
+    layer.measureInWindow((_layerX, _layerY, layerWidth) => {
+      trigger.measureLayout(
+        layer,
+        (x, y, width, height) => placeMenu(x, y, width, height, layerWidth),
+        () => {
+          layer.measureInWindow((layerX, layerY, layerW) => {
+            trigger.measureInWindow((x, y, width, height) => {
+              placeMenu(x - layerX, y - layerY, width, height, layerW);
+            });
+          });
+        },
+      );
     });
-  }, [layerRef]);
+  }, [layerRef, menuMinWidth]);
 
   useLayoutEffect(() => {
     if (!overlayShown) {
@@ -221,7 +266,7 @@ export const Select = <T extends string>({
               width: menuAnchor.width,
               backgroundColor: colors.surface,
               borderColor: colors.border,
-              shadowColor: colors.textPrimary,
+              shadowColor: colors.menuShadow,
             },
           ]}
         >
@@ -264,6 +309,7 @@ export const Select = <T extends string>({
   }, [
     close,
     colors.border,
+    colors.menuShadow,
     colors.primary,
     colors.surface,
     colors.textPrimary,
@@ -289,35 +335,55 @@ export const Select = <T extends string>({
     setOverlayShown(true);
   };
 
+  const triggerProps: SelectTriggerRenderProps = {
+    open,
+    onPress: toggle,
+    disabled,
+    accessibilityLabel,
+    selectedLabel: selectedOption?.label ?? "",
+  };
+
   return (
-    <View ref={triggerRef} collapsable={false} style={[styles.root, style]}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={accessibilityLabel}
-        accessibilityState={{ disabled, expanded: open }}
-        accessibilityValue={{ text: selectedOption?.label }}
-        disabled={disabled}
-        onPress={toggle}
-        style={({ pressed }) => [
-          styles.trigger,
-          {
-            borderColor: colors.border,
-            backgroundColor: colors.surface,
-          },
-          pressed && !disabled && styles.triggerPressed,
-          disabled && styles.triggerDisabled,
-        ]}
-      >
-        <Text
-          style={[styles.triggerLabel, { color: colors.textPrimary }]}
-          numberOfLines={1}
+    <View
+      ref={triggerRef}
+      collapsable={false}
+      style={[
+        styles.root,
+        renderTrigger != null && styles.rootCustomTrigger,
+        style,
+      ]}
+    >
+      {renderTrigger != null ? (
+        renderTrigger(triggerProps)
+      ) : (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={accessibilityLabel}
+          accessibilityState={{ disabled, expanded: open }}
+          accessibilityValue={{ text: selectedOption?.label }}
+          disabled={disabled}
+          onPress={toggle}
+          style={({ pressed }) => [
+            styles.trigger,
+            {
+              borderColor: colors.border,
+              backgroundColor: colors.surface,
+            },
+            pressed && !disabled && styles.triggerPressed,
+            disabled && styles.triggerDisabled,
+          ]}
         >
-          {selectedOption?.label ?? ""}
-        </Text>
-        <Animated.View style={[styles.chevron, chevronStyle]}>
-          <ChevronDownIcon color={colors.textSecondary} size={icon.md} />
-        </Animated.View>
-      </Pressable>
+          <Text
+            style={[styles.triggerLabel, { color: colors.textPrimary }]}
+            numberOfLines={1}
+          >
+            {selectedOption?.label ?? ""}
+          </Text>
+          <Animated.View style={[styles.chevron, chevronStyle]}>
+            <ChevronDownIcon color={colors.textSecondary} size={icon.md} />
+          </Animated.View>
+        </Pressable>
+      )}
     </View>
   );
 };
@@ -325,6 +391,9 @@ export const Select = <T extends string>({
 const styles = StyleSheet.create({
   root: {
     alignSelf: "stretch",
+  },
+  rootCustomTrigger: {
+    alignSelf: "auto",
   },
   trigger: {
     flexDirection: "row",
@@ -366,7 +435,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     elevation: 8,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
+    shadowOpacity: 1,
     shadowRadius: 8,
   },
   menuContent: {

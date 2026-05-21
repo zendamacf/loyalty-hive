@@ -1,5 +1,6 @@
 import { describe, expect, it, mock } from "bun:test";
 import { fireEvent } from "@testing-library/react-native";
+import { Pressable, Text } from "react-native";
 
 import { renderWithTheme } from "../../test/render";
 import { Select } from "./Select";
@@ -59,5 +60,30 @@ describe("Select", () => {
     fireEvent.press(getByText("Beta"));
 
     expect(onValueChange).toHaveBeenCalledWith("b");
+  });
+
+  it("opens the menu when a custom trigger is pressed", async () => {
+    const { getByLabelText, getByText, queryByText } = await renderWithTheme(
+      <Select
+        value="a"
+        onValueChange={() => {}}
+        options={[
+          { value: "a", label: "Alpha" },
+          { value: "b", label: "Beta" },
+        ]}
+        accessibilityLabel="Example"
+        renderTrigger={({ onPress, accessibilityLabel: label }) => (
+          <Pressable accessibilityLabel={label} onPress={onPress}>
+            <Text>Custom</Text>
+          </Pressable>
+        )}
+      />,
+    );
+
+    expect(queryByText("Beta")).toBeNull();
+
+    fireEvent.press(getByLabelText("Example"));
+
+    expect(getByText("Beta")).toBeTruthy();
   });
 });

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { PlusIcon, SettingsIcon } from "lucide-react-native";
+import { ListFilterIcon, PlusIcon, SettingsIcon } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -177,25 +177,43 @@ export const CardsScreen = () => {
         </View>
       </ScreenHeader>
 
-      <SearchBar
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        placeholder={t("searchPlaceholder")}
-        style={styles.searchBar}
-        autoCapitalize="none"
-        autoCorrect={false}
-      />
-
-      <View style={styles.sortRow}>
-        <Text style={[styles.sortLabel, { color: colors.textSecondary }]}>
-          {t("sortLabel")}
-        </Text>
+      <View style={styles.searchRow}>
+        <SearchBar
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder={t("searchPlaceholder")}
+          style={styles.searchBar}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
         <Select
           value={sort}
           onValueChange={setSort}
           options={sortOptions}
           accessibilityLabel={t("sortLabel")}
-          style={styles.sortSelect}
+          menuMinWidth={200}
+          renderTrigger={({
+            open: sortOpen,
+            onPress,
+            disabled,
+            accessibilityLabel: sortA11yLabel,
+            selectedLabel,
+          }) => (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={sortA11yLabel}
+              accessibilityState={{ disabled, expanded: sortOpen }}
+              accessibilityValue={{ text: selectedLabel }}
+              disabled={disabled}
+              hitSlop={8}
+              onPress={onPress}
+              style={({ pressed }) => [
+                pressed && !disabled && styles.sortButtonPressed,
+              ]}
+            >
+              <ListFilterIcon color={colors.textPrimary} size={icon.md} />
+            </Pressable>
+          )}
         />
       </View>
 
@@ -295,24 +313,18 @@ const styles = StyleSheet.create({
     height: 56,
     justifyContent: "center",
   },
-  searchBar: {
-    marginBottom: spacing.sm,
-  },
-  sortRow: {
+  searchRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     gap: spacing.sm,
     marginBottom: spacing.md,
   },
-  sortLabel: {
-    ...typography.caption,
-    flexShrink: 0,
-  },
-  sortSelect: {
+  searchBar: {
     flex: 1,
-    maxWidth: 220,
-    alignSelf: "flex-end",
+    marginBottom: 0,
+  },
+  sortButtonPressed: {
+    opacity: 0.85,
   },
   columnWrapper: {
     justifyContent: "space-between",

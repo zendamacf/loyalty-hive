@@ -98,14 +98,20 @@ describe("CardsScreen", () => {
     expect(getByLabelText("Cotton On")).toBeTruthy();
   });
 
-  it("renders card sort select with default option", async () => {
-    const { getByText, getByLabelText } = await renderWithTheme(
-      <CardsScreen />,
-    );
+  it("renders sort icon beside the search bar", async () => {
+    const { getByLabelText, getByPlaceholderText, getByText } =
+      await renderWithTheme(<CardsScreen />);
 
-    expect(getByText("Sort by")).toBeTruthy();
+    await waitFor(() => {
+      expect(getByPlaceholderText("Search cards...")).toBeTruthy();
+    });
     expect(getByLabelText("Sort by")).toBeTruthy();
-    expect(getByText("A–Z")).toBeTruthy();
+
+    fireEvent.press(getByLabelText("Sort by"));
+
+    await waitFor(() => {
+      expect(getByText("A-Z")).toBeTruthy();
+    });
   });
 
   it("refetches cards with sort query when sort option changes", async () => {

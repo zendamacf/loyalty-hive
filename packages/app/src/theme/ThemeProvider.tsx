@@ -26,6 +26,7 @@ type ThemeColors = {
   primary: string;
   error: string;
   success: string;
+  menuShadow: string;
 };
 
 type ThemeContextValue = {
@@ -47,6 +48,7 @@ const themeColorsForMode = (isDark: boolean): ThemeColors => ({
   primary: colors.primary,
   error: colors.error,
   success: colors.success,
+  menuShadow: isDark ? colors.menuShadowDark : colors.menuShadowLight,
 });
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
