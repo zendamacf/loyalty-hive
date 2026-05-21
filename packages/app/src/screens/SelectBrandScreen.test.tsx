@@ -109,6 +109,7 @@ describe("SelectBrandScreen", () => {
       params: {
         brandId: "00000000-0000-4000-8000-000000000004",
         brandName: "ASOS",
+        defaultView: null,
       },
     });
   });
