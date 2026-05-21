@@ -178,17 +178,13 @@ export const Select = <T extends string>({
       });
     };
 
-    trigger.measureLayout(
-      layer,
-      setAnchor,
-      () => {
-        layer.measureInWindow((layerX, layerY) => {
-          trigger.measureInWindow((x, y, width, height) => {
-            setAnchor(x - layerX, y - layerY, width, height);
-          });
+    trigger.measureLayout(layer, setAnchor, () => {
+      layer.measureInWindow((layerX, layerY) => {
+        trigger.measureInWindow((x, y, width, height) => {
+          setAnchor(x - layerX, y - layerY, width, height);
         });
-      },
-    );
+      });
+    });
   }, [layerRef]);
 
   useLayoutEffect(() => {

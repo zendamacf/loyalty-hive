@@ -8,3 +8,7 @@ export enum Routes {
   SCAN_MANUAL_ENTRY = "/scan-manual-entry",
   SETTINGS = "/settings",
 }
+
+/** Set when navigating to card code from the cards list (triggers view logging). */
+export const CARD_CODE_FROM_CARDS_PARAM = "fromCards";
+export const CARD_CODE_FROM_CARDS_VALUE = "1";

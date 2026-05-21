@@ -16,7 +16,11 @@ import { DataLoadStatus } from "@/components/DataLoadStatus";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { ScreenShell } from "@/components/ScreenShell";
 import { Select } from "@/components/Select";
-import { Routes } from "@/constants/routes.constants";
+import {
+  CARD_CODE_FROM_CARDS_PARAM,
+  CARD_CODE_FROM_CARDS_VALUE,
+  Routes,
+} from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import {
   type GetApiV1CardsData,
@@ -234,6 +238,8 @@ export const CardsScreen = () => {
                         createdAt: item.createdAt,
                         logoUrl: item.brand?.logoUrl ?? "",
                         backgroundColor: cardBackgroundColor,
+                        [CARD_CODE_FROM_CARDS_PARAM]:
+                          CARD_CODE_FROM_CARDS_VALUE,
                       },
                     })
                   }

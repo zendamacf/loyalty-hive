@@ -6,6 +6,7 @@ import type {
   GetApiV1CardsResponse,
   PostApiV1AuthLoginResponse,
   PostApiV1AuthSignupResponse,
+  PostApiV1CardsByIdViewResponse,
   PostApiV1CardsResponse,
 } from "@/lib/api-client";
 
@@ -105,6 +106,19 @@ export const deleteApiV1CardsByIdMock = mock(
     resolveApiMock({ data: null, error: undefined }, options),
 );
 
+export const postApiV1CardsByIdViewMock = mock(
+  (
+    options?: SdkOptions,
+  ): Promise<ApiMockResult<PostApiV1CardsByIdViewResponse>> =>
+    resolveApiMock(
+      {
+        data: createCardMock({ viewCount: 1, lastViewedAt: new Date().toISOString() }),
+        error: undefined,
+      },
+      options,
+    ),
+);
+
 const sdkMocks = {
   postApiV1AuthLogin: postApiV1AuthLoginMock,
   postApiV1AuthSignup: postApiV1AuthSignupMock,
@@ -113,6 +127,7 @@ const sdkMocks = {
   postApiV1Cards: postApiV1CardsMock,
   getApiV1CardsById: getApiV1CardsByIdMock,
   deleteApiV1CardsById: deleteApiV1CardsByIdMock,
+  postApiV1CardsByIdView: postApiV1CardsByIdViewMock,
 };
 
 mock.module("@/lib/api-client/gen/sdk.gen", () => ({

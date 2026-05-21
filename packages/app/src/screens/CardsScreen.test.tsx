@@ -3,7 +3,11 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { act, fireEvent, waitFor } from "@testing-library/react-native";
 
-import { Routes } from "@/constants/routes.constants";
+import {
+  CARD_CODE_FROM_CARDS_PARAM,
+  CARD_CODE_FROM_CARDS_VALUE,
+  Routes,
+} from "@/constants/routes.constants";
 import type { GetApiV1CardsResponse } from "@/lib/api-client/gen";
 import { colors } from "@/theme/theme";
 import { THEME_STORAGE_KEY } from "@/theme/theme.constants";
@@ -188,6 +192,7 @@ describe("CardsScreen", () => {
         createdAt: "2020-01-01T00:00:00.000Z",
         logoUrl: "",
         backgroundColor: colors.cardFallbackLight,
+        [CARD_CODE_FROM_CARDS_PARAM]: CARD_CODE_FROM_CARDS_VALUE,
       },
     });
   });
@@ -211,6 +216,7 @@ describe("CardsScreen", () => {
         createdAt: "2020-01-01T00:00:00.000Z",
         logoUrl: "https://logo.clearbit.com/asos.com",
         backgroundColor: "#FFFFFF",
+        [CARD_CODE_FROM_CARDS_PARAM]: CARD_CODE_FROM_CARDS_VALUE,
       },
     });
   });
@@ -241,6 +247,7 @@ describe("CardsScreen", () => {
         createdAt: "2020-01-01T00:00:00.000Z",
         logoUrl: "https://logo.clearbit.com/asos.com",
         backgroundColor: "#FFFFFF",
+        [CARD_CODE_FROM_CARDS_PARAM]: CARD_CODE_FROM_CARDS_VALUE,
       },
     });
   });

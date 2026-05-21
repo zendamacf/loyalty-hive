@@ -1,14 +1,14 @@
 import {
   createContext,
+  type ReactNode,
+  type RefObject,
   useCallback,
   useContext,
   useMemo,
   useRef,
   useState,
-  type ReactNode,
-  type RefObject,
 } from "react";
-import { StyleSheet, View, type View as RNView } from "react-native";
+import { type View as RNView, StyleSheet, View } from "react-native";
 
 type OverlayContextValue = {
   setOverlay: (content: ReactNode | null) => void;
@@ -28,10 +28,7 @@ export const OverlayProvider = ({ children }: OverlayProviderProps) => {
   const setOverlay = useCallback((content: ReactNode | null) => {
     setOverlayState(content);
   }, []);
-  const value = useMemo(
-    () => ({ setOverlay, layerRef }),
-    [setOverlay],
-  );
+  const value = useMemo(() => ({ setOverlay, layerRef }), [setOverlay]);
 
   return (
     <OverlayContext.Provider value={value}>
