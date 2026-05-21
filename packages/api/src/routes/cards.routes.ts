@@ -265,7 +265,8 @@ const app = new Hono<{ Variables: ContextVariables }>()
   .post(
     "/:id/view",
     describeRoute({
-      description: "Log a view of a card (increments view count and updates last viewed time)",
+      description:
+        "Log a view of a card (increments view count and updates last viewed time)",
       security: [{ bearerAuth: [] }],
       responses: {
         200: jsonResponse("Successful response", cardSchema),

@@ -109,6 +109,7 @@ mock.module("lucide-react-native", () => ({
   XIcon: () => React.createElement("Text", null, "close"),
   EyeIcon: () => React.createElement("Text", null, "eye"),
   EyeOffIcon: () => React.createElement("Text", null, "eye-off"),
+  ChevronDownIcon: () => React.createElement("Text", null, "▼"),
 }));
 
 const setStringAsyncMock = mock(() => Promise.resolve());
@@ -209,9 +210,27 @@ mock.module("react-native", () => ({
       children,
     );
   },
-  View: createPrimitive("View"),
+  View: React.forwardRef(function View(
+    props: Record<string, unknown>,
+    ref: React.Ref<{ measureInWindow: (callback: (...args: number[]) => void) => void }>,
+  ) {
+    React.useImperativeHandle(ref, () => ({
+      measureInWindow: (callback: (x: number, y: number, width: number, height: number) => void) => {
+        callback(0, 0, 200, 44);
+      },
+    }));
+    return React.createElement("View", props, props.children as React.ReactNode);
+  }),
   TextInput: createPrimitive("TextInput"),
   Image: createPrimitive("Image"),
+  Modal: (props: {
+    visible?: boolean;
+    children?: React.ReactNode;
+    [key: string]: unknown;
+  }) =>
+    props.visible
+      ? React.createElement("Modal", props, props.children)
+      : null,
   Animated,
   Easing,
   AppState: {

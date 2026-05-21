@@ -11,12 +11,15 @@ import {
   Text,
   View,
 } from "react-native";
+
 import { DataLoadStatus } from "@/components/DataLoadStatus";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { ScreenShell } from "@/components/ScreenShell";
+import { Select } from "@/components/Select";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import {
+  type GetApiV1CardsData,
   type GetApiV1CardsResponse,
   getApiV1CardsOptions,
 } from "@/lib/api-client";
@@ -30,6 +33,22 @@ import { brandMark, icon, radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
 const appIcon = require("../../assets/images/icon.png");
+
+type CardListSort = NonNullable<
+  NonNullable<GetApiV1CardsData["query"]>["sort"]
+>;
+
+const CARD_SORT_OPTIONS = [
+  "alphabetical",
+  "most_viewed",
+  "last_viewed",
+] as const satisfies readonly CardListSort[];
+
+const SORT_LABEL_KEYS = {
+  alphabetical: "sortAlphabetical",
+  most_viewed: "sortMostViewed",
+  last_viewed: "sortLastViewed",
+} as const;
 
 function filterCards(
   list: GetApiV1CardsResponse,
@@ -51,6 +70,7 @@ export const CardsScreen = () => {
   const { t } = useTranslation([I18nNamespace.Cards, I18nNamespace.Common]);
   const { colors } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
+  const [sort, setSort] = useState<CardListSort>("alphabetical");
 
   const {
     data: cards = [],
@@ -58,7 +78,11 @@ export const CardsScreen = () => {
     isError,
     isPending,
     refetch,
-  } = useQuery(getApiV1CardsOptions());
+  } = useQuery(
+    getApiV1CardsOptions({
+      query: { sort },
+    }),
+  );
 
   const error = isError ? getErrorMessage(queryError) : null;
   const loaded = !isPending;
@@ -72,6 +96,15 @@ export const CardsScreen = () => {
     await refetch();
   });
   const refreshControl = useThemedRefreshControl(refreshing, onRefresh);
+
+  const sortOptions = useMemo(
+    () =>
+      CARD_SORT_OPTIONS.map((option) => ({
+        value: option,
+        label: t(SORT_LABEL_KEYS[option]),
+      })),
+    [t],
+  );
 
   let emptyTitle: string | null = null;
   let emptySubtitle: string | null = null;
@@ -148,6 +181,19 @@ export const CardsScreen = () => {
         autoCapitalize="none"
         autoCorrect={false}
       />
+
+      <View style={styles.sortRow}>
+        <Text style={[styles.sortLabel, { color: colors.textSecondary }]}>
+          {t("sortLabel")}
+        </Text>
+        <Select
+          value={sort}
+          onValueChange={setSort}
+          options={sortOptions}
+          accessibilityLabel={t("sortLabel")}
+          style={styles.sortSelect}
+        />
+      </View>
 
       <DataLoadStatus error={error} loaded={loaded} loadingLabel={t("loading")}>
         <FlatList
@@ -244,7 +290,23 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   searchBar: {
+    marginBottom: spacing.sm,
+  },
+  sortRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: spacing.sm,
     marginBottom: spacing.md,
+  },
+  sortLabel: {
+    ...typography.caption,
+    flexShrink: 0,
+  },
+  sortSelect: {
+    flex: 1,
+    maxWidth: 220,
+    alignSelf: "flex-end",
   },
   columnWrapper: {
     justifyContent: "space-between",

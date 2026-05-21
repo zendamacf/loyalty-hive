@@ -94,6 +94,38 @@ describe("CardsScreen", () => {
     expect(getByLabelText("Cotton On")).toBeTruthy();
   });
 
+  it("renders card sort select with default option", async () => {
+    const { getByText, getByLabelText } = await renderWithTheme(
+      <CardsScreen />,
+    );
+
+    expect(getByText("Sort by")).toBeTruthy();
+    expect(getByLabelText("Sort by")).toBeTruthy();
+    expect(getByText("A–Z")).toBeTruthy();
+  });
+
+  it("refetches cards with sort query when sort option changes", async () => {
+    const { getByLabelText, getByText } = await renderWithTheme(
+      <CardsScreen />,
+    );
+
+    await waitFor(() => expect(getApiV1CardsMock).toHaveBeenCalled());
+    const initialCall = getApiV1CardsMock.mock.calls[0]?.[0] as
+      | { query?: { sort?: string } }
+      | undefined;
+    expect(initialCall?.query?.sort).toBe("alphabetical");
+
+    fireEvent.press(getByLabelText("Sort by"));
+    fireEvent.press(getByText("Most viewed"));
+
+    await waitFor(() => {
+      const lastCall = getApiV1CardsMock.mock.calls.at(-1)?.[0] as
+        | { query?: { sort?: string } }
+        | undefined;
+      expect(lastCall?.query?.sort).toBe("most_viewed");
+    });
+  });
+
   it("filters cards by search query", async () => {
     const { getByLabelText, getByPlaceholderText, queryByLabelText } =
       await renderWithTheme(<CardsScreen />);
