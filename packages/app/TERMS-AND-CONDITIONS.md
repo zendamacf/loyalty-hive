@@ -33,7 +33,7 @@ These terms and conditions are effective as of 2026-05-19
 
 **Contact Us**
 
-If you have any questions or suggestions about the Terms and Conditions, please do not hesitate to contact the Service Provider at kalopsia.dev@gmail.com.
+If you have any questions or suggestions about the Terms and Conditions, please do not hesitate to contact the Service Provider at kalopsia.apps@gmail.com.
 
 * * *
 

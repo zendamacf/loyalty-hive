@@ -86,6 +86,16 @@ const Easing = {
   cubic: (value: number) => value,
 };
 
+mock.module("../../assets/images/scan-guide-barcode.svg", () => ({
+  default: (props: Record<string, unknown>) =>
+    React.createElement("ScanGuideBarcode", props),
+}));
+
+mock.module("../../assets/images/scan-guide-qrcode.svg", () => ({
+  default: (props: Record<string, unknown>) =>
+    React.createElement("ScanGuideQrcode", props),
+}));
+
 mock.module("lucide-react-native", () => ({
   MoonIcon: () => React.createElement("Text", null, "moon"),
   SunIcon: () => React.createElement("Text", null, "sun"),

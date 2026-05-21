@@ -14,6 +14,7 @@ export const brands = pgTable("brands", {
   logoFile: text("logo_file").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   backgroundColor: text("background_color").notNull(),
+  defaultView: text("default_view", { enum: ["1D", "2D"] }),
 });
 
 export const users = pgTable(

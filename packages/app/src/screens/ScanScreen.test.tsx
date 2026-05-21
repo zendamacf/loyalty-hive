@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
+
 import { fireEvent, waitFor } from "@testing-library/react-native";
 import React from "react";
+
 import { Routes } from "@/constants/routes.constants";
 import type { PostApiV1CardsResponse } from "@/lib/api-client";
 import {
@@ -55,6 +57,7 @@ const { ScanScreen } = await import("./ScanScreen");
 describe("ScanScreen", () => {
   beforeEach(() => {
     permissionState = null;
+    __expoRouterMocks.push.mockClear();
     __expoRouterMocks.back.mockClear();
     __expoRouterMocks.dismissTo.mockClear();
     requestPermissionMock.mockClear();
@@ -82,30 +85,18 @@ describe("ScanScreen", () => {
     expect(requestPermissionMock).toHaveBeenCalledTimes(1);
   });
 
-  it("creates a card from manual entry and returns to cards tab", async () => {
+  it("navigates to manual entry when enter manually is pressed", async () => {
     permissionState = { granted: true };
-    const { getByText, getByPlaceholderText } = await renderWithProviders(
-      <ScanScreen />,
-    );
+    const { getByText } = await renderWithProviders(<ScanScreen />);
 
     fireEvent.press(getByText("Enter card number manually"));
-    fireEvent.changeText(getByPlaceholderText("Card number"), " 123456 ");
-    fireEvent.press(getByText("Use card number"));
 
-    expect(getByText("Saving card...")).toBeTruthy();
-
-    await waitFor(() => {
-      expect(postApiV1CardsMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          body: {
-            cardNumber: "123456",
-            label: null,
-            brandId: "00000000-0000-4000-8000-000000000004",
-            view: null,
-          },
-        }),
-      );
-      expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith(Routes.CARDS);
+    expect(__expoRouterMocks.push).toHaveBeenCalledWith({
+      pathname: Routes.SCAN_MANUAL_ENTRY,
+      params: {
+        brandId: "00000000-0000-4000-8000-000000000004",
+        brandName: "ASOS",
+      },
     });
   });
 
@@ -156,11 +147,41 @@ describe("ScanScreen", () => {
     });
   });
 
+  it("shows barcode scan guide when defaultView is 1D", async () => {
+    permissionState = { granted: true };
+    __expoRouterMocks.params = {
+      ...__expoRouterMocks.params,
+      defaultView: "1D",
+    };
+    const { getByTestId } = await renderWithProviders(<ScanScreen />);
+
+    expect(getByTestId("scan-guide-1d")).toBeTruthy();
+  });
+
+  it("shows QR scan guide when defaultView is 2D", async () => {
+    permissionState = { granted: true };
+    __expoRouterMocks.params = {
+      ...__expoRouterMocks.params,
+      defaultView: "2D",
+    };
+    const { getByTestId } = await renderWithProviders(<ScanScreen />);
+
+    expect(getByTestId("scan-guide-2d")).toBeTruthy();
+  });
+
+  it("does not show scan guide when defaultView is absent", async () => {
+    permissionState = { granted: true };
+    const { queryByTestId } = await renderWithProviders(<ScanScreen />);
+
+    expect(queryByTestId("scan-guide-1d")).toBeNull();
+    expect(queryByTestId("scan-guide-2d")).toBeNull();
+  });
+
   it("shows brand context when brand name param is set", async () => {
     permissionState = { granted: true };
     const { getByText } = await renderWithProviders(<ScanScreen />);
 
-    expect(getByText("Adding card for ASOS")).toBeTruthy();
+    expect(getByText("ASOS")).toBeTruthy();
   });
 
   it("navigates back when close is pressed", async () => {
@@ -172,32 +193,54 @@ describe("ScanScreen", () => {
     expect(__expoRouterMocks.back).toHaveBeenCalled();
   });
 
-  it("creates a custom card with label and no brand", async () => {
+  it("navigates to manual entry with scanned number for custom card", async () => {
     permissionState = { granted: true };
-    __expoRouterMocks.params = { label: "Gym membership" };
-    const { getByTestId, getByText } = await renderWithProviders(
-      <ScanScreen />,
-    );
-
-    expect(getByText("Adding Gym membership")).toBeTruthy();
+    __expoRouterMocks.params = { customCard: "1" };
+    const { getByTestId } = await renderWithProviders(<ScanScreen />);
 
     fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
       type: "qr",
       data: "111222",
     });
 
-    await waitFor(() => {
-      expect(postApiV1CardsMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          body: {
-            cardNumber: "111222",
-            label: "Gym membership",
-            brandId: null,
-            view: "2D",
-          },
-        }),
-      );
-      expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith(Routes.CARDS);
+    expect(__expoRouterMocks.push).toHaveBeenCalledWith({
+      pathname: Routes.SCAN_MANUAL_ENTRY,
+      params: {
+        customCard: "1",
+        cardNumber: "111222",
+        view: "2D",
+      },
+    });
+    expect(postApiV1CardsMock).not.toHaveBeenCalled();
+  });
+
+  it("navigates to manual entry only once when custom barcode is scanned repeatedly", async () => {
+    permissionState = { granted: true };
+    __expoRouterMocks.params = { customCard: "1" };
+    __expoRouterMocks.push.mockClear();
+    const { getByTestId } = await renderWithProviders(<ScanScreen />);
+
+    const scanEvent = {
+      type: "qr",
+      data: "111222",
+    };
+    fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", scanEvent);
+    fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", scanEvent);
+    fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", scanEvent);
+
+    expect(__expoRouterMocks.push).toHaveBeenCalledTimes(1);
+  });
+
+  it("navigates to manual entry for custom card when enter manually is pressed", async () => {
+    permissionState = { granted: true };
+    __expoRouterMocks.params = { customCard: "1" };
+    const { getByText } = await renderWithProviders(<ScanScreen />);
+
+    fireEvent.press(getByText("Enter card number manually"));
+
+    expect(__expoRouterMocks.push).toHaveBeenCalledWith({
+      pathname: Routes.SCAN_MANUAL_ENTRY,
+      params: { customCard: "1" },
     });
   });
 
@@ -226,15 +269,5 @@ describe("ScanScreen", () => {
       expect(getByText("Card already exists")).toBeTruthy();
     });
     expect(__expoRouterMocks.dismissTo).not.toHaveBeenCalled();
-  });
-
-  it("does not save when manual entry is empty", async () => {
-    permissionState = { granted: true };
-    const { getByText } = await renderWithProviders(<ScanScreen />);
-
-    fireEvent.press(getByText("Enter card number manually"));
-    fireEvent.press(getByText("Use card number"));
-
-    expect(postApiV1CardsMock).not.toHaveBeenCalled();
   });
 });

@@ -20,6 +20,7 @@ const testBrands = [
     logoUrl: "https://logo.clearbit.com/asos.com",
     backgroundColor: "#FFFFFF",
     createdAt: "2025-01-01T00:00:00.000Z",
+    defaultView: null,
   },
   {
     id: "00000000-0000-4000-8000-0000000000aa",
@@ -27,6 +28,7 @@ const testBrands = [
     logoUrl: "https://logo.clearbit.com/ubereats.com",
     backgroundColor: "#FFFFFF",
     createdAt: "2025-01-01T00:00:00.000Z",
+    defaultView: null,
   },
 ] satisfies GetApiV1BrandsResponse;
 
@@ -107,6 +109,7 @@ describe("SelectBrandScreen", () => {
       params: {
         brandId: "00000000-0000-4000-8000-000000000004",
         brandName: "ASOS",
+        defaultView: null,
       },
     });
   });
@@ -139,24 +142,18 @@ describe("SelectBrandScreen", () => {
     expect(getByLabelText("Custom card")).toBeTruthy();
   });
 
-  it("navigates to scan with custom label after entering label", async () => {
-    const { getByLabelText, getByPlaceholderText, getByText } =
-      await renderWithProviders(<SelectBrandScreen />);
+  it("navigates to scan screen for custom card", async () => {
+    const { getByLabelText } = await renderWithProviders(<SelectBrandScreen />);
 
     await waitFor(() => {
       expect(getByLabelText("Custom card")).toBeTruthy();
     });
 
     fireEvent.press(getByLabelText("Custom card"));
-    fireEvent.changeText(
-      getByPlaceholderText("e.g. Gym membership"),
-      "Gym membership",
-    );
-    fireEvent.press(getByText("Continue to scan"));
 
     expect(__expoRouterMocks.push).toHaveBeenCalledWith({
       pathname: Routes.SCAN,
-      params: { label: "Gym membership" },
+      params: { customCard: "1" },
     });
   });
 
