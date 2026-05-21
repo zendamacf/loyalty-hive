@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it } from "bun:test";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fireEvent, waitFor } from "@testing-library/react-native";
+
 import { Routes } from "@/constants/routes.constants";
 import { LANGUAGE_STORAGE_KEY } from "@/i18n/i18n.constants";
 import { getBearerToken, setBearerToken } from "@/lib/api-client/setup";

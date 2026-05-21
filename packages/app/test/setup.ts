@@ -90,26 +90,13 @@ const Easing = {
   cubic: (value: number) => value,
 };
 
-mock.module("../../assets/images/scan-guide-barcode.svg", () => ({
-  default: (props: Record<string, unknown>) =>
-    React.createElement("ScanGuideBarcode", props),
-}));
-
-mock.module("../../assets/images/scan-guide-qrcode.svg", () => ({
-  default: (props: Record<string, unknown>) =>
-    React.createElement("ScanGuideQrcode", props),
-}));
-
 mock.module("lucide-react-native", () => ({
   MoonIcon: () => React.createElement("Text", null, "moon"),
   SunIcon: () => React.createElement("Text", null, "sun"),
   PlusIcon: () => React.createElement("Text", null, "+"),
   SettingsIcon: () => React.createElement("Text", null, "⚙"),
-  BarcodeIcon: () => React.createElement("Text", null, "barcode"),
-  QrCodeIcon: () => React.createElement("Text", null, "qr"),
   CopyIcon: () => React.createElement("Text", null, "copy"),
   EllipsisVerticalIcon: () => React.createElement("Text", null, "more"),
-  ChevronLeftIcon: () => React.createElement("Text", null, "back"),
   XIcon: () => React.createElement("Text", null, "close"),
   EyeIcon: () => React.createElement("Text", null, "eye"),
   EyeOffIcon: () => React.createElement("Text", null, "eye-off"),
@@ -238,14 +225,6 @@ mock.module("react-native", () => ({
   }),
   TextInput: createPrimitive("TextInput"),
   Image: createPrimitive("Image"),
-  Modal: (props: {
-    visible?: boolean;
-    children?: React.ReactNode;
-    [key: string]: unknown;
-  }) =>
-    props.visible
-      ? React.createElement("Modal", props, props.children)
-      : null,
   Animated,
   Easing,
   AppState: {
