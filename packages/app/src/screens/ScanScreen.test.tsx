@@ -1,8 +1,10 @@
+import { beforeEach, describe, expect, it, mock } from "bun:test";
+
+import { fireEvent, waitFor } from "@testing-library/react-native";
+import React from "react";
+
 import { Routes } from "@/constants/routes.constants";
 import type { PostApiV1CardsResponse } from "@/lib/api-client";
-import { fireEvent, waitFor } from "@testing-library/react-native";
-import { beforeEach, describe, expect, it, mock } from "bun:test";
-import React from "react";
 import {
   getConfigMock,
   postApiV1CardsMock,
