@@ -7,8 +7,8 @@
   "scanPrompt": "Scan a loyalty card QR or barcode",
   "scanPromptQrCode": "Scan a loyalty card QR code",
   "scanPromptBarcode": "Scan a loyalty card barcode",
-  "closeManualEntry": "Close manual entry",
   "enterManually": "Enter card number manually",
+  "manualEntryHelp": "Enter the card number printed on your card",
   "cardNumber": "Card number",
-  "useCardNumber": "Use card number"
+  "addCard": "Add"
 }

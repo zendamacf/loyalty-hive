@@ -7,8 +7,8 @@
   "scanPrompt": "Escanea el código QR o de barras de la tarjeta",
   "scanPromptQrCode": "Escanea el código QR de la tarjeta",
   "scanPromptBarcode": "Escanea el código de barras de la tarjeta",
-  "closeManualEntry": "Cerrar entrada manual",
   "enterManually": "Introducir número de tarjeta manualmente",
+  "manualEntryHelp": "Introduce el número de tarjeta impreso en tu tarjeta",
   "cardNumber": "Número de tarjeta",
-  "useCardNumber": "Usar número de tarjeta"
+  "addCard": "Añadir"
 }

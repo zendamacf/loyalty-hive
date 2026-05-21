@@ -7,7 +7,7 @@ import {
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { CloseButton } from "@/components/CloseButton";
 import { ScanGuideOverlay } from "@/components/ScanGuideOverlay";
@@ -60,8 +60,6 @@ export const ScanScreen = () => {
   );
 
   const [permission, requestPermission] = useCameraPermissions();
-  const [isManualEntryOpen, setIsManualEntryOpen] = useState(false);
-  const [manualCode, setManualCode] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const saveLockRef = useRef(false);
@@ -133,15 +131,16 @@ export const ScanScreen = () => {
     void saveCard(result.data, resolveCardViewFromBarcodeType(result.type));
   };
 
-  const submitManualCode = () => {
-    const normalizedCode = manualCode.trim();
-    if (!normalizedCode) {
-      return;
-    }
-
-    setIsManualEntryOpen(false);
-    void saveCard(normalizedCode, null);
-  };
+  const openManualEntry = useCallback(() => {
+    router.push({
+      pathname: Routes.SCAN_MANUAL_ENTRY,
+      params: {
+        ...(selectedBrandId ? { brandId: selectedBrandId } : {}),
+        ...(selectedBrandName ? { brandName: selectedBrandName } : {}),
+        ...(customLabel ? { label: customLabel } : {}),
+      },
+    });
+  }, [customLabel, selectedBrandId, selectedBrandName]);
 
   if (!permission) {
     return (
@@ -218,54 +217,19 @@ export const ScanScreen = () => {
         ) : null}
 
         {!isSaving ? (
-          <View style={styles.manualEntryWrapper}>
-            <Pressable
-              onPress={() => setIsManualEntryOpen((current) => !current)}
-              style={[styles.secondaryButton, { borderColor: colors.border }]}
+          <Pressable
+            onPress={openManualEntry}
+            style={[styles.secondaryButton, { borderColor: colors.border }]}
+          >
+            <Text
+              style={[
+                styles.secondaryButtonText,
+                { color: colors.textPrimary },
+              ]}
             >
-              <Text
-                style={[
-                  styles.secondaryButtonText,
-                  { color: colors.textPrimary },
-                ]}
-              >
-                {isManualEntryOpen ? t("closeManualEntry") : t("enterManually")}
-              </Text>
-            </Pressable>
-
-            {isManualEntryOpen ? (
-              <View style={styles.manualEntryFields}>
-                <TextInput
-                  value={manualCode}
-                  onChangeText={setManualCode}
-                  placeholder={t("cardNumber")}
-                  placeholderTextColor={colors.textSecondary}
-                  keyboardType="number-pad"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  style={[
-                    styles.input,
-                    {
-                      borderColor: colors.border,
-                      color: colors.textPrimary,
-                      backgroundColor: colors.surface,
-                    },
-                  ]}
-                />
-                <Pressable
-                  onPress={submitManualCode}
-                  style={[
-                    styles.manualSubmitButton,
-                    { backgroundColor: colors.primary },
-                  ]}
-                >
-                  <Text style={styles.primaryButtonText}>
-                    {t("useCardNumber")}
-                  </Text>
-                </Pressable>
-              </View>
-            ) : null}
-          </View>
+              {t("enterManually")}
+            </Text>
+          </Pressable>
         ) : null}
       </ScreenShell.Body>
     </ScreenShell>
@@ -313,19 +277,6 @@ const styles = StyleSheet.create({
   saveError: {
     ...typography.caption,
   },
-  manualEntryWrapper: {
-    gap: spacing.sm,
-  },
-  manualEntryFields: {
-    gap: spacing.sm,
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    ...typography.body,
-  },
   secondaryButton: {
     borderWidth: 1,
     borderRadius: radius.md,
@@ -334,15 +285,5 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     ...typography.bodySemibold,
-  },
-  manualSubmitButton: {
-    alignSelf: "stretch",
-    borderRadius: radius.md,
-    paddingVertical: spacing.sm,
-    alignItems: "center",
-  },
-  primaryButtonText: {
-    color: "#0D1B2A",
-    ...typography.bodyBold,
   },
 });

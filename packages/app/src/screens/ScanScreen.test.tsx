@@ -57,6 +57,7 @@ const { ScanScreen } = await import("./ScanScreen");
 describe("ScanScreen", () => {
   beforeEach(() => {
     permissionState = null;
+    __expoRouterMocks.push.mockClear();
     __expoRouterMocks.back.mockClear();
     __expoRouterMocks.dismissTo.mockClear();
     requestPermissionMock.mockClear();
@@ -84,30 +85,18 @@ describe("ScanScreen", () => {
     expect(requestPermissionMock).toHaveBeenCalledTimes(1);
   });
 
-  it("creates a card from manual entry and returns to cards tab", async () => {
+  it("navigates to manual entry when enter manually is pressed", async () => {
     permissionState = { granted: true };
-    const { getByText, getByPlaceholderText } = await renderWithProviders(
-      <ScanScreen />,
-    );
+    const { getByText } = await renderWithProviders(<ScanScreen />);
 
     fireEvent.press(getByText("Enter card number manually"));
-    fireEvent.changeText(getByPlaceholderText("Card number"), " 123456 ");
-    fireEvent.press(getByText("Use card number"));
 
-    expect(getByText("Saving card...")).toBeTruthy();
-
-    await waitFor(() => {
-      expect(postApiV1CardsMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          body: {
-            cardNumber: "123456",
-            label: null,
-            brandId: "00000000-0000-4000-8000-000000000004",
-            view: null,
-          },
-        }),
-      );
-      expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith(Routes.CARDS);
+    expect(__expoRouterMocks.push).toHaveBeenCalledWith({
+      pathname: Routes.SCAN_MANUAL_ENTRY,
+      params: {
+        brandId: "00000000-0000-4000-8000-000000000004",
+        brandName: "ASOS",
+      },
     });
   });
 
@@ -260,13 +249,4 @@ describe("ScanScreen", () => {
     expect(__expoRouterMocks.dismissTo).not.toHaveBeenCalled();
   });
 
-  it("does not save when manual entry is empty", async () => {
-    permissionState = { granted: true };
-    const { getByText } = await renderWithProviders(<ScanScreen />);
-
-    fireEvent.press(getByText("Enter card number manually"));
-    fireEvent.press(getByText("Use card number"));
-
-    expect(postApiV1CardsMock).not.toHaveBeenCalled();
-  });
 });
