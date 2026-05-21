@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test";
-import { fireEvent, waitFor } from "@testing-library/react-native";
-import React from "react";
 import { Routes } from "@/constants/routes.constants";
 import type { PostApiV1CardsResponse } from "@/lib/api-client";
+import { fireEvent, waitFor } from "@testing-library/react-native";
+import { beforeEach, describe, expect, it, mock } from "bun:test";
+import React from "react";
 import {
   getConfigMock,
   postApiV1CardsMock,
@@ -190,7 +190,7 @@ describe("ScanScreen", () => {
     permissionState = { granted: true };
     const { getByText } = await renderWithProviders(<ScanScreen />);
 
-    expect(getByText("Adding card for ASOS")).toBeTruthy();
+    expect(getByText("ASOS")).toBeTruthy();
   });
 
   it("navigates back when close is pressed", async () => {
@@ -209,7 +209,7 @@ describe("ScanScreen", () => {
       <ScanScreen />,
     );
 
-    expect(getByText("Adding Gym membership")).toBeTruthy();
+    expect(getByText("Gym membership")).toBeTruthy();
 
     fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
       type: "qr",

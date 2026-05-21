@@ -1,3 +1,4 @@
+import { CloseButton } from "@/components/CloseButton";
 import { ScanGuideOverlay } from "@/components/ScanGuideOverlay";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { ScreenShell } from "@/components/ScreenShell";
@@ -16,19 +17,14 @@ import {
   useCameraPermissions,
 } from "expo-camera";
 import { router, useLocalSearchParams } from "expo-router";
-import { XIcon } from "lucide-react-native";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
-import { icon, radius, spacing, typography } from "../theme/theme";
+import { radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
 export const ScanScreen = () => {
-  const { t } = useTranslation([I18nNamespace.Scan, I18nNamespace.Common]);
+  const { t } = useTranslation(I18nNamespace.Scan);
   const { colors } = useTheme();
   const params = useLocalSearchParams<{
     brandName?: string;
@@ -58,14 +54,41 @@ export const ScanScreen = () => {
     }
   }, [defaultView, t]);
 
+  const hasHeaderContext = Boolean(
+    (selectedBrandId && selectedBrandName) || (!selectedBrandId && customLabel),
+  );
+
   const [permission, requestPermission] = useCameraPermissions();
   const [isManualEntryOpen, setIsManualEntryOpen] = useState(false);
   const [manualCode, setManualCode] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const saveLockRef = useRef(false);
-  const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
+
+  const headerTitle = useMemo(() => {
+    if (selectedBrandId && selectedBrandName) {
+      return selectedBrandName;
+    }
+    if (!selectedBrandId && customLabel) {
+      return customLabel;
+    }
+    return isSaving ? t("savingCard") : scanPrompt;
+  }, [
+    customLabel,
+    isSaving,
+    scanPrompt,
+    selectedBrandId,
+    selectedBrandName,
+    t,
+  ]);
+
+  const headerSubtitle = useMemo(() => {
+    if (!hasHeaderContext) {
+      return undefined;
+    }
+    return isSaving ? t("savingCard") : scanPrompt;
+  }, [hasHeaderContext, isSaving, scanPrompt, t]);
 
   const { mutateAsync: createCard } = useMutation({
     ...postApiV1CardsMutation(),
@@ -119,19 +142,13 @@ export const ScanScreen = () => {
     void saveCard(normalizedCode, null);
   };
 
-  const abortScan = useCallback(() => {
-    router.back();
-  }, []);
-
   if (!permission) {
     return (
-      <SafeAreaView
-        style={[styles.container, { backgroundColor: colors.background }]}
-      >
+      <ScreenShell style={styles.permissionContainer}>
         <Text style={[styles.message, { color: colors.textPrimary }]}>
           {t("checkingPermissions")}
         </Text>
-      </SafeAreaView>
+      </ScreenShell>
     );
   }
 
@@ -157,63 +174,41 @@ export const ScanScreen = () => {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: "#000000" }]}>
-      <CameraView
-        testID="scan-camera"
-        style={StyleSheet.absoluteFill}
-        facing="back"
-        onBarcodeScanned={isSaving ? undefined : handleScan}
-        barcodeScannerSettings={{
-          barcodeTypes: [
-            "aztec",
-            "codabar",
-            "code39",
-            "code93",
-            "code128",
-            "ean8",
-            "ean13",
-            "itf14",
-            "pdf417",
-            "upc_a",
-            "upc_e",
-            "qr",
-          ],
-        }}
-      />
+    <ScreenShell>
+      <ScreenShell.Body style={styles.body}>
+        <ScreenHeader
+          title={headerTitle}
+          subtitle={headerSubtitle}
+          subtitleVariant="caption"
+          actions={<CloseButton />}
+          embedded
+        />
 
-      {defaultView ? <ScanGuideOverlay view={defaultView} /> : null}
-
-      <View style={[styles.overlay, { bottom: spacing.lg + insets.bottom }]}>
-        <View style={styles.overlayHeader}>
-          <View style={styles.overlayHeaderText}>
-            {selectedBrandId && selectedBrandName ? (
-              <Text style={styles.brandTag}>
-                {t("addingCard", { brand: selectedBrandName })}
-              </Text>
-            ) : null}
-            {!selectedBrandId && customLabel ? (
-              <Text style={styles.brandTag}>
-                {t("addingCustomCard", { label: customLabel })}
-              </Text>
-            ) : null}
-          </View>
-          <Pressable
-            accessibilityLabel={t("close", { ns: I18nNamespace.Common })}
-            accessibilityRole="button"
-            disabled={isSaving}
-            hitSlop={12}
-            style={({ pressed }) => [
-              styles.overlayClose,
-              pressed && styles.overlayClosePressed,
-            ]}
-            onPress={abortScan}
-          >
-            <XIcon color="#FFFFFF" size={icon.md} />
-          </Pressable>
+        <View style={styles.cameraViewport}>
+          <CameraView
+            testID="scan-camera"
+            style={styles.camera}
+            facing="back"
+            onBarcodeScanned={isSaving ? undefined : handleScan}
+            barcodeScannerSettings={{
+              barcodeTypes: [
+                "aztec",
+                "codabar",
+                "code39",
+                "code93",
+                "code128",
+                "ean8",
+                "ean13",
+                "itf14",
+                "pdf417",
+                "upc_a",
+                "upc_e",
+                "qr",
+              ],
+            }}
+          />
+          {defaultView ? <ScanGuideOverlay view={defaultView} /> : null}
         </View>
-        <Text style={styles.overlayTitle}>
-          {isSaving ? t("savingCard") : scanPrompt}
-        </Text>
 
         {saveError ? (
           <Text style={[styles.saveError, { color: colors.error }]}>
@@ -225,9 +220,14 @@ export const ScanScreen = () => {
           <View style={styles.manualEntryWrapper}>
             <Pressable
               onPress={() => setIsManualEntryOpen((current) => !current)}
-              style={styles.secondaryButton}
+              style={[styles.secondaryButton, { borderColor: colors.border }]}
             >
-              <Text style={styles.secondaryButtonText}>
+              <Text
+                style={[
+                  styles.secondaryButtonText,
+                  { color: colors.textPrimary },
+                ]}
+              >
                 {isManualEntryOpen ? t("closeManualEntry") : t("enterManually")}
               </Text>
             </Pressable>
@@ -238,19 +238,22 @@ export const ScanScreen = () => {
                   value={manualCode}
                   onChangeText={setManualCode}
                   placeholder={t("cardNumber")}
-                  placeholderTextColor="#94A3B8"
+                  placeholderTextColor={colors.textSecondary}
                   keyboardType="number-pad"
                   autoCapitalize="none"
                   autoCorrect={false}
                   style={[
                     styles.input,
-                    { borderColor: colors.border, color: "#FFFFFF" },
+                    {
+                      borderColor: colors.border,
+                      color: colors.textPrimary,
+                      backgroundColor: colors.surface,
+                    },
                   ]}
                 />
                 <Pressable
                   onPress={submitManualCode}
                   style={[
-                    styles.primaryButton,
                     styles.manualSubmitButton,
                     { backgroundColor: colors.primary },
                   ]}
@@ -263,18 +266,12 @@ export const ScanScreen = () => {
             ) : null}
           </View>
         ) : null}
-      </View>
-    </SafeAreaView>
+      </ScreenShell.Body>
+    </ScreenShell>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: spacing.lg,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   permissionContainer: {
     justifyContent: "center",
     alignItems: "center",
@@ -296,47 +293,26 @@ const styles = StyleSheet.create({
     color: "#0D1B2A",
     ...typography.bodySemibold,
   },
-  overlay: {
-    position: "absolute",
-    left: spacing.md,
-    right: spacing.md,
-    backgroundColor: "rgba(13, 27, 42, 0.85)",
+  body: {
+    gap: spacing.md,
+  },
+  cameraViewport: {
+    width: "100%",
+    height: "65%",
+    maxHeight: "100%",
     borderRadius: radius.lg,
-    padding: spacing.md,
+    overflow: "hidden",
+    backgroundColor: "#000000",
+    position: "relative",
   },
-  overlayHeader: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: spacing.sm,
-    marginBottom: spacing.xs,
-  },
-  overlayHeaderText: {
+  camera: {
     flex: 1,
-    minWidth: 0,
-  },
-  overlayClose: {
-    width: icon.md,
-    height: icon.md,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  overlayClosePressed: {
-    opacity: 0.55,
-  },
-  overlayTitle: {
-    color: "#FFFFFF",
-    ...typography.bodySemibold,
-  },
-  brandTag: {
-    color: "#E2E8F0",
-    ...typography.small,
+    width: "100%",
   },
   saveError: {
-    marginTop: spacing.sm,
     ...typography.caption,
   },
   manualEntryWrapper: {
-    marginTop: spacing.sm,
     gap: spacing.sm,
   },
   manualEntryFields: {
@@ -348,28 +324,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     ...typography.body,
-    backgroundColor: "rgba(15, 23, 42, 0.9)",
   },
   secondaryButton: {
-    flex: 1,
-    borderColor: "#94A3B8",
     borderWidth: 1,
     borderRadius: radius.md,
     paddingVertical: spacing.sm,
     alignItems: "center",
   },
   secondaryButtonText: {
-    color: "#E2E8F0",
     ...typography.bodySemibold,
   },
-  primaryButton: {
-    flex: 1,
+  manualSubmitButton: {
+    alignSelf: "stretch",
     borderRadius: radius.md,
     paddingVertical: spacing.sm,
     alignItems: "center",
-  },
-  manualSubmitButton: {
-    flex: 0,
   },
   primaryButtonText: {
     color: "#0D1B2A",

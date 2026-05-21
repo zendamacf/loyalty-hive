@@ -3,8 +3,6 @@
   "cameraAccessTitle": "Camera access needed",
   "cameraAccessMessage": "Allow camera permission to scan QR codes and barcodes.",
   "allowCamera": "Allow camera",
-  "addingCard": "Adding card for {{brand}}",
-  "addingCustomCard": "Adding {{label}}",
   "savingCard": "Saving card...",
   "scanPrompt": "Scan a loyalty card QR or barcode",
   "scanPromptQrCode": "Scan a loyalty card QR code",
