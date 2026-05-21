@@ -2,4 +2,5 @@
 "@loyalty-hive/api": patch
 ---
 
-Added card view stats (count and last viewed) and optional sort/order query params on list cards.
+* Added card view stats, which are updated when views are logged via the API.
+* Added sort order query parameters when fetching a list of a user's cards.
