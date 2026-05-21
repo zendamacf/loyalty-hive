@@ -75,6 +75,8 @@ beforeAll(async () => {
         label: "Personal",
         view: "1D",
         brandId: BRAND_ID,
+        viewCount: 0,
+        lastViewedAt: null,
       },
       {
         id: OTHER_USER_CARD_ID,
@@ -83,6 +85,8 @@ beforeAll(async () => {
         label: "Other",
         view: "1D",
         brandId: BRAND_ID,
+        viewCount: 0,
+        lastViewedAt: null,
       },
     ])
     .onConflictDoUpdate({
@@ -93,6 +97,8 @@ beforeAll(async () => {
         label: sql`excluded.label`,
         view: sql`excluded.view`,
         brandId: sql`excluded.brand_id`,
+        viewCount: sql`excluded.view_count`,
+        lastViewedAt: sql`excluded.last_viewed_at`,
       },
     });
 });
