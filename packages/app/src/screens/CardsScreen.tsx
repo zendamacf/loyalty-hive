@@ -29,7 +29,10 @@ import {
   Routes,
 } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
-import { type GetApiV1CardsResponse, getApiV1CardsOptions } from "@/lib/api-client";
+import {
+  type GetApiV1CardsResponse,
+  getApiV1CardsOptions,
+} from "@/lib/api-client";
 import {
   CARD_SORT_OPTIONS,
   type CardListSort,
@@ -46,7 +49,10 @@ import { useTheme } from "../theme/useTheme";
 
 const appIcon = require("../../assets/images/icon.png");
 
-const SORT_LABEL_KEYS: Record<CardListSort, "sortAlphabetical" | "sortMostViewed" | "sortLastViewed"> = {
+const SORT_LABEL_KEYS: Record<
+  CardListSort,
+  "sortAlphabetical" | "sortMostViewed" | "sortLastViewed"
+> = {
   alphabetical: "sortAlphabetical",
   most_viewed: "sortMostViewed",
   last_viewed: "sortLastViewed",

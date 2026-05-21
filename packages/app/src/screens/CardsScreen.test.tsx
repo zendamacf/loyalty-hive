@@ -9,8 +9,9 @@ import {
   Routes,
 } from "@/constants/routes.constants";
 import type { GetApiV1CardsResponse } from "@/lib/api-client/gen";
-import { colors } from "@/theme/theme";
 import { CARD_SORT_STORAGE_KEY } from "@/lib/card-sort";
+
+import { colors } from "@/theme/theme";
 import { THEME_STORAGE_KEY } from "@/theme/theme.constants";
 import { getApiV1CardsMock, resolveApiMock } from "../../test/mocks/api-client";
 import {

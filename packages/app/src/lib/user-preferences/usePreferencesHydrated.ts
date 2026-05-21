@@ -8,7 +8,5 @@ export const usePreferencesHydrated = () => {
   const { hydrated: cardSortHydrated } = useCardSort();
   const theme = useThemeContext();
 
-  return (
-    (theme?.hydrated ?? false) && languageHydrated && cardSortHydrated
-  );
+  return (theme?.hydrated ?? false) && languageHydrated && cardSortHydrated;
 };

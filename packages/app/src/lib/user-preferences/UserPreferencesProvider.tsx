@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { useColorScheme } from "react-native";
+
 import i18n from "@/i18n";
 import {
   isLanguagePreference,
@@ -17,15 +18,13 @@ import { LanguageContext } from "@/i18n/language-context";
 import { localeFromDeviceCode } from "@/i18n/resolveLocale";
 import {
   CARD_SORT_STORAGE_KEY,
+  type CardListSort,
   DEFAULT_CARD_SORT,
   isCardListSort,
-  type CardListSort,
 } from "@/lib/card-sort/card-sort.constants";
+
 import { CardSortContext } from "@/lib/card-sort/card-sort-context";
-import {
-  ThemeContext,
-  themeColorsForMode,
-} from "@/theme/theme-context";
+import { themeColorsForMode, ThemeContext } from "@/theme/theme-context";
 import {
   isThemeMode,
   THEME_STORAGE_KEY,
@@ -50,12 +49,15 @@ export const UserPreferencesProvider = ({
   children: ReactNode;
 }) => {
   const systemScheme = useColorScheme();
-  const [themePreference, setThemePreference] = useState<ThemeMode | null>(null);
+  const [themePreference, setThemePreference] = useState<ThemeMode | null>(
+    null,
+  );
   const [themeHydrated, setThemeHydrated] = useState(false);
   const [languagePreference, setLanguagePreference] =
     useState<LanguagePreference>("en");
   const [languageHydrated, setLanguageHydrated] = useState(false);
-  const [cardSort, setCardSortState] = useState<CardListSort>(DEFAULT_CARD_SORT);
+  const [cardSort, setCardSortState] =
+    useState<CardListSort>(DEFAULT_CARD_SORT);
   const [cardSortHydrated, setCardSortHydrated] = useState(false);
 
   useEffect(() => {
@@ -67,11 +69,13 @@ export const UserPreferencesProvider = ({
         const deviceLanguageCode =
           Localization.getLocales()[0]?.languageCode ?? null;
 
-        const [storedTheme, storedLanguage, storedCardSort] = await Promise.all([
-          AsyncStorage.getItem(THEME_STORAGE_KEY),
-          readStoredLanguage(deviceLanguageCode),
-          AsyncStorage.getItem(CARD_SORT_STORAGE_KEY),
-        ]);
+        const [storedTheme, storedLanguage, storedCardSort] = await Promise.all(
+          [
+            AsyncStorage.getItem(THEME_STORAGE_KEY),
+            readStoredLanguage(deviceLanguageCode),
+            AsyncStorage.getItem(CARD_SORT_STORAGE_KEY),
+          ],
+        );
 
         if (cancelled) {
           return;
@@ -150,11 +154,7 @@ export const UserPreferencesProvider = ({
       hydrated: languageHydrated,
       setLanguagePreference: setLanguagePreferencePersisted,
     }),
-    [
-      languageHydrated,
-      languagePreference,
-      setLanguagePreferencePersisted,
-    ],
+    [languageHydrated, languagePreference, setLanguagePreferencePersisted],
   );
 
   const cardSortValue = useMemo(

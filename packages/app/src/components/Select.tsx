@@ -302,9 +302,7 @@ export const Select = <T extends string>({
                         styles.optionLabel,
                         selected && styles.optionLabelSelected,
                         {
-                          color: selected
-                            ? colors.primary
-                            : colors.textPrimary,
+                          color: selected ? colors.primary : colors.textPrimary,
                         },
                       ]}
                     >
