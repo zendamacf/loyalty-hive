@@ -14,6 +14,13 @@ const OTHER_USER_CARD_ID = "88888888-8888-4888-8888-888888888888";
 const BRAND_ID = "33333333-3333-4333-8333-333333333333";
 const UNKNOWN_CARD_ID = "00000000-0000-4000-8000-000000000099";
 const UNKNOWN_BRAND_ID = "99999999-9999-4999-8999-999999999999";
+const SORT_CARD_ALPHA = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
+const SORT_CARD_ZEBRA = "dddddddd-dddd-4ddd-8ddd-dddddddddddd";
+const SORT_CARD_MOST_VIEWED = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";
+const SORT_CARD_LEAST_VIEWED = "ffffffff-ffff-4fff-8fff-ffffffffffff";
+const SORT_CARD_RECENT = "11111111-1111-4111-8111-111111111112";
+const SORT_CARD_OLDER = "22222222-2222-4222-8222-222222222223";
+const SORT_CARD_NEVER_VIEWED = "33333333-3333-4333-8333-333333333334";
 
 let authToken: string;
 let otherUserToken: string;
@@ -121,6 +128,8 @@ describe("cards routes", () => {
     expect(card).toMatchObject({
       id: CARD_ID,
       view: "1D",
+      viewCount: 0,
+      lastViewedAt: null,
       brand: {
         id: BRAND_ID,
         name: "Test Brand",
@@ -128,6 +137,228 @@ describe("cards routes", () => {
         backgroundColor: "#000000",
       },
     });
+  });
+
+  it("returns 400 when sort query param is invalid", async () => {
+    const app = createApiApp();
+    const response = await app.request("/api/v1/cards?sort=by_popularity", {
+      headers: authHeaders(authToken),
+    });
+
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when order query param is invalid", async () => {
+    const app = createApiApp();
+    const response = await app.request("/api/v1/cards?order=upward", {
+      headers: authHeaders(authToken),
+    });
+
+    expect(response.status).toBe(400);
+  });
+
+  it("sorts cards alphabetically by default", async () => {
+    await db
+      .insert(cards)
+      .values([
+        {
+          id: SORT_CARD_ZEBRA,
+          userId: USER_ID,
+          cardNumber: "sort-zebra",
+          label: "Zebra Club",
+        },
+        {
+          id: SORT_CARD_ALPHA,
+          userId: USER_ID,
+          cardNumber: "sort-alpha",
+          label: "Alpha Rewards",
+        },
+      ])
+      .onConflictDoUpdate({
+        target: cards.id,
+        set: {
+          userId: sql`excluded.user_id`,
+          label: sql`excluded.label`,
+          brandId: sql`excluded.brand_id`,
+        },
+      });
+
+    const app = createApiApp();
+    const response = await app.request("/api/v1/cards", {
+      headers: authHeaders(authToken),
+    });
+
+    expect(response.status).toBe(200);
+    const ids = ((await response.json()) as Array<{ id: string }>).map(
+      (card) => card.id,
+    );
+    const alphaIndex = ids.indexOf(SORT_CARD_ALPHA);
+    const brandIndex = ids.indexOf(CARD_ID);
+    const zebraIndex = ids.indexOf(SORT_CARD_ZEBRA);
+
+    expect(alphaIndex).toBeGreaterThanOrEqual(0);
+    expect(brandIndex).toBeGreaterThanOrEqual(0);
+    expect(zebraIndex).toBeGreaterThanOrEqual(0);
+    expect(alphaIndex).toBeLessThan(brandIndex);
+    expect(brandIndex).toBeLessThan(zebraIndex);
+  });
+
+  it("sorts cards alphabetically in descending order when requested", async () => {
+    const app = createApiApp();
+    const response = await app.request("/api/v1/cards?sort=alphabetical&order=desc", {
+      headers: authHeaders(authToken),
+    });
+
+    expect(response.status).toBe(200);
+    const ids = ((await response.json()) as Array<{ id: string }>).map(
+      (card) => card.id,
+    );
+    const alphaIndex = ids.indexOf(SORT_CARD_ALPHA);
+    const brandIndex = ids.indexOf(CARD_ID);
+    const zebraIndex = ids.indexOf(SORT_CARD_ZEBRA);
+
+    expect(zebraIndex).toBeLessThan(brandIndex);
+    expect(brandIndex).toBeLessThan(alphaIndex);
+  });
+
+  it("sorts cards by most viewed", async () => {
+    await db
+      .insert(cards)
+      .values([
+        {
+          id: SORT_CARD_LEAST_VIEWED,
+          userId: USER_ID,
+          cardNumber: "sort-least",
+          label: "Least viewed",
+          viewCount: 1,
+        },
+        {
+          id: SORT_CARD_MOST_VIEWED,
+          userId: USER_ID,
+          cardNumber: "sort-most",
+          label: "Most viewed",
+          viewCount: 99,
+        },
+      ])
+      .onConflictDoUpdate({
+        target: cards.id,
+        set: {
+          userId: sql`excluded.user_id`,
+          label: sql`excluded.label`,
+          viewCount: sql`excluded.view_count`,
+        },
+      });
+
+    const app = createApiApp();
+    const response = await app.request("/api/v1/cards?sort=most_viewed", {
+      headers: authHeaders(authToken),
+    });
+
+    expect(response.status).toBe(200);
+    const ids = ((await response.json()) as Array<{ id: string }>).map(
+      (card) => card.id,
+    );
+    const mostIndex = ids.indexOf(SORT_CARD_MOST_VIEWED);
+    const leastIndex = ids.indexOf(SORT_CARD_LEAST_VIEWED);
+
+    expect(mostIndex).toBeGreaterThanOrEqual(0);
+    expect(leastIndex).toBeGreaterThanOrEqual(0);
+    expect(mostIndex).toBeLessThan(leastIndex);
+  });
+
+  it("sorts cards by least viewed when most_viewed uses ascending order", async () => {
+    const app = createApiApp();
+    const response = await app.request(
+      "/api/v1/cards?sort=most_viewed&order=asc",
+      { headers: authHeaders(authToken) },
+    );
+
+    expect(response.status).toBe(200);
+    const ids = ((await response.json()) as Array<{ id: string }>).map(
+      (card) => card.id,
+    );
+    const mostIndex = ids.indexOf(SORT_CARD_MOST_VIEWED);
+    const leastIndex = ids.indexOf(SORT_CARD_LEAST_VIEWED);
+
+    expect(leastIndex).toBeLessThan(mostIndex);
+  });
+
+  it("sorts cards by last viewed with never-viewed cards last", async () => {
+    await db
+      .insert(cards)
+      .values([
+        {
+          id: SORT_CARD_OLDER,
+          userId: USER_ID,
+          cardNumber: "sort-older",
+          label: "Older view",
+          viewCount: 1,
+          lastViewedAt: new Date("2024-01-01T00:00:00.000Z"),
+        },
+        {
+          id: SORT_CARD_RECENT,
+          userId: USER_ID,
+          cardNumber: "sort-recent",
+          label: "Recent view",
+          viewCount: 1,
+          lastViewedAt: new Date("2025-06-01T00:00:00.000Z"),
+        },
+        {
+          id: SORT_CARD_NEVER_VIEWED,
+          userId: USER_ID,
+          cardNumber: "sort-never",
+          label: "Never viewed",
+          viewCount: 0,
+          lastViewedAt: null,
+        },
+      ])
+      .onConflictDoUpdate({
+        target: cards.id,
+        set: {
+          userId: sql`excluded.user_id`,
+          label: sql`excluded.label`,
+          viewCount: sql`excluded.view_count`,
+          lastViewedAt: sql`excluded.last_viewed_at`,
+        },
+      });
+
+    const app = createApiApp();
+    const response = await app.request("/api/v1/cards?sort=last_viewed", {
+      headers: authHeaders(authToken),
+    });
+
+    expect(response.status).toBe(200);
+    const ids = ((await response.json()) as Array<{ id: string }>).map(
+      (card) => card.id,
+    );
+    const recentIndex = ids.indexOf(SORT_CARD_RECENT);
+    const olderIndex = ids.indexOf(SORT_CARD_OLDER);
+    const neverIndex = ids.indexOf(SORT_CARD_NEVER_VIEWED);
+
+    expect(recentIndex).toBeGreaterThanOrEqual(0);
+    expect(olderIndex).toBeGreaterThanOrEqual(0);
+    expect(neverIndex).toBeGreaterThanOrEqual(0);
+    expect(recentIndex).toBeLessThan(olderIndex);
+    expect(olderIndex).toBeLessThan(neverIndex);
+  });
+
+  it("sorts cards by oldest viewed first when last_viewed uses ascending order", async () => {
+    const app = createApiApp();
+    const response = await app.request(
+      "/api/v1/cards?sort=last_viewed&order=asc",
+      { headers: authHeaders(authToken) },
+    );
+
+    expect(response.status).toBe(200);
+    const ids = ((await response.json()) as Array<{ id: string }>).map(
+      (card) => card.id,
+    );
+    const recentIndex = ids.indexOf(SORT_CARD_RECENT);
+    const olderIndex = ids.indexOf(SORT_CARD_OLDER);
+    const neverIndex = ids.indexOf(SORT_CARD_NEVER_VIEWED);
+
+    expect(olderIndex).toBeLessThan(recentIndex);
+    expect(recentIndex).toBeLessThan(neverIndex);
   });
 
   it("returns 400 when request body fails cardWriteSchema validation", async () => {
@@ -173,6 +404,8 @@ describe("cards routes", () => {
       cardNumber: "4242424242424242",
       label: "Personal",
       view: "1D",
+      viewCount: 0,
+      lastViewedAt: null,
       brand: {
         id: BRAND_ID,
         name: "Test Brand",
@@ -181,6 +414,43 @@ describe("cards routes", () => {
       },
     });
     expect(body.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
+
+  it("returns viewCount and lastViewedAt when the card has been viewed", async () => {
+    const viewedCardId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
+    const lastViewedAt = new Date("2025-06-15T10:30:00.000Z");
+
+    await db
+      .insert(cards)
+      .values({
+        id: viewedCardId,
+        userId: USER_ID,
+        cardNumber: "viewed-card-1234",
+        label: "Viewed",
+        view: "2D",
+        brandId: BRAND_ID,
+        viewCount: 3,
+        lastViewedAt,
+      })
+      .onConflictDoUpdate({
+        target: cards.id,
+        set: {
+          viewCount: sql`excluded.view_count`,
+          lastViewedAt: sql`excluded.last_viewed_at`,
+        },
+      });
+
+    const app = createApiApp();
+    const response = await app.request(`/api/v1/cards/${viewedCardId}`, {
+      headers: authHeaders(authToken),
+    });
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      id: viewedCardId,
+      viewCount: 3,
+      lastViewedAt: lastViewedAt.toISOString(),
+    });
   });
 
   it("returns 404 when card id does not exist", async () => {
@@ -225,6 +495,8 @@ describe("cards routes", () => {
       userId: USER_ID,
       cardNumber: "9999888877776666",
       label: "No brand",
+      viewCount: 0,
+      lastViewedAt: null,
       brand: null,
     });
   });
@@ -250,6 +522,8 @@ describe("cards routes", () => {
       userId: USER_ID,
       cardNumber: "5555555555554444",
       label: "Work",
+      viewCount: 0,
+      lastViewedAt: null,
       brand: {
         id: BRAND_ID,
         name: "Test Brand",
@@ -333,6 +607,8 @@ describe("cards routes", () => {
       cardNumber: "recreated-after-delete",
       label: "Recreated",
       view: "1D",
+      viewCount: 0,
+      lastViewedAt: null,
       brand: { id: BRAND_ID },
     });
 

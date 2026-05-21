@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import type { Context } from "hono";
 
 import { Hono } from "hono";
@@ -28,6 +28,8 @@ export const cardSchema = z.object({
       backgroundColor: z.string(),
     })
     .nullable(),
+  viewCount: z.number().int().nonnegative(),
+  lastViewedAt: z.string().nullable(),
   createdAt: z.string(),
 });
 
@@ -41,6 +43,34 @@ const cardWriteSchema = z.object({
   view: z.enum(["1D", "2D"]).nullable().optional(),
   brandId: z.uuid().nullable().optional(),
 });
+
+export const cardListSortSchema = z.enum([
+  "alphabetical",
+  "most_viewed",
+  "last_viewed",
+]);
+
+export const cardListOrderSchema = z.enum(["asc", "desc"]);
+
+const listCardsQuerySchema = z.object({
+  sort: cardListSortSchema.optional().default("alphabetical"),
+  order: cardListOrderSchema.optional(),
+});
+
+type CardListSort = z.infer<typeof cardListSortSchema>;
+type CardListOrder = z.infer<typeof cardListOrderSchema>;
+
+function defaultOrderForSort(sort: CardListSort): CardListOrder {
+  switch (sort) {
+    case "most_viewed":
+    case "last_viewed":
+      return "desc";
+    default:
+      return "asc";
+  }
+}
+
+const cardAlphabeticalOrder = sql`lower(coalesce(${brands.name}, ${cards.label}, ${cards.cardNumber}))`;
 
 const fkViolationBody = {
   error: "Referenced userId or brandId does not exist",
@@ -62,6 +92,8 @@ const cardWithBrandSelect = {
   brandName: brands.name,
   brandLogoFile: brands.logoFile,
   brandBackgroundColor: brands.backgroundColor,
+  viewCount: cards.viewCount,
+  lastViewedAt: cards.lastViewedAt,
   createdAt: cards.createdAt,
 };
 
@@ -75,6 +107,8 @@ type CardWithBrandRow = {
   brandName: string | null;
   brandLogoFile: string | null;
   brandBackgroundColor: string | null;
+  viewCount: number;
+  lastViewedAt: Date | null;
   createdAt: Date;
 };
 
@@ -100,12 +134,37 @@ function toCardResponse(row: CardWithBrandRow): z.infer<typeof cardSchema> {
           backgroundColor: row.brandBackgroundColor ?? "#000000",
         }
       : null,
+    viewCount: row.viewCount,
+    lastViewedAt: row.lastViewedAt?.toISOString() ?? null,
     createdAt: row.createdAt.toISOString(),
   };
 }
 
-async function listCardsForUser(userId: string) {
-  return cardWithBrandQuery().where(eq(cards.userId, userId));
+async function listCardsForUser(
+  userId: string,
+  sort: CardListSort,
+  order: CardListOrder,
+) {
+  const query = cardWithBrandQuery().where(eq(cards.userId, userId));
+  const alphabeticalOrder =
+    order === "desc" ? desc(cardAlphabeticalOrder) : asc(cardAlphabeticalOrder);
+
+  switch (sort) {
+    case "most_viewed":
+      return query.orderBy(
+        order === "asc" ? asc(cards.viewCount) : desc(cards.viewCount),
+        alphabeticalOrder,
+      );
+    case "last_viewed":
+      return query.orderBy(
+        order === "asc"
+          ? sql`${cards.lastViewedAt} asc nulls last`
+          : sql`${cards.lastViewedAt} desc nulls last`,
+        alphabeticalOrder,
+      );
+    default:
+      return query.orderBy(alphabeticalOrder);
+  }
 }
 
 async function getCardForUser(userId: string, cardId: string) {
@@ -135,11 +194,15 @@ const app = new Hono<{ Variables: ContextVariables }>()
       security: [{ bearerAuth: [] }],
       responses: {
         200: jsonResponse("Successful response", z.array(cardSchema)),
+        400: errorResponse("Invalid sort or order parameter"),
         401: errorResponse("Unauthorized"),
       },
     }),
+    validator("query", listCardsQuerySchema),
     async (c) => {
-      const rows = await listCardsForUser(c.get("userId"));
+      const { sort, order: orderParam } = c.req.valid("query");
+      const order = orderParam ?? defaultOrderForSort(sort);
+      const rows = await listCardsForUser(c.get("userId"), sort, order);
       return c.json(rows.map(toCardResponse));
     },
   )

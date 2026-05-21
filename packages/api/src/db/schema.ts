@@ -1,6 +1,7 @@
 import { relations, type SQL, sql } from "drizzle-orm";
 import {
   type AnyPgColumn,
+  integer,
   pgTable,
   text,
   timestamp,
@@ -54,6 +55,8 @@ export const cards = pgTable("cards", {
   brandId: uuid("brand_id").references(() => brands.id, {
     onDelete: "set null",
   }),
+  viewCount: integer("view_count").notNull().default(0),
+  lastViewedAt: timestamp("last_viewed_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
