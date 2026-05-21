@@ -205,9 +205,12 @@ describe("cards routes", () => {
 
   it("sorts cards alphabetically in descending order when requested", async () => {
     const app = createApiApp();
-    const response = await app.request("/api/v1/cards?sort=alphabetical&order=desc", {
-      headers: authHeaders(authToken),
-    });
+    const response = await app.request(
+      "/api/v1/cards?sort=alphabetical&order=desc",
+      {
+        headers: authHeaders(authToken),
+      },
+    );
 
     expect(response.status).toBe(200);
     const ids = ((await response.json()) as Array<{ id: string }>).map(
