@@ -478,6 +478,69 @@ describe("cards routes", () => {
     expect(await response.json()).toEqual({ error: "Card not found" });
   });
 
+  it("logs a view by incrementing viewCount and setting lastViewedAt", async () => {
+    await db
+      .update(cards)
+      .set({ viewCount: 0, lastViewedAt: null })
+      .where(eq(cards.id, CARD_ID));
+
+    const app = createApiApp();
+
+    const response = await app.request(`/api/v1/cards/${CARD_ID}/view`, {
+      method: "POST",
+      headers: authHeaders(authToken),
+    });
+
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body).toMatchObject({
+      id: CARD_ID,
+      viewCount: 1,
+    });
+    expect(body.lastViewedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+
+    const secondResponse = await app.request(`/api/v1/cards/${CARD_ID}/view`, {
+      method: "POST",
+      headers: authHeaders(authToken),
+    });
+
+    expect(secondResponse.status).toBe(200);
+    expect(await secondResponse.json()).toMatchObject({
+      id: CARD_ID,
+      viewCount: 2,
+    });
+  });
+
+  it("returns 404 when logging a view for a non-existent card", async () => {
+    const app = createApiApp();
+
+    const response = await app.request(
+      `/api/v1/cards/${UNKNOWN_CARD_ID}/view`,
+      {
+        method: "POST",
+        headers: authHeaders(authToken),
+      },
+    );
+
+    expect(response.status).toBe(404);
+    expect(await response.json()).toEqual({ error: "Card not found" });
+  });
+
+  it("returns 404 when logging a view for another user's card", async () => {
+    const app = createApiApp();
+
+    const response = await app.request(
+      `/api/v1/cards/${OTHER_USER_CARD_ID}/view`,
+      {
+        method: "POST",
+        headers: authHeaders(authToken),
+      },
+    );
+
+    expect(response.status).toBe(404);
+    expect(await response.json()).toEqual({ error: "Card not found" });
+  });
+
   it("creates a card without brandId and returns brand null", async () => {
     const app = createApiApp();
 

@@ -262,6 +262,40 @@ const app = new Hono<{ Variables: ContextVariables }>()
       return c.json(toCardResponse(card));
     },
   )
+  .post(
+    "/:id/view",
+    describeRoute({
+      description: "Log a view of a card (increments view count and updates last viewed time)",
+      security: [{ bearerAuth: [] }],
+      responses: {
+        200: jsonResponse("Successful response", cardSchema),
+        401: errorResponse("Unauthorized"),
+        404: errorResponse("Card not found"),
+      },
+    }),
+    validator("param", idParamSchema),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const userId = c.get("userId");
+
+      const [updated] = await db
+        .update(cards)
+        .set({
+          viewCount: sql`${cards.viewCount} + 1`,
+          lastViewedAt: new Date(),
+        })
+        .where(and(eq(cards.id, id), eq(cards.userId, userId)))
+        .returning({ id: cards.id });
+
+      if (!updated) {
+        return c.json({ error: "Card not found" }, 404);
+      }
+
+      const card = await getCardForUser(userId, id);
+      if (!card) throw new Error("Card missing after view update");
+      return c.json(toCardResponse(card));
+    },
+  )
   .delete(
     "/:id",
     describeRoute({

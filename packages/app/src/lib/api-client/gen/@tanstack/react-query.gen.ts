@@ -3,8 +3,8 @@
 import { queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { deleteApiV1CardsById, getApiV1Brands, getApiV1Cards, getApiV1CardsById, type Options, postApiV1AuthLogin, postApiV1AuthSignup, postApiV1Cards } from '../sdk.gen';
-import type { DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdError, DeleteApiV1CardsByIdResponse, GetApiV1BrandsData, GetApiV1BrandsError, GetApiV1BrandsResponse, GetApiV1CardsByIdData, GetApiV1CardsByIdError, GetApiV1CardsByIdResponse, GetApiV1CardsData, GetApiV1CardsError, GetApiV1CardsResponse, PostApiV1AuthLoginData, PostApiV1AuthLoginError, PostApiV1AuthLoginResponse, PostApiV1AuthSignupData, PostApiV1AuthSignupError, PostApiV1AuthSignupResponse, PostApiV1CardsData, PostApiV1CardsError, PostApiV1CardsResponse } from '../types.gen';
+import { deleteApiV1CardsById, getApiV1Brands, getApiV1Cards, getApiV1CardsById, type Options, postApiV1AuthLogin, postApiV1AuthSignup, postApiV1Cards, postApiV1CardsByIdView } from '../sdk.gen';
+import type { DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdError, DeleteApiV1CardsByIdResponse, GetApiV1BrandsData, GetApiV1BrandsError, GetApiV1BrandsResponse, GetApiV1CardsByIdData, GetApiV1CardsByIdError, GetApiV1CardsByIdResponse, GetApiV1CardsData, GetApiV1CardsError, GetApiV1CardsResponse, PostApiV1AuthLoginData, PostApiV1AuthLoginError, PostApiV1AuthLoginResponse, PostApiV1AuthSignupData, PostApiV1AuthSignupError, PostApiV1AuthSignupResponse, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewError, PostApiV1CardsByIdViewResponse, PostApiV1CardsData, PostApiV1CardsError, PostApiV1CardsResponse } from '../types.gen';
 
 /**
  * Sign in with email and password; returns a JWT access token
@@ -160,3 +160,20 @@ export const getApiV1CardsByIdOptions = (options: Options<GetApiV1CardsByIdData>
     },
     queryKey: getApiV1CardsByIdQueryKey(options)
 });
+
+/**
+ * Log a view of a card (increments view count and updates last viewed time)
+ */
+export const postApiV1CardsByIdViewMutation = (options?: Partial<Options<PostApiV1CardsByIdViewData>>): UseMutationOptions<PostApiV1CardsByIdViewResponse, PostApiV1CardsByIdViewError, Options<PostApiV1CardsByIdViewData>> => {
+    const mutationOptions: UseMutationOptions<PostApiV1CardsByIdViewResponse, PostApiV1CardsByIdViewError, Options<PostApiV1CardsByIdViewData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await postApiV1CardsByIdView({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};

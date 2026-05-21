@@ -329,3 +329,53 @@ export type GetApiV1CardsByIdResponses = {
 };
 
 export type GetApiV1CardsByIdResponse = GetApiV1CardsByIdResponses[keyof GetApiV1CardsByIdResponses];
+
+export type PostApiV1CardsByIdViewData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cards/{id}/view';
+};
+
+export type PostApiV1CardsByIdViewErrors = {
+    /**
+     * Unauthorized
+     */
+    401: {
+        error: string;
+    };
+    /**
+     * Card not found
+     */
+    404: {
+        error: string;
+    };
+};
+
+export type PostApiV1CardsByIdViewError = PostApiV1CardsByIdViewErrors[keyof PostApiV1CardsByIdViewErrors];
+
+export type PostApiV1CardsByIdViewResponses = {
+    /**
+     * Successful response
+     */
+    200: {
+        id: string;
+        userId: string;
+        cardNumber: string;
+        label?: string | null;
+        view?: '1D' | '2D' | null;
+        brand: {
+            id: string;
+            name: string;
+            logoUrl: string;
+            backgroundColor: string;
+        } | null;
+        viewCount: number;
+        lastViewedAt: string | null;
+        createdAt: string;
+    };
+};
+
+export type PostApiV1CardsByIdViewResponse = PostApiV1CardsByIdViewResponses[keyof PostApiV1CardsByIdViewResponses];
