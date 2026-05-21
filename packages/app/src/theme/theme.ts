@@ -20,6 +20,10 @@ export const colors = {
   border: "#E2E8F0",
   success: "#22C55E",
   error: "#EF4444",
+
+  /** Dropdown/menu depth shadow (darker than the themed background). */
+  menuShadowLight: "#CBD5E1",
+  menuShadowDark: "#020617",
 };
 
 export const spacing = {

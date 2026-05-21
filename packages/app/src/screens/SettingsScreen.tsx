@@ -56,7 +56,6 @@ export const SettingsScreen = () => {
         <View
           style={[
             styles.settingRow,
-            styles.languageRow,
             {
               backgroundColor: colors.surface,
               borderColor: colors.border,
@@ -82,10 +81,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     borderRadius: radius.md,
     borderWidth: 1,
-  },
-  languageRow: {
-    alignItems: "flex-start",
-    gap: spacing.sm,
   },
   themeToggle: {
     padding: 0,

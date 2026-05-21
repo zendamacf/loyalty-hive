@@ -1,6 +1,8 @@
-import { afterEach, describe, expect, it, mock } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { act } from "@testing-library/react-native";
 import i18n from "@/i18n";
+import { LANGUAGE_STORAGE_KEY } from "@/i18n/i18n.constants";
 import { renderWithTheme } from "../../test/render";
 
 /** Bun otherwise executes the real PNG file when LoginScreen loads `require(...)`. */
@@ -17,16 +19,19 @@ async function flushMicrotasks(): Promise<void> {
 }
 
 describe("LoginScreen i18n", () => {
+  beforeEach(async () => {
+    await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, "en");
+  });
+
   afterEach(async () => {
+    await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, "en");
     await act(async () => {
       await i18n.changeLanguage("en");
     });
   });
 
   it("renders Spanish copy when locale is es", async () => {
-    await act(async () => {
-      await i18n.changeLanguage("es");
-    });
+    await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, "es");
 
     const { findByText } = await renderWithTheme(<LoginScreen />);
     await flushMicrotasks();

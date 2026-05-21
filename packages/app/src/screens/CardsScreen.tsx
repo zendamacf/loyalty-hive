@@ -1,6 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { PlusIcon, SettingsIcon } from "lucide-react-native";
+import {
+  ArrowDownAZIcon,
+  ClockIcon,
+  EyeIcon,
+  ListFilterIcon,
+  PlusIcon,
+  SettingsIcon,
+} from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -11,15 +18,26 @@ import {
   Text,
   View,
 } from "react-native";
+
 import { DataLoadStatus } from "@/components/DataLoadStatus";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { ScreenShell } from "@/components/ScreenShell";
-import { Routes } from "@/constants/routes.constants";
+import { Select } from "@/components/Select";
+import {
+  CARD_CODE_FROM_CARDS_PARAM,
+  CARD_CODE_FROM_CARDS_VALUE,
+  Routes,
+} from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import {
   type GetApiV1CardsResponse,
   getApiV1CardsOptions,
 } from "@/lib/api-client";
+import {
+  CARD_SORT_OPTIONS,
+  type CardListSort,
+  useCardSort,
+} from "@/lib/card-sort";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import { AppTitle } from "../components/AppTitle";
 import { LoyaltyBrandLogo } from "../components/LoyaltyBrandLogo";
@@ -30,6 +48,21 @@ import { brandMark, icon, radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
 const appIcon = require("../../assets/images/icon.png");
+
+const SORT_LABEL_KEYS: Record<
+  CardListSort,
+  "sortAlphabetical" | "sortMostViewed" | "sortLastViewed"
+> = {
+  alphabetical: "sortAlphabetical",
+  most_viewed: "sortMostViewed",
+  last_viewed: "sortLastViewed",
+} as const;
+
+const SORT_ICONS = {
+  alphabetical: ArrowDownAZIcon,
+  most_viewed: EyeIcon,
+  last_viewed: ClockIcon,
+} as const;
 
 function filterCards(
   list: GetApiV1CardsResponse,
@@ -51,6 +84,7 @@ export const CardsScreen = () => {
   const { t } = useTranslation([I18nNamespace.Cards, I18nNamespace.Common]);
   const { colors } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
+  const { sort, setSort, hydrated: cardSortHydrated } = useCardSort();
 
   const {
     data: cards = [],
@@ -58,7 +92,12 @@ export const CardsScreen = () => {
     isError,
     isPending,
     refetch,
-  } = useQuery(getApiV1CardsOptions());
+  } = useQuery({
+    ...getApiV1CardsOptions({
+      query: { sort },
+    }),
+    enabled: cardSortHydrated,
+  });
 
   const error = isError ? getErrorMessage(queryError) : null;
   const loaded = !isPending;
@@ -72,6 +111,16 @@ export const CardsScreen = () => {
     await refetch();
   });
   const refreshControl = useThemedRefreshControl(refreshing, onRefresh);
+
+  const sortOptions = useMemo(
+    () =>
+      CARD_SORT_OPTIONS.map((option) => ({
+        value: option,
+        label: t(SORT_LABEL_KEYS[option]),
+        icon: SORT_ICONS[option],
+      })),
+    [t],
+  );
 
   let emptyTitle: string | null = null;
   let emptySubtitle: string | null = null;
@@ -140,14 +189,45 @@ export const CardsScreen = () => {
         </View>
       </ScreenHeader>
 
-      <SearchBar
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        placeholder={t("searchPlaceholder")}
-        style={styles.searchBar}
-        autoCapitalize="none"
-        autoCorrect={false}
-      />
+      <View style={styles.searchRow}>
+        <SearchBar
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder={t("searchPlaceholder")}
+          style={styles.searchBar}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+        <Select
+          value={sort}
+          onValueChange={setSort}
+          options={sortOptions}
+          accessibilityLabel={t("sortLabel")}
+          menuMinWidth={200}
+          renderTrigger={({
+            open: sortOpen,
+            onPress,
+            disabled,
+            accessibilityLabel: sortA11yLabel,
+            selectedLabel,
+          }) => (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={sortA11yLabel}
+              accessibilityState={{ disabled, expanded: sortOpen }}
+              accessibilityValue={{ text: selectedLabel }}
+              disabled={disabled}
+              hitSlop={8}
+              onPress={onPress}
+              style={({ pressed }) => [
+                pressed && !disabled && styles.sortButtonPressed,
+              ]}
+            >
+              <ListFilterIcon color={colors.textPrimary} size={icon.md} />
+            </Pressable>
+          )}
+        />
+      </View>
 
       <DataLoadStatus error={error} loaded={loaded} loadingLabel={t("loading")}>
         <FlatList
@@ -188,6 +268,8 @@ export const CardsScreen = () => {
                         createdAt: item.createdAt,
                         logoUrl: item.brand?.logoUrl ?? "",
                         backgroundColor: cardBackgroundColor,
+                        [CARD_CODE_FROM_CARDS_PARAM]:
+                          CARD_CODE_FROM_CARDS_VALUE,
                       },
                     })
                   }
@@ -243,8 +325,18 @@ const styles = StyleSheet.create({
     height: 56,
     justifyContent: "center",
   },
-  searchBar: {
+  searchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
     marginBottom: spacing.md,
+  },
+  searchBar: {
+    flex: 1,
+    marginBottom: 0,
+  },
+  sortButtonPressed: {
+    opacity: 0.85,
   },
   columnWrapper: {
     justifyContent: "space-between",

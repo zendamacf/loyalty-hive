@@ -1,6 +1,6 @@
 import { useColorScheme } from "react-native";
-import { useThemeContext } from "./ThemeProvider";
 import { colors } from "./theme";
+import { useThemeContext } from "./useThemeContext";
 
 const fallbackColors = (isDark: boolean) => ({
   background: isDark ? colors.backgroundDark : colors.backgroundLight,
@@ -12,6 +12,7 @@ const fallbackColors = (isDark: boolean) => ({
   primary: colors.primary,
   error: colors.error,
   success: colors.success,
+  menuShadow: isDark ? colors.menuShadowDark : colors.menuShadowLight,
 });
 
 export const useTheme = () => {

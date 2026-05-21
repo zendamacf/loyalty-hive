@@ -1,5 +1,4 @@
 import { expect } from "bun:test";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   type RenderOptions,
@@ -8,15 +7,16 @@ import {
   waitFor,
 } from "@testing-library/react-native";
 import type { ReactElement, ReactNode } from "react";
-import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { I18nextProvider } from "react-i18next";
 import i18n from "@/i18n";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { QUERY_STALE_TIME_MS } from "@/lib/query-client";
-import { ThemeProvider } from "@/theme/ThemeProvider";
-import { THEME_STORAGE_KEY } from "@/theme/theme.constants";
-import { TestLanguageProvider } from "./TestLanguageProvider";
+import {
+  UserPreferencesProvider,
+  usePreferencesHydrated,
+} from "@/lib/user-preferences";
+import { OverlayProvider } from "@/components/OverlayProvider";
 
 export const TEST_PROVIDERS_READY_ID = "test-providers-ready";
 
@@ -35,24 +35,9 @@ export function createTestQueryClient() {
 
 function ProvidersSettled({ children }: { children: ReactNode }) {
   const { isReady } = useAuth();
-  const [themeReady, setThemeReady] = useState(false);
+  const preferencesReady = usePreferencesHydrated();
 
-  useEffect(() => {
-    let cancelled = false;
-
-    void (async () => {
-      await AsyncStorage.getItem(THEME_STORAGE_KEY);
-      if (!cancelled) {
-        setThemeReady(true);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  if (!isReady || !themeReady) {
+  if (!isReady || !preferencesReady) {
     return null;
   }
 
@@ -69,11 +54,11 @@ function TestProviders({ children }: { children: ReactNode }) {
     <QueryClientProvider client={createTestQueryClient()}>
       <AuthProvider>
         <I18nextProvider i18n={i18n}>
-          <TestLanguageProvider>
-            <ThemeProvider>
+          <UserPreferencesProvider>
+            <OverlayProvider>
               <ProvidersSettled>{children}</ProvidersSettled>
-            </ThemeProvider>
-          </TestLanguageProvider>
+            </OverlayProvider>
+          </UserPreferencesProvider>
         </I18nextProvider>
       </AuthProvider>
     </QueryClientProvider>
@@ -104,11 +89,11 @@ export function createQueryClientWrapper(queryClient: QueryClient) {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <I18nextProvider i18n={i18n}>
-            <TestLanguageProvider>
-              <ThemeProvider>
+            <UserPreferencesProvider>
+              <OverlayProvider>
                 <ProvidersSettled>{children}</ProvidersSettled>
-              </ThemeProvider>
-            </TestLanguageProvider>
+              </OverlayProvider>
+            </UserPreferencesProvider>
           </I18nextProvider>
         </AuthProvider>
       </QueryClientProvider>

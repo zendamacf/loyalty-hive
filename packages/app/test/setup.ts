@@ -52,6 +52,10 @@ class AnimatedValue {
     this._value = initial;
   }
 
+  setValue(value: number) {
+    this._value = value;
+  }
+
   interpolate(config: {
     inputRange: number[];
     outputRange: (number | string)[];
@@ -86,29 +90,20 @@ const Easing = {
   cubic: (value: number) => value,
 };
 
-mock.module("../../assets/images/scan-guide-barcode.svg", () => ({
-  default: (props: Record<string, unknown>) =>
-    React.createElement("ScanGuideBarcode", props),
-}));
-
-mock.module("../../assets/images/scan-guide-qrcode.svg", () => ({
-  default: (props: Record<string, unknown>) =>
-    React.createElement("ScanGuideQrcode", props),
-}));
-
 mock.module("lucide-react-native", () => ({
   MoonIcon: () => React.createElement("Text", null, "moon"),
   SunIcon: () => React.createElement("Text", null, "sun"),
   PlusIcon: () => React.createElement("Text", null, "+"),
   SettingsIcon: () => React.createElement("Text", null, "⚙"),
-  BarcodeIcon: () => React.createElement("Text", null, "barcode"),
-  QrCodeIcon: () => React.createElement("Text", null, "qr"),
   CopyIcon: () => React.createElement("Text", null, "copy"),
   EllipsisVerticalIcon: () => React.createElement("Text", null, "more"),
-  ChevronLeftIcon: () => React.createElement("Text", null, "back"),
   XIcon: () => React.createElement("Text", null, "close"),
   EyeIcon: () => React.createElement("Text", null, "eye"),
   EyeOffIcon: () => React.createElement("Text", null, "eye-off"),
+  ChevronDownIcon: () => React.createElement("Text", null, "▼"),
+  ListFilterIcon: () => React.createElement("Text", null, "sort"),
+  ArrowDownAZIcon: () => React.createElement("Text", null, "a-z"),
+  ClockIcon: () => React.createElement("Text", null, "clock"),
 }));
 
 const setStringAsyncMock = mock(() => Promise.resolve());
@@ -209,7 +204,25 @@ mock.module("react-native", () => ({
       children,
     );
   },
-  View: createPrimitive("View"),
+  View: React.forwardRef(function View(
+    props: Record<string, unknown>,
+    ref: React.Ref<{ measureInWindow: (callback: (...args: number[]) => void) => void }>,
+  ) {
+    React.useImperativeHandle(ref, () => ({
+      measureInWindow: (
+        callback: (x: number, y: number, width: number, height: number) => void,
+      ) => {
+        callback(0, 0, 200, 44);
+      },
+      measureLayout: (
+        _relativeTo: unknown,
+        onSuccess: (x: number, y: number, width: number, height: number) => void,
+      ) => {
+        onSuccess(0, 0, 200, 44);
+      },
+    }));
+    return React.createElement("View", props, props.children as React.ReactNode);
+  }),
   TextInput: createPrimitive("TextInput"),
   Image: createPrimitive("Image"),
   Animated,
@@ -219,6 +232,11 @@ mock.module("react-native", () => ({
       _event: string,
       handler: (state: string) => void,
     ) => ({
+      remove: () => {},
+    }),
+  },
+  BackHandler: {
+    addEventListener: (_event: string, _handler: () => boolean) => ({
       remove: () => {},
     }),
   },

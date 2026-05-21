@@ -6,6 +6,7 @@ import type {
   GetApiV1CardsResponse,
   PostApiV1AuthLoginResponse,
   PostApiV1AuthSignupResponse,
+  PostApiV1CardsByIdViewResponse,
   PostApiV1CardsResponse,
 } from "@/lib/api-client";
 
@@ -65,17 +66,24 @@ export const getApiV1CardsMock = mock(
     resolveApiMock({ data: [], error: undefined }, options),
 );
 
+export const createCardMock = (
+  overrides: Partial<PostApiV1CardsResponse> = {},
+): PostApiV1CardsResponse => ({
+  id: "card-1",
+  userId: "00000000-0000-4000-8000-000000000001",
+  cardNumber: "123456",
+  brand: null,
+  viewCount: 0,
+  lastViewedAt: null,
+  createdAt: new Date().toISOString(),
+  ...overrides,
+});
+
 export const postApiV1CardsMock = mock(
   (options?: SdkOptions): Promise<ApiMockResult<PostApiV1CardsResponse>> =>
     resolveApiMock(
       {
-        data: {
-          id: "card-1",
-          userId: "00000000-0000-4000-8000-000000000001",
-          cardNumber: "123456",
-          brand: null,
-          createdAt: new Date().toISOString(),
-        },
+        data: createCardMock(),
         error: undefined,
       },
       options,
@@ -86,13 +94,7 @@ export const getApiV1CardsByIdMock = mock(
   (options?: SdkOptions): Promise<ApiMockResult<GetApiV1CardsByIdResponse>> =>
     resolveApiMock(
       {
-        data: {
-          id: "card-1",
-          userId: "00000000-0000-4000-8000-000000000001",
-          cardNumber: "123456",
-          brand: null,
-          createdAt: new Date().toISOString(),
-        },
+        data: createCardMock(),
         error: undefined,
       },
       options,
@@ -104,6 +106,19 @@ export const deleteApiV1CardsByIdMock = mock(
     resolveApiMock({ data: null, error: undefined }, options),
 );
 
+export const postApiV1CardsByIdViewMock = mock(
+  (
+    options?: SdkOptions,
+  ): Promise<ApiMockResult<PostApiV1CardsByIdViewResponse>> =>
+    resolveApiMock(
+      {
+        data: createCardMock({ viewCount: 1, lastViewedAt: new Date().toISOString() }),
+        error: undefined,
+      },
+      options,
+    ),
+);
+
 const sdkMocks = {
   postApiV1AuthLogin: postApiV1AuthLoginMock,
   postApiV1AuthSignup: postApiV1AuthSignupMock,
@@ -112,6 +127,7 @@ const sdkMocks = {
   postApiV1Cards: postApiV1CardsMock,
   getApiV1CardsById: getApiV1CardsByIdMock,
   deleteApiV1CardsById: deleteApiV1CardsByIdMock,
+  postApiV1CardsByIdView: postApiV1CardsByIdViewMock,
 };
 
 mock.module("@/lib/api-client/gen/sdk.gen", () => ({

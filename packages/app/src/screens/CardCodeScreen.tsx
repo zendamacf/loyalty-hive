@@ -1,6 +1,7 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { EllipsisVerticalIcon } from "lucide-react-native";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, View } from "react-native";
 
@@ -10,8 +11,16 @@ import { CloseButton } from "@/components/CloseButton";
 import { LoyaltyBrandMark } from "@/components/LoyaltyBrandMark";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { ScreenShell } from "@/components/ScreenShell";
-import { Routes } from "@/constants/routes.constants";
+import {
+  CARD_CODE_FROM_CARDS_PARAM,
+  CARD_CODE_FROM_CARDS_VALUE,
+  Routes,
+} from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
+import {
+  getApiV1CardsQueryKey,
+  postApiV1CardsByIdViewMutation,
+} from "@/lib/api-client";
 import { type CardView, resolveCardView } from "@/lib/cardView";
 import { brandMark, icon, spacing } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
@@ -29,9 +38,13 @@ export const CardCodeScreen = () => {
     brandName?: string;
     label?: string;
     createdAt?: string;
+    [CARD_CODE_FROM_CARDS_PARAM]?: string;
   }>();
 
+  const queryClient = useQueryClient();
   const cardId = typeof params.id === "string" ? params.id : "";
+  const fromCards =
+    params[CARD_CODE_FROM_CARDS_PARAM] === CARD_CODE_FROM_CARDS_VALUE;
   const cardNumber =
     typeof params.cardNumber === "string" ? params.cardNumber : "";
   const brandName =
@@ -55,6 +68,20 @@ export const CardCodeScreen = () => {
     typeof params.view === "string" ? params.view : undefined,
   );
   const [displayView, setDisplayView] = useState<CardView>(initialView);
+
+  const { mutate: logCardView } = useMutation({
+    ...postApiV1CardsByIdViewMutation(),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: getApiV1CardsQueryKey() });
+    },
+  });
+
+  useEffect(() => {
+    if (!fromCards || !cardId) {
+      return;
+    }
+    logCardView({ path: { id: cardId } });
+  }, [cardId, fromCards, logCardView]);
 
   const toggleDisplayView = useCallback(() => {
     setDisplayView((current) => (current === "1D" ? "2D" : "1D"));

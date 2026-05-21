@@ -1,9 +1,14 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-import { fireEvent } from "@testing-library/react-native";
+import { fireEvent, waitFor } from "@testing-library/react-native";
 import React from "react";
 import { Image } from "react-native";
 
-import { Routes } from "@/constants/routes.constants";
+import {
+  CARD_CODE_FROM_CARDS_PARAM,
+  CARD_CODE_FROM_CARDS_VALUE,
+  Routes,
+} from "@/constants/routes.constants";
+import { postApiV1CardsByIdViewMock } from "../../test/mocks/api-client";
 import { renderWithTheme } from "../../test/render";
 
 const { __expoRouterMocks } = globalThis as unknown as {
@@ -28,6 +33,7 @@ const { CardCodeScreen } = await import("./CardCodeScreen");
 
 describe("CardCodeScreen", () => {
   beforeEach(() => {
+    postApiV1CardsByIdViewMock.mockClear();
     __expoRouterMocks.back.mockClear();
     __expoRouterMocks.push.mockClear();
     __expoRouterMocks.params = {
@@ -41,6 +47,31 @@ describe("CardCodeScreen", () => {
       logoUrl: "https://logo.clearbit.com/asos.com",
       backgroundColor: "#FFFFFF",
     };
+  });
+
+  it("logs a card view when opened from the cards list", async () => {
+    __expoRouterMocks.params = {
+      ...__expoRouterMocks.params,
+      [CARD_CODE_FROM_CARDS_PARAM]: CARD_CODE_FROM_CARDS_VALUE,
+    };
+
+    await renderWithTheme(<CardCodeScreen />);
+
+    await waitFor(() => {
+      expect(postApiV1CardsByIdViewMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          path: { id: "00000000-0000-4000-8000-000000000001" },
+        }),
+      );
+    });
+  });
+
+  it("does not log a card view without the from-cards param", async () => {
+    await renderWithTheme(<CardCodeScreen />);
+
+    await waitFor(() => {
+      expect(postApiV1CardsByIdViewMock).not.toHaveBeenCalled();
+    });
   });
 
   it("renders a barcode for 1D view", async () => {

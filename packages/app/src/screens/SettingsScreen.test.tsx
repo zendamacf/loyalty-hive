@@ -1,8 +1,13 @@
 import { beforeEach, describe, expect, it } from "bun:test";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fireEvent, waitFor } from "@testing-library/react-native";
+
 import { Routes } from "@/constants/routes.constants";
+import { LANGUAGE_STORAGE_KEY } from "@/i18n/i18n.constants";
 import { getBearerToken, setBearerToken } from "@/lib/api-client/setup";
 import { AUTH_TOKEN_STORAGE_KEY } from "@/lib/auth/auth.constants";
+import { THEME_STORAGE_KEY } from "@/theme/theme.constants";
 import {
   clearSecureStoreMock,
   secureStoreDeleteMock,
@@ -19,7 +24,9 @@ const { __expoRouterMocks } = globalThis as unknown as {
 const { SettingsScreen } = await import("./SettingsScreen");
 
 describe("SettingsScreen", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    await AsyncStorage.removeItem(THEME_STORAGE_KEY);
+    await AsyncStorage.removeItem(LANGUAGE_STORAGE_KEY);
     clearSecureStoreMock();
     setBearerToken(undefined);
     __expoRouterMocks.back.mockClear();
@@ -36,9 +43,14 @@ describe("SettingsScreen", () => {
     expect(getByText("Theme")).toBeTruthy();
     expect(getByText("Language")).toBeTruthy();
     expect(getByText("English")).toBeTruthy();
-    expect(getByText("Español")).toBeTruthy();
     expect(getByLabelText("Use dark theme")).toBeTruthy();
     expect(getByText("Sign out")).toBeTruthy();
+
+    fireEvent.press(getByLabelText("Language"));
+
+    await waitFor(() => {
+      expect(getByText("Español")).toBeTruthy();
+    });
   });
 
   it("toggles dark theme from the theme control", async () => {

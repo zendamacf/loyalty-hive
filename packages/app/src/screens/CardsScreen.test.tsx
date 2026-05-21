@@ -3,8 +3,14 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { act, fireEvent, waitFor } from "@testing-library/react-native";
 
-import { Routes } from "@/constants/routes.constants";
+import {
+  CARD_CODE_FROM_CARDS_PARAM,
+  CARD_CODE_FROM_CARDS_VALUE,
+  Routes,
+} from "@/constants/routes.constants";
 import type { GetApiV1CardsResponse } from "@/lib/api-client/gen";
+import { CARD_SORT_STORAGE_KEY } from "@/lib/card-sort";
+
 import { colors } from "@/theme/theme";
 import { THEME_STORAGE_KEY } from "@/theme/theme.constants";
 import { getApiV1CardsMock, resolveApiMock } from "../../test/mocks/api-client";
@@ -29,6 +35,8 @@ const testCards = [
       logoUrl: "https://logo.clearbit.com/asos.com",
       backgroundColor: "#FFFFFF",
     },
+    viewCount: 0,
+    lastViewedAt: null,
     createdAt: "2020-01-01T00:00:00.000Z",
   },
   {
@@ -42,6 +50,8 @@ const testCards = [
       logoUrl: "https://logo.clearbit.com/cottonon.com",
       backgroundColor: "#FFFFFF",
     },
+    viewCount: 0,
+    lastViewedAt: null,
     createdAt: "2020-01-01T00:00:00.000Z",
   },
 ] satisfies GetApiV1CardsResponse;
@@ -72,6 +82,7 @@ const { CardsScreen } = await import("./CardsScreen");
 describe("CardsScreen", () => {
   beforeEach(async () => {
     await AsyncStorage.removeItem(THEME_STORAGE_KEY);
+    await AsyncStorage.removeItem(CARD_SORT_STORAGE_KEY);
     __expoRouterMocks.push.mockClear();
     __expoRouterMocks.replace.mockClear();
     getApiV1CardsMock.mockClear();
@@ -88,6 +99,62 @@ describe("CardsScreen", () => {
       expect(getByLabelText("ASOS")).toBeTruthy();
     });
     expect(getByLabelText("Cotton On")).toBeTruthy();
+  });
+
+  it("renders sort icon beside the search bar", async () => {
+    const { getByLabelText, getByPlaceholderText, getByText } =
+      await renderWithTheme(<CardsScreen />);
+
+    await waitFor(() => {
+      expect(getByPlaceholderText("Search cards...")).toBeTruthy();
+    });
+    expect(getByLabelText("Sort by")).toBeTruthy();
+
+    fireEvent.press(getByLabelText("Sort by"));
+
+    await waitFor(() => {
+      expect(getByText("A-Z")).toBeTruthy();
+    });
+  });
+
+  it("loads persisted sort preference on mount", async () => {
+    await AsyncStorage.setItem(CARD_SORT_STORAGE_KEY, "most_viewed");
+
+    await renderWithTheme(<CardsScreen />);
+
+    await waitFor(() => {
+      expect(getApiV1CardsMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          query: { sort: "most_viewed" },
+        }),
+      );
+    });
+  });
+
+  it("refetches cards with sort query when sort option changes", async () => {
+    const { getByLabelText, getByText } = await renderWithTheme(
+      <CardsScreen />,
+    );
+
+    await waitFor(() => expect(getApiV1CardsMock).toHaveBeenCalled());
+    const initialCall = getApiV1CardsMock.mock.calls[0]?.[0] as
+      | { query?: { sort?: string } }
+      | undefined;
+    expect(initialCall?.query?.sort).toBe("alphabetical");
+
+    fireEvent.press(getByLabelText("Sort by"));
+    fireEvent.press(getByText("Most viewed"));
+
+    await waitFor(() => {
+      const lastCall = getApiV1CardsMock.mock.calls.at(-1)?.[0] as
+        | { query?: { sort?: string } }
+        | undefined;
+      expect(lastCall?.query?.sort).toBe("most_viewed");
+    });
+
+    expect(await AsyncStorage.getItem(CARD_SORT_STORAGE_KEY)).toBe(
+      "most_viewed",
+    );
   });
 
   it("filters cards by search query", async () => {
@@ -125,6 +192,8 @@ describe("CardsScreen", () => {
             label: "Gym membership",
             view: null,
             brand: null,
+            viewCount: 0,
+            lastViewedAt: null,
             createdAt: "2020-01-01T00:00:00.000Z",
           },
         ],
@@ -150,6 +219,7 @@ describe("CardsScreen", () => {
         createdAt: "2020-01-01T00:00:00.000Z",
         logoUrl: "",
         backgroundColor: colors.cardFallbackLight,
+        [CARD_CODE_FROM_CARDS_PARAM]: CARD_CODE_FROM_CARDS_VALUE,
       },
     });
   });
@@ -173,6 +243,7 @@ describe("CardsScreen", () => {
         createdAt: "2020-01-01T00:00:00.000Z",
         logoUrl: "https://logo.clearbit.com/asos.com",
         backgroundColor: "#FFFFFF",
+        [CARD_CODE_FROM_CARDS_PARAM]: CARD_CODE_FROM_CARDS_VALUE,
       },
     });
   });
@@ -203,6 +274,7 @@ describe("CardsScreen", () => {
         createdAt: "2020-01-01T00:00:00.000Z",
         logoUrl: "https://logo.clearbit.com/asos.com",
         backgroundColor: "#FFFFFF",
+        [CARD_CODE_FROM_CARDS_PARAM]: CARD_CODE_FROM_CARDS_VALUE,
       },
     });
   });

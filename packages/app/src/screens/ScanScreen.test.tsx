@@ -6,6 +6,7 @@ import React from "react";
 import { Routes } from "@/constants/routes.constants";
 import type { PostApiV1CardsResponse } from "@/lib/api-client";
 import {
+  createCardMock,
   getConfigMock,
   postApiV1CardsMock,
   resolveApiMock,
@@ -16,13 +17,7 @@ const testUserId = "00000000-0000-4000-8000-000000000001";
 const fakeJwt = `h.${Buffer.from(JSON.stringify({ sub: testUserId })).toString("base64url")}.s`;
 
 const defaultCardSaveResponse = {
-  data: {
-    id: "card-1",
-    userId: testUserId,
-    cardNumber: "123456",
-    brand: null,
-    createdAt: new Date().toISOString(),
-  },
+  data: createCardMock({ userId: testUserId }),
   error: undefined,
 };
 
