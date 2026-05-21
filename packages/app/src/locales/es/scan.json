@@ -9,6 +9,8 @@
   "scanPromptBarcode": "Escanea el código de barras de la tarjeta",
   "enterManually": "Introducir número de tarjeta manualmente",
   "manualEntryHelp": "Introduce el número de tarjeta impreso en tu tarjeta",
+  "customCardLabel": "Nombre de la tarjeta",
+  "customCardPlaceholder": "p. ej. Membresía del gimnasio",
   "cardNumber": "Número de tarjeta",
   "addCard": "Añadir"
 }

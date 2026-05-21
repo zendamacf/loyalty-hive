@@ -96,15 +96,43 @@ describe("ScanManualEntryScreen", () => {
     expect(getByText("ASOS")).toBeTruthy();
   });
 
-  it("creates a custom card with label and no brand", async () => {
-    __expoRouterMocks.params = { label: "Gym membership" };
+  it("pre-fills card number from scan params", async () => {
+    __expoRouterMocks.params = {
+      customCard: "1",
+      cardNumber: "998877",
+      view: "2D",
+    };
+    const { getByDisplayValue } = await renderWithProviders(
+      <ScanManualEntryScreen />,
+    );
+
+    expect(getByDisplayValue("998877")).toBeTruthy();
+  });
+
+  it("shows card name field for custom cards", async () => {
+    __expoRouterMocks.params = { customCard: "1" };
+    const { getByText, getByPlaceholderText } = await renderWithProviders(
+      <ScanManualEntryScreen />,
+    );
+
+    expect(getByText("Card name")).toBeTruthy();
+    expect(getByPlaceholderText("e.g. Gym membership")).toBeTruthy();
+  });
+
+  it("creates a custom card with label and scanned view", async () => {
+    __expoRouterMocks.params = {
+      customCard: "1",
+      cardNumber: "111222",
+      view: "2D",
+    };
     const { getByPlaceholderText, getByText } = await renderWithProviders(
       <ScanManualEntryScreen />,
     );
 
-    expect(getByText("Gym membership")).toBeTruthy();
-
-    fireEvent.changeText(getByPlaceholderText("Card number"), "111222");
+    fireEvent.changeText(
+      getByPlaceholderText("e.g. Gym membership"),
+      "Gym membership",
+    );
     fireEvent.press(getByText("Add"));
 
     await waitFor(() => {
@@ -114,11 +142,21 @@ describe("ScanManualEntryScreen", () => {
             cardNumber: "111222",
             label: "Gym membership",
             brandId: null,
-            view: null,
+            view: "2D",
           },
         }),
       );
+      expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith(Routes.CARDS);
     });
+  });
+
+  it("does not save custom card when card name is empty", async () => {
+    __expoRouterMocks.params = { customCard: "1", cardNumber: "111222" };
+    const { getByText } = await renderWithProviders(<ScanManualEntryScreen />);
+
+    fireEvent.press(getByText("Add"));
+
+    expect(postApiV1CardsMock).not.toHaveBeenCalled();
   });
 
   it("shows save error and does not navigate when API returns error", async () => {

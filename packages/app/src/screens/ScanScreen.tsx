@@ -30,15 +30,14 @@ export const ScanScreen = () => {
   const params = useLocalSearchParams<{
     brandName?: string;
     brandId?: string;
-    label?: string;
+    customCard?: string;
     defaultView?: CardView;
   }>();
   const selectedBrandName =
     typeof params.brandName === "string" ? params.brandName : null;
   const selectedBrandId =
     typeof params.brandId === "string" ? params.brandId : null;
-  const customLabel =
-    typeof params.label === "string" ? params.label.trim() : null;
+  const isCustomCard = params.customCard === "1";
   const defaultView: CardView | null =
     params.defaultView === "1D" || params.defaultView === "2D"
       ? params.defaultView
@@ -55,32 +54,22 @@ export const ScanScreen = () => {
     }
   }, [defaultView, t]);
 
-  const hasHeaderContext = Boolean(
-    (selectedBrandId && selectedBrandName) || (!selectedBrandId && customLabel),
-  );
+  const hasHeaderContext = Boolean(selectedBrandId && selectedBrandName);
 
   const [permission, requestPermission] = useCameraPermissions();
   const [isSaving, setIsSaving] = useState(false);
+  const [scanHandled, setScanHandled] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const saveLockRef = useRef(false);
+  const scanLockRef = useRef(false);
   const queryClient = useQueryClient();
 
   const headerTitle = useMemo(() => {
     if (selectedBrandId && selectedBrandName) {
       return selectedBrandName;
     }
-    if (!selectedBrandId && customLabel) {
-      return customLabel;
-    }
     return isSaving ? t("savingCard") : scanPrompt;
-  }, [
-    customLabel,
-    isSaving,
-    scanPrompt,
-    selectedBrandId,
-    selectedBrandName,
-    t,
-  ]);
+  }, [isSaving, scanPrompt, selectedBrandId, selectedBrandName, t]);
 
   const headerSubtitle = useMemo(() => {
     if (!hasHeaderContext) {
@@ -107,11 +96,10 @@ export const ScanScreen = () => {
       setSaveError(null);
 
       try {
-        const apiLabel = selectedBrandId ? null : customLabel;
         await createCard({
           body: {
             cardNumber: trimmed,
-            label: apiLabel,
+            label: null,
             brandId: selectedBrandId,
             view: cardType,
           },
@@ -124,12 +112,36 @@ export const ScanScreen = () => {
         setIsSaving(false);
       }
     },
-    [createCard, customLabel, selectedBrandId],
+    [createCard, selectedBrandId],
   );
 
-  const handleScan = (result: BarcodeScanningResult) => {
-    void saveCard(result.data, resolveCardViewFromBarcodeType(result.type));
-  };
+  const handleScan = useCallback(
+    (result: BarcodeScanningResult) => {
+      // Prevent multiple scans triggered by camera
+      if (scanLockRef.current || scanHandled || isSaving) {
+        return;
+      }
+
+      if (isCustomCard) {
+        scanLockRef.current = true;
+        setScanHandled(true);
+        router.push({
+          pathname: Routes.SCAN_MANUAL_ENTRY,
+          params: {
+            customCard: "1",
+            cardNumber: result.data,
+            view: resolveCardViewFromBarcodeType(result.type),
+          },
+        });
+        return;
+      }
+
+      void saveCard(result.data, resolveCardViewFromBarcodeType(result.type));
+    },
+    [isCustomCard, isSaving, saveCard, scanHandled],
+  );
+
+  const isScanningEnabled = !scanHandled && !isSaving;
 
   const openManualEntry = useCallback(() => {
     router.push({
@@ -137,10 +149,10 @@ export const ScanScreen = () => {
       params: {
         ...(selectedBrandId ? { brandId: selectedBrandId } : {}),
         ...(selectedBrandName ? { brandName: selectedBrandName } : {}),
-        ...(customLabel ? { label: customLabel } : {}),
+        ...(isCustomCard ? { customCard: "1" } : {}),
       },
     });
-  }, [customLabel, selectedBrandId, selectedBrandName]);
+  }, [isCustomCard, selectedBrandId, selectedBrandName]);
 
   if (!permission) {
     return (
@@ -189,7 +201,7 @@ export const ScanScreen = () => {
             testID="scan-camera"
             style={styles.camera}
             facing="back"
-            onBarcodeScanned={isSaving ? undefined : handleScan}
+            onBarcodeScanned={isScanningEnabled ? handleScan : undefined}
             barcodeScannerSettings={{
               barcodeTypes: [
                 "aztec",

@@ -9,10 +9,8 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
-import { Button } from "@/components/Button";
 import { CloseButton } from "@/components/CloseButton";
 import { DataLoadStatus } from "@/components/DataLoadStatus";
 import { LoyaltyBrandLogo } from "@/components/LoyaltyBrandLogo";
@@ -37,8 +35,6 @@ export const SelectBrandScreen = () => {
   const { t } = useTranslation(I18nNamespace.Brands);
   const { colors } = useTheme();
   const [query, setQuery] = useState("");
-  const [isCustomLabelOpen, setIsCustomLabelOpen] = useState(false);
-  const [customLabel, setCustomLabel] = useState("");
 
   const {
     data: brands = [],
@@ -67,71 +63,33 @@ export const SelectBrandScreen = () => {
     );
   }, [brands, query]);
 
-  const trimmedCustomLabel = customLabel.trim();
-  const canContinueToScan = trimmedCustomLabel.length > 0;
-
-  const continueToCustomScan = useCallback(() => {
-    if (!canContinueToScan) {
-      return;
-    }
+  const openCustomCardScan = useCallback(() => {
     router.push({
       pathname: Routes.SCAN,
-      params: { label: trimmedCustomLabel },
+      params: { customCard: "1" },
     });
-  }, [canContinueToScan, trimmedCustomLabel]);
+  }, []);
 
   const customCardSection = (
     <View style={styles.customFooter}>
-      {!isCustomLabelOpen ? (
-        <Pressable
-          accessibilityLabel={t("customCardTitle")}
-          accessibilityRole="button"
-          style={({ pressed }) => [
-            styles.customCardButton,
-            {
-              borderColor: colors.border,
-              backgroundColor: colors.surface,
-            },
-            pressed && styles.customCardButtonPressed,
-          ]}
-          onPress={() => setIsCustomLabelOpen(true)}
-        >
-          <PlusIcon color={colors.textPrimary} size={icon.md} />
-          <Text style={[styles.customCardTitle, { color: colors.textPrimary }]}>
-            {t("customCardTitle")}
-          </Text>
-        </Pressable>
-      ) : (
-        <View style={styles.customLabelForm}>
-          <Text
-            style={[styles.customLabelHeading, { color: colors.textPrimary }]}
-          >
-            {t("customCardLabel")}
-          </Text>
-          <TextInput
-            accessibilityLabel={t("customCardLabel")}
-            value={customLabel}
-            onChangeText={setCustomLabel}
-            placeholder={t("customCardPlaceholder")}
-            placeholderTextColor={colors.textSecondary}
-            autoCapitalize="words"
-            autoCorrect={false}
-            style={[
-              styles.customLabelInput,
-              {
-                borderColor: colors.border,
-                color: colors.textPrimary,
-                backgroundColor: colors.background,
-              },
-            ]}
-          />
-          <Button
-            title={t("continueToScan")}
-            onPress={continueToCustomScan}
-            disabled={!canContinueToScan}
-          />
-        </View>
-      )}
+      <Pressable
+        accessibilityLabel={t("customCardTitle")}
+        accessibilityRole="button"
+        style={({ pressed }) => [
+          styles.customCardButton,
+          {
+            borderColor: colors.border,
+            backgroundColor: colors.surface,
+          },
+          pressed && styles.customCardButtonPressed,
+        ]}
+        onPress={openCustomCardScan}
+      >
+        <PlusIcon color={colors.textPrimary} size={icon.md} />
+        <Text style={[styles.customCardTitle, { color: colors.textPrimary }]}>
+          {t("customCardTitle")}
+        </Text>
+      </Pressable>
     </View>
   );
 
@@ -242,18 +200,5 @@ const styles = StyleSheet.create({
   },
   customCardTitle: {
     ...typography.bodySemibold,
-  },
-  customLabelForm: {
-    gap: spacing.sm,
-  },
-  customLabelHeading: {
-    ...typography.label,
-  },
-  customLabelInput: {
-    borderWidth: 1,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    ...typography.body,
   },
 });

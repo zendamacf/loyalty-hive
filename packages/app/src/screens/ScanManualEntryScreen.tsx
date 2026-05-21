@@ -14,6 +14,7 @@ import {
   getApiV1CardsQueryKey,
   postApiV1CardsMutation,
 } from "@/lib/api-client";
+import type { CardView } from "@/lib/cardView";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import { radius, spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
@@ -24,16 +25,22 @@ export const ScanManualEntryScreen = () => {
   const params = useLocalSearchParams<{
     brandName?: string;
     brandId?: string;
-    label?: string;
+    customCard?: string;
+    cardNumber?: string;
+    view?: CardView;
   }>();
   const selectedBrandName =
     typeof params.brandName === "string" ? params.brandName : null;
   const selectedBrandId =
     typeof params.brandId === "string" ? params.brandId : null;
-  const customLabel =
-    typeof params.label === "string" ? params.label.trim() : null;
+  const isCustomCard = params.customCard === "1";
+  const initialCardNumber =
+    typeof params.cardNumber === "string" ? params.cardNumber : "";
+  const cardView: CardView | null =
+    params.view === "1D" || params.view === "2D" ? params.view : null;
 
-  const [cardNumber, setCardNumber] = useState("");
+  const [cardNumber, setCardNumber] = useState(initialCardNumber);
+  const [customLabel, setCustomLabel] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const saveLockRef = useRef(false);
@@ -43,14 +50,15 @@ export const ScanManualEntryScreen = () => {
     if (selectedBrandId && selectedBrandName) {
       return selectedBrandName;
     }
-    if (!selectedBrandId && customLabel) {
-      return customLabel;
-    }
     return t("enterManually");
-  }, [customLabel, selectedBrandId, selectedBrandName, t]);
+  }, [selectedBrandId, selectedBrandName, t]);
 
   const trimmedCardNumber = cardNumber.trim();
-  const canSubmit = trimmedCardNumber.length > 0 && !isSaving;
+  const trimmedCustomLabel = customLabel.trim();
+  const canSubmit =
+    trimmedCardNumber.length > 0 &&
+    (!isCustomCard || trimmedCustomLabel.length > 0) &&
+    !isSaving;
 
   const { mutateAsync: createCard } = useMutation({
     ...postApiV1CardsMutation(),
@@ -60,7 +68,7 @@ export const ScanManualEntryScreen = () => {
   });
 
   const submitCardNumber = useCallback(async () => {
-    if (!trimmedCardNumber || saveLockRef.current) {
+    if (!canSubmit || saveLockRef.current) {
       return;
     }
     saveLockRef.current = true;
@@ -68,13 +76,12 @@ export const ScanManualEntryScreen = () => {
     setSaveError(null);
 
     try {
-      const apiLabel = selectedBrandId ? null : customLabel;
       await createCard({
         body: {
           cardNumber: trimmedCardNumber,
-          label: apiLabel,
+          label: isCustomCard ? trimmedCustomLabel : null,
           brandId: selectedBrandId,
-          view: null,
+          view: cardView,
         },
       });
       router.dismissTo(Routes.CARDS);
@@ -84,7 +91,15 @@ export const ScanManualEntryScreen = () => {
       saveLockRef.current = false;
       setIsSaving(false);
     }
-  }, [createCard, customLabel, selectedBrandId, trimmedCardNumber]);
+  }, [
+    canSubmit,
+    cardView,
+    createCard,
+    isCustomCard,
+    selectedBrandId,
+    trimmedCardNumber,
+    trimmedCustomLabel,
+  ]);
 
   return (
     <ScreenShell
@@ -105,6 +120,34 @@ export const ScanManualEntryScreen = () => {
     >
       <ScreenShell.Body style={styles.body}>
         <ScreenHeader title={headerTitle} actions={<CloseButton />} embedded />
+
+        {isCustomCard ? (
+          <>
+            <Text
+              style={[styles.fieldLabel, { color: colors.textSecondary }]}
+            >
+              {t("customCardLabel")}
+            </Text>
+            <TextInput
+              accessibilityLabel={t("customCardLabel")}
+              value={customLabel}
+              onChangeText={setCustomLabel}
+              placeholder={t("customCardPlaceholder")}
+              placeholderTextColor={colors.textSecondary}
+              autoCapitalize="words"
+              autoCorrect={false}
+              editable={!isSaving}
+              style={[
+                styles.input,
+                {
+                  borderColor: colors.border,
+                  color: colors.textPrimary,
+                  backgroundColor: colors.surface,
+                },
+              ]}
+            />
+          </>
+        ) : null}
 
         <Text style={[styles.helpText, { color: colors.textSecondary }]}>
           {t("manualEntryHelp")}
@@ -137,6 +180,9 @@ export const ScanManualEntryScreen = () => {
 const styles = StyleSheet.create({
   body: {
     gap: spacing.md,
+  },
+  fieldLabel: {
+    ...typography.caption,
   },
   helpText: {
     ...typography.body,
