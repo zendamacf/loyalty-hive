@@ -138,11 +138,20 @@ export type GetApiV1BrandsResponse = GetApiV1BrandsResponses[keyof GetApiV1Brand
 export type GetApiV1CardsData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        sort?: 'alphabetical' | 'most_viewed' | 'last_viewed';
+        order?: 'asc' | 'desc';
+    };
     url: '/api/v1/cards';
 };
 
 export type GetApiV1CardsErrors = {
+    /**
+     * Invalid sort or order parameter
+     */
+    400: {
+        error: string;
+    };
     /**
      * Unauthorized
      */
@@ -169,6 +178,8 @@ export type GetApiV1CardsResponses = {
             logoUrl: string;
             backgroundColor: string;
         } | null;
+        viewCount: number;
+        lastViewedAt: string | null;
         createdAt: string;
     }>;
 };
@@ -226,6 +237,8 @@ export type PostApiV1CardsResponses = {
             logoUrl: string;
             backgroundColor: string;
         } | null;
+        viewCount: number;
+        lastViewedAt: string | null;
         createdAt: string;
     };
 };
@@ -309,6 +322,8 @@ export type GetApiV1CardsByIdResponses = {
             logoUrl: string;
             backgroundColor: string;
         } | null;
+        viewCount: number;
+        lastViewedAt: string | null;
         createdAt: string;
     };
 };

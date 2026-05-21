@@ -29,6 +29,8 @@ const testCards = [
       logoUrl: "https://logo.clearbit.com/asos.com",
       backgroundColor: "#FFFFFF",
     },
+    viewCount: 0,
+    lastViewedAt: null,
     createdAt: "2020-01-01T00:00:00.000Z",
   },
   {
@@ -42,6 +44,8 @@ const testCards = [
       logoUrl: "https://logo.clearbit.com/cottonon.com",
       backgroundColor: "#FFFFFF",
     },
+    viewCount: 0,
+    lastViewedAt: null,
     createdAt: "2020-01-01T00:00:00.000Z",
   },
 ] satisfies GetApiV1CardsResponse;
@@ -125,6 +129,8 @@ describe("CardsScreen", () => {
             label: "Gym membership",
             view: null,
             brand: null,
+            viewCount: 0,
+            lastViewedAt: null,
             createdAt: "2020-01-01T00:00:00.000Z",
           },
         ],

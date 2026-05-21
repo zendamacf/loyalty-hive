@@ -65,17 +65,24 @@ export const getApiV1CardsMock = mock(
     resolveApiMock({ data: [], error: undefined }, options),
 );
 
+export const createCardMock = (
+  overrides: Partial<PostApiV1CardsResponse> = {},
+): PostApiV1CardsResponse => ({
+  id: "card-1",
+  userId: "00000000-0000-4000-8000-000000000001",
+  cardNumber: "123456",
+  brand: null,
+  viewCount: 0,
+  lastViewedAt: null,
+  createdAt: new Date().toISOString(),
+  ...overrides,
+});
+
 export const postApiV1CardsMock = mock(
   (options?: SdkOptions): Promise<ApiMockResult<PostApiV1CardsResponse>> =>
     resolveApiMock(
       {
-        data: {
-          id: "card-1",
-          userId: "00000000-0000-4000-8000-000000000001",
-          cardNumber: "123456",
-          brand: null,
-          createdAt: new Date().toISOString(),
-        },
+        data: createCardMock(),
         error: undefined,
       },
       options,
@@ -86,13 +93,7 @@ export const getApiV1CardsByIdMock = mock(
   (options?: SdkOptions): Promise<ApiMockResult<GetApiV1CardsByIdResponse>> =>
     resolveApiMock(
       {
-        data: {
-          id: "card-1",
-          userId: "00000000-0000-4000-8000-000000000001",
-          cardNumber: "123456",
-          brand: null,
-          createdAt: new Date().toISOString(),
-        },
+        data: createCardMock(),
         error: undefined,
       },
       options,
