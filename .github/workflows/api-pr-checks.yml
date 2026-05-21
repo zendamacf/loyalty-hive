@@ -74,7 +74,6 @@ jobs:
           compare_branch: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
           api_key: ${{ secrets.NEON_API_KEY }}
           database: loyaltyhive
-          role: loyaltyhive_api
 
       - name: Run lint
         run: bun run lint
