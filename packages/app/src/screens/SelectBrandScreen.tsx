@@ -149,6 +149,7 @@ export const SelectBrandScreen = () => {
             params: {
               brandId: item.id,
               brandName: item.name,
+              defaultView: item.defaultView,
             },
           })
         }

@@ -128,6 +128,7 @@ export type GetApiV1BrandsResponses = {
         name: string;
         logoUrl: string;
         backgroundColor: string;
+        defaultView: '1D' | '2D' | null;
         createdAt: string;
     }>;
 };

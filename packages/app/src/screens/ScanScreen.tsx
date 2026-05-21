@@ -13,6 +13,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
+import { ScanGuideOverlay } from "@/components/ScanGuideOverlay";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { ScreenShell } from "@/components/ScreenShell";
 import { Routes } from "@/constants/routes.constants";
@@ -33,6 +34,7 @@ export const ScanScreen = () => {
     brandName?: string;
     brandId?: string;
     label?: string;
+    defaultView?: CardView;
   }>();
   const selectedBrandName =
     typeof params.brandName === "string" ? params.brandName : null;
@@ -40,6 +42,11 @@ export const ScanScreen = () => {
     typeof params.brandId === "string" ? params.brandId : null;
   const customLabel =
     typeof params.label === "string" ? params.label.trim() : null;
+  const defaultView: CardView | null =
+    params.defaultView === "1D" || params.defaultView === "2D"
+      ? params.defaultView
+      : null;
+
   const [permission, requestPermission] = useCameraPermissions();
   const [isManualEntryOpen, setIsManualEntryOpen] = useState(false);
   const [manualCode, setManualCode] = useState("");
@@ -162,6 +169,8 @@ export const ScanScreen = () => {
           ],
         }}
       />
+
+      {defaultView ? <ScanGuideOverlay view={defaultView} /> : null}
 
       <View style={[styles.overlay, { bottom: spacing.lg + insets.bottom }]}>
         <View style={styles.overlayHeader}>
