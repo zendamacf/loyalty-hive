@@ -10,6 +10,7 @@ import {
 } from "@/constants/routes.constants";
 import type { GetApiV1CardsResponse } from "@/lib/api-client/gen";
 import { colors } from "@/theme/theme";
+import { CARD_SORT_STORAGE_KEY } from "@/lib/card-sort";
 import { THEME_STORAGE_KEY } from "@/theme/theme.constants";
 import { getApiV1CardsMock, resolveApiMock } from "../../test/mocks/api-client";
 import {
@@ -80,6 +81,7 @@ const { CardsScreen } = await import("./CardsScreen");
 describe("CardsScreen", () => {
   beforeEach(async () => {
     await AsyncStorage.removeItem(THEME_STORAGE_KEY);
+    await AsyncStorage.removeItem(CARD_SORT_STORAGE_KEY);
     __expoRouterMocks.push.mockClear();
     __expoRouterMocks.replace.mockClear();
     getApiV1CardsMock.mockClear();
@@ -114,6 +116,20 @@ describe("CardsScreen", () => {
     });
   });
 
+  it("loads persisted sort preference on mount", async () => {
+    await AsyncStorage.setItem(CARD_SORT_STORAGE_KEY, "most_viewed");
+
+    await renderWithTheme(<CardsScreen />);
+
+    await waitFor(() => {
+      expect(getApiV1CardsMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          query: { sort: "most_viewed" },
+        }),
+      );
+    });
+  });
+
   it("refetches cards with sort query when sort option changes", async () => {
     const { getByLabelText, getByText } = await renderWithTheme(
       <CardsScreen />,
@@ -134,6 +150,10 @@ describe("CardsScreen", () => {
         | undefined;
       expect(lastCall?.query?.sort).toBe("most_viewed");
     });
+
+    expect(await AsyncStorage.getItem(CARD_SORT_STORAGE_KEY)).toBe(
+      "most_viewed",
+    );
   });
 
   it("filters cards by search query", async () => {

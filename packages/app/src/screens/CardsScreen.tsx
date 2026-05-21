@@ -1,6 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { ListFilterIcon, PlusIcon, SettingsIcon } from "lucide-react-native";
+import {
+  ArrowDownAZIcon,
+  ClockIcon,
+  EyeIcon,
+  ListFilterIcon,
+  PlusIcon,
+  SettingsIcon,
+} from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -22,11 +29,12 @@ import {
   Routes,
 } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
+import { type GetApiV1CardsResponse, getApiV1CardsOptions } from "@/lib/api-client";
 import {
-  type GetApiV1CardsData,
-  type GetApiV1CardsResponse,
-  getApiV1CardsOptions,
-} from "@/lib/api-client";
+  CARD_SORT_OPTIONS,
+  type CardListSort,
+  useCardSort,
+} from "@/lib/card-sort";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import { AppTitle } from "../components/AppTitle";
 import { LoyaltyBrandLogo } from "../components/LoyaltyBrandLogo";
@@ -38,20 +46,16 @@ import { useTheme } from "../theme/useTheme";
 
 const appIcon = require("../../assets/images/icon.png");
 
-type CardListSort = NonNullable<
-  NonNullable<GetApiV1CardsData["query"]>["sort"]
->;
-
-const CARD_SORT_OPTIONS = [
-  "alphabetical",
-  "most_viewed",
-  "last_viewed",
-] as const satisfies readonly CardListSort[];
-
-const SORT_LABEL_KEYS = {
+const SORT_LABEL_KEYS: Record<CardListSort, "sortAlphabetical" | "sortMostViewed" | "sortLastViewed"> = {
   alphabetical: "sortAlphabetical",
   most_viewed: "sortMostViewed",
   last_viewed: "sortLastViewed",
+} as const;
+
+const SORT_ICONS = {
+  alphabetical: ArrowDownAZIcon,
+  most_viewed: EyeIcon,
+  last_viewed: ClockIcon,
 } as const;
 
 function filterCards(
@@ -74,7 +78,7 @@ export const CardsScreen = () => {
   const { t } = useTranslation([I18nNamespace.Cards, I18nNamespace.Common]);
   const { colors } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
-  const [sort, setSort] = useState<CardListSort>("alphabetical");
+  const { sort, setSort, hydrated: cardSortHydrated } = useCardSort();
 
   const {
     data: cards = [],
@@ -82,11 +86,12 @@ export const CardsScreen = () => {
     isError,
     isPending,
     refetch,
-  } = useQuery(
-    getApiV1CardsOptions({
+  } = useQuery({
+    ...getApiV1CardsOptions({
       query: { sort },
     }),
-  );
+    enabled: cardSortHydrated,
+  });
 
   const error = isError ? getErrorMessage(queryError) : null;
   const loaded = !isPending;
@@ -106,6 +111,7 @@ export const CardsScreen = () => {
       CARD_SORT_OPTIONS.map((option) => ({
         value: option,
         label: t(SORT_LABEL_KEYS[option]),
+        icon: SORT_ICONS[option],
       })),
     [t],
   );

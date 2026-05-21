@@ -1,5 +1,5 @@
 import { useColorScheme } from "react-native";
-import { useThemeContext } from "./ThemeProvider";
+import { useThemeContext } from "./useThemeContext";
 import { colors } from "./theme";
 
 const fallbackColors = (isDark: boolean) => ({

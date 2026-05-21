@@ -1,12 +1,12 @@
-import { ChevronDownIcon } from "lucide-react-native";
+import { ChevronDownIcon, type LucideIcon } from "lucide-react-native";
 import {
+  type ReactNode,
   useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
   useState,
-  type ReactNode,
 } from "react";
 import {
   Animated,
@@ -28,6 +28,7 @@ import { useTheme } from "@/theme/useTheme";
 export type SelectOption<T extends string> = {
   value: T;
   label: string;
+  icon?: LucideIcon;
 };
 
 export type SelectTriggerRenderProps = {
@@ -273,6 +274,10 @@ export const Select = <T extends string>({
           <View onLayout={onMenuLayout} style={styles.menuContent}>
             {options.map((option) => {
               const selected = option.value === value;
+              const OptionIcon = option.icon;
+              const optionColor = selected
+                ? colors.primary
+                : colors.textSecondary;
               return (
                 <Pressable
                   key={option.value}
@@ -288,17 +293,24 @@ export const Select = <T extends string>({
                     pressed && styles.optionPressed,
                   ]}
                 >
-                  <Text
-                    style={[
-                      styles.optionLabel,
-                      selected && styles.optionLabelSelected,
-                      {
-                        color: selected ? colors.primary : colors.textPrimary,
-                      },
-                    ]}
-                  >
-                    {option.label}
-                  </Text>
+                  <View style={styles.optionRow}>
+                    {OptionIcon ? (
+                      <OptionIcon color={optionColor} size={icon.md} />
+                    ) : null}
+                    <Text
+                      style={[
+                        styles.optionLabel,
+                        selected && styles.optionLabelSelected,
+                        {
+                          color: selected
+                            ? colors.primary
+                            : colors.textPrimary,
+                        },
+                      ]}
+                    >
+                      {option.label}
+                    </Text>
+                  </View>
                 </Pressable>
               );
             })}
@@ -445,10 +457,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
+  optionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
   optionPressed: {
     opacity: 0.7,
   },
   optionLabel: {
+    flex: 1,
     ...typography.body,
   },
   optionLabelSelected: {
