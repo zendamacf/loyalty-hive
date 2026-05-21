@@ -24,12 +24,12 @@ import {
 } from "@/lib/card-sort/card-sort.constants";
 
 import { CardSortContext } from "@/lib/card-sort/card-sort-context";
-import { themeColorsForMode, ThemeContext } from "@/theme/theme-context";
 import {
   isThemeMode,
   THEME_STORAGE_KEY,
   type ThemeMode,
 } from "@/theme/theme.constants";
+import { ThemeContext, themeColorsForMode } from "@/theme/theme-context";
 
 const readStoredLanguage = async (
   deviceLanguageCode: string | null,
