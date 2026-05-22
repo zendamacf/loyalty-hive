@@ -13,11 +13,13 @@ export const isThemeMode = (value: string | null): value is ThemeMode =>
   value === "system" || value === "light" || value === "dark";
 
 /** Maps each explicit theme preference to the palette applied at runtime. */
-export const THEME_PALETTE: Record<Exclude<ThemeMode, "system">, ColorAppearance> =
-  {
-    light: "light",
-    dark: "dark",
-  };
+export const THEME_PALETTE: Record<
+  Exclude<ThemeMode, "system">,
+  ColorAppearance
+> = {
+  light: "light",
+  dark: "dark",
+};
 
 export const resolveColorAppearance = (
   mode: ThemeMode,

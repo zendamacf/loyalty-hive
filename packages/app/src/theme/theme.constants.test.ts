@@ -1,9 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import {
-  resolveColorAppearance,
-  THEME_PALETTE,
-} from "./theme.constants";
+import { resolveColorAppearance, THEME_PALETTE } from "./theme.constants";
 
 describe("theme.constants", () => {
   it("maps explicit theme modes to palettes via THEME_PALETTE", () => {

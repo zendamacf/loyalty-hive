@@ -113,10 +113,7 @@ export const UserPreferencesProvider = ({
     void i18n.changeLanguage(languagePreference);
   }, [languageHydrated, languagePreference]);
 
-  const colorAppearance = resolveColorAppearance(
-    themePreference,
-    systemScheme,
-  );
+  const colorAppearance = resolveColorAppearance(themePreference, systemScheme);
 
   const setThemeMode = useCallback((mode: ThemeMode) => {
     setThemePreference(mode);
