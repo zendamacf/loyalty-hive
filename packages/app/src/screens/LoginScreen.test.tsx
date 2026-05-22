@@ -21,9 +21,6 @@ import {
 } from "../../test/mocks/expo-secure-store";
 import { renderWithTheme } from "../../test/render";
 
-/** Bun otherwise executes the real PNG file when LoginScreen loads `require(...)`. */
-mock.module("../../assets/icon.png", () => ({ default: 1 }));
-
 const { __expoRouterMocks } = globalThis as unknown as {
   __expoRouterMocks: {
     replace: ReturnType<typeof mock>;

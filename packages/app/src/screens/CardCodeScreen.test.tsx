@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { fireEvent, waitFor } from "@testing-library/react-native";
-import React from "react";
 import { Image } from "react-native";
 
 import {
@@ -18,16 +17,6 @@ const { __expoRouterMocks } = globalThis as unknown as {
     params: Record<string, string | undefined>;
   };
 };
-
-mock.module("react-native-barcode-svg", () => ({
-  default: (props: Record<string, unknown>) =>
-    React.createElement("Barcode", props),
-}));
-
-mock.module("react-native-qrcode-svg", () => ({
-  default: (props: Record<string, unknown>) =>
-    React.createElement("QRCode", { testID: "qrcode", ...props }),
-}));
 
 const { CardCodeScreen } = await import("./CardCodeScreen");
 

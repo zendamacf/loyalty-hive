@@ -2,11 +2,10 @@ import { mock } from "bun:test";
 import React from "react";
 
 import "./mocks/api-client";
+import "./mocks/assets";
+import "./mocks/card-code-svg";
 import "./mocks/expo-localization";
 import "./mocks/expo-secure-store";
-
-/** Bun otherwise executes the real PNG when screens load `require(...)`. */
-mock.module("../assets/icon.png", () => ({ default: 1 }));
 
 const asyncStorage = new Map<string, string>();
 
@@ -25,8 +24,8 @@ mock.module("@react-native-async-storage/async-storage", () => ({
   },
 }));
 
-/// This is a bunch of mocks to allow testing of React Native components.
-/// TODO: There must be a better solution for this.
+/// Hand-rolled react-native / navigation mocks for Bun test (no jest-expo preset).
+/// See test/README.md for jest-expo coverage audit and when to reconsider Jest.
 
 const expoRouterMocks = {
   push: mock(() => {}),

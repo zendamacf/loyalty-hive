@@ -1,16 +1,5 @@
-import { describe, expect, it, mock } from "bun:test";
-import React from "react";
+import { describe, expect, it } from "bun:test";
 import { renderWithTheme } from "../../test/render";
-
-mock.module("react-native-barcode-svg", () => ({
-  default: (props: Record<string, unknown>) =>
-    React.createElement("Barcode", props),
-}));
-
-mock.module("react-native-qrcode-svg", () => ({
-  default: (props: Record<string, unknown>) =>
-    React.createElement("QRCode", { testID: "qrcode", ...props }),
-}));
 
 const { CardCodeDisplay } = await import("./CardCodeDisplay");
 

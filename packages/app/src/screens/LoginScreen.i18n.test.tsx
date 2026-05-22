@@ -7,9 +7,6 @@ import i18n from "@/i18n";
 import { LANGUAGE_STORAGE_KEY } from "@/i18n/i18n.constants";
 import { renderWithTheme } from "../../test/render";
 
-/** Bun otherwise executes the real PNG file when LoginScreen loads `require(...)`. */
-mock.module("../../assets/icon.png", () => ({ default: 1 }));
-
 const { LoginScreen } = await import("./LoginScreen");
 
 async function flushMicrotasks(): Promise<void> {
