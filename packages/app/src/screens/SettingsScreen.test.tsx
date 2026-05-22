@@ -34,7 +34,7 @@ describe("SettingsScreen", () => {
     secureStoreDeleteMock.mockClear();
   });
 
-  it("renders theme toggle, language picker, and sign out button", async () => {
+  it("renders theme picker, language picker, and sign out button", async () => {
     const { getByText, getByLabelText } = await renderWithTheme(
       <SettingsScreen />,
     );
@@ -43,7 +43,7 @@ describe("SettingsScreen", () => {
     expect(getByText("Theme")).toBeTruthy();
     expect(getByText("Language")).toBeTruthy();
     expect(getByText("English")).toBeTruthy();
-    expect(getByLabelText("Use dark theme")).toBeTruthy();
+    expect(getByText("Light")).toBeTruthy();
     expect(getByText("Sign out")).toBeTruthy();
 
     fireEvent.press(getByLabelText("Language"));
@@ -53,19 +53,22 @@ describe("SettingsScreen", () => {
     });
   });
 
-  it("toggles dark theme from the theme control", async () => {
+  it("changes theme from the theme picker", async () => {
     const { getByLabelText, getByText } = await renderWithTheme(
       <SettingsScreen />,
     );
 
-    expect(getByLabelText("Use dark theme")).toBeTruthy();
-    expect(getByText("sun")).toBeTruthy();
+    expect(getByText("Light")).toBeTruthy();
 
-    fireEvent.press(getByLabelText("Use dark theme"));
+    fireEvent.press(getByLabelText("Theme"));
 
     await waitFor(() => {
-      expect(getByLabelText("Use light theme")).toBeTruthy();
       expect(getByText("moon")).toBeTruthy();
+    });
+
+    fireEvent.press(getByText("Dark"));
+
+    await waitFor(() => {
       expect(getByText("Dark")).toBeTruthy();
     });
   });

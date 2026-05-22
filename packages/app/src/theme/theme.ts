@@ -103,6 +103,7 @@ export const typography = {
 } as const;
 
 export const icon = {
+  sm: 20,
   md: 24,
 } as const;
 

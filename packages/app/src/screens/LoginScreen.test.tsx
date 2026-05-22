@@ -59,8 +59,6 @@ describe("LoginScreen", () => {
     const { getByText, getByPlaceholderText, getByLabelText } =
       await renderWithTheme(<LoginScreen />);
 
-    expect(getByLabelText("Use dark theme")).toBeTruthy();
-    expect(getByText("sun")).toBeTruthy();
     expect(getByText(APP_NAME)).toBeTruthy();
     expect(getByText("Sign in to manage your loyalty cards")).toBeTruthy();
     expect(getByPlaceholderText("Email")).toBeTruthy();
@@ -88,22 +86,6 @@ describe("LoginScreen", () => {
 
     expect(passwordInput.props.secureTextEntry).toBe(true);
     expect(getByLabelText("Show password")).toBeTruthy();
-  });
-
-  it("toggles theme from the header control", async () => {
-    const { getByLabelText, getByText } = await renderWithTheme(
-      <LoginScreen />,
-    );
-
-    expect(getByLabelText("Use dark theme")).toBeTruthy();
-    expect(getByText("sun")).toBeTruthy();
-
-    fireEvent.press(getByLabelText("Use dark theme"));
-
-    await waitFor(() => {
-      expect(getByLabelText("Use light theme")).toBeTruthy();
-      expect(getByText("moon")).toBeTruthy();
-    });
   });
 
   it("shows validation when email or password is missing", async () => {

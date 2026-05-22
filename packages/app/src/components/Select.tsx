@@ -295,7 +295,7 @@ export const Select = <T extends string>({
                 >
                   <View style={styles.optionRow}>
                     {OptionIcon ? (
-                      <OptionIcon color={optionColor} size={icon.md} />
+                      <OptionIcon color={optionColor} size={icon.sm} />
                     ) : null}
                     <Text
                       style={[
@@ -383,6 +383,11 @@ export const Select = <T extends string>({
             disabled && styles.triggerDisabled,
           ]}
         >
+          {selectedOption?.icon &&
+            (() => {
+              const OptionIcon = selectedOption.icon;
+              return <OptionIcon color={colors.textPrimary} size={icon.sm} />;
+            })()}
           <Text
             style={[styles.triggerLabel, { color: colors.textPrimary }]}
             numberOfLines={1}
@@ -390,7 +395,7 @@ export const Select = <T extends string>({
             {selectedOption?.label ?? ""}
           </Text>
           <Animated.View style={[styles.chevron, chevronStyle]}>
-            <ChevronDownIcon color={colors.textSecondary} size={icon.md} />
+            <ChevronDownIcon color={colors.textSecondary} size={icon.sm} />
           </Animated.View>
         </Pressable>
       )}

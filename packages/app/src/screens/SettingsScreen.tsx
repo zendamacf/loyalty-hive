@@ -8,7 +8,7 @@ import { CloseButton } from "@/components/CloseButton";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { ScreenShell } from "@/components/ScreenShell";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { ThemePicker } from "@/components/ThemePicker";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { useAuth } from "@/lib/auth";
@@ -50,7 +50,9 @@ export const SettingsScreen = () => {
           <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>
             {t("theme")}
           </Text>
-          <ThemeToggle showLabel style={styles.themeToggle} />
+          <View style={styles.settingControl}>
+            <ThemePicker />
+          </View>
         </View>
 
         <View
@@ -65,7 +67,9 @@ export const SettingsScreen = () => {
           <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>
             {t("language")}
           </Text>
-          <LanguagePicker />
+          <View style={styles.settingControl}>
+            <LanguagePicker />
+          </View>
         </View>
       </ScreenShell.Body>
     </ScreenShell>
@@ -82,11 +86,13 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
   },
-  themeToggle: {
-    padding: 0,
-  },
   settingLabel: {
     ...typography.label,
+    flexShrink: 0,
+  },
+  settingControl: {
+    width: 200,
+    marginLeft: spacing.md,
   },
   footer: {
     paddingTop: spacing.md,
