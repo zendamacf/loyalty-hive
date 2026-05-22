@@ -17,6 +17,7 @@ export type ThemeColors = {
 
 export type ThemeContextValue = {
   isDark: boolean;
+  themeMode: ThemeMode;
   colors: ThemeColors;
   hydrated: boolean;
   setThemeMode: (mode: ThemeMode) => void;

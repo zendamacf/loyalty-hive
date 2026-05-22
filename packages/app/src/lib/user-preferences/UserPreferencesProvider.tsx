@@ -25,7 +25,9 @@ import {
 
 import { CardSortContext } from "@/lib/card-sort/card-sort-context";
 import {
+  DEFAULT_THEME_MODE,
   isThemeMode,
+  resolveIsDark,
   THEME_STORAGE_KEY,
   type ThemeMode,
 } from "@/theme/theme.constants";
@@ -49,9 +51,8 @@ export const UserPreferencesProvider = ({
   children: ReactNode;
 }) => {
   const systemScheme = useColorScheme();
-  const [themePreference, setThemePreference] = useState<ThemeMode | null>(
-    null,
-  );
+  const [themePreference, setThemePreference] =
+    useState<ThemeMode>(DEFAULT_THEME_MODE);
   const [themeHydrated, setThemeHydrated] = useState(false);
   const [languagePreference, setLanguagePreference] =
     useState<LanguagePreference>("en");
@@ -83,6 +84,9 @@ export const UserPreferencesProvider = ({
 
         if (isThemeMode(storedTheme)) {
           setThemePreference(storedTheme);
+        } else if (storedTheme !== null) {
+          setThemePreference(DEFAULT_THEME_MODE);
+          void AsyncStorage.setItem(THEME_STORAGE_KEY, DEFAULT_THEME_MODE);
         }
         setLanguagePreference(storedLanguage);
         if (isCardListSort(storedCardSort)) {
@@ -109,10 +113,7 @@ export const UserPreferencesProvider = ({
     void i18n.changeLanguage(languagePreference);
   }, [languageHydrated, languagePreference]);
 
-  const isDark =
-    themeHydrated && themePreference !== null
-      ? themePreference === "dark"
-      : systemScheme === "dark";
+  const isDark = resolveIsDark(themePreference, systemScheme);
 
   const setThemeMode = useCallback((mode: ThemeMode) => {
     setThemePreference(mode);
@@ -139,12 +140,13 @@ export const UserPreferencesProvider = ({
   const themeValue = useMemo(
     () => ({
       isDark,
+      themeMode: themePreference,
       colors: themeColorsForMode(isDark),
       hydrated: themeHydrated,
       setThemeMode,
       toggleTheme,
     }),
-    [isDark, setThemeMode, themeHydrated, toggleTheme],
+    [isDark, setThemeMode, themeHydrated, themePreference, toggleTheme],
   );
 
   const languageValue = useMemo(

@@ -8,5 +8,6 @@
   "useDarkTheme": "Use dark theme",
   "light": "Light",
   "dark": "Dark",
+  "system": "System",
   "appLogo": "App logo"
 }

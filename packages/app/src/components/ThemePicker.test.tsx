@@ -1,23 +1,25 @@
 import { describe, expect, it } from "bun:test";
+
 import { fireEvent, waitFor } from "@testing-library/react-native";
 
 import { renderWithTheme } from "../../test/render";
 import { ThemePicker } from "./ThemePicker";
 
 describe("ThemePicker", () => {
-  it("renders the current theme on the trigger", async () => {
+  it("renders system theme by default on the trigger", async () => {
     const { getByText } = await renderWithTheme(<ThemePicker />);
 
-    expect(getByText("Light")).toBeTruthy();
+    expect(getByText("System")).toBeTruthy();
   });
 
-  it("shows light and dark options with icons when opened", async () => {
+  it("shows system, light, and dark options with icons when opened", async () => {
     const { getByLabelText, getByText } = await renderWithTheme(
       <ThemePicker />,
     );
 
     fireEvent.press(getByLabelText("Theme"));
 
+    expect(getByText("contrast")).toBeTruthy();
     expect(getByText("sun")).toBeTruthy();
     expect(getByText("moon")).toBeTruthy();
   });

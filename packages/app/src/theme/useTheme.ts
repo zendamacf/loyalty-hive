@@ -22,6 +22,7 @@ export const useTheme = () => {
 
   return {
     isDark,
+    themeMode: context?.themeMode ?? "system",
     colors: context?.colors ?? fallbackColors(isDark),
     setThemeMode: context?.setThemeMode ?? (() => {}),
     toggleTheme: context?.toggleTheme ?? (() => {}),

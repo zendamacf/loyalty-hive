@@ -39,7 +39,7 @@ describe("UserPreferencesProvider", () => {
     await AsyncStorage.removeItem(CARD_SORT_STORAGE_KEY);
   });
 
-  it("ignores invalid stored theme and uses system scheme", async () => {
+  it("ignores invalid stored theme and resets to system preference", async () => {
     await AsyncStorage.setItem(THEME_STORAGE_KEY, "invalid");
 
     const { getByText } = render(
@@ -49,6 +49,27 @@ describe("UserPreferencesProvider", () => {
     );
 
     await waitFor(() => expect(getByText("light")).toBeTruthy());
+    expect(await AsyncStorage.getItem(THEME_STORAGE_KEY)).toBe("system");
+  });
+
+  it("persists system theme preference across remounts", async () => {
+    const first = render(
+      <UserPreferencesProvider>
+        <ThemeProbe />
+      </UserPreferencesProvider>,
+    );
+
+    await waitFor(() => expect(first.getByText("light")).toBeTruthy());
+    first.unmount();
+
+    const second = render(
+      <UserPreferencesProvider>
+        <ThemeProbe />
+      </UserPreferencesProvider>,
+    );
+
+    await waitFor(() => expect(second.getByText("light")).toBeTruthy());
+    expect(await AsyncStorage.getItem(THEME_STORAGE_KEY)).toBeNull();
   });
 
   it("persists theme preference across remounts", async () => {

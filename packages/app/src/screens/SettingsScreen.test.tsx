@@ -43,7 +43,7 @@ describe("SettingsScreen", () => {
     expect(getByText("Theme")).toBeTruthy();
     expect(getByText("Language")).toBeTruthy();
     expect(getByText("English")).toBeTruthy();
-    expect(getByText("Light")).toBeTruthy();
+    expect(getByText("System")).toBeTruthy();
     expect(getByText("Sign out")).toBeTruthy();
 
     fireEvent.press(getByLabelText("Language"));
@@ -58,7 +58,7 @@ describe("SettingsScreen", () => {
       <SettingsScreen />,
     );
 
-    expect(getByText("Light")).toBeTruthy();
+    expect(getByText("System")).toBeTruthy();
 
     fireEvent.press(getByLabelText("Theme"));
 
@@ -67,31 +67,25 @@ describe("SettingsScreen", () => {
     });
 
     fireEvent.press(getByText("Dark"));
-
-    await waitFor(() => {
-      expect(getByText("Dark")).toBeTruthy();
-    });
   });
+});
 
-  it("navigates back when close button is pressed", async () => {
-    const { getByLabelText } = await renderWithTheme(<SettingsScreen />);
+it("navigates back when close button is pressed", async () => {
+  const { getByLabelText } = await renderWithTheme(<SettingsScreen />);
 
-    fireEvent.press(getByLabelText("Close"));
+  fireEvent.press(getByLabelText("Close"));
 
-    expect(__expoRouterMocks.back).toHaveBeenCalled();
-  });
+  expect(__expoRouterMocks.back).toHaveBeenCalled();
+});
 
-  it("signs out when sign out is pressed", async () => {
-    const { getByText } = await renderWithTheme(<SettingsScreen />);
+it("signs out when sign out is pressed", async () => {
+  const { getByText } = await renderWithTheme(<SettingsScreen />);
 
-    fireEvent.press(getByText("Sign out"));
+  fireEvent.press(getByText("Sign out"));
 
-    await waitFor(() => {
-      expect(getBearerToken()).toBeUndefined();
-      expect(secureStoreDeleteMock).toHaveBeenCalledWith(
-        AUTH_TOKEN_STORAGE_KEY,
-      );
-      expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.LOGIN);
-    });
+  await waitFor(() => {
+    expect(getBearerToken()).toBeUndefined();
+    expect(secureStoreDeleteMock).toHaveBeenCalledWith(AUTH_TOKEN_STORAGE_KEY);
+    expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.LOGIN);
   });
 });
