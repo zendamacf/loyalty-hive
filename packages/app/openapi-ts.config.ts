@@ -8,7 +8,7 @@ if (!apiUrl) {
 }
 
 export default defineConfig({
-  input: `${apiUrl}/openapi`,
+  input: `${apiUrl}/doc/gen`,
   output: "src/lib/api-client/gen",
   plugins: [
     {

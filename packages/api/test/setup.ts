@@ -1,3 +1,5 @@
+import "./env";
+
 import { resolve } from "node:path";
 
 import { drizzle } from "drizzle-orm/node-postgres";
