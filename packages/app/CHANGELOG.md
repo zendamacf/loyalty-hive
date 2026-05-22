@@ -1,5 +1,15 @@
 # @loyalty-hive/app
 
+## 1.0.1
+
+### Patch Changes
+
+- 6e75704: \* Added card list sorting dropdown.
+  - Switched language selection to a dropdown.
+- 998d9b5: Fixed "Added on" date not showing in card details screen.
+- 3e38511: \* Added scan guide depending on which barcode type you're expected to be scanning based on the brand.
+  - Refactored scan screen to no longer use a full screen camera. Manual entry has been moved to a dedicated screen.
+
 ## 1.0.0
 
 ### Major Changes
