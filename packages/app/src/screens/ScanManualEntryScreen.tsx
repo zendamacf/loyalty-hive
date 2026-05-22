@@ -6,6 +6,8 @@ import { StyleSheet, Text, TextInput, View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { CloseButton } from "@/components/CloseButton";
+import { Form } from "@/components/Form";
+import { FormGroup } from "@/components/FormGroup";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { ScreenShell } from "@/components/ScreenShell";
 import { Routes } from "@/constants/routes.constants";
@@ -118,21 +120,42 @@ export const ScanManualEntryScreen = () => {
         </View>
       }
     >
-      <ScreenShell.Body style={styles.body}>
+      <ScreenShell.Body>
         <ScreenHeader title={headerTitle} actions={<CloseButton />} embedded />
 
-        {isCustomCard ? (
-          <>
-            <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>
-              {t("customCardLabel")}
-            </Text>
+        <Form>
+          {isCustomCard ? (
+            <FormGroup label={t("customCardLabel")}>
+              <TextInput
+                accessibilityLabel={t("customCardLabel")}
+                value={customLabel}
+                onChangeText={setCustomLabel}
+                placeholder={t("customCardPlaceholder")}
+                placeholderTextColor={colors.textSecondary}
+                autoCapitalize="words"
+                autoCorrect={false}
+                editable={!isSaving}
+                style={[
+                  styles.input,
+                  {
+                    borderColor: colors.border,
+                    color: colors.textPrimary,
+                    backgroundColor: colors.surface,
+                  },
+                ]}
+              />
+            </FormGroup>
+          ) : null}
+
+          <FormGroup label={t("cardNumber")} hint={t("manualEntryHelp")}>
             <TextInput
-              accessibilityLabel={t("customCardLabel")}
-              value={customLabel}
-              onChangeText={setCustomLabel}
-              placeholder={t("customCardPlaceholder")}
+              accessibilityLabel={t("cardNumber")}
+              value={cardNumber}
+              onChangeText={setCardNumber}
+              placeholder={t("cardNumber")}
               placeholderTextColor={colors.textSecondary}
-              autoCapitalize="words"
+              keyboardType="number-pad"
+              autoCapitalize="none"
               autoCorrect={false}
               editable={!isSaving}
               style={[
@@ -144,47 +167,14 @@ export const ScanManualEntryScreen = () => {
                 },
               ]}
             />
-          </>
-        ) : null}
-
-        <Text style={[styles.helpText, { color: colors.textSecondary }]}>
-          {t("manualEntryHelp")}
-        </Text>
-
-        <TextInput
-          accessibilityLabel={t("cardNumber")}
-          value={cardNumber}
-          onChangeText={setCardNumber}
-          placeholder={t("cardNumber")}
-          placeholderTextColor={colors.textSecondary}
-          keyboardType="number-pad"
-          autoCapitalize="none"
-          autoCorrect={false}
-          editable={!isSaving}
-          style={[
-            styles.input,
-            {
-              borderColor: colors.border,
-              color: colors.textPrimary,
-              backgroundColor: colors.surface,
-            },
-          ]}
-        />
+          </FormGroup>
+        </Form>
       </ScreenShell.Body>
     </ScreenShell>
   );
 };
 
 const styles = StyleSheet.create({
-  body: {
-    gap: spacing.md,
-  },
-  fieldLabel: {
-    ...typography.caption,
-  },
-  helpText: {
-    ...typography.body,
-  },
   input: {
     borderWidth: 1,
     borderRadius: radius.md,

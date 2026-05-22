@@ -27,6 +27,7 @@ export const colors = {
 };
 
 export const spacing = {
+  xxs: 2,
   xs: 4,
   sm: 8,
   md: 16,
@@ -52,6 +53,7 @@ export const fontSize = {
 } as const;
 
 export const fontWeight = {
+  light: "300",
   regular: "400",
   medium: "500",
   semibold: "600",
@@ -89,6 +91,11 @@ export const typography = {
   label: {
     fontSize: fontSize.lg,
     fontWeight: fontWeight.medium,
+  },
+  labelHint: {
+    fontSize: fontSize.sm,
+    fontWeight: fontWeight.light,
+    opacity: 0.6,
   },
   caption: {
     fontSize: fontSize.sm,
