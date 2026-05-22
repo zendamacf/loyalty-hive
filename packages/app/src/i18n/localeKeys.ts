@@ -31,6 +31,10 @@ export const KNOWN_DYNAMIC_TRANSLATION_KEYS: QualifiedTranslationKey[] = [
   `${I18nNamespace.Cards}:sortAlphabetical`,
   `${I18nNamespace.Cards}:sortMostViewed`,
   `${I18nNamespace.Cards}:sortLastViewed`,
+  `${I18nNamespace.Common}:system`,
+  `${I18nNamespace.Common}:light`,
+  `${I18nNamespace.Common}:dark`,
+  `${I18nNamespace.Common}:purple`,
   `${I18nNamespace.Settings}:languageEnglish`,
   `${I18nNamespace.Settings}:languageSpanish`,
 ];

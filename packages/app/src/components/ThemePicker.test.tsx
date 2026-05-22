@@ -12,7 +12,7 @@ describe("ThemePicker", () => {
     expect(getByText("System")).toBeTruthy();
   });
 
-  it("shows system, light, and dark options with icons when opened", async () => {
+  it("shows all theme options with icons when opened", async () => {
     const { getByLabelText, getByText } = await renderWithTheme(
       <ThemePicker />,
     );
@@ -21,6 +21,20 @@ describe("ThemePicker", () => {
 
     expect(getByText("sun")).toBeTruthy();
     expect(getByText("moon")).toBeTruthy();
+    expect(getByText("palette")).toBeTruthy();
+  });
+
+  it("selects purple theme", async () => {
+    const { getByLabelText, getByText } = await renderWithTheme(
+      <ThemePicker />,
+    );
+
+    fireEvent.press(getByLabelText("Theme"));
+    fireEvent.press(getByText("Purple"));
+
+    await waitFor(() => {
+      expect(getByText("Purple")).toBeTruthy();
+    });
   });
 
   it("changes theme when an option is selected", async () => {

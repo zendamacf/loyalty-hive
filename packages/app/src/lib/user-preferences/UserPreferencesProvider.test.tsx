@@ -24,10 +24,14 @@ function ThemeProbe() {
   const { theme, setThemeMode } = useTheme();
   return (
     <>
-      <Text>{theme.appearance}</Text>
+      <Text>{theme.mode}</Text>
       <Text
         accessibilityLabel="Set dark theme"
         onPress={() => setThemeMode("dark")}
+      />
+      <Text
+        accessibilityLabel="Set purple theme"
+        onPress={() => setThemeMode("purple")}
       />
     </>
   );
@@ -71,6 +75,30 @@ describe("UserPreferencesProvider", () => {
 
     await waitFor(() => expect(second.getByText("light")).toBeTruthy());
     expect(await AsyncStorage.getItem(THEME_STORAGE_KEY)).toBeNull();
+  });
+
+  it("persists purple theme preference across remounts", async () => {
+    const first = render(
+      <UserPreferencesProvider>
+        <ThemeProbe />
+      </UserPreferencesProvider>,
+    );
+
+    await waitFor(() => expect(first.getByText("light")).toBeTruthy());
+
+    fireEvent.press(first.getByLabelText("Set purple theme"));
+
+    await waitFor(() => expect(first.getByText("purple")).toBeTruthy());
+    first.unmount();
+
+    const second = render(
+      <UserPreferencesProvider>
+        <ThemeProbe />
+      </UserPreferencesProvider>,
+    );
+
+    await waitFor(() => expect(second.getByText("purple")).toBeTruthy());
+    expect(await AsyncStorage.getItem(THEME_STORAGE_KEY)).toBe("purple");
   });
 
   it("persists theme preference across remounts", async () => {

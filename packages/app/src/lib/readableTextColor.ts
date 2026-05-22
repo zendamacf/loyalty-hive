@@ -1,9 +1,6 @@
-import { darkTheme, lightTheme } from "@/theme/themes";
+import { readableForeground } from "@/theme/themes";
 
 type Rgb = { r: number; g: number; b: number };
-
-const LIGHT_TEXT = lightTheme.textPrimary;
-const DARK_TEXT = darkTheme.textPrimary;
 
 /** WCAG relative luminance; sRGB channel 0–255. */
 function relativeLuminance({ r, g, b }: Rgb): number {
@@ -75,8 +72,10 @@ export function parseCssColor(value: string): Rgb | null {
 export function getReadableTextColor(backgroundColor: string): string {
   const rgb = parseCssColor(backgroundColor);
   if (!rgb) {
-    return LIGHT_TEXT;
+    return readableForeground.onLightBackground;
   }
 
-  return relativeLuminance(rgb) > 0.55 ? LIGHT_TEXT : DARK_TEXT;
+  const light = readableForeground.onLightBackground;
+  const dark = readableForeground.onDarkBackground;
+  return relativeLuminance(rgb) > 0.55 ? light : dark;
 }

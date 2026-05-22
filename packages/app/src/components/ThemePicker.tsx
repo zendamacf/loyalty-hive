@@ -1,9 +1,9 @@
-import { ContrastIcon, MoonIcon, SunIcon } from "lucide-react-native";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import type { ThemeMode } from "@/theme/theme.constants";
+import { THEME_PICKER_OPTIONS } from "@/theme/theme-registry";
 import { useTheme } from "@/theme/useTheme";
 import { Select, type SelectOption } from "./Select";
 
@@ -12,23 +12,12 @@ export const ThemePicker = () => {
   const { themeMode, setThemeMode } = useTheme();
 
   const options = useMemo(
-    (): readonly SelectOption<ThemeMode>[] => [
-      {
-        value: "system",
-        label: t("system"),
-        icon: ContrastIcon,
-      },
-      {
-        value: "light",
-        label: t("light"),
-        icon: SunIcon,
-      },
-      {
-        value: "dark",
-        label: t("dark"),
-        icon: MoonIcon,
-      },
-    ],
+    (): readonly SelectOption<ThemeMode>[] =>
+      THEME_PICKER_OPTIONS.map((option) => ({
+        value: option.mode,
+        label: t(option.labelKey),
+        icon: option.icon,
+      })),
     [t],
   );
 

@@ -6,8 +6,8 @@ import {
   APP_NAME_ACCENT,
   APP_NAME_PREFIX,
 } from "@/constants/branding.constants";
+import { brandColors } from "@/theme/brand";
 import { typography } from "@/theme/theme";
-import { lightTheme } from "@/theme/themes";
 import { useTheme } from "@/theme/useTheme";
 
 type AppTitleProps = {
@@ -39,6 +39,6 @@ const styles = StyleSheet.create({
     ...typography.title,
   },
   hive: {
-    color: lightTheme.primary,
+    color: brandColors.primary,
   },
 });
