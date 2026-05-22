@@ -92,6 +92,13 @@
       "when": 1779358713598,
       "tag": "0012_card_view_stats",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1779449884881,
+      "tag": "0013_daily_vision",
+      "breakpoints": true
     }
   ]
 }
