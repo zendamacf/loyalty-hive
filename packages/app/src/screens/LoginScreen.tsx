@@ -11,6 +11,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { postApiV1AuthLogin, postApiV1AuthSignup } from "@/lib/api-client";
@@ -23,7 +24,7 @@ import { ThemeToggle } from "../components/ThemeToggle";
 import { icon as iconSize, radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
-const icon = require("../../assets/images/icon.png");
+const icon = require("../../assets/icon.png");
 
 type AuthMode = "login" | "signup";
 

@@ -1,8 +1,8 @@
 import { StyleSheet, View } from "react-native";
 
 import type { CardView } from "@/lib/cardView";
-import ScanGuideBarcode from "../../assets/scan-guides/barcode.svg";
-import ScanGuideQrcode from "../../assets/scan-guides/qrcode.svg";
+import ScanGuideBarcode from "../../assets/scan-guide-barcode.svg";
+import ScanGuideQrcode from "../../assets/scan-guide-qrcode.svg";
 import { colors } from "../theme/theme";
 
 const SCAN_GUIDE_BARCODE_WIDTH = 280;

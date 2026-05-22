@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
+
 import { fireEvent, waitFor } from "@testing-library/react-native";
 import { Pressable, TouchableOpacity } from "react-native";
+
 import { APP_NAME } from "@/constants/branding.constants";
 import { Routes } from "@/constants/routes.constants";
 import type {
@@ -20,7 +22,7 @@ import {
 import { renderWithTheme } from "../../test/render";
 
 /** Bun otherwise executes the real PNG file when LoginScreen loads `require(...)`. */
-mock.module("../../assets/images/icon.png", () => ({ default: 1 }));
+mock.module("../../assets/icon.png", () => ({ default: 1 }));
 
 const { __expoRouterMocks } = globalThis as unknown as {
   __expoRouterMocks: {

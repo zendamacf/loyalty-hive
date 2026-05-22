@@ -47,7 +47,7 @@ import { useThemedRefreshControl } from "../hooks/useThemedRefreshControl";
 import { brandMark, icon, radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
-const appIcon = require("../../assets/images/icon.png");
+const appIcon = require("../../assets/icon.png");
 
 const SORT_LABEL_KEYS: Record<
   CardListSort,
