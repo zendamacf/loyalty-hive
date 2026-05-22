@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "buildNumber": "2"
+      "buildNumber": "2",
+      "bundleIdentifier": "com.kalopsiaapps.loyaltyhive"
     },
     "android": {
       "package": "com.kalopsiaapps.loyaltyhive",
