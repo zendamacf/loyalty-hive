@@ -27,7 +27,7 @@ import { useTheme } from "@/theme/useTheme";
 
 export const CardCodeScreen = () => {
   const { t } = useTranslation(I18nNamespace.Cards);
-  const { colors } = useTheme();
+  const { theme } = useTheme();
   const params = useLocalSearchParams<{
     id?: string;
     cardNumber?: string;
@@ -117,7 +117,7 @@ export const CardCodeScreen = () => {
               ]}
               onPress={openCardSettings}
             >
-              <EllipsisVerticalIcon color={colors.textPrimary} size={icon.md} />
+              <EllipsisVerticalIcon color={theme.textPrimary} size={icon.md} />
             </Pressable>
             <CloseButton />
           </>
@@ -143,7 +143,7 @@ export const CardCodeScreen = () => {
           cardNumber={cardNumber}
           view={displayView}
           bottomCardHalf
-          borderColor={colors.border}
+          borderColor={theme.border}
         />
       </View>
 

@@ -33,7 +33,7 @@ type Brand = GetApiV1BrandsResponse[number];
 
 export const SelectBrandScreen = () => {
   const { t } = useTranslation(I18nNamespace.Brands);
-  const { colors } = useTheme();
+  const { theme } = useTheme();
   const [query, setQuery] = useState("");
 
   const {
@@ -78,15 +78,15 @@ export const SelectBrandScreen = () => {
         style={({ pressed }) => [
           styles.customCardButton,
           {
-            borderColor: colors.border,
-            backgroundColor: colors.surface,
+            borderColor: theme.border,
+            backgroundColor: theme.surface,
           },
           pressed && styles.customCardButtonPressed,
         ]}
         onPress={openCustomCardScan}
       >
-        <PlusIcon color={colors.textPrimary} size={icon.md} />
-        <Text style={[styles.customCardTitle, { color: colors.textPrimary }]}>
+        <PlusIcon color={theme.textPrimary} size={icon.md} />
+        <Text style={[styles.customCardTitle, { color: theme.textPrimary }]}>
           {t("customCardTitle")}
         </Text>
       </Pressable>

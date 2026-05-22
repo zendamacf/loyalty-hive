@@ -1,29 +1,17 @@
 import { useColorScheme } from "react-native";
-import { colors } from "./theme";
-import { useThemeContext } from "./useThemeContext";
 
-const fallbackColors = (isDark: boolean) => ({
-  background: isDark ? colors.backgroundDark : colors.backgroundLight,
-  surface: isDark ? colors.surfaceDark : colors.surfaceLight,
-  cardFallback: isDark ? colors.cardFallbackDark : colors.cardFallbackLight,
-  textPrimary: isDark ? colors.textPrimaryDark : colors.textPrimaryLight,
-  textSecondary: colors.textSecondary,
-  border: colors.border,
-  primary: colors.primary,
-  error: colors.error,
-  success: colors.success,
-  menuShadow: isDark ? colors.menuShadowDark : colors.menuShadowLight,
-});
+import { DEFAULT_THEME_MODE } from "./theme.constants";
+import { resolveTheme } from "./themes";
+import { useThemeContext } from "./useThemeContext";
 
 export const useTheme = () => {
   const context = useThemeContext();
   const scheme = useColorScheme();
-  const isDark = context?.isDark ?? scheme === "dark";
+  const themeMode = context?.themeMode ?? DEFAULT_THEME_MODE;
 
   return {
-    isDark,
-    colors: context?.colors ?? fallbackColors(isDark),
+    themeMode,
+    theme: context?.theme ?? resolveTheme(themeMode, scheme),
     setThemeMode: context?.setThemeMode ?? (() => {}),
-    toggleTheme: context?.toggleTheme ?? (() => {}),
   };
 };

@@ -25,11 +25,13 @@ import {
 
 import { CardSortContext } from "@/lib/card-sort/card-sort-context";
 import {
+  DEFAULT_THEME_MODE,
   isThemeMode,
   THEME_STORAGE_KEY,
   type ThemeMode,
 } from "@/theme/theme.constants";
-import { ThemeContext, themeColorsForMode } from "@/theme/theme-context";
+import { ThemeContext } from "@/theme/theme-context";
+import { resolveTheme } from "@/theme/themes";
 
 const readStoredLanguage = async (
   deviceLanguageCode: string | null,
@@ -49,9 +51,8 @@ export const UserPreferencesProvider = ({
   children: ReactNode;
 }) => {
   const systemScheme = useColorScheme();
-  const [themePreference, setThemePreference] = useState<ThemeMode | null>(
-    null,
-  );
+  const [themePreference, setThemePreference] =
+    useState<ThemeMode>(DEFAULT_THEME_MODE);
   const [themeHydrated, setThemeHydrated] = useState(false);
   const [languagePreference, setLanguagePreference] =
     useState<LanguagePreference>("en");
@@ -83,6 +84,9 @@ export const UserPreferencesProvider = ({
 
         if (isThemeMode(storedTheme)) {
           setThemePreference(storedTheme);
+        } else if (storedTheme !== null) {
+          setThemePreference(DEFAULT_THEME_MODE);
+          void AsyncStorage.setItem(THEME_STORAGE_KEY, DEFAULT_THEME_MODE);
         }
         setLanguagePreference(storedLanguage);
         if (isCardListSort(storedCardSort)) {
@@ -109,19 +113,12 @@ export const UserPreferencesProvider = ({
     void i18n.changeLanguage(languagePreference);
   }, [languageHydrated, languagePreference]);
 
-  const isDark =
-    themeHydrated && themePreference !== null
-      ? themePreference === "dark"
-      : systemScheme === "dark";
+  const theme = resolveTheme(themePreference, systemScheme);
 
   const setThemeMode = useCallback((mode: ThemeMode) => {
     setThemePreference(mode);
     void AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
   }, []);
-
-  const toggleTheme = useCallback(() => {
-    setThemeMode(isDark ? "light" : "dark");
-  }, [isDark, setThemeMode]);
 
   const setLanguagePreferencePersisted = useCallback(
     (next: LanguagePreference) => {
@@ -138,13 +135,12 @@ export const UserPreferencesProvider = ({
 
   const themeValue = useMemo(
     () => ({
-      isDark,
-      colors: themeColorsForMode(isDark),
+      themeMode: themePreference,
+      theme,
       hydrated: themeHydrated,
       setThemeMode,
-      toggleTheme,
     }),
-    [isDark, setThemeMode, themeHydrated, toggleTheme],
+    [setThemeMode, theme, themeHydrated, themePreference],
   );
 
   const languageValue = useMemo(

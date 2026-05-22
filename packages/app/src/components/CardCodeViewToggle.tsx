@@ -15,12 +15,7 @@ import { useCrossfadeProgress } from "@/hooks/useCrossfadeProgress";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import type { CardView } from "@/lib/cardView";
 import { getReadableTextColor } from "@/lib/readableTextColor";
-import {
-  radius,
-  spacing,
-  colors as themeColors,
-  typography,
-} from "@/theme/theme";
+import { radius, spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
 const TRACK_INSET = spacing.xs / 2;
@@ -41,18 +36,14 @@ export const CardCodeViewToggle = ({
   style,
 }: CardCodeViewToggleProps) => {
   const { t } = useTranslation(I18nNamespace.Cards);
-  const { colors } = useTheme();
+  const { theme } = useTheme();
   const isQr = view === "2D";
   const segmentFillColor = useMemo(() => {
     const trimmed = activeSegmentColor?.trim();
-    return trimmed ? trimmed : colors.primary;
-  }, [activeSegmentColor, colors.primary]);
+    return trimmed ? trimmed : theme.primary;
+  }, [activeSegmentColor, theme.primary]);
   const segmentTextColor = useMemo(
-    () =>
-      getReadableTextColor(segmentFillColor, {
-        light: themeColors.textPrimaryLight,
-        dark: themeColors.textPrimaryDark,
-      }),
+    () => getReadableTextColor(segmentFillColor),
     [segmentFillColor],
   );
   const [segmentWidth, setSegmentWidth] = useState(0);
@@ -88,7 +79,7 @@ export const CardCodeViewToggle = ({
     <View
       accessibilityLabel={t("codeViewToggleA11y")}
       accessibilityRole="radiogroup"
-      style={[styles.track, { backgroundColor: colors.border }, style]}
+      style={[styles.track, { backgroundColor: theme.border }, style]}
       testID="code-view-switch"
     >
       <View style={styles.inner} onLayout={onSegmentsLayout}>
@@ -120,7 +111,7 @@ export const CardCodeViewToggle = ({
               style={[
                 styles.segmentLabel,
                 {
-                  color: !isQr ? segmentTextColor : colors.textSecondary,
+                  color: !isQr ? segmentTextColor : theme.textSecondary,
                 },
                 !isQr && styles.segmentLabelSelected,
               ]}
@@ -142,7 +133,7 @@ export const CardCodeViewToggle = ({
               style={[
                 styles.segmentLabel,
                 {
-                  color: isQr ? segmentTextColor : colors.textSecondary,
+                  color: isQr ? segmentTextColor : theme.textSecondary,
                 },
                 isQr && styles.segmentLabelSelected,
               ]}

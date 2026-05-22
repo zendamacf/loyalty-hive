@@ -91,8 +91,6 @@ const Easing = {
 };
 
 mock.module("lucide-react-native", () => ({
-  MoonIcon: () => React.createElement("Text", null, "moon"),
-  SunIcon: () => React.createElement("Text", null, "sun"),
   PlusIcon: () => React.createElement("Text", null, "+"),
   SettingsIcon: () => React.createElement("Text", null, "⚙"),
   CopyIcon: () => React.createElement("Text", null, "copy"),
@@ -105,6 +103,33 @@ mock.module("lucide-react-native", () => ({
   ArrowDownAZIcon: () => React.createElement("Text", null, "a-z"),
   ClockIcon: () => React.createElement("Text", null, "clock"),
 }));
+
+mock.module("react-native-svg", () => {
+  const Noop = () => null;
+  const PassThrough = ({ children }: { children?: React.ReactNode }) =>
+    React.createElement(React.Fragment, null, children);
+
+  const Svg = ({
+    children,
+    width,
+    height,
+  }: {
+    children?: React.ReactNode;
+    width?: number;
+    height?: number;
+  }) => React.createElement("Svg", { width, height }, children);
+
+  return {
+    __esModule: true,
+    default: Svg,
+    Svg,
+    Circle: Noop,
+    Path: Noop,
+    G: PassThrough,
+    Defs: PassThrough,
+    ClipPath: PassThrough,
+  };
+});
 
 const setStringAsyncMock = mock(() => Promise.resolve());
 

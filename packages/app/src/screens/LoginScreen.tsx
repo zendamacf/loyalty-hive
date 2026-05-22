@@ -20,7 +20,6 @@ import { useAuth } from "@/lib/auth";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import { AppTitle } from "../components/AppTitle";
 import { Button } from "../components/Button";
-import { ThemeToggle } from "../components/ThemeToggle";
 import { icon as iconSize, radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
@@ -30,7 +29,7 @@ type AuthMode = "login" | "signup";
 
 export const LoginScreen = () => {
   const { t } = useTranslation([I18nNamespace.Auth, I18nNamespace.Common]);
-  const { colors } = useTheme();
+  const { theme } = useTheme();
   const { signIn } = useAuth();
   const passwordRef = useRef<TextInput>(null);
   const [mode, setMode] = useState<AuthMode>("login");
@@ -118,11 +117,8 @@ export const LoginScreen = () => {
 
   return (
     <SafeAreaView
-      style={[styles.container, { backgroundColor: colors.background }]}
+      style={[styles.container, { backgroundColor: theme.background }]}
     >
-      <View style={styles.header}>
-        <ThemeToggle />
-      </View>
       <View style={styles.content}>
         <Image
           accessibilityLabel={t("appLogo", { ns: I18nNamespace.Common })}
@@ -130,7 +126,7 @@ export const LoginScreen = () => {
           style={styles.logo}
         />
         <AppTitle />
-        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+        <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
           {mode === "login" ? t("subtitleLogin") : t("subtitleSignup")}
         </Text>
 
@@ -140,15 +136,15 @@ export const LoginScreen = () => {
           editable={!isSubmitting}
           keyboardType="email-address"
           placeholder={t("email")}
-          placeholderTextColor={colors.textSecondary}
+          placeholderTextColor={theme.textSecondary}
           returnKeyType="next"
           submitBehavior="submit"
           style={[
             styles.input,
             {
-              backgroundColor: colors.surface,
-              borderColor: colors.border,
-              color: colors.textPrimary,
+              backgroundColor: theme.surface,
+              borderColor: theme.border,
+              color: theme.textPrimary,
             },
           ]}
           value={email}
@@ -159,8 +155,8 @@ export const LoginScreen = () => {
           style={[
             styles.passwordField,
             {
-              backgroundColor: colors.surface,
-              borderColor: colors.border,
+              backgroundColor: theme.surface,
+              borderColor: theme.border,
             },
           ]}
         >
@@ -170,10 +166,10 @@ export const LoginScreen = () => {
             autoCorrect={false}
             editable={!isSubmitting}
             placeholder={t("password")}
-            placeholderTextColor={colors.textSecondary}
+            placeholderTextColor={theme.textSecondary}
             returnKeyType="go"
             secureTextEntry={!showPassword}
-            style={[styles.passwordInput, { color: colors.textPrimary }]}
+            style={[styles.passwordInput, { color: theme.textPrimary }]}
             value={password}
             onChangeText={setPassword}
             onSubmitEditing={() => {
@@ -191,15 +187,15 @@ export const LoginScreen = () => {
             onPress={() => setShowPassword((visible) => !visible)}
           >
             {showPassword ? (
-              <EyeOffIcon color={colors.textSecondary} size={iconSize.md} />
+              <EyeOffIcon color={theme.textSecondary} size={iconSize.md} />
             ) : (
-              <EyeIcon color={colors.textSecondary} size={iconSize.md} />
+              <EyeIcon color={theme.textSecondary} size={iconSize.md} />
             )}
           </Pressable>
         </View>
 
         {error && (
-          <Text style={[styles.error, { color: colors.error }]}>{error}</Text>
+          <Text style={[styles.error, { color: theme.error }]}>{error}</Text>
         )}
 
         <Button
@@ -216,7 +212,7 @@ export const LoginScreen = () => {
           hitSlop={8}
           onPress={() => switchMode(mode === "login" ? "signup" : "login")}
         >
-          <Text style={[styles.modeToggle, { color: colors.primary }]}>
+          <Text style={[styles.modeToggle, { color: theme.primary }]}>
             {mode === "login" ? t("needAccount") : t("alreadyHaveAccount")}
           </Text>
         </Pressable>
@@ -228,12 +224,6 @@ export const LoginScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
   },
   content: {
     flex: 1,

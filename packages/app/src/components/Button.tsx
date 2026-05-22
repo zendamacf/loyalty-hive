@@ -9,7 +9,7 @@ type ButtonProps = {
 };
 
 export const Button = ({ title, onPress, disabled = false }: ButtonProps) => {
-  const { colors } = useTheme();
+  const { theme } = useTheme();
 
   return (
     <TouchableOpacity
@@ -17,7 +17,7 @@ export const Button = ({ title, onPress, disabled = false }: ButtonProps) => {
       disabled={disabled}
       style={[
         styles.button,
-        { backgroundColor: colors.primary },
+        { backgroundColor: theme.primary },
         disabled && styles.buttonDisabled,
       ]}
       onPress={onPress}

@@ -34,7 +34,7 @@ describe("SettingsScreen", () => {
     secureStoreDeleteMock.mockClear();
   });
 
-  it("renders theme toggle, language picker, and sign out button", async () => {
+  it("renders theme picker, language picker, and sign out button", async () => {
     const { getByText, getByLabelText } = await renderWithTheme(
       <SettingsScreen />,
     );
@@ -43,7 +43,7 @@ describe("SettingsScreen", () => {
     expect(getByText("Theme")).toBeTruthy();
     expect(getByText("Language")).toBeTruthy();
     expect(getByText("English")).toBeTruthy();
-    expect(getByLabelText("Use dark theme")).toBeTruthy();
+    expect(getByText("System")).toBeTruthy();
     expect(getByText("Sign out")).toBeTruthy();
 
     fireEvent.press(getByLabelText("Language"));
@@ -53,42 +53,39 @@ describe("SettingsScreen", () => {
     });
   });
 
-  it("toggles dark theme from the theme control", async () => {
-    const { getByLabelText, getByText } = await renderWithTheme(
+  it("changes theme from the theme picker", async () => {
+    const { getByLabelText, getByTestId, getByText } = await renderWithTheme(
       <SettingsScreen />,
     );
 
-    expect(getByLabelText("Use dark theme")).toBeTruthy();
-    expect(getByText("sun")).toBeTruthy();
+    expect(getByText("System")).toBeTruthy();
 
-    fireEvent.press(getByLabelText("Use dark theme"));
-
-    await waitFor(() => {
-      expect(getByLabelText("Use light theme")).toBeTruthy();
-      expect(getByText("moon")).toBeTruthy();
-      expect(getByText("Dark")).toBeTruthy();
-    });
-  });
-
-  it("navigates back when close button is pressed", async () => {
-    const { getByLabelText } = await renderWithTheme(<SettingsScreen />);
-
-    fireEvent.press(getByLabelText("Close"));
-
-    expect(__expoRouterMocks.back).toHaveBeenCalled();
-  });
-
-  it("signs out when sign out is pressed", async () => {
-    const { getByText } = await renderWithTheme(<SettingsScreen />);
-
-    fireEvent.press(getByText("Sign out"));
+    fireEvent.press(getByLabelText("Theme"));
 
     await waitFor(() => {
-      expect(getBearerToken()).toBeUndefined();
-      expect(secureStoreDeleteMock).toHaveBeenCalledWith(
-        AUTH_TOKEN_STORAGE_KEY,
-      );
-      expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.LOGIN);
+      expect(getByTestId("dark-theme-swatch")).toBeTruthy();
     });
+
+    fireEvent.press(getByText("Dark"));
+  });
+});
+
+it("navigates back when close button is pressed", async () => {
+  const { getByLabelText } = await renderWithTheme(<SettingsScreen />);
+
+  fireEvent.press(getByLabelText("Close"));
+
+  expect(__expoRouterMocks.back).toHaveBeenCalled();
+});
+
+it("signs out when sign out is pressed", async () => {
+  const { getByText } = await renderWithTheme(<SettingsScreen />);
+
+  fireEvent.press(getByText("Sign out"));
+
+  await waitFor(() => {
+    expect(getBearerToken()).toBeUndefined();
+    expect(secureStoreDeleteMock).toHaveBeenCalledWith(AUTH_TOKEN_STORAGE_KEY);
+    expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.LOGIN);
   });
 });

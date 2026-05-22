@@ -1,32 +1,5 @@
-export const colors = {
-  primary: "#FFC43D",
-  primaryDark: "#E6A800",
-  secondary: "#FF8A00",
-
-  backgroundLight: "#FFFFFF",
-  backgroundDark: "#0D1B2A",
-
-  surfaceLight: "#F8FAFC",
-  surfaceDark: "#1E293B",
-
-  /** Brand-less loyalty card tile background (distinct from app background). */
-  cardFallbackLight: "#E8EEF5",
-  cardFallbackDark: "#243B56",
-
-  textPrimaryLight: "#0F172A",
-  textPrimaryDark: "#F1F5F9",
-  textSecondary: "#64748B",
-
-  border: "#E2E8F0",
-  success: "#22C55E",
-  error: "#EF4444",
-
-  /** Dropdown/menu depth shadow (darker than the themed background). */
-  menuShadowLight: "#CBD5E1",
-  menuShadowDark: "#020617",
-};
-
 export const spacing = {
+  xxs: 2,
   xs: 4,
   sm: 8,
   md: 16,
@@ -52,6 +25,7 @@ export const fontSize = {
 } as const;
 
 export const fontWeight = {
+  light: "300",
   regular: "400",
   medium: "500",
   semibold: "600",
@@ -90,6 +64,11 @@ export const typography = {
     fontSize: fontSize.lg,
     fontWeight: fontWeight.medium,
   },
+  labelHint: {
+    fontSize: fontSize.sm,
+    fontWeight: fontWeight.light,
+    opacity: 0.6,
+  },
   caption: {
     fontSize: fontSize.sm,
   },
@@ -103,6 +82,7 @@ export const typography = {
 } as const;
 
 export const icon = {
+  sm: 20,
   md: 24,
 } as const;
 

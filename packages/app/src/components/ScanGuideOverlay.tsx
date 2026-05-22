@@ -1,9 +1,9 @@
 import { StyleSheet, View } from "react-native";
 
 import type { CardView } from "@/lib/cardView";
+import { brandColors } from "@/theme/brand";
 import ScanGuideBarcode from "../../assets/scan-guide-barcode.svg";
 import ScanGuideQrcode from "../../assets/scan-guide-qrcode.svg";
-import { colors } from "../theme/theme";
 
 const SCAN_GUIDE_BARCODE_WIDTH = 280;
 const SCAN_GUIDE_BARCODE_HEIGHT = 120;
@@ -13,7 +13,7 @@ const SCAN_GUIDE_QRCODE_WIDTH = 139;
 const SCAN_GUIDE_QRCODE_HEIGHT = 139;
 
 const GUIDE_DIM = "rgba(0, 0, 0, 0.3)";
-const GUIDE_CORNER_COLOR = colors.primary;
+const GUIDE_CORNER_COLOR = brandColors.primary;
 const GUIDE_PLACEHOLDER_OPACITY = 0.6;
 const CORNER_SIZE = 22;
 const CORNER_THICKNESS = 4;

@@ -28,7 +28,7 @@ export const ScreenShell = ({
   edges,
   style,
 }: ScreenShellProps) => {
-  const { colors } = useTheme();
+  const { theme } = useTheme();
 
   return (
     <SafeAreaView
@@ -36,7 +36,7 @@ export const ScreenShell = ({
       style={[
         styles.shell,
         footer != null && styles.shellWithFooter,
-        { backgroundColor: colors.background },
+        { backgroundColor: theme.background },
         style,
       ]}
     >

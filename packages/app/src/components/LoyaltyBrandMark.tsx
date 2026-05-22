@@ -24,7 +24,7 @@ export const LoyaltyBrandMark = ({
   style,
   topCardHalf,
 }: Props) => {
-  const { colors } = useTheme();
+  const { theme } = useTheme();
   const animatedHeight = useRef(new Animated.Value(height)).current;
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export const LoyaltyBrandMark = ({
         styles.card,
         {
           backgroundColor,
-          borderColor: backgroundColor ?? colors.border,
+          borderColor: backgroundColor ?? theme.border,
           borderBottomLeftRadius: topCardHalf ? 0 : undefined,
           borderBottomRightRadius: topCardHalf ? 0 : undefined,
         },
@@ -55,7 +55,7 @@ export const LoyaltyBrandMark = ({
       {logo ? (
         <Image source={{ uri: logo }} style={styles.logo} />
       ) : (
-        <Text style={[styles.brand, { color: colors.textPrimary }]}>
+        <Text style={[styles.brand, { color: theme.textPrimary }]}>
           {brand}
         </Text>
       )}

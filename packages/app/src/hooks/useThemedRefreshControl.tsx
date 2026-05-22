@@ -12,17 +12,17 @@ export function useThemedRefreshControl(
   refreshing: boolean,
   onRefresh: () => void,
 ) {
-  const { colors } = useTheme();
+  const { theme } = useTheme();
 
   return useMemo(
     () => (
       <RefreshControl
         refreshing={refreshing}
         onRefresh={onRefresh}
-        tintColor={colors.primary}
-        colors={[colors.primary]}
+        tintColor={theme.primary}
+        colors={[theme.primary]}
       />
     ),
-    [refreshing, onRefresh, colors.primary],
+    [refreshing, onRefresh, theme.primary],
   );
 }

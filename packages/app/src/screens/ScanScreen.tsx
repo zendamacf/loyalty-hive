@@ -26,7 +26,7 @@ import { useTheme } from "../theme/useTheme";
 
 export const ScanScreen = () => {
   const { t } = useTranslation(I18nNamespace.Scan);
-  const { colors } = useTheme();
+  const { theme } = useTheme();
   const params = useLocalSearchParams<{
     brandName?: string;
     brandId?: string;
@@ -157,7 +157,7 @@ export const ScanScreen = () => {
   if (!permission) {
     return (
       <ScreenShell style={styles.permissionContainer}>
-        <Text style={[styles.message, { color: colors.textPrimary }]}>
+        <Text style={[styles.message, { color: theme.textPrimary }]}>
           {t("checkingPermissions")}
         </Text>
       </ScreenShell>
@@ -172,12 +172,12 @@ export const ScanScreen = () => {
           align="center"
           style={styles.permissionHeader}
         />
-        <Text style={[styles.message, { color: colors.textSecondary }]}>
+        <Text style={[styles.message, { color: theme.textSecondary }]}>
           {t("cameraAccessMessage")}
         </Text>
         <Pressable
           onPress={() => void requestPermission()}
-          style={[styles.button, { backgroundColor: colors.primary }]}
+          style={[styles.button, { backgroundColor: theme.primary }]}
         >
           <Text style={styles.buttonText}>{t("allowCamera")}</Text>
         </Pressable>
@@ -223,7 +223,7 @@ export const ScanScreen = () => {
         </View>
 
         {saveError ? (
-          <Text style={[styles.saveError, { color: colors.error }]}>
+          <Text style={[styles.saveError, { color: theme.error }]}>
             {saveError}
           </Text>
         ) : null}
@@ -231,13 +231,10 @@ export const ScanScreen = () => {
         {!isSaving ? (
           <Pressable
             onPress={openManualEntry}
-            style={[styles.secondaryButton, { borderColor: colors.border }]}
+            style={[styles.secondaryButton, { borderColor: theme.border }]}
           >
             <Text
-              style={[
-                styles.secondaryButtonText,
-                { color: colors.textPrimary },
-              ]}
+              style={[styles.secondaryButtonText, { color: theme.textPrimary }]}
             >
               {t("enterManually")}
             </Text>

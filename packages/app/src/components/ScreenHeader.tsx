@@ -43,7 +43,7 @@ export const ScreenHeader = ({
   align = "left",
   style,
 }: ScreenHeaderProps) => {
-  const { colors } = useTheme();
+  const { theme } = useTheme();
   const hasSubtitle = Boolean(subtitle?.trim());
   const subtitleInTitle = hasSubtitle && subtitlePlacement === "withTitle";
   const subtitleBelow = hasSubtitle && subtitlePlacement === "below";
@@ -57,7 +57,7 @@ export const ScreenHeader = ({
         style={[
           styles.title,
           centered && styles.titleCentered,
-          { color: colors.textPrimary },
+          { color: theme.textPrimary },
         ]}
         accessibilityRole="header"
       >
@@ -86,7 +86,7 @@ export const ScreenHeader = ({
             subtitleVariant === "caption" ? styles.caption : styles.subtitle,
             centered && styles.subtitleCentered,
             actionInset > 0 && { paddingRight: actionInset },
-            { color: colors.textSecondary },
+            { color: theme.textSecondary },
           ]}
         >
           {subtitle}
@@ -97,7 +97,7 @@ export const ScreenHeader = ({
           style={[
             subtitleVariant === "caption" ? styles.caption : styles.subtitle,
             centered && styles.subtitleCentered,
-            { color: colors.textSecondary },
+            { color: theme.textSecondary },
           ]}
         >
           {subtitle}

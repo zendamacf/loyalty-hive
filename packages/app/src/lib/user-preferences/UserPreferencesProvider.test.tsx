@@ -21,14 +21,19 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 );
 
 function ThemeProbe() {
-  const { isDark, toggleTheme } = useTheme();
+  const { theme, setThemeMode } = useTheme();
   return (
-    <Text
-      accessibilityLabel={isDark ? "Use light theme" : "Use dark theme"}
-      onPress={toggleTheme}
-    >
-      {isDark ? "dark" : "light"}
-    </Text>
+    <>
+      <Text>{theme.mode}</Text>
+      <Text
+        accessibilityLabel="Set dark theme"
+        onPress={() => setThemeMode("dark")}
+      />
+      <Text
+        accessibilityLabel="Set purple theme"
+        onPress={() => setThemeMode("purple")}
+      />
+    </>
   );
 }
 
@@ -39,7 +44,7 @@ describe("UserPreferencesProvider", () => {
     await AsyncStorage.removeItem(CARD_SORT_STORAGE_KEY);
   });
 
-  it("ignores invalid stored theme and uses system scheme", async () => {
+  it("ignores invalid stored theme and resets to system preference", async () => {
     await AsyncStorage.setItem(THEME_STORAGE_KEY, "invalid");
 
     const { getByText } = render(
@@ -49,6 +54,51 @@ describe("UserPreferencesProvider", () => {
     );
 
     await waitFor(() => expect(getByText("light")).toBeTruthy());
+    expect(await AsyncStorage.getItem(THEME_STORAGE_KEY)).toBe("system");
+  });
+
+  it("persists system theme preference across remounts", async () => {
+    const first = render(
+      <UserPreferencesProvider>
+        <ThemeProbe />
+      </UserPreferencesProvider>,
+    );
+
+    await waitFor(() => expect(first.getByText("light")).toBeTruthy());
+    first.unmount();
+
+    const second = render(
+      <UserPreferencesProvider>
+        <ThemeProbe />
+      </UserPreferencesProvider>,
+    );
+
+    await waitFor(() => expect(second.getByText("light")).toBeTruthy());
+    expect(await AsyncStorage.getItem(THEME_STORAGE_KEY)).toBeNull();
+  });
+
+  it("persists purple theme preference across remounts", async () => {
+    const first = render(
+      <UserPreferencesProvider>
+        <ThemeProbe />
+      </UserPreferencesProvider>,
+    );
+
+    await waitFor(() => expect(first.getByText("light")).toBeTruthy());
+
+    fireEvent.press(first.getByLabelText("Set purple theme"));
+
+    await waitFor(() => expect(first.getByText("purple")).toBeTruthy());
+    first.unmount();
+
+    const second = render(
+      <UserPreferencesProvider>
+        <ThemeProbe />
+      </UserPreferencesProvider>,
+    );
+
+    await waitFor(() => expect(second.getByText("purple")).toBeTruthy());
+    expect(await AsyncStorage.getItem(THEME_STORAGE_KEY)).toBe("purple");
   });
 
   it("persists theme preference across remounts", async () => {
@@ -60,7 +110,7 @@ describe("UserPreferencesProvider", () => {
 
     await waitFor(() => expect(first.getByText("light")).toBeTruthy());
 
-    fireEvent.press(first.getByLabelText("Use dark theme"));
+    fireEvent.press(first.getByLabelText("Set dark theme"));
 
     await waitFor(() => expect(first.getByText("dark")).toBeTruthy());
     first.unmount();

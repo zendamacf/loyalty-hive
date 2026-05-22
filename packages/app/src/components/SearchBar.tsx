@@ -26,17 +26,17 @@ export const SearchBar = ({
   autoCorrect,
 }: SearchBarProps) => {
   const { t } = useTranslation(I18nNamespace.Common);
-  const { colors } = useTheme();
+  const { theme } = useTheme();
 
   return (
-    <View style={[styles.wrap, { backgroundColor: colors.surface }, style]}>
+    <View style={[styles.wrap, { backgroundColor: theme.surface }, style]}>
       <View style={styles.row}>
         <TextInput
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor={colors.textSecondary}
-          style={[styles.input, { color: colors.textPrimary }]}
+          placeholderTextColor={theme.textSecondary}
+          style={[styles.input, { color: theme.textPrimary }]}
           editable={editable}
           autoCapitalize={autoCapitalize}
           autoCorrect={autoCorrect}
@@ -48,7 +48,7 @@ export const SearchBar = ({
             onPress={() => onChangeText("")}
             style={styles.clearButton}
           >
-            <Text style={[styles.clearLabel, { color: colors.textSecondary }]}>
+            <Text style={[styles.clearLabel, { color: theme.textSecondary }]}>
               ×
             </Text>
           </Pressable>
