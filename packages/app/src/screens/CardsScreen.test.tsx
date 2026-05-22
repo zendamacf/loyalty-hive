@@ -20,7 +20,7 @@ import {
 } from "../../test/render";
 
 /** Bun otherwise executes the real PNG when CardsScreen loads `require(...)`. */
-mock.module("../../assets/images/icon.png", () => ({ default: 1 }));
+mock.module("../../assets/icon.png", () => ({ default: 1 }));
 
 const testCards = [
   {

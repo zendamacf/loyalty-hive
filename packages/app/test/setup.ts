@@ -6,7 +6,7 @@ import "./mocks/expo-localization";
 import "./mocks/expo-secure-store";
 
 /** Bun otherwise executes the real PNG when screens load `require(...)`. */
-mock.module("../assets/images/icon.png", () => ({ default: 1 }));
+mock.module("../assets/icon.png", () => ({ default: 1 }));
 
 const asyncStorage = new Map<string, string>();
 
@@ -206,7 +206,9 @@ mock.module("react-native", () => ({
   },
   View: React.forwardRef(function View(
     props: Record<string, unknown>,
-    ref: React.Ref<{ measureInWindow: (callback: (...args: number[]) => void) => void }>,
+    ref: React.Ref<{
+      measureInWindow: (callback: (...args: number[]) => void) => void;
+    }>,
   ) {
     React.useImperativeHandle(ref, () => ({
       measureInWindow: (
@@ -216,22 +218,28 @@ mock.module("react-native", () => ({
       },
       measureLayout: (
         _relativeTo: unknown,
-        onSuccess: (x: number, y: number, width: number, height: number) => void,
+        onSuccess: (
+          x: number,
+          y: number,
+          width: number,
+          height: number,
+        ) => void,
       ) => {
         onSuccess(0, 0, 200, 44);
       },
     }));
-    return React.createElement("View", props, props.children as React.ReactNode);
+    return React.createElement(
+      "View",
+      props,
+      props.children as React.ReactNode,
+    );
   }),
   TextInput: createPrimitive("TextInput"),
   Image: createPrimitive("Image"),
   Animated,
   Easing,
   AppState: {
-    addEventListener: (
-      _event: string,
-      handler: (state: string) => void,
-    ) => ({
+    addEventListener: (_event: string, handler: (state: string) => void) => ({
       remove: () => {},
     }),
   },
