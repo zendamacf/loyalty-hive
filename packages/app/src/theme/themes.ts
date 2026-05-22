@@ -23,6 +23,7 @@ export const lightTheme: Theme = {
   border: "#E2E8F0",
   error: "#EF4444",
   success: "#22C55E",
+  touchHighlight: "rgba(15, 23, 42, 0.1)",
 };
 
 export const darkTheme: Theme = {
@@ -37,6 +38,7 @@ export const darkTheme: Theme = {
   border: "#E2E8F0",
   error: "#EF4444",
   success: "#22C55E",
+  touchHighlight: "rgba(255, 255, 255, 0.14)",
 };
 
 const themes: Record<ColorAppearance, Theme> = {

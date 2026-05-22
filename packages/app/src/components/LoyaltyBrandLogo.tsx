@@ -3,7 +3,6 @@ import type { StyleProp, ViewStyle } from "react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { radius } from "@/theme/theme";
-import { touchHighlightColor } from "@/theme/types";
 import { useTheme } from "../theme/useTheme";
 import { LoyaltyBrandMark } from "./LoyaltyBrandMark";
 
@@ -43,7 +42,7 @@ export const LoyaltyBrandLogo = ({
             styles.touchHighlight,
             {
               borderRadius: radius.sm,
-              backgroundColor: touchHighlightColor(theme),
+              backgroundColor: theme.touchHighlight,
             },
           ]}
         />

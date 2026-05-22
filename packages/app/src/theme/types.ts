@@ -17,6 +17,7 @@ export type Theme = {
   error: string;
   success: string;
   menuShadow: string;
+  touchHighlight: string;
 };
 
 /** Maps each explicit theme preference to the palette applied at runtime. */
@@ -30,21 +31,10 @@ export const THEME_PALETTE: Record<
 
 export const resolveColorAppearance = (
   mode: ThemeMode,
-  systemScheme: ColorSchemeName,
+  systemScheme: ColorSchemeName | null,
 ): ColorAppearance => {
-  if (mode === "system") {
+  if (mode === null || mode === "system") {
     return systemScheme === "dark" ? "dark" : "light";
   }
   return THEME_PALETTE[mode];
 };
-
-export const appearanceFromColorScheme = (
-  scheme: ColorSchemeName,
-): ColorAppearance => (scheme === "dark" ? "dark" : "light");
-
-export const isDarkTheme = (theme: Theme): boolean =>
-  theme.appearance === "dark";
-
-/** Pressed-state overlay for brand tiles on the cards list. */
-export const touchHighlightColor = (theme: Theme): string =>
-  isDarkTheme(theme) ? "rgba(255, 255, 255, 0.14)" : "rgba(15, 23, 42, 0.1)";
