@@ -9,10 +9,10 @@ type ThemedRootProps = {
 
 /** Fills the window behind edge-to-edge system UI (e.g. Android nav bar). */
 export const ThemedRoot = ({ children }: ThemedRootProps) => {
-  const { colors } = useTheme();
+  const { theme } = useTheme();
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.background }]}>
+    <View style={[styles.root, { backgroundColor: theme.background }]}>
       {children}
     </View>
   );

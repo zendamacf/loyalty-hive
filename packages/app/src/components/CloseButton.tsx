@@ -19,7 +19,7 @@ type CloseButtonProps = {
 
 export const CloseButton = ({ onPress, style }: CloseButtonProps) => {
   const { t } = useTranslation(I18nNamespace.Common);
-  const { colors } = useTheme();
+  const { theme } = useTheme();
 
   return (
     <Pressable
@@ -32,7 +32,7 @@ export const CloseButton = ({ onPress, style }: CloseButtonProps) => {
       ]}
       onPress={onPress ?? (() => router.back())}
     >
-      <XIcon color={colors.textPrimary} size={icon.md} />
+      <XIcon color={theme.textPrimary} size={icon.md} />
     </Pressable>
   );
 };

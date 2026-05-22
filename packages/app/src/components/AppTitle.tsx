@@ -6,7 +6,8 @@ import {
   APP_NAME_ACCENT,
   APP_NAME_PREFIX,
 } from "@/constants/branding.constants";
-import { colors, typography } from "@/theme/theme";
+import { typography } from "@/theme/theme";
+import { lightTheme } from "@/theme/themes";
 import { useTheme } from "@/theme/useTheme";
 
 type AppTitleProps = {
@@ -15,7 +16,7 @@ type AppTitleProps = {
 };
 
 export const AppTitle = ({ align = "center", style }: AppTitleProps) => {
-  const { colors: themeColors } = useTheme();
+  const { theme } = useTheme();
 
   return (
     <Text
@@ -23,7 +24,7 @@ export const AppTitle = ({ align = "center", style }: AppTitleProps) => {
       accessibilityRole="header"
       style={[
         styles.title,
-        { color: themeColors.textPrimary, textAlign: align },
+        { color: theme.textPrimary, textAlign: align },
         style,
       ]}
     >
@@ -38,6 +39,6 @@ const styles = StyleSheet.create({
     ...typography.title,
   },
   hive: {
-    color: colors.primary,
+    color: lightTheme.primary,
   },
 });

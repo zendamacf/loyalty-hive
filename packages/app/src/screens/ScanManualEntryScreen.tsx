@@ -23,7 +23,7 @@ import { useTheme } from "@/theme/useTheme";
 
 export const ScanManualEntryScreen = () => {
   const { t } = useTranslation(I18nNamespace.Scan);
-  const { colors } = useTheme();
+  const { theme } = useTheme();
   const params = useLocalSearchParams<{
     brandName?: string;
     brandId?: string;
@@ -108,7 +108,7 @@ export const ScanManualEntryScreen = () => {
       footer={
         <View style={styles.footer}>
           {saveError ? (
-            <Text style={[styles.saveError, { color: colors.error }]}>
+            <Text style={[styles.saveError, { color: theme.error }]}>
               {saveError}
             </Text>
           ) : null}
@@ -131,16 +131,16 @@ export const ScanManualEntryScreen = () => {
                 value={customLabel}
                 onChangeText={setCustomLabel}
                 placeholder={t("customCardPlaceholder")}
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor={theme.textSecondary}
                 autoCapitalize="words"
                 autoCorrect={false}
                 editable={!isSaving}
                 style={[
                   styles.input,
                   {
-                    borderColor: colors.border,
-                    color: colors.textPrimary,
-                    backgroundColor: colors.surface,
+                    borderColor: theme.border,
+                    color: theme.textPrimary,
+                    backgroundColor: theme.surface,
                   },
                 ]}
               />
@@ -153,7 +153,7 @@ export const ScanManualEntryScreen = () => {
               value={cardNumber}
               onChangeText={setCardNumber}
               placeholder={t("cardNumber")}
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor={theme.textSecondary}
               keyboardType="number-pad"
               autoCapitalize="none"
               autoCorrect={false}
@@ -161,9 +161,9 @@ export const ScanManualEntryScreen = () => {
               style={[
                 styles.input,
                 {
-                  borderColor: colors.border,
-                  color: colors.textPrimary,
-                  backgroundColor: colors.surface,
+                  borderColor: theme.border,
+                  color: theme.textPrimary,
+                  backgroundColor: theme.surface,
                 },
               ]}
             />

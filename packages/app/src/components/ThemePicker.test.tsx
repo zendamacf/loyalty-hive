@@ -19,7 +19,6 @@ describe("ThemePicker", () => {
 
     fireEvent.press(getByLabelText("Theme"));
 
-    expect(getByText("contrast")).toBeTruthy();
     expect(getByText("sun")).toBeTruthy();
     expect(getByText("moon")).toBeTruthy();
   });

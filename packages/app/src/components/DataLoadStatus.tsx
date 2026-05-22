@@ -17,19 +17,19 @@ export const DataLoadStatus = ({
   loadingLabel,
   children,
 }: DataLoadStatusProps) => {
-  const { colors } = useTheme();
+  const { theme } = useTheme();
 
   if (error) {
     return (
-      <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
+      <Text style={[styles.errorText, { color: theme.error }]}>{error}</Text>
     );
   }
 
   if (!loaded) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator color={colors.textPrimary} />
-        <Text style={[styles.loadingLabel, { color: colors.textSecondary }]}>
+        <ActivityIndicator color={theme.textPrimary} />
+        <Text style={[styles.loadingLabel, { color: theme.textSecondary }]}>
           {loadingLabel}
         </Text>
       </View>

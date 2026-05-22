@@ -3,6 +3,7 @@ import type { StyleProp, ViewStyle } from "react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { radius } from "@/theme/theme";
+import { touchHighlightColor } from "@/theme/types";
 import { useTheme } from "../theme/useTheme";
 import { LoyaltyBrandMark } from "./LoyaltyBrandMark";
 
@@ -23,7 +24,7 @@ export const LoyaltyBrandLogo = ({
   onPress,
   style,
 }: Props) => {
-  const { colorAppearance } = useTheme();
+  const { theme } = useTheme();
   const [pressed, setPressed] = useState(false);
 
   const cardBody = (pressed: boolean) => (
@@ -42,10 +43,7 @@ export const LoyaltyBrandLogo = ({
             styles.touchHighlight,
             {
               borderRadius: radius.sm,
-              backgroundColor:
-                colorAppearance === "dark"
-                  ? "rgba(255, 255, 255, 0.14)"
-                  : "rgba(15, 23, 42, 0.1)",
+              backgroundColor: touchHighlightColor(theme),
             },
           ]}
         />

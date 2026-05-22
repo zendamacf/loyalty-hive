@@ -21,10 +21,10 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 );
 
 function ThemeProbe() {
-  const { colorAppearance, setThemeMode } = useTheme();
+  const { theme, setThemeMode } = useTheme();
   return (
     <>
-      <Text>{colorAppearance}</Text>
+      <Text>{theme.appearance}</Text>
       <Text
         accessibilityLabel="Set dark theme"
         onPress={() => setThemeMode("dark")}

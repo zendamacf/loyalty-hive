@@ -19,15 +19,15 @@ export type FormGroupProps = {
 };
 
 export const FormGroup = ({ label, children, hint, style }: FormGroupProps) => {
-  const { colors } = useTheme();
+  const { theme } = useTheme();
 
   return (
     <View style={style}>
-      <Text style={[styles.label, { color: colors.textSecondary }]}>
+      <Text style={[styles.label, { color: theme.textSecondary }]}>
         {label}
       </Text>
       {hint && (
-        <Text style={[styles.hint, { color: colors.textSecondary }]}>
+        <Text style={[styles.hint, { color: theme.textSecondary }]}>
           {hint}
         </Text>
       )}

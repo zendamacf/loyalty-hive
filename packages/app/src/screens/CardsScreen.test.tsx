@@ -10,9 +10,8 @@ import {
 } from "@/constants/routes.constants";
 import type { GetApiV1CardsResponse } from "@/lib/api-client/gen";
 import { CARD_SORT_STORAGE_KEY } from "@/lib/card-sort";
-
-import { colors } from "@/theme/theme";
 import { THEME_STORAGE_KEY } from "@/theme/theme.constants";
+import { lightTheme } from "@/theme/themes";
 import { getApiV1CardsMock, resolveApiMock } from "../../test/mocks/api-client";
 import {
   renderWithSharedQueryClient,
@@ -218,7 +217,7 @@ describe("CardsScreen", () => {
         label: "Gym membership",
         createdAt: "2020-01-01T00:00:00.000Z",
         logoUrl: "",
-        backgroundColor: colors.cardFallbackLight,
+        backgroundColor: lightTheme.cardFallback,
         [CARD_CODE_FROM_CARDS_PARAM]: CARD_CODE_FROM_CARDS_VALUE,
       },
     });

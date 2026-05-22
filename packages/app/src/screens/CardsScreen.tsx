@@ -82,7 +82,7 @@ function filterCards(
 
 export const CardsScreen = () => {
   const { t } = useTranslation([I18nNamespace.Cards, I18nNamespace.Common]);
-  const { colors } = useTheme();
+  const { theme } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
   const { sort, setSort, hydrated: cardSortHydrated } = useCardSort();
 
@@ -137,10 +137,10 @@ export const CardsScreen = () => {
   const listEmpty =
     emptyTitle && emptySubtitle ? (
       <View style={styles.emptyState}>
-        <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>
+        <Text style={[styles.emptyTitle, { color: theme.textPrimary }]}>
           {emptyTitle}
         </Text>
-        <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
+        <Text style={[styles.emptySubtitle, { color: theme.textSecondary }]}>
           {emptySubtitle}
         </Text>
       </View>
@@ -161,7 +161,7 @@ export const CardsScreen = () => {
               ]}
               onPress={() => router.push(Routes.SELECT_BRAND)}
             >
-              <PlusIcon color={colors.textPrimary} size={icon.md} />
+              <PlusIcon color={theme.textPrimary} size={icon.md} />
             </Pressable>
             <Pressable
               accessibilityLabel={t("openSettingsA11y")}
@@ -172,7 +172,7 @@ export const CardsScreen = () => {
               ]}
               onPress={() => router.push(Routes.SETTINGS)}
             >
-              <SettingsIcon color={colors.textPrimary} size={icon.md} />
+              <SettingsIcon color={theme.textPrimary} size={icon.md} />
             </Pressable>
           </>
         }
@@ -223,7 +223,7 @@ export const CardsScreen = () => {
                 pressed && !disabled && styles.sortButtonPressed,
               ]}
             >
-              <ListFilterIcon color={colors.textPrimary} size={icon.md} />
+              <ListFilterIcon color={theme.textPrimary} size={icon.md} />
             </Pressable>
           )}
         />
@@ -245,7 +245,7 @@ export const CardsScreen = () => {
           refreshControl={refreshControl}
           renderItem={({ item }) => {
             const cardBackgroundColor =
-              item.brand?.backgroundColor ?? colors.cardFallback;
+              item.brand?.backgroundColor ?? theme.cardFallback;
 
             return (
               <View style={styles.card}>

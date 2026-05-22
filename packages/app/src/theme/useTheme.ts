@@ -1,22 +1,17 @@
 import { useColorScheme } from "react-native";
-import type { ColorAppearance } from "./theme.constants";
-import { themeColorsForAppearance } from "./theme-context";
-import { useThemeContext } from "./useThemeContext";
 
-const fallbackAppearance = (
-  scheme: ReturnType<typeof useColorScheme>,
-): ColorAppearance => (scheme === "dark" ? "dark" : "light");
+import { DEFAULT_THEME_MODE } from "./theme.constants";
+import { resolveTheme } from "./themes";
+import { useThemeContext } from "./useThemeContext";
 
 export const useTheme = () => {
   const context = useThemeContext();
   const scheme = useColorScheme();
-  const colorAppearance =
-    context?.colorAppearance ?? fallbackAppearance(scheme);
+  const themeMode = context?.themeMode ?? DEFAULT_THEME_MODE;
 
   return {
-    themeMode: context?.themeMode ?? "system",
-    colorAppearance,
-    colors: context?.colors ?? themeColorsForAppearance(colorAppearance),
+    themeMode,
+    theme: context?.theme ?? resolveTheme(themeMode, scheme),
     setThemeMode: context?.setThemeMode ?? (() => {}),
   };
 };

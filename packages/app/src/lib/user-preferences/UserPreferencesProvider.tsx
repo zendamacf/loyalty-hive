@@ -27,11 +27,11 @@ import { CardSortContext } from "@/lib/card-sort/card-sort-context";
 import {
   DEFAULT_THEME_MODE,
   isThemeMode,
-  resolveColorAppearance,
   THEME_STORAGE_KEY,
   type ThemeMode,
 } from "@/theme/theme.constants";
-import { ThemeContext, themeColorsForAppearance } from "@/theme/theme-context";
+import { ThemeContext } from "@/theme/theme-context";
+import { resolveTheme } from "@/theme/themes";
 
 const readStoredLanguage = async (
   deviceLanguageCode: string | null,
@@ -113,7 +113,7 @@ export const UserPreferencesProvider = ({
     void i18n.changeLanguage(languagePreference);
   }, [languageHydrated, languagePreference]);
 
-  const colorAppearance = resolveColorAppearance(themePreference, systemScheme);
+  const theme = resolveTheme(themePreference, systemScheme);
 
   const setThemeMode = useCallback((mode: ThemeMode) => {
     setThemePreference(mode);
@@ -136,12 +136,11 @@ export const UserPreferencesProvider = ({
   const themeValue = useMemo(
     () => ({
       themeMode: themePreference,
-      colorAppearance,
-      colors: themeColorsForAppearance(colorAppearance),
+      theme,
       hydrated: themeHydrated,
       setThemeMode,
     }),
-    [colorAppearance, setThemeMode, themeHydrated, themePreference],
+    [setThemeMode, theme, themeHydrated, themePreference],
   );
 
   const languageValue = useMemo(

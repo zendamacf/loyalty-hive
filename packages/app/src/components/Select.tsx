@@ -68,7 +68,7 @@ export const Select = <T extends string>({
   renderTrigger,
   menuMinWidth,
 }: SelectProps<T>) => {
-  const { colors } = useTheme();
+  const { theme } = useTheme();
   const { layerRef, setOverlay } = useOverlay();
   const [open, setOpen] = useState(false);
   const [overlayShown, setOverlayShown] = useState(false);
@@ -265,9 +265,9 @@ export const Select = <T extends string>({
               top: menuAnchor.y,
               left: menuAnchor.x,
               width: menuAnchor.width,
-              backgroundColor: colors.surface,
-              borderColor: colors.border,
-              shadowColor: colors.menuShadow,
+              backgroundColor: theme.surface,
+              borderColor: theme.border,
+              shadowColor: theme.menuShadow,
             },
           ]}
         >
@@ -276,8 +276,8 @@ export const Select = <T extends string>({
               const selected = option.value === value;
               const OptionIcon = option.icon;
               const optionColor = selected
-                ? colors.primary
-                : colors.textSecondary;
+                ? theme.primary
+                : theme.textSecondary;
               return (
                 <Pressable
                   key={option.value}
@@ -302,7 +302,7 @@ export const Select = <T extends string>({
                         styles.optionLabel,
                         selected && styles.optionLabelSelected,
                         {
-                          color: selected ? colors.primary : colors.textPrimary,
+                          color: selected ? theme.primary : theme.textPrimary,
                         },
                       ]}
                     >
@@ -318,11 +318,11 @@ export const Select = <T extends string>({
     );
   }, [
     close,
-    colors.border,
-    colors.menuShadow,
-    colors.primary,
-    colors.surface,
-    colors.textPrimary,
+    theme.border,
+    theme.menuShadow,
+    theme.primary,
+    theme.surface,
+    theme.textPrimary,
     menuAnchor,
     menuHeight,
     onMenuLayout,
@@ -376,8 +376,8 @@ export const Select = <T extends string>({
           style={({ pressed }) => [
             styles.trigger,
             {
-              borderColor: colors.border,
-              backgroundColor: colors.surface,
+              borderColor: theme.border,
+              backgroundColor: theme.surface,
             },
             pressed && !disabled && styles.triggerPressed,
             disabled && styles.triggerDisabled,
@@ -386,16 +386,16 @@ export const Select = <T extends string>({
           {selectedOption?.icon &&
             (() => {
               const OptionIcon = selectedOption.icon;
-              return <OptionIcon color={colors.textPrimary} size={icon.sm} />;
+              return <OptionIcon color={theme.textPrimary} size={icon.sm} />;
             })()}
           <Text
-            style={[styles.triggerLabel, { color: colors.textPrimary }]}
+            style={[styles.triggerLabel, { color: theme.textPrimary }]}
             numberOfLines={1}
           >
             {selectedOption?.label ?? ""}
           </Text>
           <Animated.View style={[styles.chevron, chevronStyle]}>
-            <ChevronDownIcon color={colors.textSecondary} size={icon.sm} />
+            <ChevronDownIcon color={theme.textSecondary} size={icon.sm} />
           </Animated.View>
         </Pressable>
       )}

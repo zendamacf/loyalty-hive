@@ -44,7 +44,7 @@ function formatCreatedAt(value: string, locale: string): string | null {
 
 export const CardSettingsScreen = () => {
   const { t, i18n } = useTranslation(I18nNamespace.Cards);
-  const { colors } = useTheme();
+  const { theme } = useTheme();
   const params = useLocalSearchParams<{
     id?: string;
     cardNumber?: string;
@@ -122,7 +122,7 @@ export const CardSettingsScreen = () => {
             disabled={!cardId || isDeleting}
             style={[
               styles.deleteButton,
-              { backgroundColor: colors.error },
+              { backgroundColor: theme.error },
               (!cardId || isDeleting) && styles.deleteButtonDisabled,
             ]}
             onPress={confirmDelete}
@@ -145,7 +145,7 @@ export const CardSettingsScreen = () => {
           <FormGroup label={t("cardNumberLabel")}>
             <View style={styles.detailValueRow}>
               <Text
-                style={[styles.detailValue, { color: colors.textPrimary }]}
+                style={[styles.detailValue, { color: theme.textPrimary }]}
                 numberOfLines={1}
               >
                 {cardNumber}
@@ -161,14 +161,14 @@ export const CardSettingsScreen = () => {
                 ]}
                 onPress={copyCardNumber}
               >
-                <CopyIcon color={colors.textSecondary} size={icon.md} />
+                <CopyIcon color={theme.textSecondary} size={icon.md} />
               </Pressable>
             </View>
           </FormGroup>
 
           {createdOnLabel ? (
             <FormGroup label={t("createdOnLabel")}>
-              <Text style={[styles.valueText, { color: colors.textPrimary }]}>
+              <Text style={[styles.valueText, { color: theme.textPrimary }]}>
                 {createdOnLabel}
               </Text>
             </FormGroup>

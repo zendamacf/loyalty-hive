@@ -8,7 +8,7 @@ import { useTheme } from "@/theme/useTheme";
 import { Select, type SelectOption } from "./Select";
 
 export const ThemePicker = () => {
-  const { t } = useTranslation(I18nNamespace.Common);
+  const { t } = useTranslation([I18nNamespace.Common, I18nNamespace.Settings]);
   const { themeMode, setThemeMode } = useTheme();
 
   const options = useMemo(
