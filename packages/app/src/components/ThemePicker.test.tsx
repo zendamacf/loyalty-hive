@@ -19,6 +19,7 @@ describe("ThemePicker", () => {
 
     fireEvent.press(getByLabelText("Theme"));
 
+    expect(getByTestId("system-theme-swatch")).toBeTruthy();
     expect(getByTestId("light-theme-swatch")).toBeTruthy();
     expect(getByTestId("dark-theme-swatch")).toBeTruthy();
     expect(getByTestId("purple-theme-swatch")).toBeTruthy();

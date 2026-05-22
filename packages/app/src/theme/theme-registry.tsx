@@ -1,7 +1,8 @@
-import { ContrastIcon, type LucideIcon } from "lucide-react-native";
+import type { LucideIcon } from "lucide-react-native";
 import type { ReactNode } from "react";
 
 import type { SelectOptionIconProps } from "@/components/Select";
+import { SystemThemeColorCircle } from "@/components/SystemThemeColorCircle";
 import { ThemeColorCircle } from "@/components/ThemeColorCircle";
 import type { ThemeMode } from "./theme.constants";
 import { darkTheme, lightTheme, purpleTheme } from "./themes";
@@ -14,7 +15,13 @@ export type ThemePickerOptionDef = {
 };
 
 export const THEME_PICKER_OPTIONS: readonly ThemePickerOptionDef[] = [
-  { mode: "system", labelKey: "system", icon: ContrastIcon },
+  {
+    mode: "system",
+    labelKey: "system",
+    renderIcon: ({ size }) => (
+      <SystemThemeColorCircle size={size} testID="system-theme-swatch" />
+    ),
+  },
   {
     mode: "light",
     labelKey: "light",

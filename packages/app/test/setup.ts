@@ -91,7 +91,6 @@ const Easing = {
 };
 
 mock.module("lucide-react-native", () => ({
-  ContrastIcon: () => React.createElement("Text", null, "contrast"),
   PlusIcon: () => React.createElement("Text", null, "+"),
   SettingsIcon: () => React.createElement("Text", null, "⚙"),
   CopyIcon: () => React.createElement("Text", null, "copy"),
