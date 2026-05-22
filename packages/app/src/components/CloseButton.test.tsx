@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-import { fireEvent } from "@testing-library/react-native";
-import { renderWithProviders } from "../../test/render";
+import { press, renderWithProviders } from "../../test/render";
 import { CloseButton } from "./CloseButton";
 
 const { __expoRouterMocks } = globalThis as unknown as {
@@ -17,7 +16,7 @@ describe("CloseButton", () => {
   it("calls router.back by default", async () => {
     const { getByLabelText } = await renderWithProviders(<CloseButton />);
 
-    fireEvent.press(getByLabelText("Close"));
+    await press(getByLabelText("Close"));
 
     expect(__expoRouterMocks.back).toHaveBeenCalledTimes(1);
   });
@@ -28,7 +27,7 @@ describe("CloseButton", () => {
       <CloseButton onPress={onPress} />,
     );
 
-    fireEvent.press(getByLabelText("Close"));
+    await press(getByLabelText("Close"));
 
     expect(onPress).toHaveBeenCalledTimes(1);
     expect(__expoRouterMocks.back).not.toHaveBeenCalled();

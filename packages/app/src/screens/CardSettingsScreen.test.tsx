@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, type mock } from "bun:test";
-import { fireEvent, waitFor } from "@testing-library/react-native";
+import { act, waitFor } from "@testing-library/react-native";
 
 import { Routes } from "@/constants/routes.constants";
 import { deleteApiV1CardsByIdMock } from "../../test/mocks/api-client";
-import { renderWithTheme } from "../../test/render";
+import { press, renderWithTheme } from "../../test/render";
 
 const { __expoRouterMocks, __expoClipboardMocks, __reactNativeAlertMocks } =
   globalThis as unknown as {
@@ -66,7 +66,7 @@ describe("CardSettingsScreen", () => {
   it("copies card number when copy is pressed", async () => {
     const { getByLabelText } = await renderWithTheme(<CardSettingsScreen />);
 
-    fireEvent.press(getByLabelText("Copy card number"));
+    await press(getByLabelText("Copy card number"));
 
     expect(__expoClipboardMocks.setStringAsync).toHaveBeenCalledWith(
       "1234567890",
@@ -76,7 +76,7 @@ describe("CardSettingsScreen", () => {
   it("shows delete confirmation before deleting", async () => {
     const { getByLabelText } = await renderWithTheme(<CardSettingsScreen />);
 
-    fireEvent.press(getByLabelText("Delete card"));
+    await press(getByLabelText("Delete card"));
 
     expect(__reactNativeAlertMocks.alert).toHaveBeenCalled();
     const buttons = __reactNativeAlertMocks.alert.mock.calls[0]?.[2] as Array<{
@@ -84,7 +84,9 @@ describe("CardSettingsScreen", () => {
       onPress?: () => void;
     }>;
     const confirm = buttons.find((button) => button.text === "Delete card");
-    confirm?.onPress?.();
+    await act(async () => {
+      confirm?.onPress?.();
+    });
 
     await waitFor(() =>
       expect(deleteApiV1CardsByIdMock).toHaveBeenCalledWith(
@@ -98,13 +100,15 @@ describe("CardSettingsScreen", () => {
   it("returns to cards after a successful delete", async () => {
     const { getByLabelText } = await renderWithTheme(<CardSettingsScreen />);
 
-    fireEvent.press(getByLabelText("Delete card"));
+    await press(getByLabelText("Delete card"));
 
     const buttons = __reactNativeAlertMocks.alert.mock.calls[0]?.[2] as Array<{
       text: string;
       onPress?: () => void;
     }>;
-    buttons.find((button) => button.text === "Delete card")?.onPress?.();
+    await act(async () => {
+      buttons.find((button) => button.text === "Delete card")?.onPress?.();
+    });
 
     await waitFor(() =>
       expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith(Routes.CARDS),

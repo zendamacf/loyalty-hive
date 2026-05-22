@@ -1,8 +1,10 @@
 import { expect } from "bun:test";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
+  act,
   type RenderOptions,
   type RenderResult,
+  fireEvent,
   render,
   waitFor,
 } from "@testing-library/react-native";
@@ -19,6 +21,41 @@ import {
 import { OverlayProvider } from "@/components/OverlayProvider";
 
 export const TEST_PROVIDERS_READY_ID = "test-providers-ready";
+
+/** Flushes deferred layout work (e.g. Select `setTimeout(updateMenuAnchor, 0)`). */
+export async function flushAct(): Promise<void> {
+  await act(async () => {
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+  });
+}
+
+type PressOptions = {
+  /** Flush deferred layout (Select menu anchor). Disable for async mutations. */
+  flushLayout?: boolean;
+};
+
+/** Use for interactions that trigger overlay/layout or Pressable updates. */
+export async function press(
+  element: Parameters<typeof fireEvent.press>[0],
+  options: PressOptions = {},
+): Promise<void> {
+  const { flushLayout = true } = options;
+  await act(() => {
+    fireEvent.press(element);
+  });
+  if (flushLayout) {
+    await flushAct();
+  }
+}
+
+export async function changeText(
+  element: Parameters<typeof fireEvent.changeText>[0],
+  text: string,
+): Promise<void> {
+  await act(() => {
+    fireEvent.changeText(element, text);
+  });
+}
 
 export function createTestQueryClient() {
   return new QueryClient({
@@ -71,6 +108,9 @@ export async function settleProviders(
 ): Promise<void> {
   await waitFor(() => {
     expect(result.getByTestId(TEST_PROVIDERS_READY_ID)).toBeTruthy();
+  });
+  await act(async () => {
+    await new Promise<void>((resolve) => setImmediate(resolve));
   });
 }
 

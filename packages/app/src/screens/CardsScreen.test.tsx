@@ -14,6 +14,7 @@ import { THEME_STORAGE_KEY } from "@/theme/theme.constants";
 import { lightTheme } from "@/theme/themes";
 import { getApiV1CardsMock, resolveApiMock } from "../../test/mocks/api-client";
 import {
+  press,
   renderWithSharedQueryClient,
   renderWithTheme,
 } from "../../test/render";
@@ -106,7 +107,7 @@ describe("CardsScreen", () => {
     });
     expect(getByLabelText("Sort by")).toBeTruthy();
 
-    fireEvent.press(getByLabelText("Sort by"));
+    await press(getByLabelText("Sort by"));
 
     await waitFor(() => {
       expect(getByText("A-Z")).toBeTruthy();
@@ -138,8 +139,8 @@ describe("CardsScreen", () => {
       | undefined;
     expect(initialCall?.query?.sort).toBe("alphabetical");
 
-    fireEvent.press(getByLabelText("Sort by"));
-    fireEvent.press(getByText("Most viewed"));
+    await press(getByLabelText("Sort by"));
+    await press(getByText("Most viewed"));
 
     await waitFor(() => {
       const lastCall = getApiV1CardsMock.mock.calls.at(-1)?.[0] as

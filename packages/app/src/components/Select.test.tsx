@@ -1,8 +1,8 @@
 import { describe, expect, it, mock } from "bun:test";
-import { fireEvent } from "@testing-library/react-native";
+import { waitFor } from "@testing-library/react-native";
 import { Pressable, Text } from "react-native";
 
-import { renderWithTheme } from "../../test/render";
+import { press, renderWithTheme } from "../../test/render";
 import { Select } from "./Select";
 
 describe("Select", () => {
@@ -37,9 +37,11 @@ describe("Select", () => {
 
     expect(queryByText("Beta")).toBeNull();
 
-    fireEvent.press(getByLabelText("Example"));
+    await press(getByLabelText("Example"));
 
-    expect(getByText("Beta")).toBeTruthy();
+    await waitFor(() => {
+      expect(getByText("Beta")).toBeTruthy();
+    });
   });
 
   it("calls onValueChange when an option is chosen", async () => {
@@ -56,8 +58,8 @@ describe("Select", () => {
       />,
     );
 
-    fireEvent.press(getByLabelText("Example"));
-    fireEvent.press(getByText("Beta"));
+    await press(getByLabelText("Example"));
+    await press(getByText("Beta"));
 
     expect(onValueChange).toHaveBeenCalledWith("b");
   });
@@ -82,8 +84,10 @@ describe("Select", () => {
 
     expect(queryByText("Beta")).toBeNull();
 
-    fireEvent.press(getByLabelText("Example"));
+    await press(getByLabelText("Example"));
 
-    expect(getByText("Beta")).toBeTruthy();
+    await waitFor(() => {
+      expect(getByText("Beta")).toBeTruthy();
+    });
   });
 });

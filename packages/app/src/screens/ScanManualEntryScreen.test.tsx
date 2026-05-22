@@ -9,7 +9,7 @@ import {
   postApiV1CardsMock,
   resolveApiMock,
 } from "../../test/mocks/api-client";
-import { renderWithProviders } from "../../test/render";
+import { changeText, press, renderWithProviders } from "../../test/render";
 
 const testUserId = "00000000-0000-4000-8000-000000000001";
 const fakeJwt = `h.${Buffer.from(JSON.stringify({ sub: testUserId })).toString("base64url")}.s`;
@@ -124,11 +124,11 @@ describe("ScanManualEntryScreen", () => {
       <ScanManualEntryScreen />,
     );
 
-    fireEvent.changeText(
+    await changeText(
       getByPlaceholderText("e.g. Gym membership"),
       "Gym membership",
     );
-    fireEvent.press(getByText("Add"));
+    await press(getByText("Add"), { flushLayout: false });
 
     await waitFor(() => {
       expect(postApiV1CardsMock).toHaveBeenCalledWith(
@@ -149,7 +149,7 @@ describe("ScanManualEntryScreen", () => {
     __expoRouterMocks.params = { customCard: "1", cardNumber: "111222" };
     const { getByText } = await renderWithProviders(<ScanManualEntryScreen />);
 
-    fireEvent.press(getByText("Add"));
+    await press(getByText("Add"));
 
     expect(postApiV1CardsMock).not.toHaveBeenCalled();
   });
@@ -169,8 +169,8 @@ describe("ScanManualEntryScreen", () => {
       <ScanManualEntryScreen />,
     );
 
-    fireEvent.changeText(getByPlaceholderText("Card number"), "987654");
-    fireEvent.press(getByText("Add"));
+    await changeText(getByPlaceholderText("Card number"), "987654");
+    await press(getByText("Add"));
 
     await waitFor(() => {
       expect(getByText("Card already exists")).toBeTruthy();
@@ -181,7 +181,7 @@ describe("ScanManualEntryScreen", () => {
   it("does not save when card number is empty", async () => {
     const { getByText } = await renderWithProviders(<ScanManualEntryScreen />);
 
-    fireEvent.press(getByText("Add"));
+    await press(getByText("Add"));
 
     expect(postApiV1CardsMock).not.toHaveBeenCalled();
   });
@@ -191,7 +191,7 @@ describe("ScanManualEntryScreen", () => {
       <ScanManualEntryScreen />,
     );
 
-    fireEvent.press(getByLabelText("Close"));
+    await press(getByLabelText("Close"));
 
     expect(__expoRouterMocks.back).toHaveBeenCalled();
   });

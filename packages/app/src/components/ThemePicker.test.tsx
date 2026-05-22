@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 
-import { fireEvent, waitFor } from "@testing-library/react-native";
+import { waitFor } from "@testing-library/react-native";
 
-import { renderWithTheme } from "../../test/render";
+import { press, renderWithTheme } from "../../test/render";
 import { ThemePicker } from "./ThemePicker";
 
 describe("ThemePicker", () => {
@@ -16,12 +16,14 @@ describe("ThemePicker", () => {
     const { getAllByTestId, getByLabelText, getByTestId } =
       await renderWithTheme(<ThemePicker />);
 
-    fireEvent.press(getByLabelText("Theme"));
+    await press(getByLabelText("Theme"));
 
-    expect(getAllByTestId("system-theme-swatch").length).toBe(2);
-    expect(getByTestId("light-theme-swatch")).toBeTruthy();
-    expect(getByTestId("dark-theme-swatch")).toBeTruthy();
-    expect(getByTestId("purple-theme-swatch")).toBeTruthy();
+    await waitFor(() => {
+      expect(getAllByTestId("system-theme-swatch").length).toBe(2);
+      expect(getByTestId("light-theme-swatch")).toBeTruthy();
+      expect(getByTestId("dark-theme-swatch")).toBeTruthy();
+      expect(getByTestId("purple-theme-swatch")).toBeTruthy();
+    });
   });
 
   it("selects purple theme", async () => {
@@ -29,8 +31,8 @@ describe("ThemePicker", () => {
       <ThemePicker />,
     );
 
-    fireEvent.press(getByLabelText("Theme"));
-    fireEvent.press(getByText("Purple"));
+    await press(getByLabelText("Theme"));
+    await press(getByText("Purple"));
 
     await waitFor(() => {
       expect(getByText("Purple")).toBeTruthy();
@@ -42,8 +44,8 @@ describe("ThemePicker", () => {
       <ThemePicker />,
     );
 
-    fireEvent.press(getByLabelText("Theme"));
-    fireEvent.press(getByText("Dark"));
+    await press(getByLabelText("Theme"));
+    await press(getByText("Dark"));
 
     await waitFor(() => {
       expect(getByText("Dark")).toBeTruthy();

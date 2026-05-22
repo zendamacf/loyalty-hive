@@ -12,7 +12,7 @@ import {
   clearSecureStoreMock,
   secureStoreDeleteMock,
 } from "../../test/mocks/expo-secure-store";
-import { renderWithTheme } from "../../test/render";
+import { press, renderWithTheme } from "../../test/render";
 
 const { __expoRouterMocks } = globalThis as unknown as {
   __expoRouterMocks: {
@@ -46,7 +46,7 @@ describe("SettingsScreen", () => {
     expect(getByText("System")).toBeTruthy();
     expect(getByText("Sign out")).toBeTruthy();
 
-    fireEvent.press(getByLabelText("Language"));
+    await press(getByLabelText("Language"));
 
     await waitFor(() => {
       expect(getByText("Español")).toBeTruthy();
@@ -60,13 +60,13 @@ describe("SettingsScreen", () => {
 
     expect(getByText("System")).toBeTruthy();
 
-    fireEvent.press(getByLabelText("Theme"));
+    await press(getByLabelText("Theme"));
 
     await waitFor(() => {
       expect(getByTestId("dark-theme-swatch")).toBeTruthy();
     });
 
-    fireEvent.press(getByText("Dark"));
+    await press(getByText("Dark"));
   });
 });
 
