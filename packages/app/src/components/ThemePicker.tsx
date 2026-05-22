@@ -14,19 +14,18 @@ export const ThemePicker = () => {
   const value: ThemeMode = isDark ? "dark" : "light";
 
   const options = useMemo(
-    () =>
-      [
-        {
-          value: "light" as const,
-          label: t("light", { ns: I18nNamespace.Common }),
-          icon: SunIcon,
-        },
-        {
-          value: "dark" as const,
-          label: t("dark", { ns: I18nNamespace.Common }),
-          icon: MoonIcon,
-        },
-      ],
+    () => [
+      {
+        value: "light" as const,
+        label: t("light", { ns: I18nNamespace.Common }),
+        icon: SunIcon,
+      },
+      {
+        value: "dark" as const,
+        label: t("dark", { ns: I18nNamespace.Common }),
+        icon: MoonIcon,
+      },
+    ],
     [t],
   );
 
