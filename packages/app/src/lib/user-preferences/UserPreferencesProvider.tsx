@@ -27,11 +27,11 @@ import { CardSortContext } from "@/lib/card-sort/card-sort-context";
 import {
   DEFAULT_THEME_MODE,
   isThemeMode,
-  resolveIsDark,
+  resolveColorAppearance,
   THEME_STORAGE_KEY,
   type ThemeMode,
 } from "@/theme/theme.constants";
-import { ThemeContext, themeColorsForMode } from "@/theme/theme-context";
+import { ThemeContext, themeColorsForAppearance } from "@/theme/theme-context";
 
 const readStoredLanguage = async (
   deviceLanguageCode: string | null,
@@ -113,16 +113,15 @@ export const UserPreferencesProvider = ({
     void i18n.changeLanguage(languagePreference);
   }, [languageHydrated, languagePreference]);
 
-  const isDark = resolveIsDark(themePreference, systemScheme);
+  const colorAppearance = resolveColorAppearance(
+    themePreference,
+    systemScheme,
+  );
 
   const setThemeMode = useCallback((mode: ThemeMode) => {
     setThemePreference(mode);
     void AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
   }, []);
-
-  const toggleTheme = useCallback(() => {
-    setThemeMode(isDark ? "light" : "dark");
-  }, [isDark, setThemeMode]);
 
   const setLanguagePreferencePersisted = useCallback(
     (next: LanguagePreference) => {
@@ -139,14 +138,13 @@ export const UserPreferencesProvider = ({
 
   const themeValue = useMemo(
     () => ({
-      isDark,
       themeMode: themePreference,
-      colors: themeColorsForMode(isDark),
+      colorAppearance,
+      colors: themeColorsForAppearance(colorAppearance),
       hydrated: themeHydrated,
       setThemeMode,
-      toggleTheme,
     }),
-    [isDark, setThemeMode, themeHydrated, themePreference, toggleTheme],
+    [colorAppearance, setThemeMode, themeHydrated, themePreference],
   );
 
   const languageValue = useMemo(

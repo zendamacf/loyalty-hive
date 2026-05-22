@@ -21,14 +21,15 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 );
 
 function ThemeProbe() {
-  const { isDark, toggleTheme } = useTheme();
+  const { colorAppearance, setThemeMode } = useTheme();
   return (
-    <Text
-      accessibilityLabel={isDark ? "Use light theme" : "Use dark theme"}
-      onPress={toggleTheme}
-    >
-      {isDark ? "dark" : "light"}
-    </Text>
+    <>
+      <Text>{colorAppearance}</Text>
+      <Text
+        accessibilityLabel="Set dark theme"
+        onPress={() => setThemeMode("dark")}
+      />
+    </>
   );
 }
 
@@ -81,7 +82,7 @@ describe("UserPreferencesProvider", () => {
 
     await waitFor(() => expect(first.getByText("light")).toBeTruthy());
 
-    fireEvent.press(first.getByLabelText("Use dark theme"));
+    fireEvent.press(first.getByLabelText("Set dark theme"));
 
     await waitFor(() => expect(first.getByText("dark")).toBeTruthy());
     first.unmount();
