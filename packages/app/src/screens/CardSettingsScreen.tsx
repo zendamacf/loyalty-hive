@@ -14,6 +14,8 @@ import {
 } from "react-native";
 
 import { CloseButton } from "@/components/CloseButton";
+import { Form } from "@/components/Form";
+import { FormGroup } from "@/components/FormGroup";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { ScreenShell } from "@/components/ScreenShell";
 import { Routes } from "@/constants/routes.constants";
@@ -68,8 +70,6 @@ export const CardSettingsScreen = () => {
     () => formatCreatedAt(createdAt, i18n.language),
     [createdAt, i18n.language],
   );
-  console.log(createdOnLabel, createdAt, i18n.language);
-
   const queryClient = useQueryClient();
 
   const { mutateAsync: deleteCard, isPending: isDeleting } = useMutation({
@@ -141,11 +141,8 @@ export const CardSettingsScreen = () => {
           embedded
         />
 
-        <View style={styles.details}>
-          <View style={styles.detailBlock}>
-            <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>
-              {t("cardNumberLabel")}
-            </Text>
+        <Form>
+          <FormGroup label={t("cardNumberLabel")}>
             <View style={styles.detailValueRow}>
               <Text
                 style={[styles.detailValue, { color: colors.textPrimary }]}
@@ -167,39 +164,24 @@ export const CardSettingsScreen = () => {
                 <CopyIcon color={colors.textSecondary} size={icon.md} />
               </Pressable>
             </View>
-          </View>
+          </FormGroup>
 
           {createdOnLabel ? (
-            <View style={styles.detailBlock}>
-              <Text
-                style={[styles.detailLabel, { color: colors.textSecondary }]}
-              >
-                {t("createdOnLabel")}
+            <FormGroup label={t("createdOnLabel")}>
+              <Text style={[styles.valueText, { color: colors.textPrimary }]}>
+                {createdOnLabel}
               </Text>
-              <View style={styles.detailValueRow}>
-                <Text
-                  style={[styles.detailValue, { color: colors.textPrimary }]}
-                >
-                  {createdOnLabel}
-                </Text>
-              </View>
-            </View>
+            </FormGroup>
           ) : null}
-        </View>
+        </Form>
       </ScreenShell.Body>
     </ScreenShell>
   );
 };
 
 const styles = StyleSheet.create({
-  details: {
-    gap: spacing.lg,
-  },
-  detailBlock: {
-    gap: spacing.xs,
-  },
-  detailLabel: {
-    ...typography.caption,
+  valueText: {
+    ...typography.body,
   },
   detailValue: {
     ...typography.body,
