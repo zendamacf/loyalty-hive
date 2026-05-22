@@ -13,13 +13,12 @@ describe("ThemePicker", () => {
   });
 
   it("shows all theme options with icons when opened", async () => {
-    const { getByLabelText, getByTestId } = await renderWithTheme(
-      <ThemePicker />,
-    );
+    const { getAllByTestId, getByLabelText, getByTestId } =
+      await renderWithTheme(<ThemePicker />);
 
     fireEvent.press(getByLabelText("Theme"));
 
-    expect(getByTestId("system-theme-swatch")).toBeTruthy();
+    expect(getAllByTestId("system-theme-swatch").length).toBe(2);
     expect(getByTestId("light-theme-swatch")).toBeTruthy();
     expect(getByTestId("dark-theme-swatch")).toBeTruthy();
     expect(getByTestId("purple-theme-swatch")).toBeTruthy();

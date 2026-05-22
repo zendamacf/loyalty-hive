@@ -104,6 +104,33 @@ mock.module("lucide-react-native", () => ({
   ClockIcon: () => React.createElement("Text", null, "clock"),
 }));
 
+mock.module("react-native-svg", () => {
+  const Noop = () => null;
+  const PassThrough = ({ children }: { children?: React.ReactNode }) =>
+    React.createElement(React.Fragment, null, children);
+
+  const Svg = ({
+    children,
+    width,
+    height,
+  }: {
+    children?: React.ReactNode;
+    width?: number;
+    height?: number;
+  }) => React.createElement("Svg", { width, height }, children);
+
+  return {
+    __esModule: true,
+    default: Svg,
+    Svg,
+    Circle: Noop,
+    Path: Noop,
+    G: PassThrough,
+    Defs: PassThrough,
+    ClipPath: PassThrough,
+  };
+});
+
 const setStringAsyncMock = mock(() => Promise.resolve());
 
 mock.module("expo-clipboard", () => ({
