@@ -13,15 +13,15 @@ describe("ThemePicker", () => {
   });
 
   it("shows all theme options with icons when opened", async () => {
-    const { getByLabelText, getByText } = await renderWithTheme(
+    const { getByLabelText, getByTestId } = await renderWithTheme(
       <ThemePicker />,
     );
 
     fireEvent.press(getByLabelText("Theme"));
 
-    expect(getByText("sun")).toBeTruthy();
-    expect(getByText("moon")).toBeTruthy();
-    expect(getByText("palette")).toBeTruthy();
+    expect(getByTestId("light-theme-swatch")).toBeTruthy();
+    expect(getByTestId("dark-theme-swatch")).toBeTruthy();
+    expect(getByTestId("purple-theme-swatch")).toBeTruthy();
   });
 
   it("selects purple theme", async () => {

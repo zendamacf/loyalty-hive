@@ -25,10 +25,34 @@ import { useOverlay } from "@/components/OverlayProvider";
 import { icon, radius, spacing, transition, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
+export type SelectOptionIconProps = {
+  color: string;
+  size: number;
+};
+
 export type SelectOption<T extends string> = {
   value: T;
   label: string;
   icon?: LucideIcon;
+  renderIcon?: (props: SelectOptionIconProps) => ReactNode;
+};
+
+const SelectOptionIcon = ({
+  icon: LucideIconComponent,
+  renderIcon,
+  color,
+  size,
+}: SelectOptionIconProps & {
+  icon?: LucideIcon;
+  renderIcon?: (props: SelectOptionIconProps) => ReactNode;
+}) => {
+  if (renderIcon) {
+    return renderIcon({ color, size });
+  }
+  if (LucideIconComponent) {
+    return <LucideIconComponent color={color} size={size} />;
+  }
+  return null;
 };
 
 export type SelectTriggerRenderProps = {
@@ -274,7 +298,6 @@ export const Select = <T extends string>({
           <View onLayout={onMenuLayout} style={styles.menuContent}>
             {options.map((option) => {
               const selected = option.value === value;
-              const OptionIcon = option.icon;
               const optionColor = selected
                 ? theme.primary
                 : theme.textSecondary;
@@ -294,9 +317,12 @@ export const Select = <T extends string>({
                   ]}
                 >
                   <View style={styles.optionRow}>
-                    {OptionIcon ? (
-                      <OptionIcon color={optionColor} size={icon.sm} />
-                    ) : null}
+                    <SelectOptionIcon
+                      icon={option.icon}
+                      renderIcon={option.renderIcon}
+                      color={optionColor}
+                      size={icon.sm}
+                    />
                     <Text
                       style={[
                         styles.optionLabel,
@@ -383,11 +409,14 @@ export const Select = <T extends string>({
             disabled && styles.triggerDisabled,
           ]}
         >
-          {selectedOption?.icon &&
-            (() => {
-              const OptionIcon = selectedOption.icon;
-              return <OptionIcon color={theme.textPrimary} size={icon.sm} />;
-            })()}
+          {(selectedOption?.icon ?? selectedOption?.renderIcon) && (
+            <SelectOptionIcon
+              icon={selectedOption.icon}
+              renderIcon={selectedOption.renderIcon}
+              color={theme.textPrimary}
+              size={icon.sm}
+            />
+          )}
           <Text
             style={[styles.triggerLabel, { color: theme.textPrimary }]}
             numberOfLines={1}

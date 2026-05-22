@@ -32,6 +32,7 @@ export const darkTheme: Theme = {
   menuShadow: "#020617",
   touchHighlight: "rgba(255, 255, 255, 0.14)",
   ...shared,
+  border: "#334155",
 };
 
 export const purpleTheme: Theme = {
@@ -41,7 +42,7 @@ export const purpleTheme: Theme = {
   cardFallback: "#3D2963",
   textPrimary: "#F3E8FF",
   textSecondary: "#C4B5FD",
-  border: "#5B21B6",
+  border: "#4A3D6E",
   menuShadow: "#0F0518",
   touchHighlight: "rgba(255, 255, 255, 0.14)",
   primary: brandColors.primary,

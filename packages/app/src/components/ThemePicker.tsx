@@ -17,6 +17,7 @@ export const ThemePicker = () => {
         value: option.mode,
         label: t(option.labelKey),
         icon: option.icon,
+        renderIcon: option.renderIcon,
       })),
     [t],
   );

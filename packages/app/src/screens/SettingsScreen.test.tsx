@@ -54,7 +54,7 @@ describe("SettingsScreen", () => {
   });
 
   it("changes theme from the theme picker", async () => {
-    const { getByLabelText, getByText } = await renderWithTheme(
+    const { getByLabelText, getByTestId, getByText } = await renderWithTheme(
       <SettingsScreen />,
     );
 
@@ -63,7 +63,7 @@ describe("SettingsScreen", () => {
     fireEvent.press(getByLabelText("Theme"));
 
     await waitFor(() => {
-      expect(getByText("moon")).toBeTruthy();
+      expect(getByTestId("dark-theme-swatch")).toBeTruthy();
     });
 
     fireEvent.press(getByText("Dark"));
