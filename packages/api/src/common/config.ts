@@ -2,6 +2,7 @@ import "dotenv/config";
 
 export const config: Config = {
   environment: process.env.NODE_ENV ?? "development",
+  libVersion: process.env.LIB_VERSION ?? "0.0.0",
   server: {
     port: Number.parseInt(process.env.PORT ?? "3000", 10),
     fileStorageUrl: process.env.FILE_STORAGE_URL ?? "",
@@ -19,6 +20,7 @@ export const config: Config = {
 
 interface Config {
   environment: string;
+  libVersion: string;
   server: {
     port: number;
     fileStorageUrl: string;

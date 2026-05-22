@@ -1,6 +1,6 @@
 **Privacy Policy**
 
-This privacy policy applies to the LoyaltyHive app (hereby referred to as "Application") for mobile devices that was created by kalopsia.dev (hereby referred to as "Service Provider") as a Free service. This service is intended for use "AS IS".
+This privacy policy applies to the LoyaltyHive app (hereby referred to as "Application") for mobile devices that was created by Kalopsia Studios (hereby referred to as "Service Provider") as a Free service. This service is intended for use "AS IS".
 
 **Information Collection and Use**
 
