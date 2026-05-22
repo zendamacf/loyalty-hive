@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { sign } from "hono/jwt";
 import { config } from "../common/config";
 import { requireUserAuth } from "./auth.middleware";
@@ -11,6 +12,12 @@ function createApp() {
 
   app.use(requireUserAuth);
   app.get("/", (c) => c.json({ userId: c.get("userId") }));
+  app.onError((error, c) => {
+    if (error instanceof HTTPException) {
+      return c.json({ error: error.message }, error.status);
+    }
+    throw error;
+  });
 
   return app;
 }
@@ -21,9 +28,9 @@ describe("requireUserAuth middleware", () => {
     const response = await app.request("/");
 
     expect(response.status).toBe(401);
-    expect(await response.text()).toContain(
-      "You must be logged in to access this resource",
-    );
+    expect(await response.json()).toEqual({
+      error: "You must be logged in to access this resource",
+    });
   });
 
   it("returns 401 when bearer token is invalid", async () => {
@@ -35,9 +42,9 @@ describe("requireUserAuth middleware", () => {
     });
 
     expect(response.status).toBe(401);
-    expect(await response.text()).toContain(
-      "You must be logged in to access this resource",
-    );
+    expect(await response.json()).toEqual({
+      error: "You must be logged in to access this resource",
+    });
   });
 
   it("allows request and sets userId when bearer token is valid", async () => {

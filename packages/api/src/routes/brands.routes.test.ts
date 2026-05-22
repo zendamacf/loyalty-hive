@@ -8,9 +8,11 @@ const USER_ID = "44444444-4444-4444-8444-444444444444";
 const BRAND_A_ID = "55555555-5555-4555-8555-555555555555";
 const BRAND_B_ID = "66666666-6666-4666-8666-666666666666";
 
+let app: ReturnType<typeof createApiRouterApp>;
 let authToken: string;
 
 beforeAll(async () => {
+  app = createApiRouterApp();
   authToken = await signTestToken(USER_ID);
 
   await db
@@ -43,14 +45,15 @@ beforeAll(async () => {
 
 describe("brands routes", () => {
   it("requires authentication", async () => {
-    const app = createApiRouterApp();
     const response = await app.request("/api/v1/brands");
 
     expect(response.status).toBe(401);
+    expect(await response.json()).toEqual({
+      error: "You must be logged in to access this resource",
+    });
   });
 
   it("returns brands sorted by name with logoUrl", async () => {
-    const app = createApiRouterApp();
     const response = await app.request("/api/v1/brands", {
       headers: { Authorization: `Bearer ${authToken}` },
     });

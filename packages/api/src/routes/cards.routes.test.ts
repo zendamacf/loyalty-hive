@@ -1,11 +1,13 @@
 import { beforeAll, describe, expect, it } from "bun:test";
 import { eq, sql } from "drizzle-orm";
-import { Hono } from "hono";
-import { signTestToken } from "../../test/create-app";
+import {
+  authBearerHeaders,
+  createApiRouterApp,
+  signTestToken,
+} from "../../test/create-app";
 import { config } from "../common/config";
 import { db } from "../db/client";
 import { brands, cards, users } from "../db/schema";
-import cardsRouter from "./cards.routes";
 
 const USER_ID = "11111111-1111-4111-8111-111111111111";
 const OTHER_USER_ID = "77777777-7777-4777-8777-777777777777";
@@ -22,20 +24,22 @@ const SORT_CARD_RECENT = "11111111-1111-4111-8111-111111111112";
 const SORT_CARD_OLDER = "22222222-2222-4222-8222-222222222223";
 const SORT_CARD_NEVER_VIEWED = "33333333-3333-4333-8333-333333333334";
 
+let app: ReturnType<typeof createApiRouterApp>;
 let authToken: string;
 let otherUserToken: string;
 
-function createApiApp() {
-  const app = new Hono();
-  app.route("/api/v1/cards", cardsRouter);
-  return app;
-}
-
-function authHeaders(token: string) {
-  return { Authorization: `Bearer ${token}` };
+function relativeOrder(ids: string[], orderedIds: string[]) {
+  const indices = orderedIds.map((id) => ids.indexOf(id));
+  for (const index of indices) {
+    expect(index).toBeGreaterThanOrEqual(0);
+  }
+  for (let i = 1; i < indices.length; i++) {
+    expect(indices[i - 1]).toBeLessThan(indices[i]);
+  }
 }
 
 beforeAll(async () => {
+  app = createApiRouterApp();
   authToken = await signTestToken(USER_ID);
   otherUserToken = await signTestToken(OTHER_USER_ID);
 
@@ -105,17 +109,17 @@ beforeAll(async () => {
 
 describe("cards routes", () => {
   it("requires authentication for card routes", async () => {
-    const app = createApiApp();
     const response = await app.request("/api/v1/cards");
 
     expect(response.status).toBe(401);
+    expect(await response.json()).toEqual({
+      error: "You must be logged in to access this resource",
+    });
   });
 
   it("returns the authenticated user's cards with enriched brand", async () => {
-    const app = createApiApp();
-
     const response = await app.request("/api/v1/cards", {
-      headers: authHeaders(authToken),
+      headers: authBearerHeaders(authToken),
     });
 
     expect(response.status).toBe(200);
@@ -146,18 +150,16 @@ describe("cards routes", () => {
   });
 
   it("returns 400 when sort query param is invalid", async () => {
-    const app = createApiApp();
     const response = await app.request("/api/v1/cards?sort=by_popularity", {
-      headers: authHeaders(authToken),
+      headers: authBearerHeaders(authToken),
     });
 
     expect(response.status).toBe(400);
   });
 
   it("returns 400 when order query param is invalid", async () => {
-    const app = createApiApp();
     const response = await app.request("/api/v1/cards?order=upward", {
-      headers: authHeaders(authToken),
+      headers: authBearerHeaders(authToken),
     });
 
     expect(response.status).toBe(400);
@@ -189,32 +191,22 @@ describe("cards routes", () => {
         },
       });
 
-    const app = createApiApp();
     const response = await app.request("/api/v1/cards", {
-      headers: authHeaders(authToken),
+      headers: authBearerHeaders(authToken),
     });
 
     expect(response.status).toBe(200);
     const ids = ((await response.json()) as Array<{ id: string }>).map(
       (card) => card.id,
     );
-    const alphaIndex = ids.indexOf(SORT_CARD_ALPHA);
-    const brandIndex = ids.indexOf(CARD_ID);
-    const zebraIndex = ids.indexOf(SORT_CARD_ZEBRA);
-
-    expect(alphaIndex).toBeGreaterThanOrEqual(0);
-    expect(brandIndex).toBeGreaterThanOrEqual(0);
-    expect(zebraIndex).toBeGreaterThanOrEqual(0);
-    expect(alphaIndex).toBeLessThan(brandIndex);
-    expect(brandIndex).toBeLessThan(zebraIndex);
+    relativeOrder(ids, [SORT_CARD_ALPHA, CARD_ID, SORT_CARD_ZEBRA]);
   });
 
   it("sorts cards alphabetically in descending order when requested", async () => {
-    const app = createApiApp();
     const response = await app.request(
       "/api/v1/cards?sort=alphabetical&order=desc",
       {
-        headers: authHeaders(authToken),
+        headers: authBearerHeaders(authToken),
       },
     );
 
@@ -222,12 +214,7 @@ describe("cards routes", () => {
     const ids = ((await response.json()) as Array<{ id: string }>).map(
       (card) => card.id,
     );
-    const alphaIndex = ids.indexOf(SORT_CARD_ALPHA);
-    const brandIndex = ids.indexOf(CARD_ID);
-    const zebraIndex = ids.indexOf(SORT_CARD_ZEBRA);
-
-    expect(zebraIndex).toBeLessThan(brandIndex);
-    expect(brandIndex).toBeLessThan(alphaIndex);
+    relativeOrder(ids, [SORT_CARD_ZEBRA, CARD_ID, SORT_CARD_ALPHA]);
   });
 
   it("sorts cards by most viewed", async () => {
@@ -258,38 +245,28 @@ describe("cards routes", () => {
         },
       });
 
-    const app = createApiApp();
     const response = await app.request("/api/v1/cards?sort=most_viewed", {
-      headers: authHeaders(authToken),
+      headers: authBearerHeaders(authToken),
     });
 
     expect(response.status).toBe(200);
     const ids = ((await response.json()) as Array<{ id: string }>).map(
       (card) => card.id,
     );
-    const mostIndex = ids.indexOf(SORT_CARD_MOST_VIEWED);
-    const leastIndex = ids.indexOf(SORT_CARD_LEAST_VIEWED);
-
-    expect(mostIndex).toBeGreaterThanOrEqual(0);
-    expect(leastIndex).toBeGreaterThanOrEqual(0);
-    expect(mostIndex).toBeLessThan(leastIndex);
+    relativeOrder(ids, [SORT_CARD_MOST_VIEWED, SORT_CARD_LEAST_VIEWED]);
   });
 
   it("sorts cards by least viewed when most_viewed uses ascending order", async () => {
-    const app = createApiApp();
     const response = await app.request(
       "/api/v1/cards?sort=most_viewed&order=asc",
-      { headers: authHeaders(authToken) },
+      { headers: authBearerHeaders(authToken) },
     );
 
     expect(response.status).toBe(200);
     const ids = ((await response.json()) as Array<{ id: string }>).map(
       (card) => card.id,
     );
-    const mostIndex = ids.indexOf(SORT_CARD_MOST_VIEWED);
-    const leastIndex = ids.indexOf(SORT_CARD_LEAST_VIEWED);
-
-    expect(leastIndex).toBeLessThan(mostIndex);
+    relativeOrder(ids, [SORT_CARD_LEAST_VIEWED, SORT_CARD_MOST_VIEWED]);
   });
 
   it("sorts cards by last viewed with never-viewed cards last", async () => {
@@ -331,52 +308,43 @@ describe("cards routes", () => {
         },
       });
 
-    const app = createApiApp();
     const response = await app.request("/api/v1/cards?sort=last_viewed", {
-      headers: authHeaders(authToken),
+      headers: authBearerHeaders(authToken),
     });
 
     expect(response.status).toBe(200);
     const ids = ((await response.json()) as Array<{ id: string }>).map(
       (card) => card.id,
     );
-    const recentIndex = ids.indexOf(SORT_CARD_RECENT);
-    const olderIndex = ids.indexOf(SORT_CARD_OLDER);
-    const neverIndex = ids.indexOf(SORT_CARD_NEVER_VIEWED);
-
-    expect(recentIndex).toBeGreaterThanOrEqual(0);
-    expect(olderIndex).toBeGreaterThanOrEqual(0);
-    expect(neverIndex).toBeGreaterThanOrEqual(0);
-    expect(recentIndex).toBeLessThan(olderIndex);
-    expect(olderIndex).toBeLessThan(neverIndex);
+    relativeOrder(ids, [
+      SORT_CARD_RECENT,
+      SORT_CARD_OLDER,
+      SORT_CARD_NEVER_VIEWED,
+    ]);
   });
 
   it("sorts cards by oldest viewed first when last_viewed uses ascending order", async () => {
-    const app = createApiApp();
     const response = await app.request(
       "/api/v1/cards?sort=last_viewed&order=asc",
-      { headers: authHeaders(authToken) },
+      { headers: authBearerHeaders(authToken) },
     );
 
     expect(response.status).toBe(200);
     const ids = ((await response.json()) as Array<{ id: string }>).map(
       (card) => card.id,
     );
-    const recentIndex = ids.indexOf(SORT_CARD_RECENT);
-    const olderIndex = ids.indexOf(SORT_CARD_OLDER);
-    const neverIndex = ids.indexOf(SORT_CARD_NEVER_VIEWED);
-
-    expect(olderIndex).toBeLessThan(recentIndex);
-    expect(recentIndex).toBeLessThan(neverIndex);
+    relativeOrder(ids, [
+      SORT_CARD_OLDER,
+      SORT_CARD_RECENT,
+      SORT_CARD_NEVER_VIEWED,
+    ]);
   });
 
   it("returns 400 when request body fails cardWriteSchema validation", async () => {
-    const app = createApiApp();
-
     const response = await app.request("/api/v1/cards", {
       method: "POST",
       headers: {
-        ...authHeaders(authToken),
+        ...authBearerHeaders(authToken),
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -389,20 +357,16 @@ describe("cards routes", () => {
   });
 
   it("returns 400 when card id path param fails idParamSchema validation", async () => {
-    const app = createApiApp();
-
     const response = await app.request("/api/v1/cards/not-a-uuid", {
-      headers: authHeaders(authToken),
+      headers: authBearerHeaders(authToken),
     });
 
     expect(response.status).toBe(400);
   });
 
   it("returns a card by id with enriched brand and view", async () => {
-    const app = createApiApp();
-
     const response = await app.request(`/api/v1/cards/${CARD_ID}`, {
-      headers: authHeaders(authToken),
+      headers: authBearerHeaders(authToken),
     });
 
     expect(response.status).toBe(200);
@@ -449,9 +413,8 @@ describe("cards routes", () => {
         },
       });
 
-    const app = createApiApp();
     const response = await app.request(`/api/v1/cards/${viewedCardId}`, {
-      headers: authHeaders(authToken),
+      headers: authBearerHeaders(authToken),
     });
 
     expect(response.status).toBe(200);
@@ -463,10 +426,8 @@ describe("cards routes", () => {
   });
 
   it("returns 404 when card id does not exist", async () => {
-    const app = createApiApp();
-
     const response = await app.request(`/api/v1/cards/${UNKNOWN_CARD_ID}`, {
-      headers: authHeaders(authToken),
+      headers: authBearerHeaders(authToken),
     });
 
     expect(response.status).toBe(404);
@@ -474,10 +435,8 @@ describe("cards routes", () => {
   });
 
   it("returns 404 when accessing another user's card", async () => {
-    const app = createApiApp();
-
     const response = await app.request(`/api/v1/cards/${OTHER_USER_CARD_ID}`, {
-      headers: authHeaders(authToken),
+      headers: authBearerHeaders(authToken),
     });
 
     expect(response.status).toBe(404);
@@ -490,11 +449,9 @@ describe("cards routes", () => {
       .set({ viewCount: 0, lastViewedAt: null })
       .where(eq(cards.id, CARD_ID));
 
-    const app = createApiApp();
-
     const response = await app.request(`/api/v1/cards/${CARD_ID}/view`, {
       method: "POST",
-      headers: authHeaders(authToken),
+      headers: authBearerHeaders(authToken),
     });
 
     expect(response.status).toBe(200);
@@ -507,7 +464,7 @@ describe("cards routes", () => {
 
     const secondResponse = await app.request(`/api/v1/cards/${CARD_ID}/view`, {
       method: "POST",
-      headers: authHeaders(authToken),
+      headers: authBearerHeaders(authToken),
     });
 
     expect(secondResponse.status).toBe(200);
@@ -518,13 +475,11 @@ describe("cards routes", () => {
   });
 
   it("returns 404 when logging a view for a non-existent card", async () => {
-    const app = createApiApp();
-
     const response = await app.request(
       `/api/v1/cards/${UNKNOWN_CARD_ID}/view`,
       {
         method: "POST",
-        headers: authHeaders(authToken),
+        headers: authBearerHeaders(authToken),
       },
     );
 
@@ -533,13 +488,11 @@ describe("cards routes", () => {
   });
 
   it("returns 404 when logging a view for another user's card", async () => {
-    const app = createApiApp();
-
     const response = await app.request(
       `/api/v1/cards/${OTHER_USER_CARD_ID}/view`,
       {
         method: "POST",
-        headers: authHeaders(authToken),
+        headers: authBearerHeaders(authToken),
       },
     );
 
@@ -548,12 +501,10 @@ describe("cards routes", () => {
   });
 
   it("creates a card without brandId and returns brand null", async () => {
-    const app = createApiApp();
-
     const response = await app.request("/api/v1/cards", {
       method: "POST",
       headers: {
-        ...authHeaders(authToken),
+        ...authBearerHeaders(authToken),
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -574,12 +525,10 @@ describe("cards routes", () => {
   });
 
   it("creates a card with brand and returns nested brand with logoUrl", async () => {
-    const app = createApiApp();
-
     const response = await app.request("/api/v1/cards", {
       method: "POST",
       headers: {
-        ...authHeaders(authToken),
+        ...authBearerHeaders(authToken),
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -606,12 +555,10 @@ describe("cards routes", () => {
   });
 
   it("returns 400 when brandId does not exist on create", async () => {
-    const app = createApiApp();
-
     const response = await app.request("/api/v1/cards", {
       method: "POST",
       headers: {
-        ...authHeaders(authToken),
+        ...authBearerHeaders(authToken),
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -627,11 +574,9 @@ describe("cards routes", () => {
   });
 
   it("returns 404 on delete for non-existent card", async () => {
-    const app = createApiApp();
-
     const response = await app.request(`/api/v1/cards/${UNKNOWN_CARD_ID}`, {
       method: "DELETE",
-      headers: authHeaders(authToken),
+      headers: authBearerHeaders(authToken),
     });
 
     expect(response.status).toBe(404);
@@ -639,7 +584,6 @@ describe("cards routes", () => {
   });
 
   it("deletes a card and allows creating another", async () => {
-    const app = createApiApp();
     const deleteCardId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaab";
 
     await db.insert(cards).values({
@@ -653,7 +597,7 @@ describe("cards routes", () => {
 
     const deleteResponse = await app.request(`/api/v1/cards/${deleteCardId}`, {
       method: "DELETE",
-      headers: authHeaders(authToken),
+      headers: authBearerHeaders(authToken),
     });
 
     expect(deleteResponse.status).toBe(204);
@@ -661,7 +605,7 @@ describe("cards routes", () => {
     const createResponse = await app.request("/api/v1/cards", {
       method: "POST",
       headers: {
-        ...authHeaders(authToken),
+        ...authBearerHeaders(authToken),
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -699,11 +643,9 @@ describe("cards routes", () => {
   });
 
   it("other user cannot delete another user's card", async () => {
-    const app = createApiApp();
-
     const response = await app.request(`/api/v1/cards/${CARD_ID}`, {
       method: "DELETE",
-      headers: authHeaders(otherUserToken),
+      headers: authBearerHeaders(otherUserToken),
     });
 
     expect(response.status).toBe(404);
