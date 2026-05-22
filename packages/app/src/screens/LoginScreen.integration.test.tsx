@@ -1,4 +1,11 @@
-import { afterEach, beforeEach, describe, expect, it, type mock } from "bun:test";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  type mock,
+} from "bun:test";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { act, fireEvent, waitFor } from "@testing-library/react-native";
