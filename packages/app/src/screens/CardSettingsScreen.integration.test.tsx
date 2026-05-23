@@ -1,29 +1,26 @@
-import { beforeEach, describe, expect, it, type mock } from "bun:test";
+import { beforeEach, describe, expect, it } from "bun:test";
 import { act, waitFor } from "@testing-library/react-native";
 
 import { Routes } from "@/constants/routes.constants";
 import { deleteApiV1CardsByIdMock } from "../../test/mocks/api-client";
 import { getExpoRouterMocks } from "../../test/mocks/expo-router";
+import {
+  getExpoClipboardMocks,
+  getReactNativeAlertMocks,
+} from "../../test/mocks/react-native-globals";
 import { press, renderWithProviders } from "../../test/render";
 
 const expoRouterMocks = getExpoRouterMocks();
-
-const { __expoClipboardMocks, __reactNativeAlertMocks } = globalThis as {
-  __expoClipboardMocks: {
-    setStringAsync: ReturnType<typeof mock>;
-  };
-  __reactNativeAlertMocks: {
-    alert: ReturnType<typeof mock>;
-  };
-};
+const expoClipboardMocks = getExpoClipboardMocks();
+const reactNativeAlertMocks = getReactNativeAlertMocks();
 
 const { CardSettingsScreen } = await import("./CardSettingsScreen");
 
 describe("[Integration] CardSettingsScreen", () => {
   beforeEach(() => {
     expoRouterMocks.dismissTo.mockClear();
-    __expoClipboardMocks.setStringAsync.mockClear();
-    __reactNativeAlertMocks.alert.mockClear();
+    expoClipboardMocks.setStringAsync.mockClear();
+    reactNativeAlertMocks.alert.mockClear();
     deleteApiV1CardsByIdMock.mockClear();
     expoRouterMocks.params = {
       id: "00000000-0000-4000-8000-000000000001",
@@ -68,7 +65,7 @@ describe("[Integration] CardSettingsScreen", () => {
 
     await press(getByLabelText("Copy card number"));
 
-    expect(__expoClipboardMocks.setStringAsync).toHaveBeenCalledWith(
+    expect(expoClipboardMocks.setStringAsync).toHaveBeenCalledWith(
       "1234567890",
     );
   });
@@ -80,8 +77,8 @@ describe("[Integration] CardSettingsScreen", () => {
 
     await press(getByLabelText("Delete card"));
 
-    expect(__reactNativeAlertMocks.alert).toHaveBeenCalled();
-    const buttons = __reactNativeAlertMocks.alert.mock.calls[0]?.[2] as Array<{
+    expect(reactNativeAlertMocks.alert).toHaveBeenCalled();
+    const buttons = reactNativeAlertMocks.alert.mock.calls[0]?.[2] as Array<{
       text: string;
       onPress?: () => void;
     }>;
@@ -106,7 +103,7 @@ describe("[Integration] CardSettingsScreen", () => {
 
     await press(getByLabelText("Delete card"));
 
-    const buttons = __reactNativeAlertMocks.alert.mock.calls[0]?.[2] as Array<{
+    const buttons = reactNativeAlertMocks.alert.mock.calls[0]?.[2] as Array<{
       text: string;
       onPress?: () => void;
     }>;
