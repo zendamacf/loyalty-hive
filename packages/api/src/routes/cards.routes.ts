@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, sql } from "drizzle-orm";
 import type { Context } from "hono";
 
 import { Hono } from "hono";
@@ -81,6 +81,10 @@ const fkViolationBody = {
   error: "Referenced userId or brandId does not exist",
 } as const;
 
+function activeCardCondition() {
+  return isNull(cards.deletedAt);
+}
+
 interface ContextVariables {
   userId: string;
 }
@@ -150,7 +154,9 @@ async function listCardsForUser(
   sort: CardListSort,
   order: CardListOrder,
 ) {
-  const query = cardWithBrandQuery().where(eq(cards.userId, userId));
+  const query = cardWithBrandQuery().where(
+    and(eq(cards.userId, userId), activeCardCondition()),
+  );
   const alphabeticalOrder =
     order === "desc" ? desc(cardAlphabeticalOrder) : asc(cardAlphabeticalOrder);
 
@@ -174,7 +180,13 @@ async function listCardsForUser(
 
 async function getCardForUser(userId: string, cardId: string) {
   const [card] = await cardWithBrandQuery()
-    .where(and(eq(cards.id, cardId), eq(cards.userId, userId)))
+    .where(
+      and(
+        eq(cards.id, cardId),
+        eq(cards.userId, userId),
+        activeCardCondition(),
+      ),
+    )
     .limit(1);
   return card;
 }
@@ -293,7 +305,13 @@ const app = new Hono<{ Variables: ContextVariables }>()
         const [updated] = await db
           .update(cards)
           .set(updates)
-          .where(and(eq(cards.id, id), eq(cards.userId, userId)))
+          .where(
+            and(
+              eq(cards.id, id),
+              eq(cards.userId, userId),
+              activeCardCondition(),
+            ),
+          )
           .returning({ id: cards.id });
 
         if (!updated) {
@@ -331,7 +349,13 @@ const app = new Hono<{ Variables: ContextVariables }>()
           viewCount: sql`${cards.viewCount} + 1`,
           lastViewedAt: new Date(),
         })
-        .where(and(eq(cards.id, id), eq(cards.userId, userId)))
+        .where(
+          and(
+            eq(cards.id, id),
+            eq(cards.userId, userId),
+            activeCardCondition(),
+          ),
+        )
         .returning({ id: cards.id });
 
       if (!updated) {
@@ -359,9 +383,16 @@ const app = new Hono<{ Variables: ContextVariables }>()
       const { id } = c.req.valid("param");
 
       const [deleted] = await db
-        .delete(cards)
-        .where(and(eq(cards.id, id), eq(cards.userId, c.get("userId"))))
-        .returning();
+        .update(cards)
+        .set({ deletedAt: new Date() })
+        .where(
+          and(
+            eq(cards.id, id),
+            eq(cards.userId, c.get("userId")),
+            activeCardCondition(),
+          ),
+        )
+        .returning({ id: cards.id });
       if (!deleted) {
         return c.json({ error: "Card not found" }, 404);
       }

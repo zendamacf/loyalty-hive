@@ -38,6 +38,28 @@ function relativeOrder(ids: string[], orderedIds: string[]) {
   }
 }
 
+function upsertTestCard(
+  values: typeof cards.$inferInsert | Array<typeof cards.$inferInsert>,
+) {
+  const rows = Array.isArray(values) ? values : [values];
+  return db
+    .insert(cards)
+    .values(rows)
+    .onConflictDoUpdate({
+      target: cards.id,
+      set: {
+        userId: sql`excluded.user_id`,
+        cardNumber: sql`excluded.card_number`,
+        label: sql`excluded.label`,
+        view: sql`excluded.view`,
+        brandId: sql`excluded.brand_id`,
+        viewCount: sql`excluded.view_count`,
+        lastViewedAt: sql`excluded.last_viewed_at`,
+        deletedAt: sql`excluded.deleted_at`,
+      },
+    });
+}
+
 beforeAll(async () => {
   app = createApiRouterApp();
   authToken = await signTestToken(USER_ID);
@@ -69,42 +91,30 @@ beforeAll(async () => {
     })
     .onConflictDoNothing();
 
-  await db
-    .insert(cards)
-    .values([
-      {
-        id: CARD_ID,
-        userId: USER_ID,
-        cardNumber: "4242424242424242",
-        label: "Personal",
-        view: "1D",
-        brandId: BRAND_ID,
-        viewCount: 0,
-        lastViewedAt: null,
-      },
-      {
-        id: OTHER_USER_CARD_ID,
-        userId: OTHER_USER_ID,
-        cardNumber: "1111222233334444",
-        label: "Other",
-        view: "1D",
-        brandId: BRAND_ID,
-        viewCount: 0,
-        lastViewedAt: null,
-      },
-    ])
-    .onConflictDoUpdate({
-      target: cards.id,
-      set: {
-        userId: sql`excluded.user_id`,
-        cardNumber: sql`excluded.card_number`,
-        label: sql`excluded.label`,
-        view: sql`excluded.view`,
-        brandId: sql`excluded.brand_id`,
-        viewCount: sql`excluded.view_count`,
-        lastViewedAt: sql`excluded.last_viewed_at`,
-      },
-    });
+  await upsertTestCard([
+    {
+      id: CARD_ID,
+      userId: USER_ID,
+      cardNumber: "4242424242424242",
+      label: "Personal",
+      view: "1D",
+      brandId: BRAND_ID,
+      viewCount: 0,
+      lastViewedAt: null,
+      deletedAt: null,
+    },
+    {
+      id: OTHER_USER_CARD_ID,
+      userId: OTHER_USER_ID,
+      cardNumber: "1111222233334444",
+      label: "Other",
+      view: "1D",
+      brandId: BRAND_ID,
+      viewCount: 0,
+      lastViewedAt: null,
+      deletedAt: null,
+    },
+  ]);
 });
 
 describe("cards routes", () => {
@@ -659,16 +669,75 @@ describe("cards routes", () => {
     expect(await response.json()).toEqual({ error: "Card not found" });
   });
 
+  it("soft-deletes a card so it no longer appears in list or get", async () => {
+    const deleteCardId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaac";
+
+    await upsertTestCard({
+      id: deleteCardId,
+      userId: USER_ID,
+      cardNumber: "soft-delete-me",
+      label: "Gone Soon",
+      view: "1D",
+      brandId: BRAND_ID,
+      deletedAt: null,
+    });
+
+    const deleteResponse = await app.request(`/api/v1/cards/${deleteCardId}`, {
+      method: "DELETE",
+      headers: authBearerHeaders(authToken),
+    });
+
+    expect(deleteResponse.status).toBe(204);
+
+    const listResponse = await app.request("/api/v1/cards", {
+      headers: authBearerHeaders(authToken),
+    });
+    expect(listResponse.status).toBe(200);
+    const listBody = (await listResponse.json()) as Array<{ id: string }>;
+    expect(listBody.some((c) => c.id === deleteCardId)).toBe(false);
+
+    const getResponse = await app.request(`/api/v1/cards/${deleteCardId}`, {
+      headers: authBearerHeaders(authToken),
+    });
+    expect(getResponse.status).toBe(404);
+
+    const [row] = await db
+      .select()
+      .from(cards)
+      .where(eq(cards.id, deleteCardId))
+      .limit(1);
+    expect(row?.deletedAt).toBeInstanceOf(Date);
+  });
+
+  it("returns 404 when deleting an already soft-deleted card", async () => {
+    const deleteCardId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaad";
+
+    await upsertTestCard({
+      id: deleteCardId,
+      userId: USER_ID,
+      cardNumber: "already-gone",
+      deletedAt: new Date(),
+    });
+
+    const response = await app.request(`/api/v1/cards/${deleteCardId}`, {
+      method: "DELETE",
+      headers: authBearerHeaders(authToken),
+    });
+
+    expect(response.status).toBe(404);
+  });
+
   it("deletes a card and allows creating another", async () => {
     const deleteCardId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaab";
 
-    await db.insert(cards).values({
+    await upsertTestCard({
       id: deleteCardId,
       userId: USER_ID,
       cardNumber: "delete-me-424242424242",
       label: "Disposable",
       view: "1D",
       brandId: BRAND_ID,
+      deletedAt: null,
     });
 
     const deleteResponse = await app.request(`/api/v1/cards/${deleteCardId}`, {
