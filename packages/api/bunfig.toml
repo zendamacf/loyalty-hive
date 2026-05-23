@@ -3,3 +3,5 @@ coverage = true
 coveragePathIgnorePatterns = [
   "test/**",
 ]
+# Aggregate minimums (%). Enforced in CI; see .github/workflows/api-pr-checks.yml.
+coverageThresholds = { lines = 95, functions = 82 }

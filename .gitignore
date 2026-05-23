@@ -42,3 +42,6 @@ yarn-error.*
 packages/app/android/
 packages/app/ios/
 .vercel
+
+# test coverage
+coverage/
