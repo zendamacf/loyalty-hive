@@ -84,9 +84,7 @@ jobs:
         working-directory: packages/api
 
       - name: Run test
-        run: |
-          export LIB_VERSION=$(bun run -s prebuild)
-          bun test --preload ./test/setup.ts --coverage-reporter=lcov
+        run: LIB_VERSION=$(npm run -s prebuild) bun test --preload ./test/setup.ts --coverage-reporter=lcov
         working-directory: packages/api
 
       - name: Load coverage thresholds
