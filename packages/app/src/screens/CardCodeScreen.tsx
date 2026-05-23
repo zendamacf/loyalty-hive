@@ -134,26 +134,28 @@ export const CardCodeScreen = () => {
 
       <View style={styles.content}>
         <View style={styles.cardColumn}>
-          <LoyaltyBrandMark
-            animateHeight
-            brand={displayName}
-            logo={logoUrl}
-            backgroundColor={brandBackgroundColor}
-            height={
-              displayView === "2D"
-                ? brandMark.heightDetailQr
-                : brandMark.heightDetailBarcode
-            }
-            style={styles.brandMark}
-            topCardHalf
-          />
+          <View style={styles.cardStack}>
+            <LoyaltyBrandMark
+              animateHeight
+              brand={displayName}
+              logo={logoUrl}
+              backgroundColor={brandBackgroundColor}
+              height={
+                displayView === "2D"
+                  ? brandMark.heightDetailQr
+                  : brandMark.heightDetailBarcode
+              }
+              style={styles.brandMark}
+              topCardHalf
+            />
 
-          <CardCodeDisplay
-            cardNumber={cardNumber}
-            view={displayView}
-            bottomCardHalf
-            borderColor={theme.border}
-          />
+            <CardCodeDisplay
+              cardNumber={cardNumber}
+              view={displayView}
+              bottomCardHalf
+              borderColor={theme.border}
+            />
+          </View>
 
           <CardManageSection
             onDetailsPress={() => {
@@ -200,6 +202,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: spacing.lg,
+  },
+  cardStack: {
+    alignSelf: "stretch",
   },
   brandMark: {
     alignSelf: "stretch",

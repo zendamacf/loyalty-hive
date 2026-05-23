@@ -49,6 +49,7 @@ export const LoyaltyBrandMark = ({
           borderColor: theme.border,
           borderBottomLeftRadius: topCardHalf ? 0 : undefined,
           borderBottomRightRadius: topCardHalf ? 0 : undefined,
+          borderBottomWidth: topCardHalf ? 0 : undefined,
         },
       ]}
     >
