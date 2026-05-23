@@ -1,5 +1,11 @@
 # @loyalty-hive/app
 
+## 1.1.1
+
+### Patch Changes
+
+- Fixes incorrect build version being used for Android.
+
 ## 1.1.0
 
 ### Minor Changes
