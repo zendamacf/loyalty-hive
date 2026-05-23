@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { waitFor } from "@testing-library/react-native";
 
-import type { ResolvedRequestOptions } from "./gen/client/types.gen";
 import { createClient, createConfig } from "./gen/client";
 import {
   bindUnauthorizedHandler,
@@ -9,35 +9,16 @@ import {
   resetUnauthorizedModuleStateForTests,
 } from "./unauthorized.impl";
 
-const bearerSecurity = [{ scheme: "bearer", type: "http" }] as const;
-
-function unauthorizedResponse(): Response {
-  return new Response(JSON.stringify({ error: "Unauthorized" }), {
-    headers: { "Content-Type": "application/json" },
-    status: 401,
-  });
-}
-
-async function flushMicrotasks(): Promise<void> {
-  await new Promise<void>((resolve) => {
-    setImmediate(resolve);
-  });
-}
-
-async function invokeInstalledResponseInterceptor(
-  testClient: ReturnType<typeof createClient>,
-  response: Response,
-  options: Pick<ResolvedRequestOptions, "security">,
-): Promise<Response> {
-  const interceptor = testClient.interceptors.response.fns.at(-1);
-  if (interceptor == null) {
-    throw new Error("Expected a response interceptor to be installed");
-  }
-
-  return interceptor(
-    response,
-    new Request("https://example.com/api/v1/cards"),
-    options as ResolvedRequestOptions,
+function mockUnauthorizedFetch(): typeof fetch {
+  return Object.assign(
+    () =>
+      Promise.resolve(
+        new Response(JSON.stringify({ error: "Unauthorized" }), {
+          headers: { "Content-Type": "application/json" },
+          status: 401,
+        }),
+      ),
+    fetch,
   );
 }
 
@@ -73,19 +54,26 @@ describe("[Unit] installUnauthorizedInterceptor", () => {
 
     const testClient = createClient(
       createConfig({
+        auth: () => "jwt-123",
         baseUrl: "https://example.com",
+        fetch: mockUnauthorizedFetch(),
       }),
     );
 
     bindUnauthorizedHandler(testClient, handler);
     installUnauthorizedInterceptor(testClient);
 
-    await invokeInstalledResponseInterceptor(testClient, unauthorizedResponse(), {
-      security: [...bearerSecurity],
-    });
-    await flushMicrotasks();
+    await expect(
+      testClient.get({
+        security: [{ scheme: "bearer", type: "http" }],
+        throwOnError: true,
+        url: "/api/v1/cards",
+      }),
+    ).rejects.toBeDefined();
 
-    expect(handler).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(handler).toHaveBeenCalledTimes(1);
+    });
   });
 
   it("does not invoke the handler on 401 api key responses", async () => {
@@ -93,17 +81,23 @@ describe("[Unit] installUnauthorizedInterceptor", () => {
 
     const testClient = createClient(
       createConfig({
+        auth: () => "api-key",
         baseUrl: "https://example.com",
+        fetch: mockUnauthorizedFetch(),
       }),
     );
 
     bindUnauthorizedHandler(testClient, handler);
     installUnauthorizedInterceptor(testClient);
 
-    await invokeInstalledResponseInterceptor(testClient, unauthorizedResponse(), {
-      security: [{ name: "x-api-key", type: "apiKey" }],
-    });
-    await flushMicrotasks();
+    await expect(
+      testClient.post({
+        body: { email: "a@b.com", password: "secret" },
+        security: [{ name: "x-api-key", type: "apiKey" }],
+        throwOnError: true,
+        url: "/api/v1/auth/login",
+      }),
+    ).rejects.toBeDefined();
 
     expect(handler).not.toHaveBeenCalled();
   });
@@ -119,30 +113,32 @@ describe("[Unit] installUnauthorizedInterceptor", () => {
 
     const testClient = createClient(
       createConfig({
+        auth: () => "jwt-123",
         baseUrl: "https://example.com",
+        fetch: mockUnauthorizedFetch(),
       }),
     );
 
     bindUnauthorizedHandler(testClient, handler);
     installUnauthorizedInterceptor(testClient);
 
-    const options = { security: [...bearerSecurity] };
+    const request = () =>
+      testClient.get({
+        security: [{ scheme: "bearer", type: "http" }],
+        throwOnError: true,
+        url: "/api/v1/cards",
+      });
 
-    const first = invokeInstalledResponseInterceptor(
-      testClient,
-      unauthorizedResponse(),
-      options,
-    );
-    const second = invokeInstalledResponseInterceptor(
-      testClient,
-      unauthorizedResponse(),
-      options,
-    );
+    const first = request();
+    const second = request();
 
-    await flushMicrotasks();
-    expect(handler).toHaveBeenCalledTimes(1);
+    await Promise.allSettled([first, second]);
+
+    await waitFor(() => {
+      expect(handler).toHaveBeenCalledTimes(1);
+    });
 
     resolveHandler?.();
-    await Promise.all([first, second]);
+    await handler.mock.results[0]?.value;
   });
 });
