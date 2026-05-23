@@ -140,6 +140,11 @@ Object.assign(globalThis, {
   __expoClipboardMocks: { setStringAsync: setStringAsyncMock },
 });
 
+mock.module("expo-brightness", () => ({
+  getBrightnessAsync: () => Promise.resolve(0.5),
+  setBrightnessAsync: () => Promise.resolve(),
+}));
+
 const alertMock = mock(() => {});
 
 Object.assign(globalThis, { __reactNativeAlertMocks: { alert: alertMock } });
