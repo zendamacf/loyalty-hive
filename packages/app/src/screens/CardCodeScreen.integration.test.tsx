@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "bun:test";
-import { waitFor } from "@testing-library/react-native";
+import { act, waitFor } from "@testing-library/react-native";
 import { Image } from "react-native";
 
 import {
@@ -7,7 +7,11 @@ import {
   CARD_CODE_FROM_CARDS_VALUE,
   Routes,
 } from "@/constants/routes.constants";
-import { postApiV1CardsByIdViewMock } from "../../test/mocks/api-client";
+import {
+  deleteApiV1CardsByIdMock,
+  patchApiV1CardsByIdMock,
+  postApiV1CardsByIdViewMock,
+} from "../../test/mocks/api-client";
 import { getExpoBrightnessMocks } from "../../test/mocks/expo-brightness";
 import { getExpoRouterMocks } from "../../test/mocks/expo-router";
 import { getNavigationFocusMocks } from "../../test/mocks/navigation-focus";
@@ -22,6 +26,9 @@ const { CardCodeScreen } = await import("./CardCodeScreen");
 describe("[Integration] CardCodeScreen", () => {
   beforeEach(() => {
     postApiV1CardsByIdViewMock.mockClear();
+    deleteApiV1CardsByIdMock.mockClear();
+    patchApiV1CardsByIdMock.mockClear();
+    expoRouterMocks.dismissTo.mockClear();
     expoRouterMocks.back.mockClear();
     expoRouterMocks.push.mockClear();
     brightnessMocks.getBrightnessAsync.mockClear();
@@ -109,23 +116,6 @@ describe("[Integration] CardCodeScreen", () => {
     expect(expoRouterMocks.back).toHaveBeenCalled();
   });
 
-  it("navigates to card settings when configure is pressed", async () => {
-    const { getByLabelText } = await renderWithProviders(<CardCodeScreen />);
-
-    await press(getByLabelText("Configure card"));
-
-    expect(expoRouterMocks.push).toHaveBeenCalledWith({
-      pathname: Routes.CARD_SETTINGS,
-      params: {
-        id: "00000000-0000-4000-8000-000000000001",
-        cardNumber: "1234567890",
-        brandName: "ASOS",
-        label: "",
-        createdAt: "2020-01-01T00:00:00.000Z",
-      },
-    });
-  });
-
   it("sets brightness to max when the screen is focused", async () => {
     await renderWithProviders(<CardCodeScreen />);
 
@@ -181,35 +171,160 @@ describe("[Integration] CardCodeScreen", () => {
     });
   });
 
-  it("switches to QR code when QR code is selected", async () => {
-    const { getByLabelText, getByTestId } = await renderWithProviders(
-      <CardCodeScreen />,
-    );
+  it("shows the manage section below the card code", async () => {
+    const { getByText } = await renderWithProviders(<CardCodeScreen />);
 
-    expect(getByTestId("barcode")).toBeTruthy();
-
-    await press(getByLabelText("QR code"));
-
-    expect(getByTestId("qrcode")).toBeTruthy();
-    expect(getByTestId("barcode")).toBeTruthy();
+    expect(getByText("Manage")).toBeTruthy();
+    expect(getByText("Details")).toBeTruthy();
+    expect(getByText("Edit card")).toBeTruthy();
+    expect(getByText("Delete card")).toBeTruthy();
   });
 
-  it("switches to barcode when barcode is selected", async () => {
-    expoRouterMocks.params = {
-      cardNumber: "1234567890",
-      title: "ASOS",
-      view: "2D",
-    };
+  it("opens card details when Details is pressed", async () => {
+    const { getByLabelText, getByText } = await renderWithProviders(
+      <CardCodeScreen />,
+    );
 
+    await press(getByLabelText("Details"));
+
+    await act(async () => {
+      await waitFor(() => {
+        expect(getByText("Card details")).toBeTruthy();
+        expect(getByText("1234567890")).toBeTruthy();
+        expect(getByText("January 1, 2020")).toBeTruthy();
+      });
+    });
+  });
+
+  it("opens edit card when Edit card is pressed", async () => {
+    const { getByLabelText, getByText } = await renderWithProviders(
+      <CardCodeScreen />,
+    );
+
+    await press(getByLabelText("Edit card"));
+
+    await act(async () => {
+      await waitFor(() => {
+        expect(getByLabelText("Label")).toBeTruthy();
+        expect(getByText("Save")).toBeTruthy();
+      });
+    });
+  });
+
+  it("updates display view when saved from edit sheet", async () => {
+    patchApiV1CardsByIdMock.mockImplementationOnce(async () => ({
+      data: {
+        id: "00000000-0000-4000-8000-000000000001",
+        userId: "00000000-0000-4000-8000-000000000001",
+        cardNumber: "1234567890",
+        label: "",
+        view: "2D" as const,
+        brand: {
+          id: "brand-1",
+          name: "ASOS",
+          logoUrl: "https://logo.clearbit.com/asos.com",
+          backgroundColor: "#FFFFFF",
+        },
+        viewCount: 0,
+        lastViewedAt: null,
+        createdAt: "2020-01-01T00:00:00.000Z",
+      },
+      error: undefined,
+    }));
+
+    const { getByLabelText, getByText } = await renderWithProviders(
+      <CardCodeScreen />,
+    );
+
+    await press(getByLabelText("Edit card"));
+
+    await waitFor(() => {
+      expect(getByLabelText("QR code")).toBeTruthy();
+    });
+
+    await press(getByLabelText("QR code"));
+    await press(getByText("Save"), { flushLayout: false });
+
+    await waitFor(() => {
+      expect(patchApiV1CardsByIdMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          path: { id: "00000000-0000-4000-8000-000000000001" },
+          body: { label: null, view: "2D" },
+        }),
+      );
+    });
+  });
+
+  it("reflects saved label and view on the card code screen", async () => {
+    patchApiV1CardsByIdMock.mockImplementationOnce(async () => ({
+      data: {
+        id: "00000000-0000-4000-8000-000000000001",
+        userId: "00000000-0000-4000-8000-000000000001",
+        cardNumber: "1234567890",
+        label: "Personal",
+        view: "2D" as const,
+        brand: {
+          id: "brand-1",
+          name: "ASOS",
+          logoUrl: "https://logo.clearbit.com/asos.com",
+          backgroundColor: "#FFFFFF",
+        },
+        viewCount: 0,
+        lastViewedAt: null,
+        createdAt: "2020-01-01T00:00:00.000Z",
+      },
+      error: undefined,
+    }));
+
+    const { getByLabelText, getByText, queryByText } =
+      await renderWithProviders(<CardCodeScreen />);
+
+    expect(queryByText("Personal")).toBeNull();
+
+    await press(getByLabelText("Edit card"));
+
+    await waitFor(() => {
+      expect(getByLabelText("Label").props.value).toBe("");
+    });
+
+    await press(getByLabelText("QR code"));
+    await press(getByText("Save"), { flushLayout: false });
+
+    await waitFor(() => {
+      expect(getByText("ASOS")).toBeTruthy();
+      expect(getByText("Personal")).toBeTruthy();
+      expect(patchApiV1CardsByIdMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          path: { id: "00000000-0000-4000-8000-000000000001" },
+          body: { label: null, view: "2D" },
+        }),
+      );
+    });
+  });
+
+  it("deletes the card from the delete sheet", async () => {
     const { getByLabelText, getByTestId } = await renderWithProviders(
       <CardCodeScreen />,
     );
 
-    expect(getByTestId("qrcode")).toBeTruthy();
+    await press(getByLabelText("Delete card"));
 
-    await press(getByLabelText("Barcode"));
+    await waitFor(() => {
+      expect(getByTestId("confirm-delete-card")).toBeTruthy();
+    });
 
-    expect(getByTestId("barcode")).toBeTruthy();
-    expect(getByTestId("qrcode")).toBeTruthy();
+    await press(getByTestId("confirm-delete-card"), { flushLayout: false });
+
+    await waitFor(() =>
+      expect(deleteApiV1CardsByIdMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          path: { id: "00000000-0000-4000-8000-000000000001" },
+        }),
+      ),
+    );
+
+    await waitFor(() =>
+      expect(expoRouterMocks.dismissTo).toHaveBeenCalledWith(Routes.CARDS),
+    );
   });
 });

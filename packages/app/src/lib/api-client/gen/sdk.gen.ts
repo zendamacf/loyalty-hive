@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdErrors, DeleteApiV1CardsByIdResponses, GetApiV1BrandsData, GetApiV1BrandsErrors, GetApiV1BrandsResponses, GetApiV1CardsByIdData, GetApiV1CardsByIdErrors, GetApiV1CardsByIdResponses, GetApiV1CardsData, GetApiV1CardsErrors, GetApiV1CardsResponses, PostApiV1AuthLoginData, PostApiV1AuthLoginErrors, PostApiV1AuthLoginResponses, PostApiV1AuthSignupData, PostApiV1AuthSignupErrors, PostApiV1AuthSignupResponses, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewErrors, PostApiV1CardsByIdViewResponses, PostApiV1CardsData, PostApiV1CardsErrors, PostApiV1CardsResponses } from './types.gen';
+import type { DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdErrors, DeleteApiV1CardsByIdResponses, GetApiV1BrandsData, GetApiV1BrandsErrors, GetApiV1BrandsResponses, GetApiV1CardsByIdData, GetApiV1CardsByIdErrors, GetApiV1CardsByIdResponses, GetApiV1CardsData, GetApiV1CardsErrors, GetApiV1CardsResponses, PatchApiV1CardsByIdData, PatchApiV1CardsByIdErrors, PatchApiV1CardsByIdResponses, PostApiV1AuthLoginData, PostApiV1AuthLoginErrors, PostApiV1AuthLoginResponses, PostApiV1AuthSignupData, PostApiV1AuthSignupErrors, PostApiV1AuthSignupResponses, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewErrors, PostApiV1CardsByIdViewResponses, PostApiV1CardsData, PostApiV1CardsErrors, PostApiV1CardsResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -91,6 +91,19 @@ export const getApiV1CardsById = <ThrowOnError extends boolean = false>(options:
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/cards/{id}',
     ...options
+});
+
+/**
+ * Update a card
+ */
+export const patchApiV1CardsById = <ThrowOnError extends boolean = false>(options: Options<PatchApiV1CardsByIdData, ThrowOnError>) => (options.client ?? client).patch<PatchApiV1CardsByIdResponses, PatchApiV1CardsByIdErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/cards/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
 });
 
 /**

@@ -19,7 +19,6 @@ import { radius, spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
 const TRACK_INSET = spacing.xs / 2;
-const TRACK_MAX_WIDTH = 320;
 
 type CardCodeViewToggleProps = {
   view: CardView;
@@ -91,6 +90,8 @@ export const CardCodeViewToggle = ({
               {
                 width: segmentWidth,
                 backgroundColor: segmentFillColor,
+                borderColor: theme.border,
+                borderWidth: 1,
                 transform: [{ translateX: thumbTranslateX }],
               },
             ]}
@@ -151,7 +152,6 @@ const styles = StyleSheet.create({
   track: {
     alignSelf: "stretch",
     width: "100%",
-    maxWidth: TRACK_MAX_WIDTH,
     borderRadius: radius.xl,
     padding: TRACK_INSET,
   },

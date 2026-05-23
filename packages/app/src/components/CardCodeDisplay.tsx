@@ -42,6 +42,7 @@ export const CardCodeDisplay = ({
           borderColor,
           borderTopLeftRadius: bottomCardHalf ? 0 : undefined,
           borderTopRightRadius: bottomCardHalf ? 0 : undefined,
+          borderTopWidth: bottomCardHalf ? 0 : undefined,
         },
       ]}
     >

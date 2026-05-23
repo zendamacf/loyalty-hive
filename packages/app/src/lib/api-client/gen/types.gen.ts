@@ -330,6 +330,59 @@ export type GetApiV1CardsByIdResponses = {
 
 export type GetApiV1CardsByIdResponse = GetApiV1CardsByIdResponses[keyof GetApiV1CardsByIdResponses];
 
+export type PatchApiV1CardsByIdData = {
+    body: {
+        label?: string | null;
+        view?: '1D' | '2D' | null;
+    };
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cards/{id}';
+};
+
+export type PatchApiV1CardsByIdErrors = {
+    /**
+     * Unauthorized
+     */
+    401: {
+        error: string;
+    };
+    /**
+     * Card not found
+     */
+    404: {
+        error: string;
+    };
+};
+
+export type PatchApiV1CardsByIdError = PatchApiV1CardsByIdErrors[keyof PatchApiV1CardsByIdErrors];
+
+export type PatchApiV1CardsByIdResponses = {
+    /**
+     * Successful response
+     */
+    200: {
+        id: string;
+        userId: string;
+        cardNumber: string;
+        label?: string | null;
+        view?: '1D' | '2D' | null;
+        brand: {
+            id: string;
+            name: string;
+            logoUrl: string;
+            backgroundColor: string;
+        } | null;
+        viewCount: number;
+        lastViewedAt: string | null;
+        createdAt: string;
+    };
+};
+
+export type PatchApiV1CardsByIdResponse = PatchApiV1CardsByIdResponses[keyof PatchApiV1CardsByIdResponses];
+
 export type PostApiV1CardsByIdViewData = {
     body?: never;
     path: {

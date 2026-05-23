@@ -308,12 +308,8 @@ describe("[Integration] LoginScreen", () => {
   it("shows submitting state while login is in progress", async () => {
     postApiV1AuthLoginMock.mockImplementation(() => new Promise(() => {}));
 
-    const {
-      getByText,
-      getByPlaceholderText,
-      UNSAFE_getByType,
-      UNSAFE_getAllByType,
-    } = await renderWithProviders(<LoginScreen />);
+    const { getByText, getByPlaceholderText, UNSAFE_getAllByType } =
+      await renderWithProviders(<LoginScreen />);
 
     await changeText(getByPlaceholderText("Email"), "hi@example.com");
     await changeText(getByPlaceholderText("Password"), "secret");
@@ -323,7 +319,10 @@ describe("[Integration] LoginScreen", () => {
       expect(getByText("Signing in…")).toBeTruthy();
     });
 
-    expect(UNSAFE_getByType(TouchableOpacity).props.disabled).toBe(true);
+    const disabledSubmitButtons = UNSAFE_getAllByType(TouchableOpacity).filter(
+      (node) => node.props.disabled === true,
+    );
+    expect(disabledSubmitButtons).toHaveLength(1);
     expect(
       UNSAFE_getAllByType(Pressable).some((p) => p.props.disabled === true),
     ).toBe(true);
@@ -333,12 +332,8 @@ describe("[Integration] LoginScreen", () => {
   it("shows submitting state while signup is in progress", async () => {
     postApiV1AuthSignupMock.mockImplementation(() => new Promise(() => {}));
 
-    const {
-      getByText,
-      getByPlaceholderText,
-      UNSAFE_getByType,
-      UNSAFE_getAllByType,
-    } = await renderWithProviders(<LoginScreen />);
+    const { getByText, getByPlaceholderText, UNSAFE_getAllByType } =
+      await renderWithProviders(<LoginScreen />);
 
     await press(getByText("Need an account? Sign up"));
     await changeText(getByPlaceholderText("Email"), "new@example.com");
@@ -349,7 +344,10 @@ describe("[Integration] LoginScreen", () => {
       expect(getByText("Creating account…")).toBeTruthy();
     });
 
-    expect(UNSAFE_getByType(TouchableOpacity).props.disabled).toBe(true);
+    const disabledSubmitButtons = UNSAFE_getAllByType(TouchableOpacity).filter(
+      (node) => node.props.disabled === true,
+    );
+    expect(disabledSubmitButtons).toHaveLength(1);
     expect(
       UNSAFE_getAllByType(Pressable).some((p) => p.props.disabled === true),
     ).toBe(true);

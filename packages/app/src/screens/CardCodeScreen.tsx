@@ -1,14 +1,12 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getBrightnessAsync, setBrightnessAsync } from "expo-brightness";
-import { router, useLocalSearchParams } from "expo-router";
-import { EllipsisVerticalIcon } from "lucide-react-native";
-import { useCallback, useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { Pressable, StyleSheet, View } from "react-native";
+import { useLocalSearchParams } from "expo-router";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { StyleSheet, View } from "react-native";
 
 import { CardCodeDisplay } from "@/components/CardCodeDisplay";
-import { CardCodeViewToggle } from "@/components/CardCodeViewToggle";
+import { CardManageSection } from "@/components/CardManageSection";
 import { CloseButton } from "@/components/CloseButton";
 import { LoyaltyBrandMark } from "@/components/LoyaltyBrandMark";
 import { ScreenHeader } from "@/components/ScreenHeader";
@@ -16,19 +14,22 @@ import { ScreenShell } from "@/components/ScreenShell";
 import {
   CARD_CODE_FROM_CARDS_PARAM,
   CARD_CODE_FROM_CARDS_VALUE,
-  Routes,
 } from "@/constants/routes.constants";
-import { I18nNamespace } from "@/i18n/i18n.constants";
 import {
   getApiV1CardsQueryKey,
   postApiV1CardsByIdViewMutation,
 } from "@/lib/api-client";
+import { resolveCardHeadings } from "@/lib/cardHeadings";
 import { type CardView, resolveCardView } from "@/lib/cardView";
-import { brandMark, icon, spacing } from "@/theme/theme";
+import {
+  showCardDetailsSheet,
+  showDeleteCardSheet,
+  showEditCardSheet,
+} from "@/sheets";
+import { brandMark, spacing } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
 export const CardCodeScreen = () => {
-  const { t } = useTranslation(I18nNamespace.Cards);
   const { theme } = useTheme();
   const params = useLocalSearchParams<{
     id?: string;
@@ -51,13 +52,11 @@ export const CardCodeScreen = () => {
     typeof params.cardNumber === "string" ? params.cardNumber : "";
   const brandName =
     typeof params.brandName === "string" ? params.brandName : "";
-  const label = typeof params.label === "string" ? params.label : "";
   const createdAt =
     typeof params.createdAt === "string" ? params.createdAt : "";
-  const displayName =
-    typeof params.title === "string" && params.title.trim()
-      ? params.title
-      : cardNumber;
+  const [label, setLabel] = useState(() =>
+    typeof params.label === "string" && params.label.trim() ? params.label : "",
+  );
   const logoUrl =
     typeof params.logoUrl === "string" && params.logoUrl.trim()
       ? params.logoUrl
@@ -70,6 +69,20 @@ export const CardCodeScreen = () => {
     typeof params.view === "string" ? params.view : undefined,
   );
   const [displayView, setDisplayView] = useState<CardView>(initialView);
+
+  useEffect(() => {
+    setLabel(typeof params.label === "string" ? params.label : "");
+    setDisplayView(
+      resolveCardView(
+        typeof params.view === "string" ? params.view : undefined,
+      ),
+    );
+  }, [params.label, params.view]);
+
+  const { title: displayName, subtitle } = useMemo(
+    () => resolveCardHeadings(brandName, label),
+    [brandName, label],
+  );
 
   const { mutate: logCardView } = useMutation({
     ...postApiV1CardsByIdViewMutation(),
@@ -108,103 +121,92 @@ export const CardCodeScreen = () => {
     logCardView({ path: { id: cardId } });
   }, [cardId, fromCards, logCardView]);
 
-  const toggleDisplayView = useCallback(() => {
-    setDisplayView((current) => (current === "1D" ? "2D" : "1D"));
-  }, []);
-
-  const openCardSettings = useCallback(() => {
-    router.push({
-      pathname: Routes.CARD_SETTINGS,
-      params: {
-        id: cardId,
-        cardNumber,
-        brandName,
-        label,
-        createdAt,
-      },
-    });
-  }, [brandName, cardId, cardNumber, createdAt, label]);
+  const manageDisabled = !cardId;
 
   return (
     <ScreenShell>
       <ScreenHeader
         title={displayName}
-        actions={
-          <>
-            <Pressable
-              accessibilityLabel={t("configureCardA11y")}
-              accessibilityRole="button"
-              disabled={!cardId}
-              hitSlop={12}
-              style={({ pressed }) => [
-                styles.headerIconButton,
-                pressed && styles.headerIconButtonPressed,
-              ]}
-              onPress={openCardSettings}
-            >
-              <EllipsisVerticalIcon color={theme.textPrimary} size={icon.md} />
-            </Pressable>
-            <CloseButton />
-          </>
-        }
+        subtitle={subtitle}
+        subtitlePlacement="withTitle"
+        actions={<CloseButton />}
       />
 
       <View style={styles.content}>
-        <LoyaltyBrandMark
-          animateHeight
-          brand={displayName}
-          logo={logoUrl}
-          backgroundColor={brandBackgroundColor}
-          height={
-            displayView === "2D"
-              ? brandMark.heightDetailQr
-              : brandMark.heightDetailBarcode
-          }
-          style={styles.brandMark}
-          topCardHalf
-        />
+        <View style={styles.cardColumn}>
+          <View style={styles.cardStack}>
+            <LoyaltyBrandMark
+              animateHeight
+              brand={displayName}
+              logo={logoUrl}
+              backgroundColor={brandBackgroundColor}
+              height={
+                displayView === "2D"
+                  ? brandMark.heightDetailQr
+                  : brandMark.heightDetailBarcode
+              }
+              style={styles.brandMark}
+              topCardHalf
+            />
 
-        <CardCodeDisplay
-          cardNumber={cardNumber}
-          view={displayView}
-          bottomCardHalf
-          borderColor={theme.border}
-        />
-      </View>
+            <CardCodeDisplay
+              cardNumber={cardNumber}
+              view={displayView}
+              bottomCardHalf
+              borderColor={theme.border}
+            />
+          </View>
 
-      <View style={styles.footer}>
-        <CardCodeViewToggle
-          view={displayView}
-          activeSegmentColor={brandBackgroundColor}
-          onToggle={toggleDisplayView}
-        />
+          <CardManageSection
+            onDetailsPress={() => {
+              void showCardDetailsSheet({ cardNumber, createdAt });
+            }}
+            onEditPress={() => {
+              void showEditCardSheet({
+                cardId,
+                label,
+                defaultView: displayView,
+                brandName,
+                activeSegmentColor: brandBackgroundColor,
+              }).then((updated) => {
+                if (!updated) {
+                  return;
+                }
+                setLabel(updated.label);
+                setDisplayView(updated.view);
+              });
+            }}
+            onDeletePress={() => {
+              void showDeleteCardSheet({ cardId });
+            }}
+            detailsDisabled={manageDisabled}
+            editDisabled={manageDisabled}
+            deleteDisabled={manageDisabled}
+          />
+        </View>
       </View>
     </ScreenShell>
   );
 };
 
 const styles = StyleSheet.create({
-  headerIconButton: {
-    width: icon.md,
-    height: icon.md,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerIconButtonPressed: {
-    opacity: 0.55,
-  },
   content: {
     flex: 1,
+    alignSelf: "stretch",
+  },
+  cardColumn: {
+    flex: 1,
+    alignSelf: "center",
+    width: "100%",
+    maxWidth: 320,
     alignItems: "center",
     justifyContent: "center",
+    gap: spacing.lg,
   },
-  footer: {
+  cardStack: {
     alignSelf: "stretch",
-    alignItems: "center",
-    paddingBottom: spacing.md,
   },
   brandMark: {
     alignSelf: "stretch",
-    maxWidth: 320,
   },
 });

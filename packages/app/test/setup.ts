@@ -1,6 +1,8 @@
 import { mock } from "bun:test";
 import React from "react";
 
+import "./mocks/react-native-gesture-reanimated";
+import "./mocks/react-native-actions-sheet";
 import "./mocks/api-client";
 import "./mocks/assets";
 import "./mocks/card-code-svg";
@@ -103,6 +105,7 @@ mock.module("lucide-react-native", () => ({
   EyeIcon: () => React.createElement("Text", null, "eye"),
   EyeOffIcon: () => React.createElement("Text", null, "eye-off"),
   ChevronDownIcon: () => React.createElement("Text", null, "▼"),
+  ChevronRightIcon: () => React.createElement("Text", null, "›"),
   ListFilterIcon: () => React.createElement("Text", null, "sort"),
   ArrowDownAZIcon: () => React.createElement("Text", null, "a-z"),
   ClockIcon: () => React.createElement("Text", null, "clock"),
@@ -288,6 +291,15 @@ mock.module("react-native", () => ({
       remove: () => {},
     }),
   },
+  AccessibilityInfo: {
+    addEventListener: () => ({ remove: () => {} }),
+    announceForAccessibility: () => {},
+  },
+  Platform: {
+    OS: "ios",
+    select: <T,>(options: { ios?: T; android?: T; default?: T }) =>
+      options.ios ?? options.default,
+  },
   useColorScheme: () => "light",
 }));
 
@@ -322,3 +334,5 @@ mock.module("expo-router", () => ({
     return null;
   },
 }));
+
+import "./test-reset";

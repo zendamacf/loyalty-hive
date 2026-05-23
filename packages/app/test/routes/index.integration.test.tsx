@@ -4,6 +4,8 @@ import { waitFor } from "@testing-library/react-native";
 
 import { APP_NAME } from "@/constants/branding.constants";
 import { Routes } from "@/constants/routes.constants";
+import i18n from "@/i18n";
+import { I18nNamespace } from "@/i18n/i18n.constants";
 import { AUTH_TOKEN_STORAGE_KEY } from "@/lib/auth/auth.constants";
 import { getExpoRouterMocks } from "../mocks/expo-router";
 import {
@@ -37,7 +39,7 @@ describe("[Integration] app index", () => {
 
     await waitFor(() => {
       expect(getByText(APP_NAME)).toBeTruthy();
-      expect(getByText("Sign in")).toBeTruthy();
+      expect(getByText(i18n.t("signIn", { ns: I18nNamespace.Auth }))).toBeTruthy();
     });
     expect(expoRouterMocks.replace).not.toHaveBeenCalledWith(Routes.CARDS);
   });

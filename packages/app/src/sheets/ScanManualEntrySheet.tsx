@@ -1,15 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { router, useLocalSearchParams } from "expo-router";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { router } from "expo-router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, TextInput, View } from "react-native";
+import { useSheetPayload, useSheetRef } from "react-native-actions-sheet";
 
 import { Button } from "@/components/Button";
-import { CloseButton } from "@/components/CloseButton";
 import { Form } from "@/components/Form";
 import { FormGroup } from "@/components/FormGroup";
-import { ScreenHeader } from "@/components/ScreenHeader";
-import { ScreenShell } from "@/components/ScreenShell";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import {
@@ -21,25 +19,19 @@ import { getErrorMessage } from "@/lib/getErrorMessage";
 import { radius, spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
-export const ScanManualEntryScreen = () => {
+import { ActionSheetFrame } from "./ActionSheetFrame";
+import { SheetIds } from "./sheetIds";
+
+export const ScanManualEntrySheet = () => {
   const { t } = useTranslation(I18nNamespace.Scan);
   const { theme } = useTheme();
-  const params = useLocalSearchParams<{
-    brandName?: string;
-    brandId?: string;
-    customCard?: string;
-    cardNumber?: string;
-    view?: CardView;
-  }>();
-  const selectedBrandName =
-    typeof params.brandName === "string" ? params.brandName : null;
-  const selectedBrandId =
-    typeof params.brandId === "string" ? params.brandId : null;
-  const isCustomCard = params.customCard === "1";
-  const initialCardNumber =
-    typeof params.cardNumber === "string" ? params.cardNumber : "";
-  const cardView: CardView | null =
-    params.view === "1D" || params.view === "2D" ? params.view : null;
+  const sheetRef = useSheetRef(SheetIds.SCAN_MANUAL_ENTRY);
+  const payload = useSheetPayload(SheetIds.SCAN_MANUAL_ENTRY);
+  const selectedBrandName = payload?.brandName ?? null;
+  const selectedBrandId = payload?.brandId ?? null;
+  const isCustomCard = payload?.isCustomCard ?? false;
+  const initialCardNumber = payload?.initialCardNumber ?? "";
+  const cardView: CardView | null = payload?.cardView ?? null;
 
   const [cardNumber, setCardNumber] = useState(initialCardNumber);
   const [customLabel, setCustomLabel] = useState("");
@@ -48,7 +40,15 @@ export const ScanManualEntryScreen = () => {
   const saveLockRef = useRef(false);
   const queryClient = useQueryClient();
 
-  const headerTitle = useMemo(() => {
+  useEffect(() => {
+    setCardNumber(initialCardNumber);
+    setCustomLabel("");
+    setSaveError(null);
+    setIsSaving(false);
+    saveLockRef.current = false;
+  }, [initialCardNumber]);
+
+  const sheetTitle = useMemo(() => {
     if (selectedBrandId && selectedBrandName) {
       return selectedBrandName;
     }
@@ -86,6 +86,7 @@ export const ScanManualEntryScreen = () => {
           view: cardView,
         },
       });
+      sheetRef.current?.hide();
       router.dismissTo(Routes.CARDS);
     } catch (err) {
       setSaveError(getErrorMessage(err));
@@ -99,12 +100,15 @@ export const ScanManualEntryScreen = () => {
     createCard,
     isCustomCard,
     selectedBrandId,
+    sheetRef,
     trimmedCardNumber,
     trimmedCustomLabel,
   ]);
 
   return (
-    <ScreenShell
+    <ActionSheetFrame
+      title={sheetTitle}
+      closeAccessibilityLabel={t("closeScanManualEntrySheetA11y")}
       footer={
         <View style={styles.footer}>
           {saveError ? (
@@ -114,48 +118,24 @@ export const ScanManualEntryScreen = () => {
           ) : null}
           <Button
             title={isSaving ? t("savingCard") : t("addCard")}
-            onPress={() => void submitCardNumber()}
+            onPress={() => {
+              void submitCardNumber();
+            }}
             disabled={!canSubmit}
           />
         </View>
       }
     >
-      <ScreenShell.Body>
-        <ScreenHeader title={headerTitle} actions={<CloseButton />} embedded />
-
-        <Form>
-          {isCustomCard ? (
-            <FormGroup label={t("customCardLabel")}>
-              <TextInput
-                accessibilityLabel={t("customCardLabel")}
-                value={customLabel}
-                onChangeText={setCustomLabel}
-                placeholder={t("customCardPlaceholder")}
-                placeholderTextColor={theme.textSecondary}
-                autoCapitalize="words"
-                autoCorrect={false}
-                editable={!isSaving}
-                style={[
-                  styles.input,
-                  {
-                    borderColor: theme.border,
-                    color: theme.textPrimary,
-                    backgroundColor: theme.surface,
-                  },
-                ]}
-              />
-            </FormGroup>
-          ) : null}
-
-          <FormGroup label={t("cardNumber")} hint={t("manualEntryHelp")}>
+      <Form>
+        {isCustomCard ? (
+          <FormGroup label={t("customCardLabel")}>
             <TextInput
-              accessibilityLabel={t("cardNumber")}
-              value={cardNumber}
-              onChangeText={setCardNumber}
-              placeholder={t("cardNumber")}
+              accessibilityLabel={t("customCardLabel")}
+              value={customLabel}
+              onChangeText={setCustomLabel}
+              placeholder={t("customCardLabel")}
               placeholderTextColor={theme.textSecondary}
-              keyboardType="number-pad"
-              autoCapitalize="none"
+              autoCapitalize="words"
               autoCorrect={false}
               editable={!isSaving}
               style={[
@@ -168,9 +148,31 @@ export const ScanManualEntryScreen = () => {
               ]}
             />
           </FormGroup>
-        </Form>
-      </ScreenShell.Body>
-    </ScreenShell>
+        ) : null}
+
+        <FormGroup label={t("cardNumber")} hint={t("manualEntryHelp")}>
+          <TextInput
+            accessibilityLabel={t("cardNumber")}
+            value={cardNumber}
+            onChangeText={setCardNumber}
+            placeholder={t("cardNumber")}
+            placeholderTextColor={theme.textSecondary}
+            keyboardType="number-pad"
+            autoCapitalize="none"
+            autoCorrect={false}
+            editable={!isSaving}
+            style={[
+              styles.input,
+              {
+                borderColor: theme.border,
+                color: theme.textPrimary,
+                backgroundColor: theme.surface,
+              },
+            ]}
+          />
+        </FormGroup>
+      </Form>
+    </ActionSheetFrame>
   );
 };
 
@@ -187,7 +189,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   footer: {
-    paddingTop: spacing.md,
     gap: spacing.sm,
   },
 });
