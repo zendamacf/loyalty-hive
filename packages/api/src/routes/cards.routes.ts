@@ -37,11 +37,16 @@ const idParamSchema = z.object({
   id: z.uuid(),
 });
 
-const cardWriteSchema = z.object({
+const cardCreateSchema = z.object({
   cardNumber: z.string(),
   label: z.string().nullable().optional(),
   view: z.enum(["1D", "2D"]).nullable().optional(),
   brandId: z.uuid().nullable().optional(),
+});
+
+const cardUpdateSchema = z.object({
+  label: z.string().nullable().optional(),
+  view: z.enum(["1D", "2D"]).nullable().optional(),
 });
 
 export const cardListSortSchema = z.enum([
@@ -218,7 +223,7 @@ const app = new Hono<{ Variables: ContextVariables }>()
         400: errorResponse("Referenced userId or brandId does not exist"),
       },
     }),
-    validator("json", cardWriteSchema),
+    validator("json", cardCreateSchema),
     async (c) => {
       const body = c.req.valid("json");
 
@@ -256,6 +261,47 @@ const app = new Hono<{ Variables: ContextVariables }>()
     async (c) => {
       const { id } = c.req.valid("param");
       const card = await getCardForUser(c.get("userId"), id);
+      if (!card) {
+        return c.json({ error: "Card not found" }, 404);
+      }
+      return c.json(toCardResponse(card));
+    },
+  )
+  .patch(
+    "/:id",
+    describeRoute({
+      description: "Update a card",
+      security: [{ bearerAuth: [] }],
+      responses: {
+        200: jsonResponse("Successful response", cardSchema),
+        401: errorResponse("Unauthorized"),
+        404: errorResponse("Card not found"),
+      },
+    }),
+    validator("param", idParamSchema),
+    validator("json", cardUpdateSchema),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const body = c.req.valid("json");
+      const userId = c.get("userId");
+
+      const updates: { label?: string | null; view?: "1D" | "2D" | null } = {};
+      if (body.label !== undefined) updates.label = body.label ?? null;
+      if (body.view !== undefined) updates.view = body.view ?? null;
+
+      if (Object.keys(updates).length > 0) {
+        const [updated] = await db
+          .update(cards)
+          .set(updates)
+          .where(and(eq(cards.id, id), eq(cards.userId, userId)))
+          .returning({ id: cards.id });
+
+        if (!updated) {
+          return c.json({ error: "Card not found" }, 404);
+        }
+      }
+
+      const card = await getCardForUser(userId, id);
       if (!card) {
         return c.json({ error: "Card not found" }, 404);
       }

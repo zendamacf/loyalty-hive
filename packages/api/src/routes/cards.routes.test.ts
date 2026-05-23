@@ -443,6 +443,82 @@ describe("cards routes", () => {
     expect(await response.json()).toEqual({ error: "Card not found" });
   });
 
+  it("updates a card's label and view", async () => {
+    await db
+      .update(cards)
+      .set({ label: "Personal", view: "1D" })
+      .where(eq(cards.id, CARD_ID));
+
+    const response = await app.request(`/api/v1/cards/${CARD_ID}`, {
+      method: "PATCH",
+      headers: {
+        ...authBearerHeaders(authToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ label: "Updated", view: "2D" }),
+    });
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      id: CARD_ID,
+      label: "Updated",
+      view: "2D",
+      cardNumber: "4242424242424242",
+      brand: { id: BRAND_ID },
+    });
+  });
+
+  it("updates only the fields provided in the patch body", async () => {
+    await db
+      .update(cards)
+      .set({ label: "Before", view: "1D" })
+      .where(eq(cards.id, CARD_ID));
+
+    const response = await app.request(`/api/v1/cards/${CARD_ID}`, {
+      method: "PATCH",
+      headers: {
+        ...authBearerHeaders(authToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ label: "Label only" }),
+    });
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      id: CARD_ID,
+      label: "Label only",
+      view: "1D",
+    });
+  });
+
+  it("returns 404 when updating a non-existent card", async () => {
+    const response = await app.request(`/api/v1/cards/${UNKNOWN_CARD_ID}`, {
+      method: "PATCH",
+      headers: {
+        ...authBearerHeaders(authToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ label: "Nope" }),
+    });
+
+    expect(response.status).toBe(404);
+    expect(await response.json()).toEqual({ error: "Card not found" });
+  });
+
+  it("returns 404 when updating another user's card", async () => {
+    const response = await app.request(`/api/v1/cards/${OTHER_USER_CARD_ID}`, {
+      method: "PATCH",
+      headers: {
+        ...authBearerHeaders(authToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ label: "Stolen" }),
+    });
+
+    expect(response.status).toBe(404);
+    expect(await response.json()).toEqual({ error: "Card not found" });
+  });
+
   it("logs a view by incrementing viewCount and setting lastViewedAt", async () => {
     await db
       .update(cards)
