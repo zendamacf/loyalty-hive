@@ -6,6 +6,11 @@ import "./mocks/assets";
 import "./mocks/card-code-svg";
 import "./mocks/expo-localization";
 import "./mocks/expo-secure-store";
+import { expoBrightnessMocks } from "./mocks/expo-brightness";
+import {
+  createNavigationNativeModule,
+  navigationFocusMocks,
+} from "./mocks/navigation-focus";
 
 const asyncStorage = new Map<string, string>();
 
@@ -140,10 +145,16 @@ Object.assign(globalThis, {
   __expoClipboardMocks: { setStringAsync: setStringAsyncMock },
 });
 
+Object.assign(globalThis, { __expoBrightnessMocks: expoBrightnessMocks });
+
 mock.module("expo-brightness", () => ({
-  getBrightnessAsync: () => Promise.resolve(0.5),
-  setBrightnessAsync: () => Promise.resolve(),
+  getBrightnessAsync: expoBrightnessMocks.getBrightnessAsync,
+  setBrightnessAsync: expoBrightnessMocks.setBrightnessAsync,
 }));
+
+Object.assign(globalThis, {
+  __navigationFocusMocks: navigationFocusMocks,
+});
 
 const alertMock = mock(() => {});
 
@@ -290,14 +301,10 @@ mock.module("react-native-safe-area-context", () => ({
   }),
 }));
 
-mock.module("@react-navigation/native", () => ({
-  useFocusEffect: (effect: () => undefined | (() => void)) => {
-    React.useEffect(() => {
-      const cleanup = effect();
-      return typeof cleanup === "function" ? cleanup : undefined;
-    }, [effect]);
-  },
-}));
+mock.module(
+  "@react-navigation/native",
+  () => createNavigationNativeModule(),
+);
 
 mock.module("expo-router", () => ({
   router: {
