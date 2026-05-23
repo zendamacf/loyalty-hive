@@ -84,8 +84,44 @@ jobs:
         working-directory: packages/api
 
       - name: Run test
-        run: bun run test
+        run: LIB_VERSION=$(npm run -s prebuild) bun test --preload ./test/setup.ts --coverage-reporter=lcov
         working-directory: packages/api
+
+      - name: Load coverage thresholds
+        id: coverage-thresholds
+        working-directory: packages/api
+        run: |
+          bun -e "
+            const { test: t } = Bun.TOML.parse(await Bun.file('bunfig.toml').text());
+            console.log('lines=' + t.coverageThresholds.lines);
+            console.log('functions=' + t.coverageThresholds.functions);
+          " >> "$GITHUB_OUTPUT"
+
+      - name: Enforce function coverage threshold
+        working-directory: packages/api
+        run: |
+          MIN="${{ steps.coverage-thresholds.outputs.functions }}"
+          RATE=$(bun -e "
+            let fnf = 0, fnh = 0;
+            for (const line of await Bun.file('coverage/lcov.info').text().then((t) => t.split('\n'))) {
+              if (line.startsWith('FNF:')) fnf += Number(line.slice(4));
+              if (line.startsWith('FNH:')) fnh += Number(line.slice(4));
+            }
+            console.log(fnf ? ((fnh / fnf) * 100).toFixed(2) : '100.00');
+          ")
+          echo "Function coverage: ${RATE}% (minimum ${MIN}%)"
+          awk -v rate="$RATE" -v min="$MIN" 'BEGIN { exit (rate + 0 >= min + 0 ? 0 : 1) }' \
+            || { echo "::error::Function coverage ${RATE}% is below minimum ${MIN}%"; exit 1; }
+
+      - name: Report coverage on PR
+        uses: mcclurejt/cover-2@1.0.1
+        with:
+          head-lcov-file: coverage/lcov.info
+          comment-header: api-coverage
+          thresholds: ${{ steps.coverage-thresholds.outputs.lines }} 100
+          fail-below-threshold: true
+          show-function-coverage: true
+          working-directory: packages/api
 
   delete-neon-branch:
     name: delete-neon-branch
