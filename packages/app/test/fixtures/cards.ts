@@ -18,6 +18,22 @@ export const testCards = [
     createdAt: "2020-01-01T00:00:00.000Z",
   },
   {
+    id: "00000000-0000-4000-8000-000000000003",
+    userId: "00000000-0000-4000-8000-000000000099",
+    cardNumber: "333",
+    label: "Work card",
+    view: null,
+    brand: {
+      id: "00000000-0000-4000-8000-0000000000a1",
+      name: "ASOS",
+      logoUrl: "https://logo.clearbit.com/asos.com",
+      backgroundColor: "#FFFFFF",
+    },
+    viewCount: 0,
+    lastViewedAt: null,
+    createdAt: "2020-01-01T00:00:00.000Z",
+  },
+  {
     id: "00000000-0000-4000-8000-000000000002",
     userId: "00000000-0000-4000-8000-000000000099",
     cardNumber: "222",

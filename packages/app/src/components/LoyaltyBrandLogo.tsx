@@ -8,6 +8,7 @@ import { LoyaltyBrandMark } from "./LoyaltyBrandMark";
 
 type Props = {
   brand: string;
+  accessibilityLabel?: string;
   logo?: string;
   backgroundColor?: string;
   height: number;
@@ -17,6 +18,7 @@ type Props = {
 
 export const LoyaltyBrandLogo = ({
   brand,
+  accessibilityLabel,
   logo,
   backgroundColor,
   height,
@@ -52,7 +54,7 @@ export const LoyaltyBrandLogo = ({
 
   return (
     <Pressable
-      accessibilityLabel={brand}
+      accessibilityLabel={accessibilityLabel ?? brand}
       accessibilityRole="button"
       style={style}
       onPressIn={() => setPressed(true)}

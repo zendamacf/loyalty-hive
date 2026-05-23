@@ -178,6 +178,15 @@ describe("[Integration] CardsScreen", () => {
     });
   });
 
+  it("shows label bar on a branded card when it has a label", async () => {
+    const { getByLabelText, getByText } = await renderWithProviders(
+      <CardsScreen />,
+    );
+
+    await waitFor(() => expect(getByLabelText("ASOS, Work card")).toBeTruthy());
+    expect(getByText("Work card")).toBeTruthy();
+  });
+
   it("navigates to card code when a loyalty card is pressed", async () => {
     const { getByLabelText } = await renderWithProviders(<CardsScreen />);
 
