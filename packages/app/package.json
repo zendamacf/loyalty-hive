@@ -12,7 +12,7 @@
     "build:android:preview": "eas build --platform android --profile preview",
     "build:android:production": "eas build --platform android --profile production",
     "web": "expo start --web",
-    "test": "bun test --preload ./test/setup.ts --isolate ./src ./test/routes",
+    "test": "bun test --preload ./test/setup.ts ./src ./test/routes",
     "lint": "biome check src",
     "lint:fix": "biome check src --write",
     "typecheck": "tsc --noEmit",

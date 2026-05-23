@@ -31,11 +31,9 @@
   "saveCardErrorTitle": "No se pudo guardar la tarjeta",
   "createdOnLabel": "Añadida el",
   "deleteCard": "Eliminar tarjeta",
-  "deleteCardA11y": "Eliminar tarjeta",
   "deleteCardConfirmTitle": "¿Eliminar tarjeta?",
   "deleteCardConfirmMessage": "Esta tarjeta se eliminará de tu cartera. No se puede deshacer.",
   "deleteCardConfirmYes": "Sí, eliminar tarjeta",
   "deleteCardConfirmNo": "No, conservar tarjeta",
-  "deleteCardErrorTitle": "No se pudo eliminar la tarjeta",
-  "cancel": "Cancelar"
+  "deleteCardErrorTitle": "No se pudo eliminar la tarjeta"
 }

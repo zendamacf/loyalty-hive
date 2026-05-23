@@ -76,6 +76,12 @@ const SheetManager = {
   },
 };
 
+export function resetSheetsForTest() {
+  activeSheetId = null;
+  sheetShowResolve = null;
+  notifySheetChange();
+}
+
 function useSheetPayload<SheetId extends string>(id?: SheetId) {
   const sheetId = id ?? activeSheetId;
   if (sheetId == null) {

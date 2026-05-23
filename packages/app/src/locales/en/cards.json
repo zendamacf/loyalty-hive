@@ -31,11 +31,9 @@
   "saveCardErrorTitle": "Could not save card",
   "createdOnLabel": "Added on",
   "deleteCard": "Delete card",
-  "deleteCardA11y": "Delete card",
   "deleteCardConfirmTitle": "Delete card?",
   "deleteCardConfirmMessage": "This card will be removed from your wallet. This cannot be undone.",
   "deleteCardConfirmYes": "Yes, delete card",
   "deleteCardConfirmNo": "No, keep card",
-  "deleteCardErrorTitle": "Could not delete card",
-  "cancel": "Cancel"
+  "deleteCardErrorTitle": "Could not delete card"
 }

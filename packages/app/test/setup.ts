@@ -334,3 +334,5 @@ mock.module("expo-router", () => ({
     return null;
   },
 }));
+
+import "./test-reset";
