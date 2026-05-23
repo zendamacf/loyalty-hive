@@ -10,7 +10,10 @@ import {
 } from "@testing-library/react-native";
 import type { ReactElement, ReactNode } from "react";
 import { View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SheetProvider } from "react-native-actions-sheet";
 import { I18nextProvider } from "react-i18next";
+import { OverlayProvider } from "@/components/OverlayProvider";
 import i18n from "@/i18n";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { QUERY_STALE_TIME_MS } from "@/lib/query-client";
@@ -18,7 +21,7 @@ import {
   UserPreferencesProvider,
   usePreferencesHydrated,
 } from "@/lib/user-preferences";
-import { OverlayProvider } from "@/components/OverlayProvider";
+import { AppSheets } from "@/sheets";
 
 export const TEST_PROVIDERS_READY_ID = "test-providers-ready";
 
@@ -95,9 +98,14 @@ function TestProviders({ children }: { children: ReactNode }) {
       <AuthProvider>
         <I18nextProvider i18n={i18n}>
           <UserPreferencesProvider>
-            <OverlayProvider>
-              <ProvidersSettled>{children}</ProvidersSettled>
-            </OverlayProvider>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <SheetProvider>
+                <AppSheets />
+                <OverlayProvider>
+                  <ProvidersSettled>{children}</ProvidersSettled>
+                </OverlayProvider>
+              </SheetProvider>
+            </GestureHandlerRootView>
           </UserPreferencesProvider>
         </I18nextProvider>
       </AuthProvider>
@@ -133,9 +141,14 @@ export function createQueryClientWrapper(queryClient: QueryClient) {
         <AuthProvider>
           <I18nextProvider i18n={i18n}>
             <UserPreferencesProvider>
-              <OverlayProvider>
-                <ProvidersSettled>{children}</ProvidersSettled>
-              </OverlayProvider>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <SheetProvider>
+                  <AppSheets />
+                  <OverlayProvider>
+                    <ProvidersSettled>{children}</ProvidersSettled>
+                  </OverlayProvider>
+                </SheetProvider>
+              </GestureHandlerRootView>
             </UserPreferencesProvider>
           </I18nextProvider>
         </AuthProvider>

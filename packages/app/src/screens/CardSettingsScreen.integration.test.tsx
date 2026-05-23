@@ -4,14 +4,10 @@ import { act, waitFor } from "@testing-library/react-native";
 import { Routes } from "@/constants/routes.constants";
 import { deleteApiV1CardsByIdMock } from "../../test/mocks/api-client";
 import { getExpoRouterMocks } from "../../test/mocks/expo-router";
-import {
-  getExpoClipboardMocks,
-  getReactNativeAlertMocks,
-} from "../../test/mocks/react-native-globals";
+import { getReactNativeAlertMocks } from "../../test/mocks/react-native-globals";
 import { press, renderWithProviders } from "../../test/render";
 
 const expoRouterMocks = getExpoRouterMocks();
-const expoClipboardMocks = getExpoClipboardMocks();
 const reactNativeAlertMocks = getReactNativeAlertMocks();
 
 const { CardSettingsScreen } = await import("./CardSettingsScreen");
@@ -19,7 +15,6 @@ const { CardSettingsScreen } = await import("./CardSettingsScreen");
 describe("[Integration] CardSettingsScreen", () => {
   beforeEach(() => {
     expoRouterMocks.dismissTo.mockClear();
-    expoClipboardMocks.setStringAsync.mockClear();
     reactNativeAlertMocks.alert.mockClear();
     deleteApiV1CardsByIdMock.mockClear();
     expoRouterMocks.params = {
@@ -31,13 +26,15 @@ describe("[Integration] CardSettingsScreen", () => {
     };
   });
 
-  it("shows brand title, label subtitle, card number, and created date", async () => {
-    const { getByText } = await renderWithProviders(<CardSettingsScreen />);
+  it("shows brand title and label subtitle", async () => {
+    const { getByText, queryByText } = await renderWithProviders(
+      <CardSettingsScreen />,
+    );
 
     expect(getByText("ASOS")).toBeTruthy();
     expect(getByText("Work card")).toBeTruthy();
-    expect(getByText("1234567890")).toBeTruthy();
-    expect(getByText("June 15, 2020")).toBeTruthy();
+    expect(queryByText("June 15, 2020")).toBeNull();
+    expect(queryByText("1234567890")).toBeNull();
   });
 
   it("uses label as title when brand is not set", async () => {
@@ -54,20 +51,7 @@ describe("[Integration] CardSettingsScreen", () => {
     );
 
     expect(getByText("Gym membership")).toBeTruthy();
-    expect(queryByText("Card number")).toBeTruthy();
     expect(queryByText("Work card")).toBeNull();
-  });
-
-  it("copies card number when copy is pressed", async () => {
-    const { getByLabelText } = await renderWithProviders(
-      <CardSettingsScreen />,
-    );
-
-    await press(getByLabelText("Copy card number"));
-
-    expect(expoClipboardMocks.setStringAsync).toHaveBeenCalledWith(
-      "1234567890",
-    );
   });
 
   it("shows delete confirmation before deleting", async () => {

@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { CardCodeDisplay } from "@/components/CardCodeDisplay";
-import { CardCodeViewToggle } from "@/components/CardCodeViewToggle";
+import { CardManageSection } from "@/components/CardManageSection";
 import { CloseButton } from "@/components/CloseButton";
 import { LoyaltyBrandMark } from "@/components/LoyaltyBrandMark";
 import { ScreenHeader } from "@/components/ScreenHeader";
@@ -24,6 +24,11 @@ import {
   postApiV1CardsByIdViewMutation,
 } from "@/lib/api-client";
 import { type CardView, resolveCardView } from "@/lib/cardView";
+import {
+  showCardDetailsSheet,
+  showDeleteCardSheet,
+  showEditCardSheet,
+} from "@/sheets";
 import { brandMark, icon, spacing } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
@@ -108,10 +113,6 @@ export const CardCodeScreen = () => {
     logCardView({ path: { id: cardId } });
   }, [cardId, fromCards, logCardView]);
 
-  const toggleDisplayView = useCallback(() => {
-    setDisplayView((current) => (current === "1D" ? "2D" : "1D"));
-  }, []);
-
   const openCardSettings = useCallback(() => {
     router.push({
       pathname: Routes.CARD_SETTINGS,
@@ -124,6 +125,8 @@ export const CardCodeScreen = () => {
       },
     });
   }, [brandName, cardId, cardNumber, createdAt, label]);
+
+  const manageDisabled = !cardId;
 
   return (
     <ScreenShell>
@@ -150,34 +153,47 @@ export const CardCodeScreen = () => {
       />
 
       <View style={styles.content}>
-        <LoyaltyBrandMark
-          animateHeight
-          brand={displayName}
-          logo={logoUrl}
-          backgroundColor={brandBackgroundColor}
-          height={
-            displayView === "2D"
-              ? brandMark.heightDetailQr
-              : brandMark.heightDetailBarcode
-          }
-          style={styles.brandMark}
-          topCardHalf
-        />
+        <View style={styles.cardColumn}>
+          <LoyaltyBrandMark
+            animateHeight
+            brand={displayName}
+            logo={logoUrl}
+            backgroundColor={brandBackgroundColor}
+            height={
+              displayView === "2D"
+                ? brandMark.heightDetailQr
+                : brandMark.heightDetailBarcode
+            }
+            style={styles.brandMark}
+            topCardHalf
+          />
 
-        <CardCodeDisplay
-          cardNumber={cardNumber}
-          view={displayView}
-          bottomCardHalf
-          borderColor={theme.border}
-        />
-      </View>
+          <CardCodeDisplay
+            cardNumber={cardNumber}
+            view={displayView}
+            bottomCardHalf
+            borderColor={theme.border}
+          />
 
-      <View style={styles.footer}>
-        <CardCodeViewToggle
-          view={displayView}
-          activeSegmentColor={brandBackgroundColor}
-          onToggle={toggleDisplayView}
-        />
+          <CardManageSection
+            onDetailsPress={() => {
+              void showCardDetailsSheet({ cardNumber, createdAt });
+            }}
+            onEditPress={() => {
+              void showEditCardSheet({
+                label,
+                defaultView: initialView,
+                activeSegmentColor: brandBackgroundColor,
+              });
+            }}
+            onDeletePress={() => {
+              void showDeleteCardSheet({ cardId });
+            }}
+            detailsDisabled={manageDisabled}
+            editDisabled={manageDisabled}
+            deleteDisabled={manageDisabled}
+          />
+        </View>
       </View>
     </ScreenShell>
   );
@@ -195,16 +211,18 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    alignSelf: "stretch",
+  },
+  cardColumn: {
+    flex: 1,
+    alignSelf: "center",
+    width: "100%",
+    maxWidth: 320,
     alignItems: "center",
     justifyContent: "center",
-  },
-  footer: {
-    alignSelf: "stretch",
-    alignItems: "center",
-    paddingBottom: spacing.md,
+    gap: spacing.lg,
   },
   brandMark: {
     alignSelf: "stretch",
-    maxWidth: 320,
   },
 });

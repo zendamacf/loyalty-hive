@@ -1,21 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import * as Clipboard from "expo-clipboard";
 import { router, useLocalSearchParams } from "expo-router";
-import { CopyIcon } from "lucide-react-native";
 import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Alert,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { CloseButton } from "@/components/CloseButton";
-import { Form } from "@/components/Form";
-import { FormGroup } from "@/components/FormGroup";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { ScreenShell } from "@/components/ScreenShell";
 import { Routes } from "@/constants/routes.constants";
@@ -26,24 +15,11 @@ import {
 } from "@/lib/api-client";
 import { resolveCardHeadings } from "@/lib/cardHeadings";
 import { getErrorMessage } from "@/lib/getErrorMessage";
-import { icon, radius, spacing, typography } from "@/theme/theme";
+import { radius, spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
-function formatCreatedAt(value: string, locale: string): string | null {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return null;
-  }
-
-  return new Intl.DateTimeFormat(locale, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(date);
-}
-
 export const CardSettingsScreen = () => {
-  const { t, i18n } = useTranslation(I18nNamespace.Cards);
+  const { t } = useTranslation(I18nNamespace.Cards);
   const { theme } = useTheme();
   const params = useLocalSearchParams<{
     id?: string;
@@ -54,21 +30,13 @@ export const CardSettingsScreen = () => {
   }>();
 
   const cardId = typeof params.id === "string" ? params.id : "";
-  const cardNumber =
-    typeof params.cardNumber === "string" ? params.cardNumber : "";
   const brandName =
     typeof params.brandName === "string" ? params.brandName : "";
   const label = typeof params.label === "string" ? params.label : "";
-  const createdAt =
-    typeof params.createdAt === "string" ? params.createdAt : "";
 
   const { title, subtitle } = useMemo(
     () => resolveCardHeadings(brandName, label),
     [brandName, label],
-  );
-  const createdOnLabel = useMemo(
-    () => formatCreatedAt(createdAt, i18n.language),
-    [createdAt, i18n.language],
   );
   const queryClient = useQueryClient();
 
@@ -105,12 +73,6 @@ export const CardSettingsScreen = () => {
     ]);
   }, [confirmDeleteCard, t]);
 
-  const copyCardNumber = useCallback(() => {
-    if (cardNumber) {
-      void Clipboard.setStringAsync(cardNumber);
-    }
-  }, [cardNumber]);
-
   return (
     <ScreenShell
       footer={
@@ -140,67 +102,12 @@ export const CardSettingsScreen = () => {
           actions={<CloseButton />}
           embedded
         />
-
-        <Form>
-          <FormGroup label={t("cardNumberLabel")}>
-            <View style={styles.detailValueRow}>
-              <Text
-                style={[styles.detailValue, { color: theme.textPrimary }]}
-                numberOfLines={1}
-              >
-                {cardNumber}
-              </Text>
-              <Pressable
-                accessibilityLabel={t("copyCardNumberA11y")}
-                accessibilityRole="button"
-                disabled={!cardNumber}
-                hitSlop={12}
-                style={({ pressed }) => [
-                  styles.copyButton,
-                  pressed && styles.copyButtonPressed,
-                ]}
-                onPress={copyCardNumber}
-              >
-                <CopyIcon color={theme.textSecondary} size={icon.md} />
-              </Pressable>
-            </View>
-          </FormGroup>
-
-          {createdOnLabel ? (
-            <FormGroup label={t("createdOnLabel")}>
-              <Text style={[styles.valueText, { color: theme.textPrimary }]}>
-                {createdOnLabel}
-              </Text>
-            </FormGroup>
-          ) : null}
-        </Form>
       </ScreenShell.Body>
     </ScreenShell>
   );
 };
 
 const styles = StyleSheet.create({
-  valueText: {
-    ...typography.body,
-  },
-  detailValue: {
-    ...typography.body,
-    flex: 1,
-  },
-  detailValueRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-  },
-  copyButton: {
-    width: icon.md,
-    height: icon.md,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  copyButtonPressed: {
-    opacity: 0.55,
-  },
   footer: {
     paddingTop: spacing.md,
   },

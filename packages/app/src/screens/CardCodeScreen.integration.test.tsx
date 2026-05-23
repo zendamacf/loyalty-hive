@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "bun:test";
-import { waitFor } from "@testing-library/react-native";
+import { act, waitFor } from "@testing-library/react-native";
 import { Image } from "react-native";
 
 import {
@@ -7,7 +7,10 @@ import {
   CARD_CODE_FROM_CARDS_VALUE,
   Routes,
 } from "@/constants/routes.constants";
-import { postApiV1CardsByIdViewMock } from "../../test/mocks/api-client";
+import {
+  deleteApiV1CardsByIdMock,
+  postApiV1CardsByIdViewMock,
+} from "../../test/mocks/api-client";
 import { getExpoBrightnessMocks } from "../../test/mocks/expo-brightness";
 import { getExpoRouterMocks } from "../../test/mocks/expo-router";
 import { getNavigationFocusMocks } from "../../test/mocks/navigation-focus";
@@ -22,6 +25,8 @@ const { CardCodeScreen } = await import("./CardCodeScreen");
 describe("[Integration] CardCodeScreen", () => {
   beforeEach(() => {
     postApiV1CardsByIdViewMock.mockClear();
+    deleteApiV1CardsByIdMock.mockClear();
+    expoRouterMocks.dismissTo.mockClear();
     expoRouterMocks.back.mockClear();
     expoRouterMocks.push.mockClear();
     brightnessMocks.getBrightnessAsync.mockClear();
@@ -192,6 +197,72 @@ describe("[Integration] CardCodeScreen", () => {
 
     expect(getByTestId("qrcode")).toBeTruthy();
     expect(getByTestId("barcode")).toBeTruthy();
+  });
+
+  it("shows the manage section below the card code", async () => {
+    const { getByText } = await renderWithProviders(<CardCodeScreen />);
+
+    expect(getByText("Manage")).toBeTruthy();
+    expect(getByText("Details")).toBeTruthy();
+    expect(getByText("Edit card")).toBeTruthy();
+    expect(getByText("Delete card")).toBeTruthy();
+  });
+
+  it("opens card details when Details is pressed", async () => {
+    const { getByLabelText, getByText } = await renderWithProviders(
+      <CardCodeScreen />,
+    );
+
+    await press(getByLabelText("Details"));
+
+    await act(async () => {
+      await waitFor(() => {
+        expect(getByText("Card details")).toBeTruthy();
+        expect(getByText("1234567890")).toBeTruthy();
+        expect(getByText("January 1, 2020")).toBeTruthy();
+      });
+    });
+  });
+
+  it("opens edit card when Edit card is pressed", async () => {
+    const { getByLabelText, getByText } = await renderWithProviders(
+      <CardCodeScreen />,
+    );
+
+    await press(getByLabelText("Edit card"));
+
+    await act(async () => {
+      await waitFor(() => {
+        expect(getByLabelText("Card name")).toBeTruthy();
+        expect(getByText("Save")).toBeTruthy();
+      });
+    });
+  });
+
+  it("deletes the card from the delete sheet", async () => {
+    const { getByLabelText, getByTestId } = await renderWithProviders(
+      <CardCodeScreen />,
+    );
+
+    await press(getByLabelText("Delete card"));
+
+    await waitFor(() => {
+      expect(getByTestId("confirm-delete-card")).toBeTruthy();
+    });
+
+    await press(getByTestId("confirm-delete-card"), { flushLayout: false });
+
+    await waitFor(() =>
+      expect(deleteApiV1CardsByIdMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          path: { id: "00000000-0000-4000-8000-000000000001" },
+        }),
+      ),
+    );
+
+    await waitFor(() =>
+      expect(expoRouterMocks.dismissTo).toHaveBeenCalledWith(Routes.CARDS),
+    );
   });
 
   it("switches to barcode when barcode is selected", async () => {
