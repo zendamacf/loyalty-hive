@@ -19,3 +19,10 @@ export function apiKeyHeaders(
 ): Record<string, string> {
   return { [API_KEY_HEADER]: TEST_API_KEY, ...headers };
 }
+
+export function authBearerHeaders(
+  token: string,
+  headers: Record<string, string> = {},
+): Record<string, string> {
+  return { Authorization: `Bearer ${token}`, ...headers };
+}

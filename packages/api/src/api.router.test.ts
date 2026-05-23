@@ -4,15 +4,17 @@ import {
   createApiRouterApp,
   signTestToken,
 } from "../test/create-app";
-import { seedTestApiKey } from "../test/seed-api-key";
 
 const USER_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 
-beforeAll(seedTestApiKey);
+let app: ReturnType<typeof createApiRouterApp>;
 
 describe("api router", () => {
+  beforeAll(() => {
+    app = createApiRouterApp();
+  });
+
   it("returns JSON error for HTTPException from protected routes", async () => {
-    const app = createApiRouterApp();
     const response = await app.request("/api/v1/cards");
 
     expect(response.status).toBe(401);
@@ -22,7 +24,6 @@ describe("api router", () => {
   });
 
   it("returns JSON error for invalid login credentials", async () => {
-    const app = createApiRouterApp();
     const response = await app.request("/api/v1/auth/login", {
       method: "POST",
       headers: apiKeyHeaders({ "Content-Type": "application/json" }),
@@ -39,7 +40,6 @@ describe("api router", () => {
   });
 
   it("returns validation error shape for invalid cards body", async () => {
-    const app = createApiRouterApp();
     const token = await signTestToken(USER_ID);
 
     const response = await app.request("/api/v1/cards", {
@@ -55,6 +55,15 @@ describe("api router", () => {
 
     expect(response.status).toBe(400);
     const body = await response.json();
-    expect(body.error).toBeDefined();
+    expect(body).toMatchObject({
+      success: false,
+      data: { brandId: "not-a-uuid" },
+    });
+    expect(body.error).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ path: ["cardNumber"] }),
+        expect.objectContaining({ path: ["brandId"] }),
+      ]),
+    );
   });
 });

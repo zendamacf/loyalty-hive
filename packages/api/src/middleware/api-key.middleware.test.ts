@@ -2,7 +2,6 @@ import { beforeAll, describe, expect, it } from "bun:test";
 import { hash as bcryptHash } from "bcryptjs";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { seedTestApiKey } from "../../test/seed-api-key";
 import { API_KEY_HEADER, BCRYPT_COST, TEST_API_KEY } from "../common/constants";
 import { db } from "../db/client";
 import { apiKeys } from "../db/schema";
@@ -24,8 +23,6 @@ function createApp() {
 }
 
 beforeAll(async () => {
-  await seedTestApiKey();
-
   const otherKeyHash = await bcryptHash(OTHER_API_KEY, BCRYPT_COST);
   await db
     .insert(apiKeys)
