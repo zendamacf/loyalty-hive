@@ -8,10 +8,14 @@ import {
   Routes,
 } from "@/constants/routes.constants";
 import { postApiV1CardsByIdViewMock } from "../../test/mocks/api-client";
+import { getExpoBrightnessMocks } from "../../test/mocks/expo-brightness";
 import { getExpoRouterMocks } from "../../test/mocks/expo-router";
+import { getNavigationFocusMocks } from "../../test/mocks/navigation-focus";
 import { press, renderWithProviders } from "../../test/render";
 
 const expoRouterMocks = getExpoRouterMocks();
+const brightnessMocks = getExpoBrightnessMocks();
+const focusMocks = getNavigationFocusMocks();
 
 const { CardCodeScreen } = await import("./CardCodeScreen");
 
@@ -20,6 +24,8 @@ describe("[Integration] CardCodeScreen", () => {
     postApiV1CardsByIdViewMock.mockClear();
     expoRouterMocks.back.mockClear();
     expoRouterMocks.push.mockClear();
+    brightnessMocks.getBrightnessAsync.mockClear();
+    brightnessMocks.setBrightnessAsync.mockClear();
     expoRouterMocks.params = {
       id: "00000000-0000-4000-8000-000000000001",
       cardNumber: "1234567890",
@@ -117,6 +123,61 @@ describe("[Integration] CardCodeScreen", () => {
         label: "",
         createdAt: "2020-01-01T00:00:00.000Z",
       },
+    });
+  });
+
+  it("sets brightness to max when the screen is focused", async () => {
+    await renderWithProviders(<CardCodeScreen />);
+
+    await waitFor(() => {
+      expect(brightnessMocks.getBrightnessAsync).toHaveBeenCalled();
+      expect(brightnessMocks.setBrightnessAsync).toHaveBeenCalledWith(1);
+    });
+  });
+
+  it("restores brightness when the screen loses focus", async () => {
+    await renderWithProviders(<CardCodeScreen />);
+
+    await waitFor(() => {
+      expect(brightnessMocks.setBrightnessAsync).toHaveBeenCalledWith(1);
+    });
+
+    brightnessMocks.setBrightnessAsync.mockClear();
+    focusMocks.blur();
+
+    await waitFor(() => {
+      expect(brightnessMocks.setBrightnessAsync).toHaveBeenCalledWith(0.5);
+    });
+  });
+
+  it("sets brightness to max again when the screen regains focus", async () => {
+    await renderWithProviders(<CardCodeScreen />);
+
+    await waitFor(() => {
+      expect(brightnessMocks.setBrightnessAsync).toHaveBeenCalledWith(1);
+    });
+
+    focusMocks.blur();
+    brightnessMocks.setBrightnessAsync.mockClear();
+    focusMocks.focus();
+
+    await waitFor(() => {
+      expect(brightnessMocks.setBrightnessAsync).toHaveBeenCalledWith(1);
+    });
+  });
+
+  it("restores brightness when the screen unmounts", async () => {
+    const { unmount } = await renderWithProviders(<CardCodeScreen />);
+
+    await waitFor(() => {
+      expect(brightnessMocks.setBrightnessAsync).toHaveBeenCalledWith(1);
+    });
+
+    brightnessMocks.setBrightnessAsync.mockClear();
+    unmount();
+
+    await waitFor(() => {
+      expect(brightnessMocks.setBrightnessAsync).toHaveBeenCalledWith(0.5);
     });
   });
 

@@ -30,6 +30,7 @@
     "babel-preset-expo": "~55.0.0",
     "dotenv": "^17.4.2",
     "expo": "~55.0.0",
+    "expo-brightness": "~55.0.13",
     "expo-camera": "^55.0.0",
     "expo-clipboard": "~55.0.0",
     "expo-dev-client": "~55.0.0",

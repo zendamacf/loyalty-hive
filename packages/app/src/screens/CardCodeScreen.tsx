@@ -1,4 +1,6 @@
+import { useFocusEffect } from "@react-navigation/native";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { getBrightnessAsync, setBrightnessAsync } from "expo-brightness";
 import { router, useLocalSearchParams } from "expo-router";
 import { EllipsisVerticalIcon } from "lucide-react-native";
 import { useCallback, useEffect, useState } from "react";
@@ -75,6 +77,29 @@ export const CardCodeScreen = () => {
       void queryClient.invalidateQueries({ queryKey: getApiV1CardsQueryKey() });
     },
   });
+
+  useFocusEffect(
+    useCallback(() => {
+      let initialBrightness: number | null = null;
+      let active = true;
+
+      void getBrightnessAsync().then((level) => {
+        initialBrightness = level;
+        if (active) {
+          void setBrightnessAsync(1);
+        } else {
+          void setBrightnessAsync(level);
+        }
+      });
+
+      return () => {
+        active = false;
+        if (initialBrightness !== null) {
+          void setBrightnessAsync(initialBrightness);
+        }
+      };
+    }, []),
+  );
 
   useEffect(() => {
     if (!fromCards || !cardId) {
