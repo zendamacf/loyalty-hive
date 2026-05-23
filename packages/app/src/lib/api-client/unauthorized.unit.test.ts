@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-
-import type { ResolvedRequestOptions } from "./gen/client/types.gen";
 import { createClient, createConfig } from "./gen/client";
+import type { ResolvedRequestOptions } from "./gen/client/types.gen";
 import {
   bindUnauthorizedHandler,
   installUnauthorizedInterceptor,
@@ -80,9 +79,13 @@ describe("[Unit] installUnauthorizedInterceptor", () => {
     bindUnauthorizedHandler(testClient, handler);
     installUnauthorizedInterceptor(testClient);
 
-    await invokeInstalledResponseInterceptor(testClient, unauthorizedResponse(), {
-      security: [...bearerSecurity],
-    });
+    await invokeInstalledResponseInterceptor(
+      testClient,
+      unauthorizedResponse(),
+      {
+        security: [...bearerSecurity],
+      },
+    );
     await flushMicrotasks();
 
     expect(handler).toHaveBeenCalledTimes(1);
@@ -100,9 +103,13 @@ describe("[Unit] installUnauthorizedInterceptor", () => {
     bindUnauthorizedHandler(testClient, handler);
     installUnauthorizedInterceptor(testClient);
 
-    await invokeInstalledResponseInterceptor(testClient, unauthorizedResponse(), {
-      security: [{ name: "x-api-key", type: "apiKey" }],
-    });
+    await invokeInstalledResponseInterceptor(
+      testClient,
+      unauthorizedResponse(),
+      {
+        security: [{ name: "x-api-key", type: "apiKey" }],
+      },
+    );
     await flushMicrotasks();
 
     expect(handler).not.toHaveBeenCalled();
