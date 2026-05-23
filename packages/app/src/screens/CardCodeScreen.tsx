@@ -1,11 +1,9 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getBrightnessAsync, setBrightnessAsync } from "expo-brightness";
-import { router, useLocalSearchParams } from "expo-router";
-import { EllipsisVerticalIcon } from "lucide-react-native";
+import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { Pressable, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { CardCodeDisplay } from "@/components/CardCodeDisplay";
 import { CardManageSection } from "@/components/CardManageSection";
@@ -16,9 +14,7 @@ import { ScreenShell } from "@/components/ScreenShell";
 import {
   CARD_CODE_FROM_CARDS_PARAM,
   CARD_CODE_FROM_CARDS_VALUE,
-  Routes,
 } from "@/constants/routes.constants";
-import { I18nNamespace } from "@/i18n/i18n.constants";
 import {
   getApiV1CardsQueryKey,
   postApiV1CardsByIdViewMutation,
@@ -30,11 +26,10 @@ import {
   showDeleteCardSheet,
   showEditCardSheet,
 } from "@/sheets";
-import { brandMark, icon, spacing } from "@/theme/theme";
+import { brandMark, spacing } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
 export const CardCodeScreen = () => {
-  const { t } = useTranslation(I18nNamespace.Cards);
   const { theme } = useTheme();
   const params = useLocalSearchParams<{
     id?: string;
@@ -126,19 +121,6 @@ export const CardCodeScreen = () => {
     logCardView({ path: { id: cardId } });
   }, [cardId, fromCards, logCardView]);
 
-  const openCardSettings = useCallback(() => {
-    router.push({
-      pathname: Routes.CARD_SETTINGS,
-      params: {
-        id: cardId,
-        cardNumber,
-        brandName,
-        label,
-        createdAt,
-      },
-    });
-  }, [brandName, cardId, cardNumber, createdAt, label]);
-
   const manageDisabled = !cardId;
 
   return (
@@ -147,24 +129,7 @@ export const CardCodeScreen = () => {
         title={displayName}
         subtitle={subtitle}
         subtitlePlacement="withTitle"
-        actions={
-          <>
-            <Pressable
-              accessibilityLabel={t("configureCardA11y")}
-              accessibilityRole="button"
-              disabled={!cardId}
-              hitSlop={12}
-              style={({ pressed }) => [
-                styles.headerIconButton,
-                pressed && styles.headerIconButtonPressed,
-              ]}
-              onPress={openCardSettings}
-            >
-              <EllipsisVerticalIcon color={theme.textPrimary} size={icon.md} />
-            </Pressable>
-            <CloseButton />
-          </>
-        }
+        actions={<CloseButton />}
       />
 
       <View style={styles.content}>
@@ -199,6 +164,7 @@ export const CardCodeScreen = () => {
                 cardId,
                 label,
                 defaultView: displayView,
+                brandName,
                 activeSegmentColor: brandBackgroundColor,
               }).then((updated) => {
                 if (!updated) {
@@ -222,15 +188,6 @@ export const CardCodeScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  headerIconButton: {
-    width: icon.md,
-    height: icon.md,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerIconButtonPressed: {
-    opacity: 0.55,
-  },
   content: {
     flex: 1,
     alignSelf: "stretch",

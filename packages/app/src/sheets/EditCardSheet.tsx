@@ -30,8 +30,17 @@ export const EditCardSheet = () => {
   const cardId = payload?.cardId ?? "";
   const label = payload?.label ?? "";
   const defaultView = payload?.defaultView ?? "1D";
+  const brandName = payload?.brandName ?? "";
   const activeSegmentColor = payload?.activeSegmentColor;
+  const hasBrand = Boolean(brandName.trim());
   const queryClient = useQueryClient();
+
+  const labelFieldLabel = hasBrand
+    ? t("cardNicknameLabel")
+    : t("cardLabelLabel");
+  const labelFieldPlaceholder = hasBrand
+    ? t("cardNicknamePlaceholder")
+    : t("cardLabelPlaceholder");
 
   const [editLabel, setEditLabel] = useState(label);
   const [editView, setEditView] = useState<CardView>(defaultView);
@@ -90,12 +99,12 @@ export const EditCardSheet = () => {
       }
     >
       <Form>
-        <FormGroup label={t("cardLabelLabel")}>
+        <FormGroup label={labelFieldLabel}>
           <TextInput
-            accessibilityLabel={t("cardLabelLabel")}
+            accessibilityLabel={labelFieldLabel}
             value={editLabel}
             onChangeText={setEditLabel}
-            placeholder={t("cardLabelPlaceholder")}
+            placeholder={labelFieldPlaceholder}
             placeholderTextColor={theme.textSecondary}
             autoCapitalize="words"
             autoCorrect={false}

@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSheetPayload, useSheetRef } from "react-native-actions-sheet";
 
 import { Routes } from "@/constants/routes.constants";
@@ -46,28 +46,48 @@ export const DeleteCardSheet = () => {
     }
   }, [cardId, deleteCard, isDeleting, sheetRef, t]);
 
+  const dismiss = useCallback(() => {
+    sheetRef.current?.hide();
+  }, [sheetRef]);
+
   return (
     <ActionSheetFrame
       title={t("deleteCardConfirmTitle")}
       closeAccessibilityLabel={t("closeDeleteCardSheetA11y")}
       footer={
-        <TouchableOpacity
-          testID="confirm-delete-card"
-          accessibilityLabel={t("deleteCardA11y")}
-          accessibilityRole="button"
-          accessibilityState={{ disabled: !cardId || isDeleting }}
-          disabled={!cardId || isDeleting}
-          style={[
-            styles.deleteButton,
-            { backgroundColor: theme.error },
-            (!cardId || isDeleting) && styles.deleteButtonDisabled,
-          ]}
-          onPress={() => {
-            void confirmDelete();
-          }}
-        >
-          <Text style={styles.deleteButtonText}>{t("deleteCard")}</Text>
-        </TouchableOpacity>
+        <View style={styles.footerButtons}>
+          <TouchableOpacity
+            testID="confirm-delete-card"
+            accessibilityLabel={t("deleteCardConfirmYes")}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: !cardId || isDeleting }}
+            disabled={!cardId || isDeleting}
+            style={[
+              styles.deleteButton,
+              { backgroundColor: theme.error },
+              (!cardId || isDeleting) && styles.deleteButtonDisabled,
+            ]}
+            onPress={() => {
+              void confirmDelete();
+            }}
+          >
+            <Text style={styles.deleteButtonText}>
+              {t("deleteCardConfirmYes")}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            accessibilityLabel={t("deleteCardConfirmNo")}
+            accessibilityRole="button"
+            style={[styles.dismissButton, { borderColor: theme.border }]}
+            onPress={dismiss}
+          >
+            <Text
+              style={[styles.dismissButtonText, { color: theme.textPrimary }]}
+            >
+              {t("deleteCardConfirmNo")}
+            </Text>
+          </TouchableOpacity>
+        </View>
       }
     >
       <Text style={[styles.message, { color: theme.textSecondary }]}>
@@ -80,6 +100,9 @@ export const DeleteCardSheet = () => {
 const styles = StyleSheet.create({
   message: {
     ...typography.body,
+  },
+  footerButtons: {
+    gap: spacing.sm,
   },
   deleteButton: {
     height: 48,
@@ -94,5 +117,16 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     ...typography.bodySemibold,
     color: "#FFFFFF",
+  },
+  dismissButton: {
+    height: 48,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: spacing.md,
+  },
+  dismissButtonText: {
+    ...typography.bodySemibold,
   },
 });

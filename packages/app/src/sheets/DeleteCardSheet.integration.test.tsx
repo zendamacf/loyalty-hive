@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+
 import { act, waitFor } from "@testing-library/react-native";
 import { View } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
@@ -25,7 +26,8 @@ describe("[Integration] DeleteCardSheet", () => {
           "This card will be removed from your wallet. This cannot be undone.",
         ),
       ).toBeTruthy();
-      expect(getByLabelText("Delete card")).toBeTruthy();
+      expect(getByLabelText("Yes, delete card")).toBeTruthy();
+      expect(getByLabelText("No, keep card")).toBeTruthy();
     });
   });
 });

@@ -15,7 +15,6 @@
   "codeViewQr": "Código QR",
   "codeViewToggleA11y": "Código de barras o código QR",
   "copyCardNumberA11y": "Copiar número de tarjeta",
-  "configureCardA11y": "Configurar tarjeta",
   "manageSectionLabel": "Gestionar",
   "manageDetails": "Detalles",
   "closeDeleteCardSheetA11y": "Cerrar eliminar tarjeta",
@@ -26,6 +25,8 @@
   "closeEditCardSheetA11y": "Cerrar edición de tarjeta",
   "cardLabelLabel": "Nombre de la tarjeta",
   "cardLabelPlaceholder": "p. ej. Membresía del gimnasio",
+  "cardNicknameLabel": "Etiqueta",
+  "cardNicknamePlaceholder": "p. ej. Tarjeta del trabajo",
   "defaultViewLabel": "Vista predeterminada",
   "saveCard": "Guardar",
   "savingCard": "Guardando...",
@@ -35,6 +36,8 @@
   "deleteCardA11y": "Eliminar tarjeta",
   "deleteCardConfirmTitle": "¿Eliminar tarjeta?",
   "deleteCardConfirmMessage": "Esta tarjeta se eliminará de tu cartera. No se puede deshacer.",
+  "deleteCardConfirmYes": "Sí, eliminar tarjeta",
+  "deleteCardConfirmNo": "No, conservar tarjeta",
   "deleteCardErrorTitle": "No se pudo eliminar la tarjeta",
   "cancel": "Cancelar"
 }

@@ -116,23 +116,6 @@ describe("[Integration] CardCodeScreen", () => {
     expect(expoRouterMocks.back).toHaveBeenCalled();
   });
 
-  it("navigates to card settings when configure is pressed", async () => {
-    const { getByLabelText } = await renderWithProviders(<CardCodeScreen />);
-
-    await press(getByLabelText("Configure card"));
-
-    expect(expoRouterMocks.push).toHaveBeenCalledWith({
-      pathname: Routes.CARD_SETTINGS,
-      params: {
-        id: "00000000-0000-4000-8000-000000000001",
-        cardNumber: "1234567890",
-        brandName: "ASOS",
-        label: "",
-        createdAt: "2020-01-01T00:00:00.000Z",
-      },
-    });
-  });
-
   it("sets brightness to max when the screen is focused", async () => {
     await renderWithProviders(<CardCodeScreen />);
 

@@ -13,6 +13,7 @@ export type EditCardSheetPayload = {
   cardId: string;
   label: string;
   defaultView: CardView;
+  brandName?: string;
   activeSegmentColor?: string;
 };
 

@@ -15,7 +15,7 @@ describe("[Integration] EditCardSheet", () => {
     await SheetManager.hide(SheetIds.EDIT_CARD);
   });
 
-  it("shows label, default view controls, and save when open", async () => {
+  it("shows Card name for custom cards without a brand", async () => {
     const { getByLabelText, getByText } = await renderWithProviders(
       <View testID="sheet-host" />,
     );
@@ -34,6 +34,29 @@ describe("[Integration] EditCardSheet", () => {
       expect(getByText("Edit card")).toBeTruthy();
       expect(getByLabelText("Card name").props.value).toBe("Work card");
       expect(getByText("Save")).toBeTruthy();
+    });
+  });
+
+  it("shows Label for branded cards", async () => {
+    const { getByLabelText, getByText } = await renderWithProviders(
+      <View testID="sheet-host" />,
+    );
+
+    await act(async () => {
+      void SheetManager.show(SheetIds.EDIT_CARD, {
+        payload: {
+          cardId: "00000000-0000-4000-8000-000000000001",
+          label: "Work card",
+          defaultView: "1D",
+          brandName: "ASOS",
+        },
+      });
+    });
+
+    await waitFor(() => {
+      expect(getByText("Label")).toBeTruthy();
+      expect(getByLabelText("Label").props.placeholder).toBe("e.g. Work card");
+      expect(getByLabelText("Label").props.value).toBe("Work card");
     });
   });
 

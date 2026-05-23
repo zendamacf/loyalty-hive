@@ -15,7 +15,6 @@
   "codeViewQr": "QR code",
   "codeViewToggleA11y": "Barcode or QR code",
   "copyCardNumberA11y": "Copy card number",
-  "configureCardA11y": "Configure card",
   "manageSectionLabel": "Manage",
   "manageDetails": "Details",
   "closeDeleteCardSheetA11y": "Close delete card",
@@ -26,6 +25,8 @@
   "closeEditCardSheetA11y": "Close edit card",
   "cardLabelLabel": "Card name",
   "cardLabelPlaceholder": "e.g. Gym membership",
+  "cardNicknameLabel": "Label",
+  "cardNicknamePlaceholder": "e.g. Work card",
   "defaultViewLabel": "Default view",
   "saveCard": "Save",
   "savingCard": "Saving...",
@@ -35,6 +36,8 @@
   "deleteCardA11y": "Delete card",
   "deleteCardConfirmTitle": "Delete card?",
   "deleteCardConfirmMessage": "This card will be removed from your wallet. This cannot be undone.",
+  "deleteCardConfirmYes": "Yes, delete card",
+  "deleteCardConfirmNo": "No, keep card",
   "deleteCardErrorTitle": "Could not delete card",
   "cancel": "Cancel"
 }
