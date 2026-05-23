@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getBrightnessAsync, setBrightnessAsync } from "expo-brightness";
 import { router, useLocalSearchParams } from "expo-router";
 import { EllipsisVerticalIcon } from "lucide-react-native";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, View } from "react-native";
 
@@ -23,6 +23,7 @@ import {
   getApiV1CardsQueryKey,
   postApiV1CardsByIdViewMutation,
 } from "@/lib/api-client";
+import { resolveCardHeadings } from "@/lib/cardHeadings";
 import { type CardView, resolveCardView } from "@/lib/cardView";
 import {
   showCardDetailsSheet,
@@ -56,13 +57,11 @@ export const CardCodeScreen = () => {
     typeof params.cardNumber === "string" ? params.cardNumber : "";
   const brandName =
     typeof params.brandName === "string" ? params.brandName : "";
-  const label = typeof params.label === "string" ? params.label : "";
   const createdAt =
     typeof params.createdAt === "string" ? params.createdAt : "";
-  const displayName =
-    typeof params.title === "string" && params.title.trim()
-      ? params.title
-      : cardNumber;
+  const [label, setLabel] = useState(() =>
+    typeof params.label === "string" && params.label.trim() ? params.label : "",
+  );
   const logoUrl =
     typeof params.logoUrl === "string" && params.logoUrl.trim()
       ? params.logoUrl
@@ -75,6 +74,20 @@ export const CardCodeScreen = () => {
     typeof params.view === "string" ? params.view : undefined,
   );
   const [displayView, setDisplayView] = useState<CardView>(initialView);
+
+  useEffect(() => {
+    setLabel(typeof params.label === "string" ? params.label : "");
+    setDisplayView(
+      resolveCardView(
+        typeof params.view === "string" ? params.view : undefined,
+      ),
+    );
+  }, [params.label, params.view]);
+
+  const { title: displayName, subtitle } = useMemo(
+    () => resolveCardHeadings(brandName, label),
+    [brandName, label],
+  );
 
   const { mutate: logCardView } = useMutation({
     ...postApiV1CardsByIdViewMutation(),
@@ -132,6 +145,8 @@ export const CardCodeScreen = () => {
     <ScreenShell>
       <ScreenHeader
         title={displayName}
+        subtitle={subtitle}
+        subtitlePlacement="withTitle"
         actions={
           <>
             <Pressable
@@ -181,9 +196,16 @@ export const CardCodeScreen = () => {
             }}
             onEditPress={() => {
               void showEditCardSheet({
+                cardId,
                 label,
-                defaultView: initialView,
+                defaultView: displayView,
                 activeSegmentColor: brandBackgroundColor,
+              }).then((updated) => {
+                if (!updated) {
+                  return;
+                }
+                setLabel(updated.label);
+                setDisplayView(updated.view);
               });
             }}
             onDeletePress={() => {

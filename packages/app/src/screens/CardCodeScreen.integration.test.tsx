@@ -9,6 +9,7 @@ import {
 } from "@/constants/routes.constants";
 import {
   deleteApiV1CardsByIdMock,
+  patchApiV1CardsByIdMock,
   postApiV1CardsByIdViewMock,
 } from "../../test/mocks/api-client";
 import { getExpoBrightnessMocks } from "../../test/mocks/expo-brightness";
@@ -26,6 +27,7 @@ describe("[Integration] CardCodeScreen", () => {
   beforeEach(() => {
     postApiV1CardsByIdViewMock.mockClear();
     deleteApiV1CardsByIdMock.mockClear();
+    patchApiV1CardsByIdMock.mockClear();
     expoRouterMocks.dismissTo.mockClear();
     expoRouterMocks.back.mockClear();
     expoRouterMocks.push.mockClear();
@@ -236,6 +238,47 @@ describe("[Integration] CardCodeScreen", () => {
         expect(getByLabelText("Card name")).toBeTruthy();
         expect(getByText("Save")).toBeTruthy();
       });
+    });
+  });
+
+  it("reflects saved label and view on the card code screen", async () => {
+    patchApiV1CardsByIdMock.mockImplementationOnce(async () => ({
+      data: {
+        id: "00000000-0000-4000-8000-000000000001",
+        userId: "00000000-0000-4000-8000-000000000001",
+        cardNumber: "1234567890",
+        label: "Personal",
+        view: "2D" as const,
+        brand: {
+          id: "brand-1",
+          name: "ASOS",
+          logoUrl: "https://logo.clearbit.com/asos.com",
+          backgroundColor: "#FFFFFF",
+        },
+        viewCount: 0,
+        lastViewedAt: null,
+        createdAt: "2020-01-01T00:00:00.000Z",
+      },
+      error: undefined,
+    }));
+
+    const { getByLabelText, getByText, queryByText } =
+      await renderWithProviders(<CardCodeScreen />);
+
+    expect(queryByText("Personal")).toBeNull();
+
+    await press(getByLabelText("Edit card"));
+
+    await waitFor(() => {
+      expect(getByLabelText("Card name").props.value).toBe("");
+    });
+
+    await press(getByText("Save"), { flushLayout: false });
+
+    await waitFor(() => {
+      expect(getByText("ASOS")).toBeTruthy();
+      expect(getByText("Personal")).toBeTruthy();
+      expect(patchApiV1CardsByIdMock).toHaveBeenCalled();
     });
   });
 

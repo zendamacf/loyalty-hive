@@ -28,6 +28,8 @@
   "cardLabelPlaceholder": "e.g. Gym membership",
   "defaultViewLabel": "Default view",
   "saveCard": "Save",
+  "savingCard": "Saving...",
+  "saveCardErrorTitle": "Could not save card",
   "createdOnLabel": "Added on",
   "deleteCard": "Delete card",
   "deleteCardA11y": "Delete card",

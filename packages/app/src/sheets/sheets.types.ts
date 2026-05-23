@@ -10,9 +10,15 @@ export type CardDetailsSheetPayload = {
 };
 
 export type EditCardSheetPayload = {
+  cardId: string;
   label: string;
   defaultView: CardView;
   activeSegmentColor?: string;
+};
+
+export type EditCardSheetReturnValue = {
+  label: string;
+  view: CardView;
 };
 
 export type DeleteCardSheetPayload = {
@@ -26,6 +32,7 @@ declare module "react-native-actions-sheet" {
     }>;
     [SheetIds.EDIT_CARD]: SheetDefinition<{
       payload: EditCardSheetPayload;
+      returnValue: EditCardSheetReturnValue;
     }>;
     [SheetIds.DELETE_CARD]: SheetDefinition<{
       payload: DeleteCardSheetPayload;

@@ -16,7 +16,7 @@ describe("[Integration] CardDetailsSheet", () => {
     );
 
     await act(async () => {
-      await SheetManager.show(SheetIds.CARD_DETAILS, {
+      void SheetManager.show(SheetIds.CARD_DETAILS, {
         payload: {
           cardNumber: "1234567890",
           createdAt: "2020-06-15T12:00:00.000Z",

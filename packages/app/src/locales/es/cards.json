@@ -28,6 +28,8 @@
   "cardLabelPlaceholder": "p. ej. Membresía del gimnasio",
   "defaultViewLabel": "Vista predeterminada",
   "saveCard": "Guardar",
+  "savingCard": "Guardando...",
+  "saveCardErrorTitle": "No se pudo guardar la tarjeta",
   "createdOnLabel": "Añadida el",
   "deleteCard": "Eliminar tarjeta",
   "deleteCardA11y": "Eliminar tarjeta",

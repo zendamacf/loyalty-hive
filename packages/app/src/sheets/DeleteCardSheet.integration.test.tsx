@@ -13,7 +13,7 @@ describe("[Integration] DeleteCardSheet", () => {
     );
 
     await act(async () => {
-      await SheetManager.show(SheetIds.DELETE_CARD, {
+      void SheetManager.show(SheetIds.DELETE_CARD, {
         payload: { cardId: "00000000-0000-4000-8000-000000000001" },
       });
     });

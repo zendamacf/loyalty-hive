@@ -6,6 +6,7 @@ type SheetComponent = React.ComponentType;
 const sheetRegistry = new Map<string, SheetComponent>();
 const sheetPayloads = new Map<string, unknown>();
 let activeSheetId: string | null = null;
+let sheetShowResolve: ((value: unknown) => void) | null = null;
 const listeners = new Set<() => void>();
 
 function notifySheetChange() {
@@ -54,19 +55,24 @@ function SheetRegister({ sheets }: { sheets: Record<string, SheetComponent> }) {
 }
 
 const SheetManager = {
-  show: async <T>(id: string, options?: { payload?: T }) => {
+  show: async <TResult>(id: string, options?: { payload?: unknown }) => {
     if (options?.payload !== undefined) {
       sheetPayloads.set(id, options.payload);
     }
     activeSheetId = id;
     notifySheetChange();
-    return undefined;
+    return new Promise<TResult | undefined>((resolve) => {
+      sheetShowResolve = (value) => resolve(value as TResult | undefined);
+    });
   },
-  hide: async (id?: string) => {
-    if (id == null || activeSheetId === id) {
-      activeSheetId = null;
-      notifySheetChange();
+  hide: async (_id?: string, data?: unknown) => {
+    if (activeSheetId == null && sheetShowResolve == null) {
+      return;
     }
+    activeSheetId = null;
+    notifySheetChange();
+    sheetShowResolve?.(data);
+    sheetShowResolve = null;
   },
 };
 
@@ -81,8 +87,8 @@ function useSheetPayload<SheetId extends string>(id?: SheetId) {
 function useSheetRef() {
   return {
     current: {
-      hide: () => {
-        void SheetManager.hide();
+      hide: (data?: unknown) => {
+        void SheetManager.hide(undefined, data);
       },
     },
   };
