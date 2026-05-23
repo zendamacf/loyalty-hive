@@ -3,10 +3,9 @@ import { waitFor } from "@testing-library/react-native";
 
 import { createClient, createConfig } from "./gen/client";
 import {
-  bindUnauthorizedHandler,
   installUnauthorizedInterceptor,
   requestUsesBearerAuth,
-  resetUnauthorizedModuleStateForTests,
+  setUnauthorizedHandler,
 } from "./unauthorized.impl";
 
 function mockUnauthorizedFetch(): typeof fetch {
@@ -46,11 +45,12 @@ describe("[Unit] requestUsesBearerAuth", () => {
 
 describe("[Unit] installUnauthorizedInterceptor", () => {
   beforeEach(() => {
-    resetUnauthorizedModuleStateForTests();
+    setUnauthorizedHandler(undefined);
   });
 
   it("invokes the unauthorized handler on 401 bearer responses", async () => {
     const handler = mock(() => Promise.resolve());
+    setUnauthorizedHandler(handler);
 
     const testClient = createClient(
       createConfig({
@@ -60,7 +60,6 @@ describe("[Unit] installUnauthorizedInterceptor", () => {
       }),
     );
 
-    bindUnauthorizedHandler(testClient, handler);
     installUnauthorizedInterceptor(testClient);
 
     await expect(
@@ -78,6 +77,7 @@ describe("[Unit] installUnauthorizedInterceptor", () => {
 
   it("does not invoke the handler on 401 api key responses", async () => {
     const handler = mock(() => Promise.resolve());
+    setUnauthorizedHandler(handler);
 
     const testClient = createClient(
       createConfig({
@@ -87,7 +87,6 @@ describe("[Unit] installUnauthorizedInterceptor", () => {
       }),
     );
 
-    bindUnauthorizedHandler(testClient, handler);
     installUnauthorizedInterceptor(testClient);
 
     await expect(
@@ -110,6 +109,7 @@ describe("[Unit] installUnauthorizedInterceptor", () => {
           resolveHandler = resolve;
         }),
     );
+    setUnauthorizedHandler(handler);
 
     const testClient = createClient(
       createConfig({
@@ -119,7 +119,6 @@ describe("[Unit] installUnauthorizedInterceptor", () => {
       }),
     );
 
-    bindUnauthorizedHandler(testClient, handler);
     installUnauthorizedInterceptor(testClient);
 
     const request = () =>

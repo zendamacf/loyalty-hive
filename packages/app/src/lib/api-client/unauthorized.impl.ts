@@ -1,15 +1,18 @@
+// Implementation file for unauthorized interceptor
+// Split due to race condition in CI tests
+
 import type { Client } from "./gen/client";
 import type { ResolvedRequestOptions } from "./gen/client/types.gen";
+
 import { client } from "./gen/client.gen";
 import type { Auth } from "./gen/core/auth.gen";
 
 type UnauthorizedHandler = () => void | Promise<void>;
 
 let onUnauthorized: UnauthorizedHandler | undefined;
+let handlingUnauthorized = false;
 
 const installedClients = new WeakSet<Client>();
-const clientHandlers = new Map<Client, UnauthorizedHandler>();
-const clientHandling = new Map<Client, boolean>();
 
 export function requestUsesBearerAuth(
   options: Pick<ResolvedRequestOptions, "security">,
@@ -26,41 +29,20 @@ export function setUnauthorizedHandler(
 ): void {
   onUnauthorized = handler;
   if (handler === undefined) {
-    for (const targetClient of clientHandling.keys()) {
-      clientHandling.set(targetClient, false);
-    }
+    handlingUnauthorized = false;
   }
 }
 
-/** Binds a handler to a specific client so tests are isolated from global auth state. */
-export function bindUnauthorizedHandler(
-  targetClient: Client,
-  handler: UnauthorizedHandler | undefined,
-): void {
-  if (handler === undefined) {
-    clientHandlers.delete(targetClient);
-    clientHandling.delete(targetClient);
+async function handleUnauthorized(): Promise<void> {
+  if (handlingUnauthorized || !onUnauthorized) {
     return;
   }
 
-  clientHandlers.set(targetClient, handler);
-}
-
-function resolveHandler(targetClient: Client): UnauthorizedHandler | undefined {
-  return clientHandlers.get(targetClient) ?? onUnauthorized;
-}
-
-async function handleUnauthorized(targetClient: Client): Promise<void> {
-  const handler = resolveHandler(targetClient);
-  if (clientHandling.get(targetClient) || !handler) {
-    return;
-  }
-
-  clientHandling.set(targetClient, true);
+  handlingUnauthorized = true;
   try {
-    await handler();
+    await onUnauthorized();
   } finally {
-    clientHandling.set(targetClient, false);
+    handlingUnauthorized = false;
   }
 }
 
@@ -75,15 +57,9 @@ export function installUnauthorizedInterceptor(
 
   targetClient.interceptors.response.use((response, _request, options) => {
     if (response.status === 401 && requestUsesBearerAuth(options)) {
-      void handleUnauthorized(targetClient);
+      void handleUnauthorized();
     }
 
     return response;
   });
-}
-
-export function resetUnauthorizedModuleStateForTests(): void {
-  onUnauthorized = undefined;
-  clientHandlers.clear();
-  clientHandling.clear();
 }
