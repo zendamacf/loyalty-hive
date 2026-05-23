@@ -40,8 +40,10 @@ export async function press(
   options: PressOptions = {},
 ): Promise<void> {
   const { flushLayout = true } = options;
-  await act(() => {
+  await act(async () => {
     fireEvent.press(element);
+    // Let promise/microtask-driven updates (e.g. mutations) settle inside act.
+    await new Promise<void>((resolve) => setImmediate(resolve));
   });
   if (flushLayout) {
     await flushAct();
@@ -52,8 +54,9 @@ export async function changeText(
   element: Parameters<typeof fireEvent.changeText>[0],
   text: string,
 ): Promise<void> {
-  await act(() => {
+  await act(async () => {
     fireEvent.changeText(element, text);
+    await new Promise<void>((resolve) => setImmediate(resolve));
   });
 }
 

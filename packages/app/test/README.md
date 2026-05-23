@@ -69,7 +69,8 @@ From [`render.tsx`](render.tsx) for interactions that update React state outside
 
 - **Integration tests:** prefer `await press(element)` and `await changeText(element, text)` over raw `fireEvent`.
 - **Component tests:** raw `fireEvent` is fine for simple synchronous handlers (e.g. `Button.component.test.tsx`).
-- `await press(element, { flushLayout: false })` — for async mutations where flushing skips transient UI.
+- `await press(element, { flushLayout: false })` — skip the extra layout `setTimeout` flush when it hides transient UI (e.g. loading labels).
+- `press` / `changeText` flush microtasks inside `act` so mutation-driven updates do not warn.
 - Use raw `fireEvent` for non-press events (`submitEditing`, `onBarcodeScanned`, etc.).
 
 ### Expo Router mocks
