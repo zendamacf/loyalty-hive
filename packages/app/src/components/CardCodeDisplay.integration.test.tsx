@@ -1,11 +1,11 @@
 import { describe, expect, it } from "bun:test";
-import { renderWithTheme } from "../../test/render";
+import { renderWithProviders } from "../../test/render";
 
 const { CardCodeDisplay } = await import("./CardCodeDisplay");
 
 describe("[Integration] CardCodeDisplay", () => {
   it("renders barcode and QR layers", async () => {
-    const { getByTestId } = await renderWithTheme(
+    const { getByTestId } = await renderWithProviders(
       <CardCodeDisplay
         cardNumber="1234567890"
         view="1D"
@@ -18,7 +18,7 @@ describe("[Integration] CardCodeDisplay", () => {
   });
 
   it("animates when view changes", async () => {
-    const { getByTestId, rerender } = await renderWithTheme(
+    const { getByTestId, rerender } = await renderWithProviders(
       <CardCodeDisplay
         cardNumber="1234567890"
         view="1D"

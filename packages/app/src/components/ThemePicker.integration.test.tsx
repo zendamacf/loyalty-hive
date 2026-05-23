@@ -2,19 +2,19 @@ import { describe, expect, it } from "bun:test";
 
 import { waitFor } from "@testing-library/react-native";
 
-import { press, renderWithTheme } from "../../test/render";
+import { press, renderWithProviders } from "../../test/render";
 import { ThemePicker } from "./ThemePicker";
 
 describe("[Integration] ThemePicker", () => {
   it("renders system theme by default on the trigger", async () => {
-    const { getByText } = await renderWithTheme(<ThemePicker />);
+    const { getByText } = await renderWithProviders(<ThemePicker />);
 
     expect(getByText("System")).toBeTruthy();
   });
 
   it("shows all theme options with icons when opened", async () => {
     const { getAllByTestId, getByLabelText, getByTestId } =
-      await renderWithTheme(<ThemePicker />);
+      await renderWithProviders(<ThemePicker />);
 
     await press(getByLabelText("Theme"));
 
@@ -27,7 +27,7 @@ describe("[Integration] ThemePicker", () => {
   });
 
   it("selects purple theme", async () => {
-    const { getByLabelText, getByText } = await renderWithTheme(
+    const { getByLabelText, getByText } = await renderWithProviders(
       <ThemePicker />,
     );
 
@@ -40,7 +40,7 @@ describe("[Integration] ThemePicker", () => {
   });
 
   it("changes theme when an option is selected", async () => {
-    const { getByLabelText, getByText } = await renderWithTheme(
+    const { getByLabelText, getByText } = await renderWithProviders(
       <ThemePicker />,
     );
 

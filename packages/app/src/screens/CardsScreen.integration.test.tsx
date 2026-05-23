@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, type mock } from "bun:test";
+import { beforeEach, describe, expect, it } from "bun:test";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { act, fireEvent, waitFor } from "@testing-library/react-native";
+import { act, waitFor } from "@testing-library/react-native";
 
 import {
   CARD_CODE_FROM_CARDS_PARAM,
@@ -12,51 +12,17 @@ import type { GetApiV1CardsResponse } from "@/lib/api-client/gen";
 import { CARD_SORT_STORAGE_KEY } from "@/lib/card-sort";
 import { THEME_STORAGE_KEY } from "@/theme/theme.constants";
 import { lightTheme } from "@/theme/themes";
+import { defaultCardsResponse, testCards } from "../../test/fixtures/cards";
 import { getApiV1CardsMock, resolveApiMock } from "../../test/mocks/api-client";
+import { getExpoRouterMocks } from "../../test/mocks/expo-router";
 import {
+  changeText,
   press,
+  renderWithProviders,
   renderWithSharedQueryClient,
-  renderWithTheme,
 } from "../../test/render";
 
-const testCards = [
-  {
-    id: "00000000-0000-4000-8000-000000000001",
-    userId: "00000000-0000-4000-8000-000000000099",
-    cardNumber: "111",
-    label: null,
-    view: null,
-    brand: {
-      id: "00000000-0000-4000-8000-0000000000a1",
-      name: "ASOS",
-      logoUrl: "https://logo.clearbit.com/asos.com",
-      backgroundColor: "#FFFFFF",
-    },
-    viewCount: 0,
-    lastViewedAt: null,
-    createdAt: "2020-01-01T00:00:00.000Z",
-  },
-  {
-    id: "00000000-0000-4000-8000-000000000002",
-    userId: "00000000-0000-4000-8000-000000000099",
-    cardNumber: "222",
-    label: null,
-    brand: {
-      id: "00000000-0000-4000-8000-0000000000a2",
-      name: "Cotton On",
-      logoUrl: "https://logo.clearbit.com/cottonon.com",
-      backgroundColor: "#FFFFFF",
-    },
-    viewCount: 0,
-    lastViewedAt: null,
-    createdAt: "2020-01-01T00:00:00.000Z",
-  },
-] satisfies GetApiV1CardsResponse;
-
-const defaultCardsResponse = {
-  data: testCards,
-  error: undefined,
-};
+const expoRouterMocks = getExpoRouterMocks();
 
 const mockCardsSuccess = () =>
   getApiV1CardsMock.mockImplementation(() =>
@@ -65,29 +31,20 @@ const mockCardsSuccess = () =>
 
 mockCardsSuccess();
 
-const { __expoRouterMocks } = globalThis as unknown as {
-  __expoRouterMocks: {
-    push: ReturnType<typeof mock>;
-    back: ReturnType<typeof mock>;
-    replace: ReturnType<typeof mock>;
-    params: Record<string, string | undefined>;
-  };
-};
-
 const { CardsScreen } = await import("./CardsScreen");
 
 describe("[Integration] CardsScreen", () => {
   beforeEach(async () => {
     await AsyncStorage.removeItem(THEME_STORAGE_KEY);
     await AsyncStorage.removeItem(CARD_SORT_STORAGE_KEY);
-    __expoRouterMocks.push.mockClear();
-    __expoRouterMocks.replace.mockClear();
+    expoRouterMocks.push.mockClear();
+    expoRouterMocks.replace.mockClear();
     getApiV1CardsMock.mockClear();
     mockCardsSuccess();
   });
 
   it("renders search and loyalty cards", async () => {
-    const { getByLabelText, getByPlaceholderText } = await renderWithTheme(
+    const { getByLabelText, getByPlaceholderText } = await renderWithProviders(
       <CardsScreen />,
     );
 
@@ -100,7 +57,7 @@ describe("[Integration] CardsScreen", () => {
 
   it("renders sort icon beside the search bar", async () => {
     const { getByLabelText, getByPlaceholderText, getByText } =
-      await renderWithTheme(<CardsScreen />);
+      await renderWithProviders(<CardsScreen />);
 
     await waitFor(() => {
       expect(getByPlaceholderText("Search cards...")).toBeTruthy();
@@ -117,7 +74,7 @@ describe("[Integration] CardsScreen", () => {
   it("loads persisted sort preference on mount", async () => {
     await AsyncStorage.setItem(CARD_SORT_STORAGE_KEY, "most_viewed");
 
-    await renderWithTheme(<CardsScreen />);
+    await renderWithProviders(<CardsScreen />);
 
     await waitFor(() => {
       expect(getApiV1CardsMock).toHaveBeenCalledWith(
@@ -129,7 +86,7 @@ describe("[Integration] CardsScreen", () => {
   });
 
   it("refetches cards with sort query when sort option changes", async () => {
-    const { getByLabelText, getByText } = await renderWithTheme(
+    const { getByLabelText, getByText } = await renderWithProviders(
       <CardsScreen />,
     );
 
@@ -156,11 +113,11 @@ describe("[Integration] CardsScreen", () => {
 
   it("filters cards by search query", async () => {
     const { getByLabelText, getByPlaceholderText, queryByLabelText } =
-      await renderWithTheme(<CardsScreen />);
+      await renderWithProviders(<CardsScreen />);
 
     await waitFor(() => expect(getByLabelText("ASOS")).toBeTruthy());
 
-    fireEvent.changeText(getByPlaceholderText("Search cards..."), "cotton");
+    await changeText(getByPlaceholderText("Search cards..."), "cotton");
 
     await waitFor(() => {
       expect(queryByLabelText("ASOS")).toBeNull();
@@ -169,13 +126,13 @@ describe("[Integration] CardsScreen", () => {
   });
 
   it("navigates to select brand when add button is pressed", async () => {
-    const { getByText } = await renderWithTheme(<CardsScreen />);
+    const { getByText } = await renderWithProviders(<CardsScreen />);
 
     await waitFor(() => expect(getByText("+")).toBeTruthy());
 
-    fireEvent.press(getByText("+"));
+    await press(getByText("+"));
 
-    expect(__expoRouterMocks.push).toHaveBeenCalledWith(Routes.SELECT_BRAND);
+    expect(expoRouterMocks.push).toHaveBeenCalledWith(Routes.SELECT_BRAND);
   });
 
   it("uses theme card fallback background for brand-less cards", async () => {
@@ -198,13 +155,13 @@ describe("[Integration] CardsScreen", () => {
       }),
     );
 
-    const { getByLabelText } = await renderWithTheme(<CardsScreen />);
+    const { getByLabelText } = await renderWithProviders(<CardsScreen />);
 
     await waitFor(() => expect(getByLabelText("Gym membership")).toBeTruthy());
 
-    fireEvent.press(getByLabelText("Gym membership"));
+    await press(getByLabelText("Gym membership"));
 
-    expect(__expoRouterMocks.push).toHaveBeenCalledWith({
+    expect(expoRouterMocks.push).toHaveBeenCalledWith({
       pathname: Routes.CARD_CODE,
       params: {
         id: "00000000-0000-4000-8000-0000000000c1",
@@ -222,13 +179,13 @@ describe("[Integration] CardsScreen", () => {
   });
 
   it("navigates to card code when a loyalty card is pressed", async () => {
-    const { getByLabelText } = await renderWithTheme(<CardsScreen />);
+    const { getByLabelText } = await renderWithProviders(<CardsScreen />);
 
     await waitFor(() => expect(getByLabelText("ASOS")).toBeTruthy());
 
-    fireEvent.press(getByLabelText("ASOS"));
+    await press(getByLabelText("ASOS"));
 
-    expect(__expoRouterMocks.push).toHaveBeenCalledWith({
+    expect(expoRouterMocks.push).toHaveBeenCalledWith({
       pathname: Routes.CARD_CODE,
       params: {
         id: "00000000-0000-4000-8000-000000000001",
@@ -253,13 +210,13 @@ describe("[Integration] CardsScreen", () => {
       }),
     );
 
-    const { getByLabelText } = await renderWithTheme(<CardsScreen />);
+    const { getByLabelText } = await renderWithProviders(<CardsScreen />);
 
     await waitFor(() => expect(getByLabelText("ASOS")).toBeTruthy());
 
-    fireEvent.press(getByLabelText("ASOS"));
+    await press(getByLabelText("ASOS"));
 
-    expect(__expoRouterMocks.push).toHaveBeenCalledWith({
+    expect(expoRouterMocks.push).toHaveBeenCalledWith({
       pathname: Routes.CARD_CODE,
       params: {
         id: "00000000-0000-4000-8000-000000000001",
@@ -277,13 +234,13 @@ describe("[Integration] CardsScreen", () => {
   });
 
   it("navigates to settings when settings button is pressed", async () => {
-    const { getByLabelText } = await renderWithTheme(<CardsScreen />);
+    const { getByLabelText } = await renderWithProviders(<CardsScreen />);
 
     await waitFor(() => expect(getApiV1CardsMock).toHaveBeenCalled());
 
-    fireEvent.press(getByLabelText("Open settings"));
+    await press(getByLabelText("Open settings"));
 
-    expect(__expoRouterMocks.push).toHaveBeenCalledWith(Routes.SETTINGS);
+    expect(expoRouterMocks.push).toHaveBeenCalledWith(Routes.SETTINGS);
   });
 
   it("shows API error banner when fetch fails", async () => {
@@ -297,7 +254,7 @@ describe("[Integration] CardsScreen", () => {
       ),
     );
 
-    const { getByText, queryByLabelText } = await renderWithTheme(
+    const { getByText, queryByLabelText } = await renderWithProviders(
       <CardsScreen />,
     );
 
@@ -312,7 +269,7 @@ describe("[Integration] CardsScreen", () => {
       Promise.resolve({ data: [], error: undefined }),
     );
 
-    const { getByText } = await renderWithTheme(<CardsScreen />);
+    const { getByText } = await renderWithProviders(<CardsScreen />);
 
     await waitFor(() => {
       expect(getByText("No loyalty cards yet")).toBeTruthy();
@@ -324,11 +281,11 @@ describe("[Integration] CardsScreen", () => {
 
   it("shows no-match empty state when search has no results", async () => {
     const { getByLabelText, getByPlaceholderText, getByText } =
-      await renderWithTheme(<CardsScreen />);
+      await renderWithProviders(<CardsScreen />);
 
     await waitFor(() => expect(getByLabelText("ASOS")).toBeTruthy());
 
-    fireEvent.changeText(
+    await changeText(
       getByPlaceholderText("Search cards..."),
       "nonexistent-brand",
     );
@@ -341,11 +298,11 @@ describe("[Integration] CardsScreen", () => {
 
   it("filters cards by card number", async () => {
     const { getByLabelText, getByPlaceholderText, queryByLabelText } =
-      await renderWithTheme(<CardsScreen />);
+      await renderWithProviders(<CardsScreen />);
 
     await waitFor(() => expect(getByLabelText("ASOS")).toBeTruthy());
 
-    fireEvent.changeText(getByPlaceholderText("Search cards..."), "222");
+    await changeText(getByPlaceholderText("Search cards..."), "222");
 
     await waitFor(() => {
       expect(queryByLabelText("ASOS")).toBeNull();
@@ -354,7 +311,7 @@ describe("[Integration] CardsScreen", () => {
   });
 
   it("refetches cards on pull-to-refresh", async () => {
-    const { UNSAFE_getByType, getByLabelText } = await renderWithTheme(
+    const { UNSAFE_getByType, getByLabelText } = await renderWithProviders(
       <CardsScreen />,
     );
 

@@ -20,6 +20,7 @@ CI runs `bun run test` from [`.github/workflows/app-pr-checks.yml`](../../.githu
 | [`setup.ts`](setup.ts) | Preload: global RN/navigation mocks + imports [`mocks/*`](mocks/) |
 | [`render.tsx`](render.tsx) | `renderWithProviders`, shared QueryClient, provider hydration |
 | [`mocks/`](mocks/) | Module mocks loaded before tests |
+| [`fixtures/`](fixtures/) | Shared API response shapes (`cards`, `brands`) |
 | [`routes/`](routes/) | Expo Router entry tests |
 | `src/**/*.unit.test.ts(x)` | Pure logic, hooks, or isolated providers |
 | `src/**/*.component.test.tsx` | Single component / hook probe with bare `render()` |
@@ -33,7 +34,7 @@ Colocate tests next to source. Use a **filename suffix** and a matching **`descr
 |-----|-----------------|-------------|
 | `[Unit]` | `.unit.test.ts` / `.unit.test.tsx` | Pure logic (no RNTL), or `renderHook` / one provider with a narrow wrapper (no `TestProviders` stack) |
 | `[Component]` | `.component.test.tsx` | RNTL `render()` only — one component or hook probe, no auth/i18n/query/overlay harness |
-| `[Integration]` | `.integration.test.tsx` | `renderWithProviders`, `renderWithTheme`, or `renderWithSharedQueryClient` |
+| `[Integration]` | `.integration.test.tsx` | `renderWithProviders` or `renderWithSharedQueryClient` |
 
 Examples:
 
@@ -62,15 +63,29 @@ Prefer over bare `render` when the tree needs auth, i18n, preferences, React Que
 const { getByText } = await renderWithProviders(<SettingsScreen />);
 ```
 
-`renderWithTheme` is an alias of `renderWithProviders` (deprecated name).
-
 ### `press`, `changeText`, and `flushAct`
 
 From [`render.tsx`](render.tsx) for interactions that update React state outside the event handler:
 
-- `await press(element)` — `fireEvent.press` in `act` + layout flush (default).
+- **Integration tests:** prefer `await press(element)` and `await changeText(element, text)` over raw `fireEvent`.
+- **Component tests:** raw `fireEvent` is fine for simple synchronous handlers (e.g. `Button.component.test.tsx`).
 - `await press(element, { flushLayout: false })` — for async mutations where flushing skips transient UI.
-- `await changeText(element, text)` — `fireEvent.changeText` in `act`.
+- Use raw `fireEvent` for non-press events (`submitEditing`, `onBarcodeScanned`, etc.).
+
+### Expo Router mocks
+
+Use [`getExpoRouterMocks()`](mocks/expo-router.ts) instead of casting `globalThis`:
+
+```ts
+import { getExpoRouterMocks } from "../../test/mocks/expo-router";
+
+const expoRouterMocks = getExpoRouterMocks();
+expoRouterMocks.push.mockClear();
+```
+
+### Shared fixtures
+
+Import card/brand lists from [`fixtures/`](fixtures/) in screen tests that mock the API client.
 
 ### Per-test native mocks
 

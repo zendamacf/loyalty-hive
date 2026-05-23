@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, type mock } from "bun:test";
+import { beforeEach, describe, expect, it } from "bun:test";
 import { fireEvent, waitFor } from "@testing-library/react-native";
 
 import { Routes } from "@/constants/routes.constants";
@@ -9,7 +9,10 @@ import {
   postApiV1CardsMock,
   resolveApiMock,
 } from "../../test/mocks/api-client";
+import { getExpoRouterMocks } from "../../test/mocks/expo-router";
 import { changeText, press, renderWithProviders } from "../../test/render";
+
+const expoRouterMocks = getExpoRouterMocks();
 
 const testUserId = "00000000-0000-4000-8000-000000000001";
 const fakeJwt = `h.${Buffer.from(JSON.stringify({ sub: testUserId })).toString("base64url")}.s`;
@@ -26,24 +29,16 @@ const mockCardSaveSuccess = () =>
 
 mockCardSaveSuccess();
 
-const { __expoRouterMocks } = globalThis as unknown as {
-  __expoRouterMocks: {
-    back: ReturnType<typeof mock>;
-    dismissTo: ReturnType<typeof mock>;
-    params: Record<string, string | undefined>;
-  };
-};
-
 const { ScanManualEntryScreen } = await import("./ScanManualEntryScreen");
 
 describe("[Integration] ScanManualEntryScreen", () => {
   beforeEach(() => {
-    __expoRouterMocks.back.mockClear();
-    __expoRouterMocks.dismissTo.mockClear();
+    expoRouterMocks.back.mockClear();
+    expoRouterMocks.dismissTo.mockClear();
     postApiV1CardsMock.mockClear();
     mockCardSaveSuccess();
     getConfigMock.mockImplementation(() => ({ auth: fakeJwt }));
-    __expoRouterMocks.params = {
+    expoRouterMocks.params = {
       brandName: "ASOS",
       brandId: "00000000-0000-4000-8000-000000000004",
     };
@@ -65,7 +60,7 @@ describe("[Integration] ScanManualEntryScreen", () => {
       <ScanManualEntryScreen />,
     );
 
-    fireEvent.changeText(getByPlaceholderText("Card number"), " 123456 ");
+    await changeText(getByPlaceholderText("Card number"), " 123456 ");
     fireEvent.press(getByText("Add"));
 
     expect(getByText("Saving card...")).toBeTruthy();
@@ -81,7 +76,7 @@ describe("[Integration] ScanManualEntryScreen", () => {
           },
         }),
       );
-      expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith(Routes.CARDS);
+      expect(expoRouterMocks.dismissTo).toHaveBeenCalledWith(Routes.CARDS);
     });
   });
 
@@ -92,7 +87,7 @@ describe("[Integration] ScanManualEntryScreen", () => {
   });
 
   it("pre-fills card number from scan params", async () => {
-    __expoRouterMocks.params = {
+    expoRouterMocks.params = {
       customCard: "1",
       cardNumber: "998877",
       view: "2D",
@@ -105,7 +100,7 @@ describe("[Integration] ScanManualEntryScreen", () => {
   });
 
   it("shows card name field for custom cards", async () => {
-    __expoRouterMocks.params = { customCard: "1" };
+    expoRouterMocks.params = { customCard: "1" };
     const { getByText, getByPlaceholderText } = await renderWithProviders(
       <ScanManualEntryScreen />,
     );
@@ -115,7 +110,7 @@ describe("[Integration] ScanManualEntryScreen", () => {
   });
 
   it("creates a custom card with label and scanned view", async () => {
-    __expoRouterMocks.params = {
+    expoRouterMocks.params = {
       customCard: "1",
       cardNumber: "111222",
       view: "2D",
@@ -141,12 +136,12 @@ describe("[Integration] ScanManualEntryScreen", () => {
           },
         }),
       );
-      expect(__expoRouterMocks.dismissTo).toHaveBeenCalledWith(Routes.CARDS);
+      expect(expoRouterMocks.dismissTo).toHaveBeenCalledWith(Routes.CARDS);
     });
   });
 
   it("does not save custom card when card name is empty", async () => {
-    __expoRouterMocks.params = { customCard: "1", cardNumber: "111222" };
+    expoRouterMocks.params = { customCard: "1", cardNumber: "111222" };
     const { getByText } = await renderWithProviders(<ScanManualEntryScreen />);
 
     await press(getByText("Add"));
@@ -175,7 +170,7 @@ describe("[Integration] ScanManualEntryScreen", () => {
     await waitFor(() => {
       expect(getByText("Card already exists")).toBeTruthy();
     });
-    expect(__expoRouterMocks.dismissTo).not.toHaveBeenCalled();
+    expect(expoRouterMocks.dismissTo).not.toHaveBeenCalled();
   });
 
   it("does not save when card number is empty", async () => {
@@ -193,6 +188,6 @@ describe("[Integration] ScanManualEntryScreen", () => {
 
     await press(getByLabelText("Close"));
 
-    expect(__expoRouterMocks.back).toHaveBeenCalled();
+    expect(expoRouterMocks.back).toHaveBeenCalled();
   });
 });

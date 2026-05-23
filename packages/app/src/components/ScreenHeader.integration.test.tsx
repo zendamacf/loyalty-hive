@@ -1,13 +1,13 @@
 import { describe, expect, it } from "bun:test";
 import { Text } from "react-native";
 
-import { renderWithTheme } from "../../test/render";
+import { renderWithProviders } from "../../test/render";
 
 import { ScreenHeader } from "./ScreenHeader";
 
 describe("[Integration] ScreenHeader", () => {
   it("renders title and actions", async () => {
-    const { getByText, getByLabelText } = await renderWithTheme(
+    const { getByText, getByLabelText } = await renderWithProviders(
       <ScreenHeader
         title="Settings"
         actions={<Text accessibilityLabel="Close">X</Text>}
@@ -20,7 +20,7 @@ describe("[Integration] ScreenHeader", () => {
   });
 
   it("renders subtitle below the title row", async () => {
-    const { getByText } = await renderWithTheme(
+    const { getByText } = await renderWithProviders(
       <ScreenHeader
         title="Add card"
         subtitle="Pick a brand"
@@ -34,7 +34,7 @@ describe("[Integration] ScreenHeader", () => {
   });
 
   it("renders subtitle beside the title when placement is withTitle", async () => {
-    const { getByText } = await renderWithTheme(
+    const { getByText } = await renderWithProviders(
       <ScreenHeader
         title="ASOS"
         subtitle="Work card"
@@ -48,11 +48,15 @@ describe("[Integration] ScreenHeader", () => {
   });
 
   it("renders custom children instead of title text", async () => {
-    const { getByText, getByLabelText, queryByText } = await renderWithTheme(
-      <ScreenHeader actions={<Text accessibilityLabel="Add">+</Text>} embedded>
-        <Text>Custom title</Text>
-      </ScreenHeader>,
-    );
+    const { getByText, getByLabelText, queryByText } =
+      await renderWithProviders(
+        <ScreenHeader
+          actions={<Text accessibilityLabel="Add">+</Text>}
+          embedded
+        >
+          <Text>Custom title</Text>
+        </ScreenHeader>,
+      );
 
     expect(getByText("Custom title")).toBeTruthy();
     expect(queryByText("Settings")).toBeNull();

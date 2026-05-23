@@ -1,11 +1,4 @@
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  type mock,
-} from "bun:test";
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { act, fireEvent, waitFor } from "@testing-library/react-native";
@@ -25,18 +18,14 @@ import {
   postApiV1AuthLoginMock,
   postApiV1AuthSignupMock,
 } from "../../test/mocks/api-client";
+import { getExpoRouterMocks } from "../../test/mocks/expo-router";
 import {
   clearSecureStoreMock,
   secureStoreSetMock,
 } from "../../test/mocks/expo-secure-store";
-import { renderWithTheme } from "../../test/render";
+import { changeText, press, renderWithProviders } from "../../test/render";
 
-const { __expoRouterMocks } = globalThis as unknown as {
-  __expoRouterMocks: {
-    replace: ReturnType<typeof mock>;
-    params: Record<string, string | undefined>;
-  };
-};
+const expoRouterMocks = getExpoRouterMocks();
 
 const { LoginScreen } = await import("./LoginScreen");
 
@@ -52,7 +41,7 @@ describe("[Integration] LoginScreen", () => {
   beforeEach(() => {
     clearSecureStoreMock();
     setBearerToken(undefined);
-    __expoRouterMocks.replace.mockClear();
+    expoRouterMocks.replace.mockClear();
     secureStoreSetMock.mockClear();
     postApiV1AuthLoginMock.mockClear();
     postApiV1AuthSignupMock.mockClear();
@@ -72,7 +61,7 @@ describe("[Integration] LoginScreen", () => {
 
   it("renders login fields and copy by default", async () => {
     const { getByText, getByPlaceholderText, getByLabelText } =
-      await renderWithTheme(<LoginScreen />);
+      await renderWithProviders(<LoginScreen />);
 
     expect(getByText(APP_NAME)).toBeTruthy();
     expect(getByText("Sign in to manage your loyalty cards")).toBeTruthy();
@@ -85,65 +74,67 @@ describe("[Integration] LoginScreen", () => {
 
   it("toggles password visibility", async () => {
     const { getByPlaceholderText, getByLabelText, getByText } =
-      await renderWithTheme(<LoginScreen />);
+      await renderWithProviders(<LoginScreen />);
 
     const passwordInput = getByPlaceholderText("Password");
 
     expect(passwordInput.props.secureTextEntry).toBe(true);
 
-    fireEvent.press(getByLabelText("Show password"));
+    await press(getByLabelText("Show password"));
 
     expect(passwordInput.props.secureTextEntry).toBe(false);
     expect(getByLabelText("Hide password")).toBeTruthy();
     expect(getByText("eye-off")).toBeTruthy();
 
-    fireEvent.press(getByLabelText("Hide password"));
+    await press(getByLabelText("Hide password"));
 
     expect(passwordInput.props.secureTextEntry).toBe(true);
     expect(getByLabelText("Show password")).toBeTruthy();
   });
 
   it("shows validation when email or password is missing", async () => {
-    const { getByText } = await renderWithTheme(<LoginScreen />);
+    const { getByText } = await renderWithProviders(<LoginScreen />);
 
-    fireEvent.press(getByText("Sign in"));
+    await press(getByText("Sign in"));
 
     expect(getByText("Enter your email and password.")).toBeTruthy();
   });
 
   it("toggles between login and signup copy", async () => {
-    const { getByText, queryByText } = await renderWithTheme(<LoginScreen />);
+    const { getByText, queryByText } = await renderWithProviders(
+      <LoginScreen />,
+    );
 
-    fireEvent.press(getByText("Need an account? Sign up"));
+    await press(getByText("Need an account? Sign up"));
 
     expect(getByText("Create an account to get started")).toBeTruthy();
     expect(getByText("Create account")).toBeTruthy();
 
-    fireEvent.press(getByText("Already have an account? Sign in"));
+    await press(getByText("Already have an account? Sign in"));
 
     expect(getByText("Sign in to manage your loyalty cards")).toBeTruthy();
     expect(queryByText("Create account")).toBeNull();
   });
 
   it("clears error when switching auth mode", async () => {
-    const { getByText } = await renderWithTheme(<LoginScreen />);
+    const { getByText } = await renderWithProviders(<LoginScreen />);
 
-    fireEvent.press(getByText("Sign in"));
+    await press(getByText("Sign in"));
     expect(getByText("Enter your email and password.")).toBeTruthy();
 
-    fireEvent.press(getByText("Need an account? Sign up"));
+    await press(getByText("Need an account? Sign up"));
 
     expect(() => getByText("Enter your email and password.")).toThrow();
   });
 
   it("trims email, sets auth token, and replaces route on successful login", async () => {
-    const { getByText, getByPlaceholderText } = await renderWithTheme(
+    const { getByText, getByPlaceholderText } = await renderWithProviders(
       <LoginScreen />,
     );
 
-    fireEvent.changeText(getByPlaceholderText("Email"), "  hi@example.com ");
-    fireEvent.changeText(getByPlaceholderText("Password"), "secret");
-    fireEvent.press(getByText("Sign in"));
+    await changeText(getByPlaceholderText("Email"), "  hi@example.com ");
+    await changeText(getByPlaceholderText("Password"), "secret");
+    await press(getByText("Sign in"));
 
     await waitFor(() => {
       expect(postApiV1AuthLoginMock).toHaveBeenCalledWith(
@@ -156,12 +147,12 @@ describe("[Integration] LoginScreen", () => {
         AUTH_TOKEN_STORAGE_KEY,
         "test-token",
       );
-      expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
+      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
     });
   });
 
   it("shows validation when pressing Enter on the password field with empty fields", async () => {
-    const { getByPlaceholderText, getByText } = await renderWithTheme(
+    const { getByPlaceholderText, getByText } = await renderWithProviders(
       <LoginScreen />,
     );
 
@@ -171,10 +162,10 @@ describe("[Integration] LoginScreen", () => {
   });
 
   it("submits login when pressing Enter on the password field", async () => {
-    const { getByPlaceholderText } = await renderWithTheme(<LoginScreen />);
+    const { getByPlaceholderText } = await renderWithProviders(<LoginScreen />);
 
-    fireEvent.changeText(getByPlaceholderText("Email"), "hi@example.com");
-    fireEvent.changeText(getByPlaceholderText("Password"), "secret");
+    await changeText(getByPlaceholderText("Email"), "hi@example.com");
+    await changeText(getByPlaceholderText("Password"), "secret");
     fireEvent(getByPlaceholderText("Password"), "submitEditing");
 
     await waitFor(() => {
@@ -184,28 +175,28 @@ describe("[Integration] LoginScreen", () => {
         }),
       );
       expect(getBearerToken()).toBe("test-token");
-      expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
+      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
     });
   });
 
   it("does not submit login when pressing Enter on the email field (only focuses password)", async () => {
-    const { getByPlaceholderText } = await renderWithTheme(<LoginScreen />);
+    const { getByPlaceholderText } = await renderWithProviders(<LoginScreen />);
 
-    fireEvent.changeText(getByPlaceholderText("Email"), "hi@example.com");
-    fireEvent.changeText(getByPlaceholderText("Password"), "secret");
+    await changeText(getByPlaceholderText("Email"), "hi@example.com");
+    await changeText(getByPlaceholderText("Password"), "secret");
     fireEvent(getByPlaceholderText("Email"), "submitEditing");
 
     expect(postApiV1AuthLoginMock).not.toHaveBeenCalled();
   });
 
   it("signs up then logs in when pressing Enter on the password field in signup mode", async () => {
-    const { getByText, getByPlaceholderText } = await renderWithTheme(
+    const { getByText, getByPlaceholderText } = await renderWithProviders(
       <LoginScreen />,
     );
 
-    fireEvent.press(getByText("Need an account? Sign up"));
-    fireEvent.changeText(getByPlaceholderText("Email"), "new@example.com");
-    fireEvent.changeText(getByPlaceholderText("Password"), "pw");
+    await press(getByText("Need an account? Sign up"));
+    await changeText(getByPlaceholderText("Email"), "new@example.com");
+    await changeText(getByPlaceholderText("Password"), "pw");
     fireEvent(getByPlaceholderText("Password"), "submitEditing");
 
     await waitFor(() => {
@@ -220,7 +211,7 @@ describe("[Integration] LoginScreen", () => {
         }),
       );
       expect(getBearerToken()).toBe("test-token");
-      expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
+      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
     });
   });
 
@@ -232,13 +223,13 @@ describe("[Integration] LoginScreen", () => {
       }),
     );
 
-    const { getByText, getByPlaceholderText } = await renderWithTheme(
+    const { getByText, getByPlaceholderText } = await renderWithProviders(
       <LoginScreen />,
     );
 
-    fireEvent.changeText(getByPlaceholderText("Email"), "a@b.co");
-    fireEvent.changeText(getByPlaceholderText("Password"), "wrong");
-    fireEvent.press(getByText("Sign in"));
+    await changeText(getByPlaceholderText("Email"), "a@b.co");
+    await changeText(getByPlaceholderText("Password"), "wrong");
+    await press(getByText("Sign in"));
 
     await waitFor(() => {
       expect(getByText("Invalid email or password")).toBeTruthy();
@@ -253,18 +244,18 @@ describe("[Integration] LoginScreen", () => {
       }),
     );
 
-    const { getByText, getByPlaceholderText } = await renderWithTheme(
+    const { getByText, getByPlaceholderText } = await renderWithProviders(
       <LoginScreen />,
     );
 
-    fireEvent.changeText(getByPlaceholderText("Email"), "a@b.co");
-    fireEvent.changeText(getByPlaceholderText("Password"), "ok");
-    fireEvent.press(getByText("Sign in"));
+    await changeText(getByPlaceholderText("Email"), "a@b.co");
+    await changeText(getByPlaceholderText("Password"), "ok");
+    await press(getByText("Sign in"));
 
     await waitFor(() => {
       expect(getByText("Unexpected response from server.")).toBeTruthy();
     });
-    expect(__expoRouterMocks.replace).not.toHaveBeenCalled();
+    expect(expoRouterMocks.replace).not.toHaveBeenCalled();
   });
 
   it("shows API error message from signup", async () => {
@@ -275,19 +266,19 @@ describe("[Integration] LoginScreen", () => {
       }),
     );
 
-    const { getByText, getByPlaceholderText } = await renderWithTheme(
+    const { getByText, getByPlaceholderText } = await renderWithProviders(
       <LoginScreen />,
     );
 
-    fireEvent.press(getByText("Need an account? Sign up"));
-    fireEvent.changeText(getByPlaceholderText("Email"), "taken@example.com");
-    fireEvent.changeText(getByPlaceholderText("Password"), "pw");
-    fireEvent.press(getByText("Create account"));
+    await press(getByText("Need an account? Sign up"));
+    await changeText(getByPlaceholderText("Email"), "taken@example.com");
+    await changeText(getByPlaceholderText("Password"), "pw");
+    await press(getByText("Create account"));
 
     await waitFor(() => {
       expect(getByText("Email already registered")).toBeTruthy();
     });
-    expect(__expoRouterMocks.replace).not.toHaveBeenCalled();
+    expect(expoRouterMocks.replace).not.toHaveBeenCalled();
   });
 
   it("shows fallback when signup returns no id", async () => {
@@ -298,20 +289,20 @@ describe("[Integration] LoginScreen", () => {
       }),
     );
 
-    const { getByText, getByPlaceholderText } = await renderWithTheme(
+    const { getByText, getByPlaceholderText } = await renderWithProviders(
       <LoginScreen />,
     );
 
-    fireEvent.press(getByText("Need an account? Sign up"));
-    fireEvent.changeText(getByPlaceholderText("Email"), "new@example.com");
-    fireEvent.changeText(getByPlaceholderText("Password"), "pw");
-    fireEvent.press(getByText("Create account"));
+    await press(getByText("Need an account? Sign up"));
+    await changeText(getByPlaceholderText("Email"), "new@example.com");
+    await changeText(getByPlaceholderText("Password"), "pw");
+    await press(getByText("Create account"));
 
     await waitFor(() => {
       expect(getByText("Unexpected response from server.")).toBeTruthy();
     });
     expect(postApiV1AuthLoginMock).not.toHaveBeenCalled();
-    expect(__expoRouterMocks.replace).not.toHaveBeenCalled();
+    expect(expoRouterMocks.replace).not.toHaveBeenCalled();
   });
 
   it("shows submitting state while login is in progress", async () => {
@@ -322,11 +313,11 @@ describe("[Integration] LoginScreen", () => {
       getByPlaceholderText,
       UNSAFE_getByType,
       UNSAFE_getAllByType,
-    } = await renderWithTheme(<LoginScreen />);
+    } = await renderWithProviders(<LoginScreen />);
 
-    fireEvent.changeText(getByPlaceholderText("Email"), "hi@example.com");
-    fireEvent.changeText(getByPlaceholderText("Password"), "secret");
-    fireEvent.press(getByText("Sign in"));
+    await changeText(getByPlaceholderText("Email"), "hi@example.com");
+    await changeText(getByPlaceholderText("Password"), "secret");
+    await press(getByText("Sign in"));
 
     await waitFor(() => {
       expect(getByText("Signing in…")).toBeTruthy();
@@ -347,12 +338,12 @@ describe("[Integration] LoginScreen", () => {
       getByPlaceholderText,
       UNSAFE_getByType,
       UNSAFE_getAllByType,
-    } = await renderWithTheme(<LoginScreen />);
+    } = await renderWithProviders(<LoginScreen />);
 
-    fireEvent.press(getByText("Need an account? Sign up"));
-    fireEvent.changeText(getByPlaceholderText("Email"), "new@example.com");
-    fireEvent.changeText(getByPlaceholderText("Password"), "pw");
-    fireEvent.press(getByText("Create account"));
+    await press(getByText("Need an account? Sign up"));
+    await changeText(getByPlaceholderText("Email"), "new@example.com");
+    await changeText(getByPlaceholderText("Password"), "pw");
+    await press(getByText("Create account"));
 
     await waitFor(() => {
       expect(getByText("Creating account…")).toBeTruthy();
@@ -366,14 +357,14 @@ describe("[Integration] LoginScreen", () => {
   });
 
   it("signs up then logs in on successful signup", async () => {
-    const { getByText, getByPlaceholderText } = await renderWithTheme(
+    const { getByText, getByPlaceholderText } = await renderWithProviders(
       <LoginScreen />,
     );
 
-    fireEvent.press(getByText("Need an account? Sign up"));
-    fireEvent.changeText(getByPlaceholderText("Email"), "new@example.com");
-    fireEvent.changeText(getByPlaceholderText("Password"), "pw");
-    fireEvent.press(getByText("Create account"));
+    await press(getByText("Need an account? Sign up"));
+    await changeText(getByPlaceholderText("Email"), "new@example.com");
+    await changeText(getByPlaceholderText("Password"), "pw");
+    await press(getByText("Create account"));
 
     await waitFor(() => {
       expect(postApiV1AuthSignupMock).toHaveBeenCalledWith(
@@ -387,7 +378,7 @@ describe("[Integration] LoginScreen", () => {
         }),
       );
       expect(getBearerToken()).toBe("test-token");
-      expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
+      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
     });
   });
 });
@@ -407,7 +398,7 @@ describe("[Integration] LoginScreen i18n", () => {
   it("renders Spanish copy when locale is es", async () => {
     await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, "es");
 
-    const { findByText } = await renderWithTheme(<LoginScreen />);
+    const { findByText } = await renderWithProviders(<LoginScreen />);
     await flushMicrotasks();
 
     expect(await findByText("Iniciar sesión")).toBeTruthy();

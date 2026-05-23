@@ -1,41 +1,23 @@
-import { beforeEach, describe, expect, it, type mock } from "bun:test";
+import { beforeEach, describe, expect, it } from "bun:test";
 
-import { act, fireEvent, waitFor } from "@testing-library/react-native";
+import { act, waitFor } from "@testing-library/react-native";
 
 import { Routes } from "@/constants/routes.constants";
 import type { GetApiV1BrandsResponse } from "@/lib/api-client/gen";
+import { defaultBrandsResponse } from "../../test/fixtures/brands";
 import {
   getApiV1BrandsMock,
   resolveApiMock,
 } from "../../test/mocks/api-client";
+import { getExpoRouterMocks } from "../../test/mocks/expo-router";
 import {
+  changeText,
+  press,
   renderWithProviders,
   renderWithSharedQueryClient,
 } from "../../test/render";
 
-const testBrands = [
-  {
-    id: "00000000-0000-4000-8000-000000000004",
-    name: "ASOS",
-    logoUrl: "https://logo.clearbit.com/asos.com",
-    backgroundColor: "#FFFFFF",
-    createdAt: "2025-01-01T00:00:00.000Z",
-    defaultView: null,
-  },
-  {
-    id: "00000000-0000-4000-8000-0000000000aa",
-    name: "Uber Eats",
-    logoUrl: "https://logo.clearbit.com/ubereats.com",
-    backgroundColor: "#FFFFFF",
-    createdAt: "2025-01-01T00:00:00.000Z",
-    defaultView: null,
-  },
-] satisfies GetApiV1BrandsResponse;
-
-const defaultBrandsResponse = {
-  data: testBrands,
-  error: undefined,
-};
+const expoRouterMocks = getExpoRouterMocks();
 
 const mockBrandsSuccess = () =>
   getApiV1BrandsMock.mockImplementation(() =>
@@ -44,20 +26,12 @@ const mockBrandsSuccess = () =>
 
 mockBrandsSuccess();
 
-const { __expoRouterMocks } = globalThis as unknown as {
-  __expoRouterMocks: {
-    push: ReturnType<typeof mock>;
-    back: ReturnType<typeof mock>;
-    params: Record<string, string | undefined>;
-  };
-};
-
 const { SelectBrandScreen } = await import("./SelectBrandScreen");
 
 describe("[Integration] SelectBrandScreen", () => {
   beforeEach(() => {
-    __expoRouterMocks.push.mockClear();
-    __expoRouterMocks.back.mockClear();
+    expoRouterMocks.push.mockClear();
+    expoRouterMocks.back.mockClear();
     getApiV1BrandsMock.mockClear();
     mockBrandsSuccess();
   });
@@ -77,7 +51,7 @@ describe("[Integration] SelectBrandScreen", () => {
       expect(getByLabelText("ASOS")).toBeTruthy();
     });
 
-    fireEvent.changeText(getByPlaceholderText("Search brands..."), "uber");
+    await changeText(getByPlaceholderText("Search brands..."), "uber");
 
     expect(getByLabelText("Uber Eats")).toBeTruthy();
     expect(queryByLabelText("ASOS")).toBeNull();
@@ -90,9 +64,9 @@ describe("[Integration] SelectBrandScreen", () => {
       expect(getByLabelText("Close")).toBeTruthy();
     });
 
-    fireEvent.press(getByLabelText("Close"));
+    await press(getByLabelText("Close"));
 
-    expect(__expoRouterMocks.back).toHaveBeenCalled();
+    expect(expoRouterMocks.back).toHaveBeenCalled();
   });
 
   it("navigates to scan screen with selected brand", async () => {
@@ -102,9 +76,9 @@ describe("[Integration] SelectBrandScreen", () => {
       expect(getByLabelText("ASOS")).toBeTruthy();
     });
 
-    fireEvent.press(getByLabelText("ASOS"));
+    await press(getByLabelText("ASOS"));
 
-    expect(__expoRouterMocks.push).toHaveBeenCalledWith({
+    expect(expoRouterMocks.push).toHaveBeenCalledWith({
       pathname: Routes.SCAN,
       params: {
         brandId: "00000000-0000-4000-8000-000000000004",
@@ -133,7 +107,7 @@ describe("[Integration] SelectBrandScreen", () => {
       expect(getByLabelText("ASOS")).toBeTruthy();
     });
 
-    fireEvent.changeText(
+    await changeText(
       getByPlaceholderText("Search brands..."),
       "no matching brands",
     );
@@ -149,9 +123,9 @@ describe("[Integration] SelectBrandScreen", () => {
       expect(getByLabelText("Custom card")).toBeTruthy();
     });
 
-    fireEvent.press(getByLabelText("Custom card"));
+    await press(getByLabelText("Custom card"));
 
-    expect(__expoRouterMocks.push).toHaveBeenCalledWith({
+    expect(expoRouterMocks.push).toHaveBeenCalledWith({
       pathname: Routes.SCAN,
       params: { customCard: "1" },
     });

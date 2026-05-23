@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, type mock } from "bun:test";
-import { fireEvent, waitFor } from "@testing-library/react-native";
+import { beforeEach, describe, expect, it } from "bun:test";
+import { waitFor } from "@testing-library/react-native";
 import { Image } from "react-native";
 
 import {
@@ -8,24 +8,19 @@ import {
   Routes,
 } from "@/constants/routes.constants";
 import { postApiV1CardsByIdViewMock } from "../../test/mocks/api-client";
-import { renderWithTheme } from "../../test/render";
+import { getExpoRouterMocks } from "../../test/mocks/expo-router";
+import { press, renderWithProviders } from "../../test/render";
 
-const { __expoRouterMocks } = globalThis as unknown as {
-  __expoRouterMocks: {
-    back: ReturnType<typeof mock>;
-    push: ReturnType<typeof mock>;
-    params: Record<string, string | undefined>;
-  };
-};
+const expoRouterMocks = getExpoRouterMocks();
 
 const { CardCodeScreen } = await import("./CardCodeScreen");
 
 describe("[Integration] CardCodeScreen", () => {
   beforeEach(() => {
     postApiV1CardsByIdViewMock.mockClear();
-    __expoRouterMocks.back.mockClear();
-    __expoRouterMocks.push.mockClear();
-    __expoRouterMocks.params = {
+    expoRouterMocks.back.mockClear();
+    expoRouterMocks.push.mockClear();
+    expoRouterMocks.params = {
       id: "00000000-0000-4000-8000-000000000001",
       cardNumber: "1234567890",
       title: "ASOS",
@@ -39,12 +34,12 @@ describe("[Integration] CardCodeScreen", () => {
   });
 
   it("logs a card view when opened from the cards list", async () => {
-    __expoRouterMocks.params = {
-      ...__expoRouterMocks.params,
+    expoRouterMocks.params = {
+      ...expoRouterMocks.params,
       [CARD_CODE_FROM_CARDS_PARAM]: CARD_CODE_FROM_CARDS_VALUE,
     };
 
-    await renderWithTheme(<CardCodeScreen />);
+    await renderWithProviders(<CardCodeScreen />);
 
     await waitFor(() => {
       expect(postApiV1CardsByIdViewMock).toHaveBeenCalledWith(
@@ -56,7 +51,7 @@ describe("[Integration] CardCodeScreen", () => {
   });
 
   it("does not log a card view without the from-cards param", async () => {
-    await renderWithTheme(<CardCodeScreen />);
+    await renderWithProviders(<CardCodeScreen />);
 
     await waitFor(() => {
       expect(postApiV1CardsByIdViewMock).not.toHaveBeenCalled();
@@ -64,7 +59,7 @@ describe("[Integration] CardCodeScreen", () => {
   });
 
   it("renders a barcode for 1D view", async () => {
-    const { getByTestId, UNSAFE_getByType } = await renderWithTheme(
+    const { getByTestId, UNSAFE_getByType } = await renderWithProviders(
       <CardCodeScreen />,
     );
 
@@ -76,44 +71,44 @@ describe("[Integration] CardCodeScreen", () => {
   });
 
   it("renders a QR code for 2D view", async () => {
-    __expoRouterMocks.params = {
+    expoRouterMocks.params = {
       cardNumber: "1234567890",
       title: "ASOS",
       view: "2D",
     };
 
-    const { getByTestId } = await renderWithTheme(<CardCodeScreen />);
+    const { getByTestId } = await renderWithProviders(<CardCodeScreen />);
 
     expect(getByTestId("qrcode")).toBeTruthy();
     expect(getByTestId("barcode")).toBeTruthy();
   });
 
   it("defaults to barcode when view is missing", async () => {
-    __expoRouterMocks.params = {
+    expoRouterMocks.params = {
       cardNumber: "1234567890",
       title: "ASOS",
     };
 
-    const { getByTestId } = await renderWithTheme(<CardCodeScreen />);
+    const { getByTestId } = await renderWithProviders(<CardCodeScreen />);
 
     expect(getByTestId("barcode")).toBeTruthy();
     expect(getByTestId("qrcode")).toBeTruthy();
   });
 
   it("navigates back when close button is pressed", async () => {
-    const { getByLabelText } = await renderWithTheme(<CardCodeScreen />);
+    const { getByLabelText } = await renderWithProviders(<CardCodeScreen />);
 
-    fireEvent.press(getByLabelText("Close"));
+    await press(getByLabelText("Close"));
 
-    expect(__expoRouterMocks.back).toHaveBeenCalled();
+    expect(expoRouterMocks.back).toHaveBeenCalled();
   });
 
   it("navigates to card settings when configure is pressed", async () => {
-    const { getByLabelText } = await renderWithTheme(<CardCodeScreen />);
+    const { getByLabelText } = await renderWithProviders(<CardCodeScreen />);
 
-    fireEvent.press(getByLabelText("Configure card"));
+    await press(getByLabelText("Configure card"));
 
-    expect(__expoRouterMocks.push).toHaveBeenCalledWith({
+    expect(expoRouterMocks.push).toHaveBeenCalledWith({
       pathname: Routes.CARD_SETTINGS,
       params: {
         id: "00000000-0000-4000-8000-000000000001",
@@ -126,32 +121,32 @@ describe("[Integration] CardCodeScreen", () => {
   });
 
   it("switches to QR code when QR code is selected", async () => {
-    const { getByLabelText, getByTestId } = await renderWithTheme(
+    const { getByLabelText, getByTestId } = await renderWithProviders(
       <CardCodeScreen />,
     );
 
     expect(getByTestId("barcode")).toBeTruthy();
 
-    fireEvent.press(getByLabelText("QR code"));
+    await press(getByLabelText("QR code"));
 
     expect(getByTestId("qrcode")).toBeTruthy();
     expect(getByTestId("barcode")).toBeTruthy();
   });
 
   it("switches to barcode when barcode is selected", async () => {
-    __expoRouterMocks.params = {
+    expoRouterMocks.params = {
       cardNumber: "1234567890",
       title: "ASOS",
       view: "2D",
     };
 
-    const { getByLabelText, getByTestId } = await renderWithTheme(
+    const { getByLabelText, getByTestId } = await renderWithProviders(
       <CardCodeScreen />,
     );
 
     expect(getByTestId("qrcode")).toBeTruthy();
 
-    fireEvent.press(getByLabelText("Barcode"));
+    await press(getByLabelText("Barcode"));
 
     expect(getByTestId("barcode")).toBeTruthy();
     expect(getByTestId("qrcode")).toBeTruthy();

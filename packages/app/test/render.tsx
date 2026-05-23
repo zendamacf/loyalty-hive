@@ -153,6 +153,3 @@ export async function renderWithSharedQueryClient(
     ...result,
   };
 }
-
-/** @deprecated Use renderWithProviders */
-export const renderWithTheme = renderWithProviders;

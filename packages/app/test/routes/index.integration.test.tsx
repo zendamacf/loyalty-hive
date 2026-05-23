@@ -1,27 +1,25 @@
-import { beforeEach, describe, expect, it, type mock } from "bun:test";
+import { beforeEach, describe, expect, it } from "bun:test";
 
 import { waitFor } from "@testing-library/react-native";
 
+import { APP_NAME } from "@/constants/branding.constants";
 import { Routes } from "@/constants/routes.constants";
 import { AUTH_TOKEN_STORAGE_KEY } from "@/lib/auth/auth.constants";
+import { getExpoRouterMocks } from "../mocks/expo-router";
 import {
   clearSecureStoreMock,
   setSecureStoreItem,
 } from "../mocks/expo-secure-store";
 import { renderWithProviders } from "../render";
 
-const { __expoRouterMocks } = globalThis as unknown as {
-  __expoRouterMocks: {
-    replace: ReturnType<typeof mock>;
-  };
-};
+const expoRouterMocks = getExpoRouterMocks();
 
 const Index = (await import("../../app/index")).default;
 
 describe("[Integration] app index", () => {
   beforeEach(() => {
     clearSecureStoreMock();
-    __expoRouterMocks.replace.mockClear();
+    expoRouterMocks.replace.mockClear();
   });
 
   it("redirects to cards when a stored auth token exists", async () => {
@@ -30,7 +28,17 @@ describe("[Integration] app index", () => {
     await renderWithProviders(<Index />);
 
     await waitFor(() => {
-      expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
+      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
     });
+  });
+
+  it("renders login when no auth token is stored", async () => {
+    const { getByText } = await renderWithProviders(<Index />);
+
+    await waitFor(() => {
+      expect(getByText(APP_NAME)).toBeTruthy();
+      expect(getByText("Sign in")).toBeTruthy();
+    });
+    expect(expoRouterMocks.replace).not.toHaveBeenCalledWith(Routes.CARDS);
   });
 });

@@ -1,7 +1,6 @@
 import { describe, expect, it, mock } from "bun:test";
-import { fireEvent } from "@testing-library/react-native";
 
-import { renderWithTheme } from "../../test/render";
+import { press, renderWithProviders } from "../../test/render";
 
 const onToggle = mock(() => {});
 
@@ -9,7 +8,7 @@ const { CardCodeViewToggle } = await import("./CardCodeViewToggle");
 
 describe("[Integration] CardCodeViewToggle", () => {
   it("shows barcode selected when view is 1D", async () => {
-    const { getByLabelText, getByText } = await renderWithTheme(
+    const { getByLabelText, getByText } = await renderWithProviders(
       <CardCodeViewToggle view="1D" onToggle={onToggle} />,
     );
 
@@ -24,7 +23,7 @@ describe("[Integration] CardCodeViewToggle", () => {
   });
 
   it("shows QR code selected when view is 2D", async () => {
-    const { getByLabelText } = await renderWithTheme(
+    const { getByLabelText } = await renderWithProviders(
       <CardCodeViewToggle view="2D" onToggle={onToggle} />,
     );
 
@@ -38,28 +37,28 @@ describe("[Integration] CardCodeViewToggle", () => {
 
   it("calls onToggle when QR code is selected", async () => {
     onToggle.mockClear();
-    const { getByLabelText } = await renderWithTheme(
+    const { getByLabelText } = await renderWithProviders(
       <CardCodeViewToggle view="1D" onToggle={onToggle} />,
     );
 
-    fireEvent.press(getByLabelText("QR code"));
+    await press(getByLabelText("QR code"));
 
     expect(onToggle).toHaveBeenCalledTimes(1);
   });
 
   it("calls onToggle when barcode is selected", async () => {
     onToggle.mockClear();
-    const { getByLabelText } = await renderWithTheme(
+    const { getByLabelText } = await renderWithProviders(
       <CardCodeViewToggle view="2D" onToggle={onToggle} />,
     );
 
-    fireEvent.press(getByLabelText("Barcode"));
+    await press(getByLabelText("Barcode"));
 
     expect(onToggle).toHaveBeenCalledTimes(1);
   });
 
   it("uses readable text on a dark brand color", async () => {
-    const { getByText } = await renderWithTheme(
+    const { getByText } = await renderWithProviders(
       <CardCodeViewToggle
         view="1D"
         activeSegmentColor="#0D1B2A"
@@ -73,7 +72,7 @@ describe("[Integration] CardCodeViewToggle", () => {
   });
 
   it("uses readable text on a light brand color", async () => {
-    const { getByText } = await renderWithTheme(
+    const { getByText } = await renderWithProviders(
       <CardCodeViewToggle
         view="2D"
         activeSegmentColor="#FFFFFF"
@@ -88,11 +87,11 @@ describe("[Integration] CardCodeViewToggle", () => {
 
   it("does not call onToggle when the current option is pressed again", async () => {
     onToggle.mockClear();
-    const { getByLabelText } = await renderWithTheme(
+    const { getByLabelText } = await renderWithProviders(
       <CardCodeViewToggle view="1D" onToggle={onToggle} />,
     );
 
-    fireEvent.press(getByLabelText("Barcode"));
+    await press(getByLabelText("Barcode"));
 
     expect(onToggle).not.toHaveBeenCalled();
   });

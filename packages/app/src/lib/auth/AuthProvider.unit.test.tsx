@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { Routes } from "@/constants/routes.constants";
 import { getBearerToken, setBearerToken } from "@/lib/api-client/setup";
 import { queryClient } from "@/lib/query-client";
+import { getExpoRouterMocks } from "../../../test/mocks/expo-router";
 import {
   clearSecureStoreMock,
   secureStoreSetMock,
@@ -25,11 +26,7 @@ mock.module("@/lib/api-client/unauthorized", () => ({
 
 const { AuthProvider, useAuth } = await import("./AuthProvider");
 
-const { __expoRouterMocks } = globalThis as unknown as {
-  __expoRouterMocks: {
-    replace: ReturnType<typeof import("bun:test").mock>;
-  };
-};
+const expoRouterMocks = getExpoRouterMocks();
 
 const wrapper = ({ children }: { children: ReactNode }) => (
   <AuthProvider>{children}</AuthProvider>
@@ -41,7 +38,7 @@ describe("[Unit] AuthProvider", () => {
     setBearerToken(undefined);
     clearUnauthorizedHandlerMock();
     setUnauthorizedHandlerMock.mockClear();
-    __expoRouterMocks.replace.mockClear();
+    expoRouterMocks.replace.mockClear();
     queryClient.clear();
   });
 
@@ -127,7 +124,7 @@ describe("[Unit] AuthProvider", () => {
 
     expect(result.current.isAuthenticated).toBe(false);
     expect(getBearerToken()).toBeUndefined();
-    expect(__expoRouterMocks.replace).toHaveBeenCalledWith(Routes.LOGIN);
+    expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.LOGIN);
   });
 
   it("clears the unauthorized handler on unmount", async () => {

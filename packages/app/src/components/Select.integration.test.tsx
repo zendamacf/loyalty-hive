@@ -2,12 +2,12 @@ import { describe, expect, it, mock } from "bun:test";
 import { waitFor } from "@testing-library/react-native";
 import { Pressable, Text } from "react-native";
 
-import { press, renderWithTheme } from "../../test/render";
+import { press, renderWithProviders } from "../../test/render";
 import { Select } from "./Select";
 
 describe("[Integration] Select", () => {
   it("renders the selected option label on the trigger", async () => {
-    const { getByText } = await renderWithTheme(
+    const { getByText } = await renderWithProviders(
       <Select
         value="b"
         onValueChange={() => {}}
@@ -23,17 +23,18 @@ describe("[Integration] Select", () => {
   });
 
   it("shows options below the trigger when opened", async () => {
-    const { getByLabelText, getByText, queryByText } = await renderWithTheme(
-      <Select
-        value="a"
-        onValueChange={() => {}}
-        options={[
-          { value: "a", label: "Alpha" },
-          { value: "b", label: "Beta" },
-        ]}
-        accessibilityLabel="Example"
-      />,
-    );
+    const { getByLabelText, getByText, queryByText } =
+      await renderWithProviders(
+        <Select
+          value="a"
+          onValueChange={() => {}}
+          options={[
+            { value: "a", label: "Alpha" },
+            { value: "b", label: "Beta" },
+          ]}
+          accessibilityLabel="Example"
+        />,
+      );
 
     expect(queryByText("Beta")).toBeNull();
 
@@ -46,7 +47,7 @@ describe("[Integration] Select", () => {
 
   it("calls onValueChange when an option is chosen", async () => {
     const onValueChange = mock(() => {});
-    const { getByLabelText, getByText } = await renderWithTheme(
+    const { getByLabelText, getByText } = await renderWithProviders(
       <Select
         value="a"
         onValueChange={onValueChange}
@@ -65,22 +66,23 @@ describe("[Integration] Select", () => {
   });
 
   it("opens the menu when a custom trigger is pressed", async () => {
-    const { getByLabelText, getByText, queryByText } = await renderWithTheme(
-      <Select
-        value="a"
-        onValueChange={() => {}}
-        options={[
-          { value: "a", label: "Alpha" },
-          { value: "b", label: "Beta" },
-        ]}
-        accessibilityLabel="Example"
-        renderTrigger={({ onPress, accessibilityLabel: label }) => (
-          <Pressable accessibilityLabel={label} onPress={onPress}>
-            <Text>Custom</Text>
-          </Pressable>
-        )}
-      />,
-    );
+    const { getByLabelText, getByText, queryByText } =
+      await renderWithProviders(
+        <Select
+          value="a"
+          onValueChange={() => {}}
+          options={[
+            { value: "a", label: "Alpha" },
+            { value: "b", label: "Beta" },
+          ]}
+          accessibilityLabel="Example"
+          renderTrigger={({ onPress, accessibilityLabel: label }) => (
+            <Pressable accessibilityLabel={label} onPress={onPress}>
+              <Text>Custom</Text>
+            </Pressable>
+          )}
+        />,
+      );
 
     expect(queryByText("Beta")).toBeNull();
 

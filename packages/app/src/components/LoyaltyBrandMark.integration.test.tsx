@@ -1,12 +1,12 @@
 import { describe, expect, it } from "bun:test";
 import { Image } from "react-native";
 import { brandMark } from "@/theme/theme";
-import { renderWithTheme } from "../../test/render";
+import { renderWithProviders } from "../../test/render";
 import { LoyaltyBrandMark } from "./LoyaltyBrandMark";
 
 describe("[Integration] LoyaltyBrandMark", () => {
   it("renders provided logo", async () => {
-    const { UNSAFE_getByType } = await renderWithTheme(
+    const { UNSAFE_getByType } = await renderWithProviders(
       <LoyaltyBrandMark
         brand="Test Brand"
         height={48}
@@ -19,7 +19,7 @@ describe("[Integration] LoyaltyBrandMark", () => {
   });
 
   it("renders brand name when no logo is provided", async () => {
-    const { getByText } = await renderWithTheme(
+    const { getByText } = await renderWithProviders(
       <LoyaltyBrandMark brand="Test Brand" height={48} />,
     );
 
@@ -27,7 +27,7 @@ describe("[Integration] LoyaltyBrandMark", () => {
   });
 
   it("animates height when animateHeight is enabled", async () => {
-    const { rerender } = await renderWithTheme(
+    const { rerender } = await renderWithProviders(
       <LoyaltyBrandMark
         animateHeight
         brand="Test Brand"
