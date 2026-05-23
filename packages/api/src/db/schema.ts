@@ -58,6 +58,7 @@ export const cards = pgTable("cards", {
   viewCount: integer("view_count").notNull().default(0),
   lastViewedAt: timestamp("last_viewed_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  deletedAt: timestamp("deleted_at"),
 });
 
 export const usersRelations = relations(users, ({ one }) => ({
