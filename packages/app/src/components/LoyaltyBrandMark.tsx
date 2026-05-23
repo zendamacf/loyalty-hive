@@ -46,7 +46,7 @@ export const LoyaltyBrandMark = ({
         styles.card,
         {
           backgroundColor,
-          borderColor: backgroundColor ?? theme.border,
+          borderColor: theme.border,
           borderBottomLeftRadius: topCardHalf ? 0 : undefined,
           borderBottomRightRadius: topCardHalf ? 0 : undefined,
         },
