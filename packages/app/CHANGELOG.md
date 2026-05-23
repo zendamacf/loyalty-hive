@@ -1,5 +1,26 @@
 # @loyalty-hive/app
 
+## 1.1.0
+
+### Minor Changes
+
+- 322777d: \* Added a Manage section with bottom sheets on the card code screen for details, editing, and deleting.
+  - Removed card settings screen.
+  - Replaced manual entry screen with a bottom sheet.
+- a312d8f: Refactored theming to support multiple distinct palettes.
+- a312d8f: Add a Purple theme.
+- a312d8f: Added a System theme that follows the device's light or dark theme.
+
+### Patch Changes
+
+- a312d8f: Added reusable `Form` and `FormGroup` components for vertical labeled fields.
+- ce1c80a: Updates app icon & splash screen.
+- 2eb44a4: Added display of set label on branded cards.
+- 81ccd91: Added border to cards & brands to stop some of them blending with the background.
+- 9d3af81: Hardened Bun test suites for the API and Expo app (taxonomy, docs, coverage, act-safe interactions).
+- cda71ec: Added increase of screen brightness while viewing a card's barcode.
+- 50b4008: Updated URL for API client generation.
+
 ## 1.0.1
 
 ### Patch Changes

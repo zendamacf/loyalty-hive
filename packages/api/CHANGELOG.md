@@ -1,5 +1,19 @@
 # @loyalty-hive/api
 
+## 0.2.0
+
+### Minor Changes
+
+- db2ec28: Added soft deletion of `cards` records.
+- 50b4008: Added new Swagger UI homepage with API documentation.
+- 322777d: Added PATCH endpoint for updating a card's label and default view (1D/2D).
+
+### Patch Changes
+
+- 4ca1fb3: Added new brand Club+.
+- 9d3af81: Hardened Bun test suites for the API and Expo app (taxonomy, docs, coverage, act-safe interactions).
+- 81ccd91: Updated all brand logos to use cropped versions for more consistent sizing.
+
 ## 0.1.1
 
 ### Patch Changes
