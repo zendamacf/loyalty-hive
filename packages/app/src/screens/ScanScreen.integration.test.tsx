@@ -115,6 +115,7 @@ describe("[Integration] ScanScreen", () => {
     );
 
     expect(getByTestId("scan-camera").props.onBarcodeScanned).toBeDefined();
+    expect(resumePreviewMock).not.toHaveBeenCalled();
 
     await press(getByText("Enter card number manually"));
 

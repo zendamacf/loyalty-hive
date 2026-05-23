@@ -162,14 +162,17 @@ export const ScanScreen = () => {
   const isScanningEnabled = !manualEntryOpen && !isSaving;
 
   useEffect(() => {
-    if (!permission?.granted) {
+    if (!permission?.granted || !manualEntryOpen) {
       return;
     }
-    if (manualEntryOpen) {
-      void cameraRef.current?.pausePreview();
-    } else {
-      void cameraRef.current?.resumePreview();
-    }
+    void cameraRef.current?.pausePreview().catch(() => {
+      // Native view may not be mounted yet.
+    });
+    return () => {
+      void cameraRef.current?.resumePreview().catch(() => {
+        // Native view may have unmounted while the sheet was open.
+      });
+    };
   }, [manualEntryOpen, permission?.granted]);
 
   if (!permission) {
