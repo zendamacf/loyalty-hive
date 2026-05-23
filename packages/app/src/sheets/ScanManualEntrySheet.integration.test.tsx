@@ -158,10 +158,7 @@ describe("[Integration] ScanManualEntrySheet", () => {
       expect(getByPlaceholderText("Card name")).toBeTruthy();
     });
 
-    await changeText(
-      getByPlaceholderText("Card name"),
-      "Gym membership",
-    );
+    await changeText(getByPlaceholderText("Card name"), "Gym membership");
     await press(getByText("Add"), { flushLayout: false });
 
     await waitFor(() => {
