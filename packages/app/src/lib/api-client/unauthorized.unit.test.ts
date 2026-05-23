@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { waitFor } from "@testing-library/react-native";
 
 import { createClient, createConfig } from "./gen/client";
 import {
   installUnauthorizedInterceptor,
   requestUsesBearerAuth,
   setUnauthorizedHandler,
-} from "./unauthorized";
+} from "./unauthorized.impl";
 
 function mockUnauthorizedFetch(): typeof fetch {
   return Object.assign(
@@ -69,7 +70,9 @@ describe("[Unit] installUnauthorizedInterceptor", () => {
       }),
     ).rejects.toBeDefined();
 
-    await expect(handler).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(handler).toHaveBeenCalledTimes(1);
+    });
   });
 
   it("does not invoke the handler on 401 api key responses", async () => {
@@ -130,7 +133,9 @@ describe("[Unit] installUnauthorizedInterceptor", () => {
 
     await Promise.allSettled([first, second]);
 
-    expect(handler).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(handler).toHaveBeenCalledTimes(1);
+    });
 
     resolveHandler?.();
     await handler.mock.results[0]?.value;
