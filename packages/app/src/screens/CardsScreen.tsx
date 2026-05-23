@@ -38,6 +38,7 @@ import {
   type CardListSort,
   useCardSort,
 } from "@/lib/card-sort";
+import { resolveCardHeadings } from "@/lib/cardHeadings";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import { AppTitle } from "../components/AppTitle";
 import { LoyaltyBrandLogo } from "../components/LoyaltyBrandLogo";
@@ -246,34 +247,66 @@ export const CardsScreen = () => {
           renderItem={({ item }) => {
             const cardBackgroundColor =
               item.brand?.backgroundColor ?? theme.cardFallback;
+            const brandName = item.brand?.name ?? "";
+            const label = item.label ?? "";
+            const { title, subtitle } = resolveCardHeadings(brandName, label);
+            const markBrand =
+              brandName.trim() || label.trim() || item.cardNumber;
+            const cardA11yLabel = subtitle ? `${title}, ${subtitle}` : title;
 
             return (
               <View style={styles.card}>
-                <LoyaltyBrandLogo
-                  brand={item.label ?? item.brand?.name ?? item.cardNumber}
-                  logo={item.brand?.logoUrl}
-                  backgroundColor={cardBackgroundColor}
-                  height={brandMark.heightList}
-                  onPress={() =>
-                    router.push({
-                      pathname: Routes.CARD_CODE,
-                      params: {
-                        id: item.id,
-                        cardNumber: item.cardNumber,
-                        view: item.view ?? "1D",
-                        title:
-                          item.label ?? item.brand?.name ?? item.cardNumber,
-                        brandName: item.brand?.name ?? "",
-                        label: item.label ?? "",
-                        createdAt: item.createdAt,
-                        logoUrl: item.brand?.logoUrl ?? "",
-                        backgroundColor: cardBackgroundColor,
-                        [CARD_CODE_FROM_CARDS_PARAM]:
-                          CARD_CODE_FROM_CARDS_VALUE,
-                      },
-                    })
-                  }
-                />
+                <View
+                  style={[styles.cardTile, { height: brandMark.heightList }]}
+                >
+                  <LoyaltyBrandLogo
+                    brand={markBrand}
+                    accessibilityLabel={cardA11yLabel}
+                    logo={item.brand?.logoUrl}
+                    backgroundColor={cardBackgroundColor}
+                    height={brandMark.heightList}
+                    onPress={() =>
+                      router.push({
+                        pathname: Routes.CARD_CODE,
+                        params: {
+                          id: item.id,
+                          cardNumber: item.cardNumber,
+                          view: item.view ?? "1D",
+                          title,
+                          brandName,
+                          label,
+                          createdAt: item.createdAt,
+                          logoUrl: item.brand?.logoUrl ?? "",
+                          backgroundColor: cardBackgroundColor,
+                          [CARD_CODE_FROM_CARDS_PARAM]:
+                            CARD_CODE_FROM_CARDS_VALUE,
+                        },
+                      })
+                    }
+                  />
+                  {subtitle ? (
+                    <View
+                      pointerEvents="none"
+                      style={[
+                        styles.labelBar,
+                        {
+                          backgroundColor: theme.surface,
+                          borderColor: theme.border,
+                        },
+                      ]}
+                    >
+                      <Text
+                        numberOfLines={1}
+                        style={[
+                          styles.labelBarText,
+                          { color: theme.textPrimary },
+                        ]}
+                      >
+                        {subtitle}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
               </View>
             );
           }}
@@ -344,6 +377,29 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 0.5,
+  },
+  cardTile: {
+    position: "relative",
+    width: "100%",
+    overflow: "hidden",
+    borderRadius: radius.sm,
+  },
+  labelBar: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderWidth: 1,
+    borderBottomLeftRadius: radius.sm,
+    borderBottomRightRadius: radius.sm,
+    borderCurve: "continuous",
+  },
+  labelBarText: {
+    ...typography.caption,
+    fontWeight: typography.bodySemibold.fontWeight,
+    textAlign: "center",
   },
   emptyState: {
     flex: 1,
