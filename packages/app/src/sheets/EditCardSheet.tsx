@@ -38,9 +38,6 @@ export const EditCardSheet = () => {
   const labelFieldLabel = hasBrand
     ? t("cardNicknameLabel")
     : t("cardLabelLabel");
-  const labelFieldPlaceholder = hasBrand
-    ? t("cardNicknamePlaceholder")
-    : t("cardLabelPlaceholder");
 
   const [editLabel, setEditLabel] = useState(label);
   const [editView, setEditView] = useState<CardView>(defaultView);
@@ -104,7 +101,7 @@ export const EditCardSheet = () => {
             accessibilityLabel={labelFieldLabel}
             value={editLabel}
             onChangeText={setEditLabel}
-            placeholder={labelFieldPlaceholder}
+            placeholder={labelFieldLabel}
             placeholderTextColor={theme.textSecondary}
             autoCapitalize="words"
             autoCorrect={false}

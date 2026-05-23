@@ -55,7 +55,7 @@ describe("[Integration] EditCardSheet", () => {
 
     await waitFor(() => {
       expect(getByText("Label")).toBeTruthy();
-      expect(getByLabelText("Label").props.placeholder).toBe("e.g. Work card");
+      expect(getByLabelText("Label").props.placeholder).toBe("Label");
       expect(getByLabelText("Label").props.value).toBe("Work card");
     });
   });

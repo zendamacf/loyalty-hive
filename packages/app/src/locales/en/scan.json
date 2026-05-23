@@ -8,9 +8,9 @@
   "scanPromptQrCode": "Scan a loyalty card QR code",
   "scanPromptBarcode": "Scan a loyalty card barcode",
   "enterManually": "Enter card number manually",
+  "closeScanManualEntrySheetA11y": "Close manual card entry",
   "manualEntryHelp": "Enter the card number printed on your card",
   "customCardLabel": "Card name",
-  "customCardPlaceholder": "e.g. Gym membership",
   "cardNumber": "Card number",
   "addCard": "Add"
 }

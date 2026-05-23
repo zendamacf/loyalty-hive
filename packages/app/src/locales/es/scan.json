@@ -8,9 +8,9 @@
   "scanPromptQrCode": "Escanea el código QR de la tarjeta",
   "scanPromptBarcode": "Escanea el código de barras de la tarjeta",
   "enterManually": "Introducir número de tarjeta manualmente",
+  "closeScanManualEntrySheetA11y": "Cerrar entrada manual de tarjeta",
   "manualEntryHelp": "Introduce el número de tarjeta impreso en tu tarjeta",
   "customCardLabel": "Nombre de la tarjeta",
-  "customCardPlaceholder": "p. ej. Membresía del gimnasio",
   "cardNumber": "Número de tarjeta",
   "addCard": "Añadir"
 }

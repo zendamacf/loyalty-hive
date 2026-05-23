@@ -4,7 +4,6 @@ export enum Routes {
   CARD_CODE = "/card-code",
   SELECT_BRAND = "/select-brand",
   SCAN = "/scan",
-  SCAN_MANUAL_ENTRY = "/scan-manual-entry",
   SETTINGS = "/settings",
 }
 

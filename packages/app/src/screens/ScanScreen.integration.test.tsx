@@ -35,9 +35,24 @@ type PermissionState = { granted: boolean } | null;
 
 let permissionState: PermissionState = null;
 const requestPermissionMock = mock(() => Promise.resolve());
+const pausePreviewMock = mock(() => Promise.resolve());
+const resumePreviewMock = mock(() => Promise.resolve());
+
 mock.module("expo-camera", () => ({
-  CameraView: (props: Record<string, unknown>) =>
-    React.createElement("CameraView", props, props.children as React.ReactNode),
+  CameraView: React.forwardRef<
+    { pausePreview: () => Promise<void>; resumePreview: () => Promise<void> },
+    Record<string, unknown>
+  >((props, ref) => {
+    React.useImperativeHandle(ref, () => ({
+      pausePreview: pausePreviewMock,
+      resumePreview: resumePreviewMock,
+    }));
+    return React.createElement(
+      "CameraView",
+      { testID: "scan-camera", ...props },
+      props.children as React.ReactNode,
+    );
+  }),
   useCameraPermissions: () => [permissionState, requestPermissionMock] as const,
 }));
 
@@ -50,6 +65,8 @@ describe("[Integration] ScanScreen", () => {
     expoRouterMocks.back.mockClear();
     expoRouterMocks.dismissTo.mockClear();
     requestPermissionMock.mockClear();
+    pausePreviewMock.mockClear();
+    resumePreviewMock.mockClear();
     postApiV1CardsMock.mockClear();
     mockCardSaveSuccess();
     getConfigMock.mockImplementation(() => ({ auth: fakeJwt }));
@@ -74,18 +91,36 @@ describe("[Integration] ScanScreen", () => {
     expect(requestPermissionMock).toHaveBeenCalledTimes(1);
   });
 
-  it("navigates to manual entry when enter manually is pressed", async () => {
+  it("opens manual entry sheet when enter manually is pressed", async () => {
     permissionState = { granted: true };
-    const { getByText } = await renderWithProviders(<ScanScreen />);
+    const { getByPlaceholderText, getByText } = await renderWithProviders(
+      <ScanScreen />,
+    );
 
     await press(getByText("Enter card number manually"));
 
-    expect(expoRouterMocks.push).toHaveBeenCalledWith({
-      pathname: Routes.SCAN_MANUAL_ENTRY,
-      params: {
-        brandId: "00000000-0000-4000-8000-000000000004",
-        brandName: "ASOS",
-      },
+    await waitFor(() => {
+      expect(
+        getByText("Enter the card number printed on your card"),
+      ).toBeTruthy();
+      expect(getByPlaceholderText("Card number")).toBeTruthy();
+    });
+    expect(expoRouterMocks.push).not.toHaveBeenCalled();
+  });
+
+  it("pauses the camera while manual entry sheet is open", async () => {
+    permissionState = { granted: true };
+    const { getByTestId, getByText } = await renderWithProviders(
+      <ScanScreen />,
+    );
+
+    expect(getByTestId("scan-camera").props.onBarcodeScanned).toBeDefined();
+
+    await press(getByText("Enter card number manually"));
+
+    await waitFor(() => {
+      expect(pausePreviewMock).toHaveBeenCalled();
+      expect(getByTestId("scan-camera").props.onBarcodeScanned).toBeUndefined();
     });
   });
 
@@ -168,9 +203,9 @@ describe("[Integration] ScanScreen", () => {
 
   it("shows brand context when brand name param is set", async () => {
     permissionState = { granted: true };
-    const { getByText } = await renderWithProviders(<ScanScreen />);
+    const { getAllByText } = await renderWithProviders(<ScanScreen />);
 
-    expect(getByText("ASOS")).toBeTruthy();
+    expect(getAllByText("ASOS").length).toBeGreaterThanOrEqual(1);
   });
 
   it("navigates back when close is pressed", async () => {
@@ -182,55 +217,59 @@ describe("[Integration] ScanScreen", () => {
     expect(expoRouterMocks.back).toHaveBeenCalled();
   });
 
-  it("navigates to manual entry with scanned number for custom card", async () => {
+  it("opens manual entry sheet with scanned number for custom card", async () => {
     permissionState = { granted: true };
     expoRouterMocks.params = { customCard: "1" };
-    const { getByTestId } = await renderWithProviders(<ScanScreen />);
+    const { getByDisplayValue, getByTestId } = await renderWithProviders(
+      <ScanScreen />,
+    );
 
     fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
       type: "qr",
       data: "111222",
     });
 
-    expect(expoRouterMocks.push).toHaveBeenCalledWith({
-      pathname: Routes.SCAN_MANUAL_ENTRY,
-      params: {
-        customCard: "1",
-        cardNumber: "111222",
-        view: "2D",
-      },
+    await waitFor(() => {
+      expect(getByDisplayValue("111222")).toBeTruthy();
     });
     expect(postApiV1CardsMock).not.toHaveBeenCalled();
+    expect(expoRouterMocks.push).not.toHaveBeenCalled();
   });
 
-  it("navigates to manual entry only once when custom barcode is scanned repeatedly", async () => {
+  it("opens manual entry sheet only once when custom barcode is scanned repeatedly", async () => {
     permissionState = { granted: true };
     expoRouterMocks.params = { customCard: "1" };
-    expoRouterMocks.push.mockClear();
-    const { getByTestId } = await renderWithProviders(<ScanScreen />);
+    const { getAllByDisplayValue, getByTestId } = await renderWithProviders(
+      <ScanScreen />,
+    );
 
     const scanEvent = {
       type: "qr",
       data: "111222",
     };
     fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", scanEvent);
+    await waitFor(() => {
+      expect(getAllByDisplayValue("111222").length).toBe(1);
+    });
     fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", scanEvent);
     fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", scanEvent);
 
-    expect(expoRouterMocks.push).toHaveBeenCalledTimes(1);
+    expect(getAllByDisplayValue("111222").length).toBe(1);
   });
 
-  it("navigates to manual entry for custom card when enter manually is pressed", async () => {
+  it("opens manual entry sheet for custom card when enter manually is pressed", async () => {
     permissionState = { granted: true };
     expoRouterMocks.params = { customCard: "1" };
-    const { getByText } = await renderWithProviders(<ScanScreen />);
+    const { getAllByText, getByPlaceholderText, getByText } =
+      await renderWithProviders(<ScanScreen />);
 
-    await press(getByText("Enter card number manually"));
+    await press(getAllByText("Enter card number manually")[0]);
 
-    expect(expoRouterMocks.push).toHaveBeenCalledWith({
-      pathname: Routes.SCAN_MANUAL_ENTRY,
-      params: { customCard: "1" },
+    await waitFor(() => {
+      expect(getByText("Card name")).toBeTruthy();
+      expect(getByPlaceholderText("Card name")).toBeTruthy();
     });
+    expect(expoRouterMocks.push).not.toHaveBeenCalled();
   });
 
   it("shows save error and does not navigate when API returns error", async () => {

@@ -5,7 +5,7 @@ import {
   useCameraPermissions,
 } from "expo-camera";
 import { router, useLocalSearchParams } from "expo-router";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -21,6 +21,7 @@ import {
 } from "@/lib/api-client";
 import { type CardView, resolveCardViewFromBarcodeType } from "@/lib/cardView";
 import { getErrorMessage } from "@/lib/getErrorMessage";
+import { showScanManualEntrySheet } from "@/sheets";
 import { radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
@@ -58,10 +59,11 @@ export const ScanScreen = () => {
 
   const [permission, requestPermission] = useCameraPermissions();
   const [isSaving, setIsSaving] = useState(false);
-  const [scanHandled, setScanHandled] = useState(false);
+  const [manualEntryOpen, setManualEntryOpen] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const saveLockRef = useRef(false);
   const scanLockRef = useRef(false);
+  const cameraRef = useRef<CameraView>(null);
   const queryClient = useQueryClient();
 
   const headerTitle = useMemo(() => {
@@ -115,44 +117,60 @@ export const ScanScreen = () => {
     [createCard, selectedBrandId],
   );
 
+  const openManualEntry = useCallback(
+    async (prefill?: { cardNumber: string; view: CardView | null }) => {
+      if (manualEntryOpen || scanLockRef.current) {
+        return;
+      }
+      scanLockRef.current = true;
+      setManualEntryOpen(true);
+      try {
+        await showScanManualEntrySheet({
+          brandId: selectedBrandId,
+          brandName: selectedBrandName,
+          isCustomCard,
+          initialCardNumber: prefill?.cardNumber ?? "",
+          cardView: prefill?.view ?? null,
+        });
+      } finally {
+        setManualEntryOpen(false);
+        scanLockRef.current = false;
+      }
+    },
+    [isCustomCard, manualEntryOpen, selectedBrandId, selectedBrandName],
+  );
+
   const handleScan = useCallback(
     (result: BarcodeScanningResult) => {
-      // Prevent multiple scans triggered by camera
-      if (scanLockRef.current || scanHandled || isSaving) {
+      if (scanLockRef.current || manualEntryOpen || isSaving) {
         return;
       }
 
       if (isCustomCard) {
-        scanLockRef.current = true;
-        setScanHandled(true);
-        router.push({
-          pathname: Routes.SCAN_MANUAL_ENTRY,
-          params: {
-            customCard: "1",
-            cardNumber: result.data,
-            view: resolveCardViewFromBarcodeType(result.type),
-          },
+        void openManualEntry({
+          cardNumber: result.data,
+          view: resolveCardViewFromBarcodeType(result.type),
         });
         return;
       }
 
       void saveCard(result.data, resolveCardViewFromBarcodeType(result.type));
     },
-    [isCustomCard, isSaving, saveCard, scanHandled],
+    [isCustomCard, isSaving, manualEntryOpen, openManualEntry, saveCard],
   );
 
-  const isScanningEnabled = !scanHandled && !isSaving;
+  const isScanningEnabled = !manualEntryOpen && !isSaving;
 
-  const openManualEntry = useCallback(() => {
-    router.push({
-      pathname: Routes.SCAN_MANUAL_ENTRY,
-      params: {
-        ...(selectedBrandId ? { brandId: selectedBrandId } : {}),
-        ...(selectedBrandName ? { brandName: selectedBrandName } : {}),
-        ...(isCustomCard ? { customCard: "1" } : {}),
-      },
-    });
-  }, [isCustomCard, selectedBrandId, selectedBrandName]);
+  useEffect(() => {
+    if (!permission?.granted) {
+      return;
+    }
+    if (manualEntryOpen) {
+      void cameraRef.current?.pausePreview();
+    } else {
+      void cameraRef.current?.resumePreview();
+    }
+  }, [manualEntryOpen, permission?.granted]);
 
   if (!permission) {
     return (
@@ -198,6 +216,7 @@ export const ScanScreen = () => {
 
         <View style={styles.cameraViewport}>
           <CameraView
+            ref={cameraRef}
             testID="scan-camera"
             style={styles.camera}
             facing="back"
@@ -230,7 +249,9 @@ export const ScanScreen = () => {
 
         {!isSaving ? (
           <Pressable
-            onPress={openManualEntry}
+            onPress={() => {
+              void openManualEntry();
+            }}
             style={[styles.secondaryButton, { borderColor: theme.border }]}
           >
             <Text
