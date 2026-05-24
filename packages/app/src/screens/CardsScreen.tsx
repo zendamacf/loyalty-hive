@@ -10,7 +10,14 @@ import {
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  FlatList,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 import { DataLoadStatus } from "@/components/DataLoadStatus";
 import { ScreenHeader } from "@/components/ScreenHeader";
@@ -41,7 +48,7 @@ import { useThemedRefreshControl } from "../hooks/useThemedRefreshControl";
 import { brandMark, icon, radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
-const appIcon = require("../../assets/icon.png");
+const appIcon = require("../../assets/icon-transparent.png");
 
 const SORT_LABEL_KEYS: Record<
   CardListSort,
@@ -171,7 +178,16 @@ export const CardsScreen = () => {
           </>
         }
       >
-        <AppTitle align="left" />
+        <View style={styles.headerMain}>
+          <Image
+            accessibilityLabel={t("appLogo", { ns: I18nNamespace.Common })}
+            source={appIcon}
+            style={styles.logo}
+          />
+          <View style={styles.titleWrap}>
+            <AppTitle align="left" />
+          </View>
+        </View>
       </ScreenHeader>
 
       <View style={styles.searchRow}>
@@ -317,6 +333,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: spacing.md,
   },
+  headerMain: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   headerButton: {
     height: 56,
     minWidth: 44,
@@ -325,6 +345,15 @@ const styles = StyleSheet.create({
   },
   headerButtonPressed: {
     opacity: 0.55,
+  },
+  logo: {
+    width: 56,
+    height: 56,
+    borderRadius: radius.md,
+  },
+  titleWrap: {
+    height: 56,
+    justifyContent: "center",
   },
   searchRow: {
     flexDirection: "row",
