@@ -1,5 +1,11 @@
 # @loyalty-hive/api
 
+## 0.2.1
+
+### Patch Changes
+
+- bf3f8c7: Added test coverage reporting in CI.
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@loyalty-hive/api",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "scripts": {
     "prebuild": "node -p \"require('./package.json').version\"",

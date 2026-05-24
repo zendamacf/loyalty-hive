@@ -1,5 +1,13 @@
 # @loyalty-hive/app
 
+## 1.1.2
+
+### Patch Changes
+
+- 3aa1fea: Improved scannability of displayed barcodes & QR codes by reducing UI elements, and shrinking the QR code.
+- bf3f8c7: Added test coverage reporting in CI.
+- 3aa1fea: Replaces cards screen logo with transparent version.
+
 ## 1.1.1
 
 ### Patch Changes
