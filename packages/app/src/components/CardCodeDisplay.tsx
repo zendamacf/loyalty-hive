@@ -36,7 +36,6 @@ export const CardCodeDisplay = ({
   const isQr = view === "2D";
   const trimmedBrand = brand?.trim() ?? "";
   const trimmedLogoUrl = logoUrl?.trim() ?? "";
-  const showBrandStrip = Boolean(trimmedBrand || trimmedLogoUrl);
   const stripBackgroundColor = backgroundColor ?? theme.cardFallback;
   const stripTextColor = getReadableTextColor(stripBackgroundColor);
   const { progress, opacityOff, opacityOn } = useCrossfadeProgress(isQr, {
@@ -61,27 +60,25 @@ export const CardCodeDisplay = ({
         },
       ]}
     >
-      {showBrandStrip ? (
-        <View
-          testID="brand-strip"
-          style={[styles.brandStrip, { backgroundColor: stripBackgroundColor }]}
-        >
-          {trimmedLogoUrl ? (
-            <Image
-              source={{ uri: trimmedLogoUrl }}
-              style={styles.brandStripLogo}
-            />
-          ) : null}
-          {trimmedBrand ? (
-            <Text
-              numberOfLines={1}
-              style={[styles.brandStripName, { color: stripTextColor }]}
-            >
-              {trimmedBrand}
-            </Text>
-          ) : null}
-        </View>
-      ) : null}
+      <View
+        testID="brand-strip"
+        style={[styles.brandStrip, { backgroundColor: stripBackgroundColor }]}
+      >
+        {trimmedLogoUrl ? (
+          <Image
+            source={{ uri: trimmedLogoUrl }}
+            style={styles.brandStripLogo}
+          />
+        ) : null}
+        {trimmedBrand ? (
+          <Text
+            numberOfLines={1}
+            style={[styles.brandStripName, { color: stripTextColor }]}
+          >
+            {trimmedBrand}
+          </Text>
+        ) : null}
+      </View>
       <View style={styles.codeBody}>
         <Animated.View style={[styles.codeSlot, { height: slotHeight }]}>
           <Animated.View

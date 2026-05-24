@@ -162,7 +162,7 @@ export const CardCodeScreen = () => {
             cardNumber={cardNumber}
             view={displayView}
             borderColor={theme.border}
-            brand={brandName}
+            brand={displayName}
             logoUrl={logoUrl}
             backgroundColor={brandBackgroundColor ?? theme.cardFallback}
           />
