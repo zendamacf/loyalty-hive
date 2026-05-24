@@ -48,7 +48,7 @@ import { useThemedRefreshControl } from "../hooks/useThemedRefreshControl";
 import { brandMark, icon, radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
-const appIcon = require("../../assets/icon.png");
+const appIcon = require("../../assets/icon-transparent.png");
 
 const SORT_LABEL_KEYS: Record<
   CardListSort,
@@ -334,11 +334,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   headerMain: {
-    flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.sm,
-    minWidth: 0,
   },
   headerButton: {
     height: 56,

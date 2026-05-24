@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     alignSelf: "center",
-    gap: spacing.sm,
+    gap: spacing.xs,
     minHeight: icon.md,
   },
 });

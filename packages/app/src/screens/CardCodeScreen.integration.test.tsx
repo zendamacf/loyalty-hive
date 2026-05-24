@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it } from "bun:test";
 import { act, waitFor } from "@testing-library/react-native";
-import { Image } from "react-native";
 
 import {
   CARD_CODE_FROM_CARDS_PARAM,
@@ -72,15 +71,11 @@ describe("[Integration] CardCodeScreen", () => {
   });
 
   it("renders a barcode for 1D view", async () => {
-    const { getByTestId, UNSAFE_getByType } = await renderWithProviders(
-      <CardCodeScreen />,
-    );
+    const { getByTestId } = await renderWithProviders(<CardCodeScreen />);
 
     expect(getByTestId("barcode")).toBeTruthy();
     expect(getByTestId("qrcode")).toBeTruthy();
-    expect(UNSAFE_getByType(Image).props.source).toEqual({
-      uri: "https://logo.clearbit.com/asos.com",
-    });
+    expect(getByTestId("brand-strip")).toBeTruthy();
   });
 
   it("renders a QR code for 2D view", async () => {
@@ -291,7 +286,6 @@ describe("[Integration] CardCodeScreen", () => {
     await press(getByText("Save"), { flushLayout: false });
 
     await waitFor(() => {
-      expect(getByText("ASOS")).toBeTruthy();
       expect(getByText("Personal")).toBeTruthy();
       expect(patchApiV1CardsByIdMock).toHaveBeenCalledWith(
         expect.objectContaining({

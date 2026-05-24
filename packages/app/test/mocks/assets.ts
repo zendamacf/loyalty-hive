@@ -10,6 +10,8 @@ export const imageStub = { default: 1 };
 const imageRequirePaths = [
   "../assets/icon.png",
   "../../assets/icon.png",
+  "../assets/icon-transparent.png",
+  "../../assets/icon-transparent.png",
 ] as const;
 
 for (const path of imageRequirePaths) {

@@ -8,7 +8,6 @@ import { StyleSheet, View } from "react-native";
 import { CardCodeDisplay } from "@/components/CardCodeDisplay";
 import { CardManageSection } from "@/components/CardManageSection";
 import { CloseButton } from "@/components/CloseButton";
-import { LoyaltyBrandMark } from "@/components/LoyaltyBrandMark";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { ScreenShell } from "@/components/ScreenShell";
 import {
@@ -26,7 +25,6 @@ import {
   showDeleteCardSheet,
   showEditCardSheet,
 } from "@/sheets";
-import { brandMark, spacing } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
 export const CardCodeScreen = () => {
@@ -52,15 +50,12 @@ export const CardCodeScreen = () => {
     typeof params.cardNumber === "string" ? params.cardNumber : "";
   const brandName =
     typeof params.brandName === "string" ? params.brandName : "";
+  const logoUrl = typeof params.logoUrl === "string" ? params.logoUrl : "";
   const createdAt =
     typeof params.createdAt === "string" ? params.createdAt : "";
   const [label, setLabel] = useState(() =>
     typeof params.label === "string" && params.label.trim() ? params.label : "",
   );
-  const logoUrl =
-    typeof params.logoUrl === "string" && params.logoUrl.trim()
-      ? params.logoUrl
-      : undefined;
   const brandBackgroundColor =
     typeof params.backgroundColor === "string" && params.backgroundColor.trim()
       ? params.backgroundColor
@@ -123,8 +118,37 @@ export const CardCodeScreen = () => {
 
   const manageDisabled = !cardId;
 
+  const manageSection = (
+    <CardManageSection
+      onDetailsPress={() => {
+        void showCardDetailsSheet({ cardNumber, createdAt });
+      }}
+      onEditPress={() => {
+        void showEditCardSheet({
+          cardId,
+          label,
+          defaultView: displayView,
+          brandName,
+          activeSegmentColor: brandBackgroundColor,
+        }).then((updated) => {
+          if (!updated) {
+            return;
+          }
+          setLabel(updated.label);
+          setDisplayView(updated.view);
+        });
+      }}
+      onDeletePress={() => {
+        void showDeleteCardSheet({ cardId });
+      }}
+      detailsDisabled={manageDisabled}
+      editDisabled={manageDisabled}
+      deleteDisabled={manageDisabled}
+    />
+  );
+
   return (
-    <ScreenShell>
+    <ScreenShell footer={<View style={styles.footer}>{manageSection}</View>}>
       <ScreenHeader
         title={displayName}
         subtitle={subtitle}
@@ -132,81 +156,31 @@ export const CardCodeScreen = () => {
         actions={<CloseButton />}
       />
 
-      <View style={styles.content}>
-        <View style={styles.cardColumn}>
-          <View style={styles.cardStack}>
-            <LoyaltyBrandMark
-              animateHeight
-              brand={displayName}
-              logo={logoUrl}
-              backgroundColor={brandBackgroundColor}
-              height={
-                displayView === "2D"
-                  ? brandMark.heightDetailQr
-                  : brandMark.heightDetailBarcode
-              }
-              style={styles.brandMark}
-              topCardHalf
-            />
-
-            <CardCodeDisplay
-              cardNumber={cardNumber}
-              view={displayView}
-              bottomCardHalf
-              borderColor={theme.border}
-            />
-          </View>
-
-          <CardManageSection
-            onDetailsPress={() => {
-              void showCardDetailsSheet({ cardNumber, createdAt });
-            }}
-            onEditPress={() => {
-              void showEditCardSheet({
-                cardId,
-                label,
-                defaultView: displayView,
-                brandName,
-                activeSegmentColor: brandBackgroundColor,
-              }).then((updated) => {
-                if (!updated) {
-                  return;
-                }
-                setLabel(updated.label);
-                setDisplayView(updated.view);
-              });
-            }}
-            onDeletePress={() => {
-              void showDeleteCardSheet({ cardId });
-            }}
-            detailsDisabled={manageDisabled}
-            editDisabled={manageDisabled}
-            deleteDisabled={manageDisabled}
+      <ScreenShell.Body>
+        <View style={styles.codeColumn}>
+          <CardCodeDisplay
+            cardNumber={cardNumber}
+            view={displayView}
+            borderColor={theme.border}
+            brand={displayName}
+            logoUrl={logoUrl}
+            backgroundColor={brandBackgroundColor ?? theme.cardFallback}
           />
         </View>
-      </View>
+      </ScreenShell.Body>
     </ScreenShell>
   );
 };
 
 const styles = StyleSheet.create({
-  content: {
-    flex: 1,
-    alignSelf: "stretch",
-  },
-  cardColumn: {
-    flex: 1,
+  codeColumn: {
     alignSelf: "center",
     width: "100%",
     maxWidth: 320,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.lg,
   },
-  cardStack: {
-    alignSelf: "stretch",
-  },
-  brandMark: {
-    alignSelf: "stretch",
+  footer: {
+    alignSelf: "center",
+    width: "100%",
+    maxWidth: 320,
   },
 });
