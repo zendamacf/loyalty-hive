@@ -1,19 +1,25 @@
-import { Animated, StyleSheet, View } from "react-native";
+import { Animated, Image, StyleSheet, Text, View } from "react-native";
 import Barcode from "react-native-barcode-svg";
 import QRCode from "react-native-qrcode-svg";
 
 import { useCrossfadeProgress } from "@/hooks/useCrossfadeProgress";
 import type { CardView } from "@/lib/cardView";
-import { radius, spacing } from "@/theme/theme";
+import { getReadableTextColor } from "@/lib/readableTextColor";
+import { radius, spacing, typography } from "@/theme/theme";
+import { useTheme } from "@/theme/useTheme";
 
 const QR_CODE_SIZE = 280;
 const BARCODE_HEIGHT = 96;
-const BARCODE_MAX_WIDTH = 280;
+const BARCODE_MAX_WIDTH = 300;
+const BRAND_STRIP_LOGO_SIZE = 28;
 
 type CardCodeDisplayProps = {
   cardNumber: string;
   view: CardView;
   borderColor: string;
+  brand?: string;
+  logoUrl?: string;
+  backgroundColor?: string;
   bottomCardHalf?: boolean;
 };
 
@@ -21,9 +27,18 @@ export const CardCodeDisplay = ({
   cardNumber,
   view,
   borderColor,
+  brand,
+  logoUrl,
+  backgroundColor,
   bottomCardHalf,
 }: CardCodeDisplayProps) => {
+  const { theme } = useTheme();
   const isQr = view === "2D";
+  const trimmedBrand = brand?.trim() ?? "";
+  const trimmedLogoUrl = logoUrl?.trim() ?? "";
+  const showBrandStrip = Boolean(trimmedBrand || trimmedLogoUrl);
+  const stripBackgroundColor = backgroundColor ?? theme.cardFallback;
+  const stripTextColor = getReadableTextColor(stripBackgroundColor);
   const { progress, opacityOff, opacityOn } = useCrossfadeProgress(isQr, {
     useNativeDriver: false,
     includeIconTransform: false,
@@ -46,28 +61,51 @@ export const CardCodeDisplay = ({
         },
       ]}
     >
-      <Animated.View style={[styles.codeSlot, { height: slotHeight }]}>
-        <Animated.View
-          pointerEvents={isQr ? "none" : "auto"}
-          style={[styles.codeLayer, { opacity: opacityOff }]}
+      {showBrandStrip ? (
+        <View
+          testID="brand-strip"
+          style={[styles.brandStrip, { backgroundColor: stripBackgroundColor }]}
         >
-          <View testID="barcode">
-            <Barcode
-              value={cardNumber}
-              format="CODE128"
-              singleBarWidth={2}
-              height={BARCODE_HEIGHT}
-              maxWidth={BARCODE_MAX_WIDTH}
+          {trimmedLogoUrl ? (
+            <Image
+              source={{ uri: trimmedLogoUrl }}
+              style={styles.brandStripLogo}
             />
-          </View>
+          ) : null}
+          {trimmedBrand ? (
+            <Text
+              numberOfLines={1}
+              style={[styles.brandStripName, { color: stripTextColor }]}
+            >
+              {trimmedBrand}
+            </Text>
+          ) : null}
+        </View>
+      ) : null}
+      <View style={styles.codeBody}>
+        <Animated.View style={[styles.codeSlot, { height: slotHeight }]}>
+          <Animated.View
+            pointerEvents={isQr ? "none" : "auto"}
+            style={[styles.codeLayer, { opacity: opacityOff }]}
+          >
+            <View testID="barcode">
+              <Barcode
+                value={cardNumber}
+                format="CODE128"
+                singleBarWidth={2}
+                height={BARCODE_HEIGHT}
+                maxWidth={BARCODE_MAX_WIDTH}
+              />
+            </View>
+          </Animated.View>
+          <Animated.View
+            pointerEvents={isQr ? "auto" : "none"}
+            style={[styles.codeLayer, { opacity: opacityOn }]}
+          >
+            <QRCode testID="qrcode" value={cardNumber} size={QR_CODE_SIZE} />
+          </Animated.View>
         </Animated.View>
-        <Animated.View
-          pointerEvents={isQr ? "auto" : "none"}
-          style={[styles.codeLayer, { opacity: opacityOn }]}
-        >
-          <QRCode testID="qrcode" value={cardNumber} size={QR_CODE_SIZE} />
-        </Animated.View>
-      </Animated.View>
+      </View>
     </View>
   );
 };
@@ -79,10 +117,28 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderRadius: radius.sm,
-    padding: spacing.lg,
+    overflow: "hidden",
+  },
+  brandStrip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  brandStripLogo: {
+    width: BRAND_STRIP_LOGO_SIZE,
+    height: BRAND_STRIP_LOGO_SIZE,
+    resizeMode: "contain",
+  },
+  brandStripName: {
+    ...typography.bodySemibold,
+    flex: 1,
+  },
+  codeBody: {
+    padding: spacing.xl,
     alignItems: "center",
     justifyContent: "center",
-    overflow: "hidden",
   },
   codeSlot: {
     width: "100%",
