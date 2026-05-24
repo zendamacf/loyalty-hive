@@ -8,7 +8,7 @@ import { getReadableTextColor } from "@/lib/readableTextColor";
 import { radius, spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
-const QR_CODE_SIZE = 280;
+const QR_CODE_SIZE = 140;
 const BARCODE_HEIGHT = 96;
 const BARCODE_MAX_WIDTH = 300;
 const BRAND_STRIP_LOGO_SIZE = 28;
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   codeBody: {
-    padding: spacing.xl,
+    paddingVertical: spacing.xxl,
     alignItems: "center",
     justifyContent: "center",
   },
