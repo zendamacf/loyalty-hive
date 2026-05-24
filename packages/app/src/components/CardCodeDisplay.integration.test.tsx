@@ -40,7 +40,20 @@ describe("[Integration] CardCodeDisplay", () => {
     expect(getByTestId("qrcode")).toBeTruthy();
   });
 
-  it("renders a brand strip with logo and name", async () => {
+  it("always renders the brand strip without logo or name when unbranded", async () => {
+    const { getByTestId, UNSAFE_queryByType } = await renderWithProviders(
+      <CardCodeDisplay
+        cardNumber="1234567890"
+        view="1D"
+        borderColor="#E2E8F0"
+      />,
+    );
+
+    expect(getByTestId("brand-strip")).toBeTruthy();
+    expect(UNSAFE_queryByType(Image)).toBeNull();
+  });
+
+  it("renders logo and name in the brand strip when provided", async () => {
     const { getByTestId, getByText, UNSAFE_getByType } =
       await renderWithProviders(
         <CardCodeDisplay
