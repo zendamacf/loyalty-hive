@@ -20,6 +20,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Fetch pull request base
+        run: git fetch --no-tags origin "${{ github.event.pull_request.base.sha }}"
 
       - uses: dependabot/fetch-metadata@v2
         id: metadata
@@ -32,6 +36,7 @@ jobs:
           NEW_VERSION: ${{ steps.metadata.outputs.new-version }}
           UPDATED_DEPS_JSON: ${{ steps.metadata.outputs.updated-dependencies-json }}
           HEAD_REF: ${{ github.head_ref }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           SAFE_BRANCH=$(echo "$HEAD_REF" | sed 's/\//-/g')
           FILE=".changeset/${SAFE_BRANCH}.md"
@@ -64,14 +69,55 @@ jobs:
             BODY="Updated ${DESCRIPTION}."
           fi
 
-          cat > "$FILE" <<EOF
-          ---
-          "@loyalty-hive/api": patch
-          "@loyalty-hive/app": patch
-          ---
+          CHANGED_PKG_FILES=$(
+            git diff --name-only "$BASE_SHA" HEAD -- \
+              package.json \
+              packages/api/package.json \
+              packages/app/package.json
+          )
 
-          ${BODY}
-          EOF
+          PACKAGES=()
+          if echo "$CHANGED_PKG_FILES" | grep -qx 'packages/api/package.json'; then
+            PACKAGES+=("@loyalty-hive/api")
+          fi
+          if echo "$CHANGED_PKG_FILES" | grep -qx 'packages/app/package.json'; then
+            PACKAGES+=("@loyalty-hive/app")
+          fi
+
+          if [ ${#PACKAGES[@]} -eq 0 ]; then
+            if echo "$CHANGED_PKG_FILES" | grep -qx 'package.json'; then
+              echo "Only root package.json changed; skipping workspace changeset."
+              exit 0
+            fi
+
+            API_MATCH=false
+            APP_MATCH=false
+            while IFS= read -r dep; do
+              [ -z "$dep" ] && continue
+              if jq -e --arg d "$dep" '(.dependencies + .devDependencies) | has($d)' packages/api/package.json >/dev/null; then
+                API_MATCH=true
+              fi
+              if jq -e --arg d "$dep" '(.dependencies + .devDependencies) | has($d)' packages/app/package.json >/dev/null; then
+                APP_MATCH=true
+              fi
+            done < <(echo "$UPDATED_DEPS_JSON" | jq -r '.[].dependencyName // empty')
+
+            if [ "$API_MATCH" = true ] && [ "$APP_MATCH" = false ]; then
+              PACKAGES=("@loyalty-hive/api")
+            elif [ "$APP_MATCH" = true ] && [ "$API_MATCH" = false ]; then
+              PACKAGES=("@loyalty-hive/app")
+            else
+              PACKAGES=("@loyalty-hive/api" "@loyalty-hive/app")
+            fi
+          fi
+
+          FRONTMATTER="---"
+          for pkg in "${PACKAGES[@]}"; do
+            FRONTMATTER="${FRONTMATTER}"$'\n'"\"${pkg}\": patch"
+          done
+          FRONTMATTER="${FRONTMATTER}"$'\n'"---"
+
+          printf '%s\n\n%s\n' "$FRONTMATTER" "$BODY" > "$FILE"
 
       - name: Commit changeset
         run: |
