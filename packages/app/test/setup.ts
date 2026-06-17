@@ -1,18 +1,18 @@
 import { mock } from "bun:test";
 import React from "react";
 
-import "./mocks/react-native-gesture-reanimated";
-import "./mocks/react-native-actions-sheet";
 import "./mocks/api-client";
 import "./mocks/assets";
 import "./mocks/card-code-svg";
+import { expoBrightnessMocks } from "./mocks/expo-brightness";
 import "./mocks/expo-localization";
 import "./mocks/expo-secure-store";
-import { expoBrightnessMocks } from "./mocks/expo-brightness";
 import {
   createNavigationNativeModule,
   navigationFocusMocks,
 } from "./mocks/navigation-focus";
+import "./mocks/react-native-actions-sheet";
+import "./mocks/react-native-gesture-reanimated";
 
 const asyncStorage = new Map<string, string>();
 
@@ -227,7 +227,6 @@ mock.module("react-native", () => ({
     create: (styles: object) => styles,
     flatten: (style: unknown) => style,
     absoluteFill: {},
-    absoluteFillObject: {},
   },
   Text: createPrimitive("Text"),
   TouchableOpacity: (props: {
@@ -297,7 +296,7 @@ mock.module("react-native", () => ({
   },
   Platform: {
     OS: "ios",
-    select: <T,>(options: { ios?: T; android?: T; default?: T }) =>
+    select: <T>(options: { ios?: T; android?: T; default?: T }) =>
       options.ios ?? options.default,
   },
   useColorScheme: () => "light",
@@ -313,10 +312,7 @@ mock.module("react-native-safe-area-context", () => ({
   }),
 }));
 
-mock.module(
-  "@react-navigation/native",
-  () => createNavigationNativeModule(),
-);
+mock.module("@react-navigation/native", () => createNavigationNativeModule());
 
 mock.module("expo-router", () => ({
   router: {

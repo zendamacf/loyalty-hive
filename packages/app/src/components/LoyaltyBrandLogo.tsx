@@ -40,7 +40,7 @@ export const LoyaltyBrandLogo = ({
         <View
           pointerEvents="none"
           style={[
-            StyleSheet.absoluteFillObject,
+            StyleSheet.absoluteFill,
             styles.touchHighlight,
             {
               borderRadius: radius.sm,

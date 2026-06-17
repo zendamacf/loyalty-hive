@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dismissLayer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   menu: {
     position: "absolute",

@@ -119,7 +119,7 @@ export const ScanGuideOverlay = ({ view }: ScanGuideOverlayProps) => {
 
 const styles = StyleSheet.create({
   root: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   spacer: {
     flex: 1,
@@ -154,12 +154,12 @@ const styles = StyleSheet.create({
     borderColor: GUIDE_CORNER_COLOR,
   },
   qrCodeGuideContainer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     alignItems: "center",
     justifyContent: "center",
   },
   barcodeGuideContainer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     alignItems: "center",
     justifyContent: "center",
   },
