@@ -66,7 +66,8 @@ jobs:
 
           cat > "$FILE" <<EOF
           ---
-          "hmpg": patch
+          "@loyalty-hive/api": patch
+          "@loyalty-hive/app": patch
           ---
 
           ${BODY}
