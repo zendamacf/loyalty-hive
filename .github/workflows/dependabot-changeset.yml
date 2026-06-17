@@ -1,0 +1,129 @@
+name: Dependabot Changeset
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  changeset:
+    runs-on: ubuntu-latest
+    if: >-
+      github.actor == 'dependabot[bot]' &&
+      startsWith(github.head_ref, 'dependabot/')
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Fetch pull request base
+        run: git fetch --no-tags origin "${{ github.event.pull_request.base.sha }}"
+
+      - uses: dependabot/fetch-metadata@v2
+        id: metadata
+
+      - name: Write changeset
+        env:
+          DEPS: ${{ steps.metadata.outputs.dependency-names }}
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+          PREVIOUS_VERSION: ${{ steps.metadata.outputs.previous-version }}
+          NEW_VERSION: ${{ steps.metadata.outputs.new-version }}
+          UPDATED_DEPS_JSON: ${{ steps.metadata.outputs.updated-dependencies-json }}
+          HEAD_REF: ${{ github.head_ref }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          SAFE_BRANCH=$(echo "$HEAD_REF" | sed 's/\//-/g')
+          FILE=".changeset/${SAFE_BRANCH}.md"
+
+          DESCRIPTION=$(echo "$UPDATED_DEPS_JSON" | jq -r '
+            if type == "array" and length > 0 then
+              map(
+                if (.prevVersion // "") != "" and (.newVersion // "") != "" then
+                  "\(.dependencyName) from \(.prevVersion) to \(.newVersion)"
+                else
+                  .dependencyName
+                end
+              ) | join(", ")
+            else
+              empty
+            end
+          ')
+
+          if [ -z "$DESCRIPTION" ]; then
+            if [ -n "$PREVIOUS_VERSION" ] && [ -n "$NEW_VERSION" ]; then
+              DESCRIPTION="${DEPS} from ${PREVIOUS_VERSION} to ${NEW_VERSION}"
+            else
+              DESCRIPTION="${DEPS}"
+            fi
+          fi
+
+          if [ -n "$UPDATE_TYPE" ]; then
+            BODY="Updated ${DESCRIPTION} (${UPDATE_TYPE})."
+          else
+            BODY="Updated ${DESCRIPTION}."
+          fi
+
+          CHANGED_PKG_FILES=$(
+            git diff --name-only "$BASE_SHA" HEAD -- \
+              package.json \
+              packages/api/package.json \
+              packages/app/package.json
+          )
+
+          PACKAGES=()
+          if echo "$CHANGED_PKG_FILES" | grep -qx 'packages/api/package.json'; then
+            PACKAGES+=("@loyalty-hive/api")
+          fi
+          if echo "$CHANGED_PKG_FILES" | grep -qx 'packages/app/package.json'; then
+            PACKAGES+=("@loyalty-hive/app")
+          fi
+
+          if [ ${#PACKAGES[@]} -eq 0 ]; then
+            if echo "$CHANGED_PKG_FILES" | grep -qx 'package.json'; then
+              echo "Only root package.json changed; skipping workspace changeset."
+              exit 0
+            fi
+
+            API_MATCH=false
+            APP_MATCH=false
+            while IFS= read -r dep; do
+              [ -z "$dep" ] && continue
+              if jq -e --arg d "$dep" '(.dependencies + .devDependencies) | has($d)' packages/api/package.json >/dev/null; then
+                API_MATCH=true
+              fi
+              if jq -e --arg d "$dep" '(.dependencies + .devDependencies) | has($d)' packages/app/package.json >/dev/null; then
+                APP_MATCH=true
+              fi
+            done < <(echo "$UPDATED_DEPS_JSON" | jq -r '.[].dependencyName // empty')
+
+            if [ "$API_MATCH" = true ] && [ "$APP_MATCH" = false ]; then
+              PACKAGES=("@loyalty-hive/api")
+            elif [ "$APP_MATCH" = true ] && [ "$API_MATCH" = false ]; then
+              PACKAGES=("@loyalty-hive/app")
+            else
+              PACKAGES=("@loyalty-hive/api" "@loyalty-hive/app")
+            fi
+          fi
+
+          FRONTMATTER="---"
+          for pkg in "${PACKAGES[@]}"; do
+            FRONTMATTER="${FRONTMATTER}"$'\n'"\"${pkg}\": patch"
+          done
+          FRONTMATTER="${FRONTMATTER}"$'\n'"---"
+
+          printf '%s\n\n%s\n' "$FRONTMATTER" "$BODY" > "$FILE"
+
+      - name: Commit changeset
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .changeset/
+          git diff --staged --quiet && exit 0
+          git commit -m "chore: add changeset for dependency update"
+          git push
