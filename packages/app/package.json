@@ -42,7 +42,7 @@
     "hono": "^4.12.17",
     "i18next": "^26.2.0",
     "lucide-react-native": "^1.16.0",
-    "react": "19.2.0",
+    "react": "19.2.7",
     "react-i18next": "^17.0.8",
     "react-native": "0.86.0",
     "react-native-actions-sheet": "^10.1.2",
@@ -62,7 +62,7 @@
     "eas-cli": "^18.13.1",
     "react-native-dotenv": "^3.4.11",
     "react-native-svg-transformer": "1.5.3",
-    "react-test-renderer": "19.2.0",
+    "react-test-renderer": "19.2.7",
     "typescript": "~5.9.2"
   }
 }
