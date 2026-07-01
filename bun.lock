@@ -52,7 +52,7 @@
         "dotenv": "^17.4.2",
         "expo": "~55.0.0",
         "expo-brightness": "~56.0.5",
-        "expo-camera": "^55.0.0",
+        "expo-camera": "^57.0.0",
         "expo-clipboard": "~56.0.4",
         "expo-dev-client": "~56.0.20",
         "expo-localization": "~55.0.0",
@@ -1111,7 +1111,7 @@
 
     "expo-brightness": ["expo-brightness@56.0.5", "", { "peerDependencies": { "expo": "*", "react-native": "*" } }, "sha512-AkCGW+Lj8I4o2+Yjs1bzjIJz44cgNXfAN+pf01uDwmA1/1JTIy8x1eISvmz6d2r/1OhdyBZxeDkACNLVMDx5zA=="],
 
-    "expo-camera": ["expo-camera@55.0.19", "", { "dependencies": { "barcode-detector": "^3.0.0" }, "peerDependencies": { "expo": "*", "react": "*", "react-native": "*", "react-native-web": "*" }, "optionalPeers": ["react-native-web"] }, "sha512-EUGEo7m/cY6u8XyLKzavYWs1XP53vvg2LCCBM4nkY8hhUzQ3DeClYr9G3ew0JV2d8WOI15Yyj1Xoe8CjD3ySbg=="],
+    "expo-camera": ["expo-camera@57.0.0", "", { "dependencies": { "barcode-detector": "^3.0.0" }, "peerDependencies": { "expo": "*", "react": "*", "react-native": "*", "react-native-web": "*" }, "optionalPeers": ["react-native-web"] }, "sha512-Ilp2hzmUW1oDjgnRrowPzbdzGZ8BdtCYMAGnQh3yoZBW4dJb21sObIbacf0PenkMSFE73d0xK03jw8/Cl5Z9Yw=="],
 
     "expo-clipboard": ["expo-clipboard@56.0.4", "", { "peerDependencies": { "expo": "*", "react": "*", "react-native": "*" } }, "sha512-qb4DYlkiowHYHaUYVT2FN9nk/nI1xShXOUYsI7J9dVpQCOHcGFjCBPX1VAvEW4Ye4/Aagd6IuhOVAq/+scBOiA=="],
 
@@ -2280,8 +2280,6 @@
     "@isaacs/cliui/wrap-ansi": ["wrap-ansi@8.1.0", "", { "dependencies": { "ansi-styles": "^6.1.0", "string-width": "^5.0.1", "strip-ansi": "^7.0.1" } }, "sha512-si7QWI6zUMq56bESFvagtmzMdGOtoxfR+Sez11Mobfc7tm+VkUckk9bW2UeffTGVUbOksxmSw0AA2gs8g71NCQ=="],
 
     "@jest/types/@jest/schemas": ["@jest/schemas@29.6.3", "", { "dependencies": { "@sinclair/typebox": "^0.27.8" } }, "sha512-mo5j5X+jIZmJQveBKeS/clAueipV7KgiX1vMgCxam1RNYiqE1w62n0/tJJnHtjW8ZHcQco5gY85jA3mi0L+nSA=="],
-
-    "@loyalty-hive/app/hono": ["hono@4.12.25", "", {}, "sha512-2NFaIyNVgJmBs/ecmtGzlmluTFs5cHEWGTdu0t1HBwYzoGXOL5nUQBRMXsXWla5i4KkG//QMzVP88m1+I3fdAQ=="],
 
     "@manypkg/find-root/@types/node": ["@types/node@12.20.55", "", {}, "sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ=="],
 
