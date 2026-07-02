@@ -1,13 +1,13 @@
-import { describe, expect, it } from "bun:test";
 import { renderHook } from "@testing-library/react-native";
+import { describe, expect, it } from "bun:test";
 import { RefreshControl } from "react-native";
 
 import { useThemedRefreshControl } from "./useThemedRefreshControl";
 
 describe("[Unit] useThemedRefreshControl", () => {
-  it("returns a RefreshControl element", () => {
+  it("returns a RefreshControl element", async () => {
     const onRefresh = () => {};
-    const { result } = renderHook(() =>
+    const { result } = await renderHook(() =>
       useThemedRefreshControl(false, onRefresh),
     );
 

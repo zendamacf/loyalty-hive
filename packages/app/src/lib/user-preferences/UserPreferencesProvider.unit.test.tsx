@@ -1,4 +1,8 @@
-import { beforeEach, describe, expect, it } from "bun:test";
+import { LANGUAGE_STORAGE_KEY } from "@/i18n/i18n.constants";
+import { useLanguage } from "@/i18n/language-context";
+import { CARD_SORT_STORAGE_KEY, useCardSort } from "@/lib/card-sort";
+import { THEME_STORAGE_KEY } from "@/theme/theme.constants";
+import { useTheme } from "@/theme/useTheme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   act,
@@ -7,13 +11,9 @@ import {
   renderHook,
   waitFor,
 } from "@testing-library/react-native";
+import { beforeEach, describe, expect, it } from "bun:test";
 import type { ReactNode } from "react";
 import { Text } from "react-native";
-import { LANGUAGE_STORAGE_KEY } from "@/i18n/i18n.constants";
-import { useLanguage } from "@/i18n/language-context";
-import { CARD_SORT_STORAGE_KEY, useCardSort } from "@/lib/card-sort";
-import { THEME_STORAGE_KEY } from "@/theme/theme.constants";
-import { useTheme } from "@/theme/useTheme";
 import { UserPreferencesProvider } from "./UserPreferencesProvider";
 
 const wrapper = ({ children }: { children: ReactNode }) => (
@@ -47,7 +47,7 @@ describe("[Unit] UserPreferencesProvider", () => {
   it("ignores invalid stored theme and resets to system preference", async () => {
     await AsyncStorage.setItem(THEME_STORAGE_KEY, "invalid");
 
-    const { getByText } = render(
+    const { getByText } = await render(
       <UserPreferencesProvider>
         <ThemeProbe />
       </UserPreferencesProvider>,
@@ -58,7 +58,7 @@ describe("[Unit] UserPreferencesProvider", () => {
   });
 
   it("persists system theme preference across remounts", async () => {
-    const first = render(
+    const first = await render(
       <UserPreferencesProvider>
         <ThemeProbe />
       </UserPreferencesProvider>,
@@ -67,7 +67,7 @@ describe("[Unit] UserPreferencesProvider", () => {
     await waitFor(() => expect(first.getByText("light")).toBeTruthy());
     first.unmount();
 
-    const second = render(
+    const second = await render(
       <UserPreferencesProvider>
         <ThemeProbe />
       </UserPreferencesProvider>,
@@ -78,7 +78,7 @@ describe("[Unit] UserPreferencesProvider", () => {
   });
 
   it("persists purple theme preference across remounts", async () => {
-    const first = render(
+    const first = await render(
       <UserPreferencesProvider>
         <ThemeProbe />
       </UserPreferencesProvider>,
@@ -91,7 +91,7 @@ describe("[Unit] UserPreferencesProvider", () => {
     await waitFor(() => expect(first.getByText("purple")).toBeTruthy());
     first.unmount();
 
-    const second = render(
+    const second = await render(
       <UserPreferencesProvider>
         <ThemeProbe />
       </UserPreferencesProvider>,
@@ -102,7 +102,7 @@ describe("[Unit] UserPreferencesProvider", () => {
   });
 
   it("persists theme preference across remounts", async () => {
-    const first = render(
+    const first = await render(
       <UserPreferencesProvider>
         <ThemeProbe />
       </UserPreferencesProvider>,
@@ -115,7 +115,7 @@ describe("[Unit] UserPreferencesProvider", () => {
     await waitFor(() => expect(first.getByText("dark")).toBeTruthy());
     first.unmount();
 
-    const second = render(
+    const second = await render(
       <UserPreferencesProvider>
         <ThemeProbe />
       </UserPreferencesProvider>,
@@ -127,7 +127,7 @@ describe("[Unit] UserPreferencesProvider", () => {
   it("loads a stored card sort preference", async () => {
     await AsyncStorage.setItem(CARD_SORT_STORAGE_KEY, "most_viewed");
 
-    const { result } = renderHook(() => useCardSort(), { wrapper });
+    const { result } = await renderHook(() => useCardSort(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.hydrated).toBe(true);
@@ -136,7 +136,7 @@ describe("[Unit] UserPreferencesProvider", () => {
   });
 
   it("persists card sort changes", async () => {
-    const { result } = renderHook(() => useCardSort(), { wrapper });
+    const { result } = await renderHook(() => useCardSort(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.hydrated).toBe(true);
@@ -156,7 +156,7 @@ describe("[Unit] UserPreferencesProvider", () => {
   it("loads a stored language preference", async () => {
     await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, "es");
 
-    const { result } = renderHook(() => useLanguage(), { wrapper });
+    const { result } = await renderHook(() => useLanguage(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.hydrated).toBe(true);

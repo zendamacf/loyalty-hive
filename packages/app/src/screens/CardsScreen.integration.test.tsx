@@ -320,18 +320,19 @@ describe("[Integration] CardsScreen", () => {
   });
 
   it("refetches cards on pull-to-refresh", async () => {
-    const { UNSAFE_getByType, getByLabelText } = await renderWithProviders(
+    const { container, getByLabelText } = await renderWithProviders(
       <CardsScreen />,
     );
 
     await waitFor(() => expect(getByLabelText("ASOS")).toBeTruthy());
     expect(getApiV1CardsMock).toHaveBeenCalledTimes(1);
 
-    const { FlatList } = await import("react-native");
     await waitFor(() => {
-      expect(UNSAFE_getByType(FlatList)).toBeTruthy();
+      expect(
+        container.queryAll((node) => node.type === "FlatList"),
+      ).toHaveLength(1);
     });
-    const flatList = UNSAFE_getByType(FlatList);
+    const [flatList] = container.queryAll((node) => node.type === "FlatList");
     await act(async () => {
       await flatList.props.refreshControl.props.onRefresh();
     });

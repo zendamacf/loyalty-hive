@@ -1,12 +1,11 @@
 import { describe, expect, it } from "bun:test";
-import { Image } from "react-native";
 import { brandMark } from "@/theme/theme";
 import { renderWithProviders } from "../../test/render";
 import { LoyaltyBrandMark } from "./LoyaltyBrandMark";
 
 describe("[Integration] LoyaltyBrandMark", () => {
   it("renders provided logo", async () => {
-    const { UNSAFE_getByType } = await renderWithProviders(
+    const { container } = await renderWithProviders(
       <LoyaltyBrandMark
         brand="Test Brand"
         height={48}
@@ -14,7 +13,7 @@ describe("[Integration] LoyaltyBrandMark", () => {
       />,
     );
 
-    const img = UNSAFE_getByType(Image);
+    const [img] = container.queryAll((node) => node.type === "Image");
     expect(img.props.source).toEqual({ uri: "https://example.com/logo.png" });
   });
 
