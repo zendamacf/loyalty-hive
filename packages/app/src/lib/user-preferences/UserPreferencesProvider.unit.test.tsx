@@ -1,8 +1,4 @@
-import { LANGUAGE_STORAGE_KEY } from "@/i18n/i18n.constants";
-import { useLanguage } from "@/i18n/language-context";
-import { CARD_SORT_STORAGE_KEY, useCardSort } from "@/lib/card-sort";
-import { THEME_STORAGE_KEY } from "@/theme/theme.constants";
-import { useTheme } from "@/theme/useTheme";
+import { beforeEach, describe, expect, it } from "bun:test";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   act,
@@ -11,9 +7,13 @@ import {
   renderHook,
   waitFor,
 } from "@testing-library/react-native";
-import { beforeEach, describe, expect, it } from "bun:test";
 import type { ReactNode } from "react";
 import { Text } from "react-native";
+import { LANGUAGE_STORAGE_KEY } from "@/i18n/i18n.constants";
+import { useLanguage } from "@/i18n/language-context";
+import { CARD_SORT_STORAGE_KEY, useCardSort } from "@/lib/card-sort";
+import { THEME_STORAGE_KEY } from "@/theme/theme.constants";
+import { useTheme } from "@/theme/useTheme";
 import { UserPreferencesProvider } from "./UserPreferencesProvider";
 
 const wrapper = ({ children }: { children: ReactNode }) => (

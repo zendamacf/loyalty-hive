@@ -1,5 +1,5 @@
-import { act, renderHook, waitFor } from "@testing-library/react-native";
 import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { act, renderHook, waitFor } from "@testing-library/react-native";
 import type { ReactNode } from "react";
 
 import { Routes } from "@/constants/routes.constants";
@@ -7,15 +7,15 @@ import { getBearerToken, setBearerToken } from "@/lib/api-client/setup";
 import { queryClient } from "@/lib/query-client";
 import { getExpoRouterMocks } from "../../../test/mocks/expo-router";
 import {
-    clearSecureStoreMock,
-    secureStoreSetMock,
-    setSecureStoreItem,
+  clearSecureStoreMock,
+  secureStoreSetMock,
+  setSecureStoreItem,
 } from "../../../test/mocks/expo-secure-store";
 import {
-    clearUnauthorizedHandlerMock,
-    getUnauthorizedHandler,
-    installUnauthorizedInterceptorMock,
-    setUnauthorizedHandlerMock,
+  clearUnauthorizedHandlerMock,
+  getUnauthorizedHandler,
+  installUnauthorizedInterceptorMock,
+  setUnauthorizedHandlerMock,
 } from "../../../test/mocks/unauthorized";
 import { AUTH_TOKEN_STORAGE_KEY } from "./auth.constants";
 

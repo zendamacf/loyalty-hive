@@ -1,5 +1,5 @@
-import { render } from "@testing-library/react-native";
 import { describe, expect, it } from "bun:test";
+import { render } from "@testing-library/react-native";
 import { Text } from "react-native";
 
 import { CROSSFADE_MS, useCrossfadeProgress } from "./useCrossfadeProgress";

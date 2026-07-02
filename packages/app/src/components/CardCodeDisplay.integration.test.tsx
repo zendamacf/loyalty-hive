@@ -50,7 +50,9 @@ describe("[Integration] CardCodeDisplay", () => {
 
     const brandStrip = getByTestId("brand-strip");
     expect(brandStrip).toBeTruthy();
-    expect(brandStrip.queryAll((node) => node.type === "Image")).toHaveLength(0);
+    expect(brandStrip.queryAll((node) => node.type === "Image")).toHaveLength(
+      0,
+    );
   });
 
   it("renders logo and name in the brand strip when provided", async () => {

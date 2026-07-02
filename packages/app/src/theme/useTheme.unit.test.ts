@@ -1,5 +1,5 @@
-import { renderHook } from "@testing-library/react-native";
 import { describe, expect, it } from "bun:test";
+import { renderHook } from "@testing-library/react-native";
 
 import { DEFAULT_THEME_MODE } from "./theme.constants";
 import { lightTheme } from "./themes";

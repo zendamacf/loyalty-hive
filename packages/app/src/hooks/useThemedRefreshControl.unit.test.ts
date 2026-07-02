@@ -1,5 +1,5 @@
-import { renderHook } from "@testing-library/react-native";
 import { describe, expect, it } from "bun:test";
+import { renderHook } from "@testing-library/react-native";
 import { RefreshControl } from "react-native";
 
 import { useThemedRefreshControl } from "./useThemedRefreshControl";

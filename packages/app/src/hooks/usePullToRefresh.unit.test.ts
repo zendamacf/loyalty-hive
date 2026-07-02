@@ -1,5 +1,5 @@
-import { act, renderHook, waitFor } from "@testing-library/react-native";
 import { describe, expect, it, mock } from "bun:test";
+import { act, renderHook, waitFor } from "@testing-library/react-native";
 
 import { usePullToRefresh } from "./usePullToRefresh";
 
