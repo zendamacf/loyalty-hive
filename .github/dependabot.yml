@@ -4,4 +4,10 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 30
+    groups:
+      everything:
+        patterns:
+          - "*"
     open-pull-requests-limit: 5
