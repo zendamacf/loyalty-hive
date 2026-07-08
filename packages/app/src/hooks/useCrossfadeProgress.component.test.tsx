@@ -32,30 +32,30 @@ describe("[Component] useCrossfadeProgress", () => {
     expect(CROSSFADE_MS).toBe(220);
   });
 
-  it("crossfades off layer visible when active is false", () => {
-    const { getByTestId } = render(<CrossfadeProbe active={false} />);
+  it("crossfades off layer visible when active is false", async () => {
+    const { getByTestId } = await render(<CrossfadeProbe active={false} />);
 
     expect(getByTestId("opacity-off").props.children).toBe("1");
     expect(getByTestId("opacity-on").props.children).toBe("0");
   });
 
-  it("crossfades on layer visible when active is true", () => {
-    const { getByTestId } = render(<CrossfadeProbe active={true} />);
+  it("crossfades on layer visible when active is true", async () => {
+    const { getByTestId } = await render(<CrossfadeProbe active={true} />);
 
     expect(getByTestId("opacity-off").props.children).toBe("0");
     expect(getByTestId("opacity-on").props.children).toBe("1");
   });
 
-  it("omits iconTransform when includeIconTransform is false", () => {
-    const { getByTestId } = render(
+  it("omits iconTransform when includeIconTransform is false", async () => {
+    const { getByTestId } = await render(
       <CrossfadeProbe active={false} includeIconTransform={false} />,
     );
 
     expect(getByTestId("icon-transform").props.children).toBe("none");
   });
 
-  it("includes iconTransform by default", () => {
-    const { getByTestId } = render(<CrossfadeProbe active={false} />);
+  it("includes iconTransform by default", async () => {
+    const { getByTestId } = await render(<CrossfadeProbe active={false} />);
 
     expect(getByTestId("icon-transform").props.children).toBe("present");
   });

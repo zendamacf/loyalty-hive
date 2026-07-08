@@ -138,6 +138,7 @@ export const SelectBrandScreen = () => {
       <DataLoadStatus error={error} loaded={loaded} loadingLabel={t("loading")}>
         <View style={styles.listSection}>
           <FlatList
+            testID="brands-list"
             data={filteredBrands}
             keyExtractor={(item) => item.id}
             numColumns={2}

@@ -184,6 +184,7 @@ export const LoginScreen = () => {
             disabled={isSubmitting}
             hitSlop={8}
             style={styles.passwordToggle}
+            testID="password-toggle"
             onPress={() => setShowPassword((visible) => !visible)}
           >
             {showPassword ? (
@@ -210,6 +211,7 @@ export const LoginScreen = () => {
           accessibilityRole="button"
           disabled={isSubmitting}
           hitSlop={8}
+          testID="mode-toggle"
           onPress={() => switchMode(mode === "login" ? "signup" : "login")}
         >
           <Text style={[styles.modeToggle, { color: theme.primary }]}>

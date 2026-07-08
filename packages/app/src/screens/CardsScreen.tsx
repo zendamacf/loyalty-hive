@@ -232,6 +232,7 @@ export const CardsScreen = () => {
 
       <DataLoadStatus error={error} loaded={loaded} loadingLabel={t("loading")}>
         <FlatList
+          testID="cards-list"
           data={filteredCards}
           keyExtractor={(item) => item.id}
           numColumns={2}

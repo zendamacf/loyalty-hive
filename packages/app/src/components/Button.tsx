@@ -20,6 +20,7 @@ export const Button = ({ title, onPress, disabled = false }: ButtonProps) => {
         { backgroundColor: theme.primary },
         disabled && styles.buttonDisabled,
       ]}
+      testID="button"
       onPress={onPress}
     >
       <Text style={[styles.text, { color: "#0D1B2A" }]}>{title}</Text>

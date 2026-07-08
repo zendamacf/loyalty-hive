@@ -6,7 +6,7 @@ import { usePullToRefresh } from "./usePullToRefresh";
 describe("[Unit] usePullToRefresh", () => {
   it("calls refetch and toggles refreshing on onRefresh", async () => {
     const refetch = mock(() => Promise.resolve());
-    const { result } = renderHook(() => usePullToRefresh(refetch));
+    const { result } = await renderHook(() => usePullToRefresh(refetch));
 
     expect(result.current.refreshing).toBe(false);
 

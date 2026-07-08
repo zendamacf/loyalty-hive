@@ -276,7 +276,21 @@ mock.module("react-native", () => ({
       props.children as React.ReactNode,
     );
   }),
-  TextInput: createPrimitive("TextInput"),
+  TextInput: React.forwardRef(function TextInput(
+    props: Record<string, unknown>,
+    ref: React.Ref<{ focus: () => void; blur: () => void; clear: () => void }>,
+  ) {
+    React.useImperativeHandle(ref, () => ({
+      focus: () => {},
+      blur: () => {},
+      clear: () => {},
+    }));
+    return React.createElement(
+      "TextInput",
+      props,
+      props.children as React.ReactNode,
+    );
+  }),
   Image: createPrimitive("Image"),
   Animated,
   Easing,

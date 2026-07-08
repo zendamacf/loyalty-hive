@@ -65,6 +65,14 @@ describe("[Integration] ScanManualEntrySheet", () => {
   });
 
   it("creates a card from manual entry and returns to cards tab", async () => {
+    let resolveSave!: (value: typeof defaultCardSaveResponse) => void;
+    postApiV1CardsMock.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveSave = resolve;
+        }),
+    );
+
     const { getByPlaceholderText, getByText } = await renderWithProviders(
       <View testID="sheet-host" />,
     );
@@ -83,9 +91,15 @@ describe("[Integration] ScanManualEntrySheet", () => {
     });
 
     await changeText(getByPlaceholderText("Card number"), " 123456 ");
-    fireEvent.press(getByText("Add"));
+    await fireEvent.press(getByText("Add"));
 
+    // RNTL v14 awaits fireEvent/act and flushes pending updates, so withhold the
+    // save response long enough to assert the submitting label.
     expect(getByText("Saving card...")).toBeTruthy();
+
+    await act(async () => {
+      resolveSave(defaultCardSaveResponse);
+    });
 
     await waitFor(() => {
       expect(postApiV1CardsMock).toHaveBeenCalledWith(
