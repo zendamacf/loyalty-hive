@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { act, fireEvent, waitFor } from "@testing-library/react-native";
-import { Pressable, TouchableOpacity } from "react-native";
 
 import { APP_NAME } from "@/constants/branding.constants";
 import { Routes } from "@/constants/routes.constants";
@@ -308,7 +307,7 @@ describe("[Integration] LoginScreen", () => {
   it("shows submitting state while login is in progress", async () => {
     postApiV1AuthLoginMock.mockImplementation(() => new Promise(() => {}));
 
-    const { getByText, getByPlaceholderText, UNSAFE_getAllByType } =
+    const { getByTestId, getByText, getByPlaceholderText } =
       await renderWithProviders(<LoginScreen />);
 
     await changeText(getByPlaceholderText("Email"), "hi@example.com");
@@ -319,20 +318,16 @@ describe("[Integration] LoginScreen", () => {
       expect(getByText("Signing in…")).toBeTruthy();
     });
 
-    const disabledSubmitButtons = UNSAFE_getAllByType(TouchableOpacity).filter(
-      (node) => node.props.disabled === true,
-    );
-    expect(disabledSubmitButtons).toHaveLength(1);
-    expect(
-      UNSAFE_getAllByType(Pressable).some((p) => p.props.disabled === true),
-    ).toBe(true);
+    expect(getByTestId("button").props.disabled).toBe(true);
+    expect(getByTestId("password-toggle").props.disabled).toBe(true);
+    expect(getByTestId("mode-toggle").props.disabled).toBe(true);
     expect(getByPlaceholderText("Email").props.editable).toBe(false);
   });
 
   it("shows submitting state while signup is in progress", async () => {
     postApiV1AuthSignupMock.mockImplementation(() => new Promise(() => {}));
 
-    const { getByText, getByPlaceholderText, UNSAFE_getAllByType } =
+    const { getByTestId, getByText, getByPlaceholderText } =
       await renderWithProviders(<LoginScreen />);
 
     await press(getByText("Need an account? Sign up"));
@@ -344,13 +339,9 @@ describe("[Integration] LoginScreen", () => {
       expect(getByText("Creating account…")).toBeTruthy();
     });
 
-    const disabledSubmitButtons = UNSAFE_getAllByType(TouchableOpacity).filter(
-      (node) => node.props.disabled === true,
-    );
-    expect(disabledSubmitButtons).toHaveLength(1);
-    expect(
-      UNSAFE_getAllByType(Pressable).some((p) => p.props.disabled === true),
-    ).toBe(true);
+    expect(getByTestId("button").props.disabled).toBe(true);
+    expect(getByTestId("password-toggle").props.disabled).toBe(true);
+    expect(getByTestId("mode-toggle").props.disabled).toBe(true);
     expect(getByPlaceholderText("Email").props.editable).toBe(false);
   });
 

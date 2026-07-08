@@ -54,7 +54,7 @@ export const LoyaltyBrandMark = ({
       ]}
     >
       {logo ? (
-        <Image source={{ uri: logo }} style={styles.logo} />
+        <Image source={{ uri: logo }} style={styles.logo} testID="brand-logo" />
       ) : (
         <Text style={[styles.brand, { color: theme.textPrimary }]}>
           {brand}

@@ -1,13 +1,12 @@
 import { describe, expect, it, mock } from "bun:test";
 
 import { fireEvent, render } from "@testing-library/react-native";
-import { Image } from "react-native";
 
 import { LoyaltyBrandLogo } from "./LoyaltyBrandLogo";
 
 describe("[Component] LoyaltyBrandLogo", () => {
   it("renders provided logo", async () => {
-    const { UNSAFE_getByType } = await render(
+    const { getByTestId } = await render(
       <LoyaltyBrandLogo
         brand="Test Brand"
         height={48}
@@ -16,7 +15,7 @@ describe("[Component] LoyaltyBrandLogo", () => {
       />,
     );
 
-    const img = UNSAFE_getByType(Image);
+    const img = getByTestId("brand-logo");
     expect(img.props.source).toEqual({ uri: "https://example.com/logo.png" });
   });
 

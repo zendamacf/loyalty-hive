@@ -68,6 +68,7 @@ export const CardCodeDisplay = ({
           <Image
             source={{ uri: trimmedLogoUrl }}
             style={styles.brandStripLogo}
+            testID="brand-strip-logo"
           />
         ) : null}
         {trimmedBrand ? (
