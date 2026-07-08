@@ -12,12 +12,10 @@ import {
   act,
   fireEvent,
   render,
-  waitFor,
   type RenderOptions,
   type RenderResult,
 } from "@testing-library/react-native";
-import { expect } from "bun:test";
-import type { ReactElement, ReactNode } from "react";
+import { type ReactElement, type ReactNode, useState } from "react";
 import { I18nextProvider } from "react-i18next";
 import { View } from "react-native";
 import { SheetProvider } from "react-native-actions-sheet";
@@ -43,11 +41,8 @@ export async function press(
   options: PressOptions = {},
 ): Promise<void> {
   const { flushLayout = true } = options;
-  await act(async () => {
-    fireEvent.press(element);
-    // Let promise/microtask-driven updates (e.g. mutations) settle inside act.
-    await new Promise<void>((resolve) => setImmediate(resolve));
-  });
+  // fireEvent is async in RNTL v14 — await it so updates flush before returning.
+  await fireEvent.press(element);
   if (flushLayout) {
     await flushAct();
   }
@@ -57,10 +52,7 @@ export async function changeText(
   element: Parameters<typeof fireEvent.changeText>[0],
   text: string,
 ): Promise<void> {
-  await act(async () => {
-    fireEvent.changeText(element, text);
-    await new Promise<void>((resolve) => setImmediate(resolve));
-  });
+  await fireEvent.changeText(element, text);
 }
 
 export function createTestQueryClient() {
@@ -93,8 +85,12 @@ function ProvidersSettled({ children }: { children: ReactNode }) {
 }
 
 function TestProviders({ children }: { children: ReactNode }) {
+  // Stable client across re-renders. Creating a new QueryClient each render
+  // remounts Auth/UserPreferences under RNTL v14's concurrent root.
+  const [queryClient] = useState(createTestQueryClient);
+
   return (
-    <QueryClientProvider client={createTestQueryClient()}>
+    <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <I18nextProvider i18n={i18n}>
           <UserPreferencesProvider>
@@ -115,11 +111,9 @@ function TestProviders({ children }: { children: ReactNode }) {
 
 /** Flushes async provider hydration after render. */
 export async function settleProviders(
-  result: Pick<RenderResult, "getByTestId">,
+  result: Pick<RenderResult, "findByTestId">,
 ): Promise<void> {
-  await waitFor(() => {
-    expect(result.getByTestId(TEST_PROVIDERS_READY_ID)).toBeTruthy();
-  });
+  await result.findByTestId(TEST_PROVIDERS_READY_ID);
   await act(async () => {
     await new Promise<void>((resolve) => setImmediate(resolve));
   });
@@ -162,7 +156,9 @@ export async function renderWithSharedQueryClient(
   ui: ReactElement,
   queryClient = createTestQueryClient(),
 ): Promise<RenderResult & { queryClient: QueryClient }> {
-  const result = await render(ui, { wrapper: createQueryClientWrapper(queryClient) });
+  const result = await render(ui, {
+    wrapper: createQueryClientWrapper(queryClient),
+  });
   await settleProviders(result);
   return {
     queryClient,

@@ -35,7 +35,7 @@ describe("[Integration] LoyaltyBrandMark", () => {
       />,
     );
 
-    rerender(
+    await rerender(
       <LoyaltyBrandMark
         animateHeight
         brand="Test Brand"

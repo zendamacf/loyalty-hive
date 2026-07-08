@@ -28,7 +28,7 @@ describe("[Integration] CardCodeDisplay", () => {
 
     expect(getByTestId("barcode")).toBeTruthy();
 
-    rerender(
+    await rerender(
       <CardCodeDisplay
         cardNumber="1234567890"
         view="2D"

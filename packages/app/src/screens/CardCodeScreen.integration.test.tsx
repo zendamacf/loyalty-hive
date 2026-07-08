@@ -159,7 +159,7 @@ describe("[Integration] CardCodeScreen", () => {
     });
 
     brightnessMocks.setBrightnessAsync.mockClear();
-    unmount();
+    await unmount();
 
     await waitFor(() => {
       expect(brightnessMocks.setBrightnessAsync).toHaveBeenCalledWith(0.5);

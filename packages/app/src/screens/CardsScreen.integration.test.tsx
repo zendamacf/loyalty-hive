@@ -344,7 +344,7 @@ describe("[Integration] CardsScreen", () => {
 
     await waitFor(() => expect(getApiV1CardsMock).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(getByLabelText("ASOS")).toBeTruthy());
-    unmount();
+    await unmount();
 
     const remount = await renderWithSharedQueryClient(
       <CardsScreen />,

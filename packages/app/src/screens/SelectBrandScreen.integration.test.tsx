@@ -156,7 +156,7 @@ describe("[Integration] SelectBrandScreen", () => {
 
     await waitFor(() => expect(getApiV1BrandsMock).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(getByLabelText("ASOS")).toBeTruthy());
-    unmount();
+    await unmount();
 
     const remount = await renderWithSharedQueryClient(
       <SelectBrandScreen />,
