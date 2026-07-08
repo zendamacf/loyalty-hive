@@ -83,7 +83,7 @@ describe("[Integration] ScanManualEntrySheet", () => {
     });
 
     await changeText(getByPlaceholderText("Card number"), " 123456 ");
-    fireEvent.press(getByText("Add"));
+    await fireEvent.press(getByText("Add"));
 
     expect(getByText("Saving card...")).toBeTruthy();
 

@@ -6,8 +6,8 @@ import { Text } from "react-native";
 import { DataLoadStatus } from "./DataLoadStatus";
 
 describe("[Component] DataLoadStatus", () => {
-  it("renders error message when error is set", () => {
-    const { getByText, queryByText } = render(
+  it("renders error message when error is set", async () => {
+    const { getByText, queryByText } = await render(
       <DataLoadStatus
         error="Network failed"
         loaded={false}
@@ -21,8 +21,8 @@ describe("[Component] DataLoadStatus", () => {
     expect(queryByText("Content")).toBeNull();
   });
 
-  it("renders loading label while not loaded", () => {
-    const { getByText, queryByText } = render(
+  it("renders loading label while not loaded", async () => {
+    const { getByText, queryByText } = await render(
       <DataLoadStatus error={null} loaded={false} loadingLabel="Loading cards…">
         <Text>Content</Text>
       </DataLoadStatus>,
@@ -32,8 +32,8 @@ describe("[Component] DataLoadStatus", () => {
     expect(queryByText("Content")).toBeNull();
   });
 
-  it("renders children when loaded without error", () => {
-    const { getByText, queryByText } = render(
+  it("renders children when loaded without error", async () => {
+    const { getByText, queryByText } = await render(
       <DataLoadStatus error={null} loaded loadingLabel="Loading…">
         <Text>Content</Text>
       </DataLoadStatus>,

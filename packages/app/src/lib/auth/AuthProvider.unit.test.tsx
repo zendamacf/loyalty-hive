@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { act, renderHook, waitFor } from "@testing-library/react-native";
+import { beforeEach, describe, expect, it, mock } from "bun:test";
 import type { ReactNode } from "react";
 
 import { Routes } from "@/constants/routes.constants";
@@ -42,8 +42,8 @@ describe("[Unit] AuthProvider", () => {
     queryClient.clear();
   });
 
-  it("throws when useAuth is used outside AuthProvider", () => {
-    expect(() => renderHook(() => useAuth())).toThrow(
+  it("throws when useAuth is used outside AuthProvider", async () => {
+    expect(async () => await renderHook(() => useAuth())).toThrow(
       "useAuth must be used within AuthProvider",
     );
   });
@@ -51,7 +51,7 @@ describe("[Unit] AuthProvider", () => {
   it("restores an existing session from secure storage", async () => {
     setSecureStoreItem(AUTH_TOKEN_STORAGE_KEY, "stored-jwt");
 
-    const { result } = renderHook(() => useAuth(), { wrapper });
+    const { result } = await renderHook(() => useAuth(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.isReady).toBe(true);
@@ -62,7 +62,7 @@ describe("[Unit] AuthProvider", () => {
   });
 
   it("starts unauthenticated when no token is stored", async () => {
-    const { result } = renderHook(() => useAuth(), { wrapper });
+    const { result } = await renderHook(() => useAuth(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.isReady).toBe(true);
@@ -73,7 +73,7 @@ describe("[Unit] AuthProvider", () => {
   });
 
   it("signIn persists the token and marks the user authenticated", async () => {
-    const { result } = renderHook(() => useAuth(), { wrapper });
+    const { result } = await renderHook(() => useAuth(), { wrapper });
 
     await waitFor(() => expect(result.current.isReady).toBe(true));
 
@@ -93,7 +93,7 @@ describe("[Unit] AuthProvider", () => {
     setSecureStoreItem(AUTH_TOKEN_STORAGE_KEY, "stored-jwt");
     queryClient.setQueryData(["cards"], [{ id: "1" }]);
 
-    const { result } = renderHook(() => useAuth(), { wrapper });
+    const { result } = await renderHook(() => useAuth(), { wrapper });
 
     await waitFor(() => expect(result.current.isAuthenticated).toBe(true));
 
@@ -109,7 +109,7 @@ describe("[Unit] AuthProvider", () => {
   it("registers an unauthorized handler that signs out and returns to login", async () => {
     setSecureStoreItem(AUTH_TOKEN_STORAGE_KEY, "stored-jwt");
 
-    const { result } = renderHook(() => useAuth(), { wrapper });
+    const { result } = await renderHook(() => useAuth(), { wrapper });
 
     await waitFor(() => expect(result.current.isAuthenticated).toBe(true));
 
@@ -128,11 +128,11 @@ describe("[Unit] AuthProvider", () => {
   });
 
   it("clears the unauthorized handler on unmount", async () => {
-    const { unmount } = renderHook(() => useAuth(), { wrapper });
+    const { unmount } = await renderHook(() => useAuth(), { wrapper });
 
     await waitFor(() => expect(setUnauthorizedHandlerMock).toHaveBeenCalled());
 
-    unmount();
+    await unmount();
 
     expect(setUnauthorizedHandlerMock).toHaveBeenLastCalledWith(undefined);
   });

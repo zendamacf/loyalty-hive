@@ -1,18 +1,3 @@
-import { expect } from "bun:test";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  act,
-  type RenderOptions,
-  type RenderResult,
-  fireEvent,
-  render,
-  waitFor,
-} from "@testing-library/react-native";
-import type { ReactElement, ReactNode } from "react";
-import { View } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { SheetProvider } from "react-native-actions-sheet";
-import { I18nextProvider } from "react-i18next";
 import { OverlayProvider } from "@/components/OverlayProvider";
 import i18n from "@/i18n";
 import { AuthProvider, useAuth } from "@/lib/auth";
@@ -22,6 +7,21 @@ import {
   usePreferencesHydrated,
 } from "@/lib/user-preferences";
 import { AppSheets } from "@/sheets";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  act,
+  fireEvent,
+  render,
+  waitFor,
+  type RenderOptions,
+  type RenderResult,
+} from "@testing-library/react-native";
+import { expect } from "bun:test";
+import type { ReactElement, ReactNode } from "react";
+import { I18nextProvider } from "react-i18next";
+import { View } from "react-native";
+import { SheetProvider } from "react-native-actions-sheet";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export const TEST_PROVIDERS_READY_ID = "test-providers-ready";
 
@@ -129,7 +129,7 @@ export async function renderWithProviders(
   ui: ReactElement,
   options?: Omit<RenderOptions, "wrapper">,
 ): Promise<RenderResult> {
-  const result = render(ui, { wrapper: TestProviders, ...options });
+  const result = await render(ui, { wrapper: TestProviders, ...options });
   await settleProviders(result);
   return result;
 }
@@ -162,7 +162,7 @@ export async function renderWithSharedQueryClient(
   ui: ReactElement,
   queryClient = createTestQueryClient(),
 ): Promise<RenderResult & { queryClient: QueryClient }> {
-  const result = render(ui, { wrapper: createQueryClientWrapper(queryClient) });
+  const result = await render(ui, { wrapper: createQueryClientWrapper(queryClient) });
   await settleProviders(result);
   return {
     queryClient,

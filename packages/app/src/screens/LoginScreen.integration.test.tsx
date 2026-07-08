@@ -156,7 +156,7 @@ describe("[Integration] LoginScreen", () => {
       <LoginScreen />,
     );
 
-    fireEvent(getByPlaceholderText("Password"), "submitEditing");
+    await fireEvent(getByPlaceholderText("Password"), "submitEditing");
 
     expect(getByText("Enter your email and password.")).toBeTruthy();
   });
@@ -166,7 +166,7 @@ describe("[Integration] LoginScreen", () => {
 
     await changeText(getByPlaceholderText("Email"), "hi@example.com");
     await changeText(getByPlaceholderText("Password"), "secret");
-    fireEvent(getByPlaceholderText("Password"), "submitEditing");
+    await fireEvent(getByPlaceholderText("Password"), "submitEditing");
 
     await waitFor(() => {
       expect(postApiV1AuthLoginMock).toHaveBeenCalledWith(
@@ -184,7 +184,7 @@ describe("[Integration] LoginScreen", () => {
 
     await changeText(getByPlaceholderText("Email"), "hi@example.com");
     await changeText(getByPlaceholderText("Password"), "secret");
-    fireEvent(getByPlaceholderText("Email"), "submitEditing");
+    await fireEvent(getByPlaceholderText("Email"), "submitEditing");
 
     expect(postApiV1AuthLoginMock).not.toHaveBeenCalled();
   });
@@ -197,7 +197,7 @@ describe("[Integration] LoginScreen", () => {
     await press(getByText("Need an account? Sign up"));
     await changeText(getByPlaceholderText("Email"), "new@example.com");
     await changeText(getByPlaceholderText("Password"), "pw");
-    fireEvent(getByPlaceholderText("Password"), "submitEditing");
+    await fireEvent(getByPlaceholderText("Password"), "submitEditing");
 
     await waitFor(() => {
       expect(postApiV1AuthSignupMock).toHaveBeenCalledWith(

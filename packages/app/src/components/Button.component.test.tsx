@@ -4,18 +4,18 @@ import { TouchableOpacity } from "react-native";
 import { Button } from "./Button";
 
 describe("[Component] Button", () => {
-  it("renders title and calls onPress", () => {
+  it("renders title and calls onPress", async () => {
     const onPress = mock(() => {});
-    const { getByText } = render(<Button title="Tap me" onPress={onPress} />);
+    const { getByText } = await render(<Button title="Tap me" onPress={onPress} />);
 
-    fireEvent.press(getByText("Tap me"));
+    await fireEvent.press(getByText("Tap me"));
 
     expect(onPress).toHaveBeenCalledTimes(1);
   });
 
-  it("does not call onPress when disabled", () => {
+  it("does not call onPress when disabled", async () => {
     const onPress = mock(() => {});
-    const { UNSAFE_getByType } = render(
+    const { UNSAFE_getByType } = await render(
       <Button title="Tap me" onPress={onPress} disabled />,
     );
 

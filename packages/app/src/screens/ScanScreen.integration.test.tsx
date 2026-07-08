@@ -129,7 +129,7 @@ describe("[Integration] ScanScreen", () => {
     permissionState = { granted: true };
     const { getByTestId } = await renderWithProviders(<ScanScreen />);
 
-    fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
+    await fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
       type: "qr",
       data: "987654",
     });
@@ -153,7 +153,7 @@ describe("[Integration] ScanScreen", () => {
     permissionState = { granted: true };
     const { getByTestId } = await renderWithProviders(<ScanScreen />);
 
-    fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
+    await fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
       type: "code128",
       data: "987654",
     });
@@ -225,7 +225,7 @@ describe("[Integration] ScanScreen", () => {
       <ScanScreen />,
     );
 
-    fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
+    await fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
       type: "qr",
       data: "111222",
     });
@@ -248,12 +248,12 @@ describe("[Integration] ScanScreen", () => {
       type: "qr",
       data: "111222",
     };
-    fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", scanEvent);
+    await fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", scanEvent);
     await waitFor(() => {
       expect(getAllByDisplayValue("111222").length).toBe(1);
     });
-    fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", scanEvent);
-    fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", scanEvent);
+    await fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", scanEvent);
+    await fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", scanEvent);
 
     expect(getAllByDisplayValue("111222").length).toBe(1);
   });
@@ -289,7 +289,7 @@ describe("[Integration] ScanScreen", () => {
       <ScanScreen />,
     );
 
-    fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
+    await fireEvent(getByTestId("scan-camera"), "onBarcodeScanned", {
       type: "qr",
       data: "987654",
     });

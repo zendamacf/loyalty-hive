@@ -47,7 +47,7 @@ describe("[Unit] UserPreferencesProvider", () => {
   it("ignores invalid stored theme and resets to system preference", async () => {
     await AsyncStorage.setItem(THEME_STORAGE_KEY, "invalid");
 
-    const { getByText } = render(
+    const { getByText } = await render(
       <UserPreferencesProvider>
         <ThemeProbe />
       </UserPreferencesProvider>,
@@ -58,16 +58,16 @@ describe("[Unit] UserPreferencesProvider", () => {
   });
 
   it("persists system theme preference across remounts", async () => {
-    const first = render(
+    const first = await render(
       <UserPreferencesProvider>
         <ThemeProbe />
       </UserPreferencesProvider>,
     );
 
     await waitFor(() => expect(first.getByText("light")).toBeTruthy());
-    first.unmount();
+    await first.unmount();
 
-    const second = render(
+    const second = await render(
       <UserPreferencesProvider>
         <ThemeProbe />
       </UserPreferencesProvider>,
@@ -78,7 +78,7 @@ describe("[Unit] UserPreferencesProvider", () => {
   });
 
   it("persists purple theme preference across remounts", async () => {
-    const first = render(
+    const first = await render(
       <UserPreferencesProvider>
         <ThemeProbe />
       </UserPreferencesProvider>,
@@ -86,12 +86,12 @@ describe("[Unit] UserPreferencesProvider", () => {
 
     await waitFor(() => expect(first.getByText("light")).toBeTruthy());
 
-    fireEvent.press(first.getByLabelText("Set purple theme"));
+    await fireEvent.press(first.getByLabelText("Set purple theme"));
 
     await waitFor(() => expect(first.getByText("purple")).toBeTruthy());
-    first.unmount();
+    await first.unmount();
 
-    const second = render(
+    const second = await render(
       <UserPreferencesProvider>
         <ThemeProbe />
       </UserPreferencesProvider>,
@@ -102,7 +102,7 @@ describe("[Unit] UserPreferencesProvider", () => {
   });
 
   it("persists theme preference across remounts", async () => {
-    const first = render(
+    const first = await render(
       <UserPreferencesProvider>
         <ThemeProbe />
       </UserPreferencesProvider>,
@@ -110,12 +110,12 @@ describe("[Unit] UserPreferencesProvider", () => {
 
     await waitFor(() => expect(first.getByText("light")).toBeTruthy());
 
-    fireEvent.press(first.getByLabelText("Set dark theme"));
+    await fireEvent.press(first.getByLabelText("Set dark theme"));
 
     await waitFor(() => expect(first.getByText("dark")).toBeTruthy());
-    first.unmount();
+    await first.unmount();
 
-    const second = render(
+    const second = await render(
       <UserPreferencesProvider>
         <ThemeProbe />
       </UserPreferencesProvider>,
@@ -127,7 +127,7 @@ describe("[Unit] UserPreferencesProvider", () => {
   it("loads a stored card sort preference", async () => {
     await AsyncStorage.setItem(CARD_SORT_STORAGE_KEY, "most_viewed");
 
-    const { result } = renderHook(() => useCardSort(), { wrapper });
+    const { result } = await renderHook(() => useCardSort(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.hydrated).toBe(true);
@@ -136,13 +136,13 @@ describe("[Unit] UserPreferencesProvider", () => {
   });
 
   it("persists card sort changes", async () => {
-    const { result } = renderHook(() => useCardSort(), { wrapper });
+    const { result } = await renderHook(() => useCardSort(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.hydrated).toBe(true);
     });
 
-    act(() => {
+    await act(() => {
       result.current.setSort("last_viewed");
     });
 
@@ -156,7 +156,7 @@ describe("[Unit] UserPreferencesProvider", () => {
   it("loads a stored language preference", async () => {
     await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, "es");
 
-    const { result } = renderHook(() => useLanguage(), { wrapper });
+    const { result } = await renderHook(() => useLanguage(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.hydrated).toBe(true);
