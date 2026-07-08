@@ -6,7 +6,9 @@ import { Button } from "./Button";
 describe("[Component] Button", () => {
   it("renders title and calls onPress", async () => {
     const onPress = mock(() => {});
-    const { getByText } = await render(<Button title="Tap me" onPress={onPress} />);
+    const { getByText } = await render(
+      <Button title="Tap me" onPress={onPress} />,
+    );
 
     await fireEvent.press(getByText("Tap me"));
 
