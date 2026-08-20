@@ -10,7 +10,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@changesets/cli": "^2.31.0"
+    "@changesets/cli": "^2.31.1"
   },
   "devDependencies": {
     "husky": "^9.1.7"
