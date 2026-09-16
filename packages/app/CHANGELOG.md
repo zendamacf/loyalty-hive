@@ -1,5 +1,11 @@
 # @loyalty-hive/app
 
+## 1.1.4
+
+### Patch Changes
+
+- Prevents Android builds failing due to mismatching versions.
+
 ## 1.1.3
 
 ### Patch Changes

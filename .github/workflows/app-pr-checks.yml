@@ -10,6 +10,37 @@ permissions:
   pull-requests: write
 
 jobs:
+  verify-version:
+    name: check-app / verify-version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Verify package.json and app.json versions match
+        working-directory: packages/app
+        run: |
+          bun -e "
+            const pkg = await Bun.file('package.json').json();
+            const app = await Bun.file('app.json').json();
+            const pkgVersion = pkg.version;
+            const appVersion = app.expo.version;
+            if (pkgVersion !== appVersion) {
+              console.error(
+                '::error::Version mismatch: package.json has \"' +
+                  pkgVersion +
+                  '\" but app.json expo.version has \"' +
+                  appVersion +
+                  '\"'
+              );
+              process.exit(1);
+            }
+            console.log('Version check passed: ' + pkgVersion);
+          "
+
   check-app:
     name: check-app / ${{ matrix.script }}
     runs-on: ubuntu-latest
