@@ -50,5 +50,5 @@ jobs:
       - name: Run EAS build
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: bunx eas build --platform android --profile ${{ inputs.profile || 'production' }} --non-interactive
+        run: bunx eas-cli build --platform android --profile ${{ inputs.profile || 'production' }} --non-interactive
         working-directory: packages/app

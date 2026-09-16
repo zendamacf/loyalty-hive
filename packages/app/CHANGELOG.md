@@ -1,5 +1,11 @@
 # @loyalty-hive/app
 
+## 1.1.6
+
+### Patch Changes
+
+- Fixes builds failing on missing eas script.
+
 ## 1.1.5
 
 ### Patch Changes
