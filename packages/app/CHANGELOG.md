@@ -1,5 +1,34 @@
 # @loyalty-hive/app
 
+## 1.1.3
+
+### Patch Changes
+
+- 827237a: Updated @hono/zod-validator, @biomejs/biome, @types/node, typescript, @react-native-async-storage/async-storage, @sentry/react-native, expo, expo-localization, expo-splash-screen, react-native-gesture-handler, @testing-library/react-native, eas-cli (version-update:semver-major).
+- bd185bd: Updated hono, @biomejs/biome, @types/node, @react-navigation/native, @sentry/react-native, @tanstack/react-query, babel-preset-expo, expo-clipboard, expo-dev-client, expo-localization, expo-router, expo-secure-store, expo-splash-screen, i18next, lucide-react-native, react-native-reanimated, @testing-library/react-native, eas-cli (version-update:semver-major).
+- f03bd70: Updated pg, @biomejs/biome, @types/node, @hey-api/openapi-ts, @sentry/react-native, expo, lucide-react-native, react-native-gesture-handler, eas-cli (version-update:semver-major).
+- 59b91eb: Updated @changesets/cli, @hono/standard-validator, @hono/zod-validator, hono, @biomejs/biome, @types/node, tsx, typescript, @react-navigation/native, @sentry/react-native, @tanstack/react-query, babel-preset-expo, expo, expo-brightness, expo-camera, expo-clipboard, expo-dev-client, expo-localization, expo-router, expo-secure-store, expo-splash-screen, expo-status-bar, i18next, lucide-react-native, react-i18next, react-native-gesture-handler, react-native-reanimated, eas-cli (version-update:semver-major).
+- 680da50: Updated hono, hono-openapi, @biomejs/biome, @types/node, tsx, @react-navigation/native, @sentry/react-native, babel-preset-expo, expo, expo-dev-client, expo-router, expo-splash-screen, i18next, lucide-react-native, react-native-reanimated, eas-cli (version-update:semver-major).
+- 8c9482e: Updated @hono/standard-validator, hono, pg, @types/pg, @biomejs/biome, @types/node, @types/pg, tsx, @react-navigation/native, @sentry/react-native, @tanstack/react-query, babel-preset-expo, expo, expo-dev-client, expo-router, expo-splash-screen, lucide-react-native, react, @types/react, react-i18next, react-native, react-native-reanimated, react-native-safe-area-context, @types/react, eas-cli, react-native-dotenv (version-update:semver-major).
+- 07833be: Updated expo-brightness from 56.0.5 to 57.0.0 (version-update:semver-major).
+- 19edab9: Updated expo-camera from 55.0.19 to 57.0.0 (version-update:semver-major).
+- 3ac9ff5: Updated expo-clipboard from 55.0.13 to 56.0.4 (version-update:semver-major).
+- 9ac9dab: Updated expo-dev-client from 55.0.35 to 56.0.20 (version-update:semver-major).
+- 0bb1c37: Updated expo-router from 55.0.14 to 56.2.11 (version-update:semver-major).
+- 45eba19: Updated expo-secure-store from 55.0.14 to 56.0.4 (version-update:semver-major).
+- de31c8c: Updated expo-status-bar from 55.0.6 to 57.0.0 (version-update:semver-major).
+- 53e7a5a: Updated react-native-reanimated from 4.2.1 to 4.4.1 (version-update:semver-minor).
+- 98e2b3f: Updated react-native-safe-area-context from 5.6.2 to 5.8.0 (version-update:semver-minor).
+- e8a217d: Updated react-native-svg from 15.15.3 to 15.15.5 (version-update:semver-patch).
+- 0024cc3: Updated react-native-svg-transformer from 1.5.2 to 1.5.3 (version-update:semver-patch).
+- 5dac1e8: Updated react from 19.2.0 to 19.2.7, react-test-renderer from 19.2.0 to 19.2.7 (version-update:semver-patch).
+- fc9a2b2: Updated babel-preset-expo from 55.0.22 to 56.0.15 (version-update:semver-major).
+- fb93494: Updated expo-brightness from 55.0.13 to 56.0.5 (version-update:semver-major).
+- edc3c84: Updated expo-clipboard from 55.0.13 to 56.0.4 (version-update:semver-major).
+- 78d0a9c: Updated @hey-api/openapi-ts from 0.97.3 to 0.98.2 (version-update:semver-minor).
+- ec099b5: Updated react-native from 0.83.6 to 0.86.0 (version-update:semver-minor).
+- 08fc453: Added CI workflow to automatically create changesets for Dependabot pull requests.
+
 ## 1.1.2
 
 ### Patch Changes
