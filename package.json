@@ -14,5 +14,10 @@
   },
   "devDependencies": {
     "husky": "^9.1.7"
+  },
+  "overrides": {
+    "react-native-worklets": "0.11.4",
+    "@expo/log-box": "57.0.4",
+    "expo-constants": "57.0.18"
   }
 }
