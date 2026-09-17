@@ -145,7 +145,7 @@ export const CardsScreen = () => {
           {emptySubtitle}
         </Text>
       </View>
-    ) : null;
+    ) : undefined;
 
   return (
     <ScreenShell edges={["top", "left", "right"]} style={styles.container}>
