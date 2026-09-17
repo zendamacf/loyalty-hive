@@ -28,7 +28,7 @@ docker compose -f docker-compose.yml -f docker-compose.ci.yml up --build
 # APP_IMAGE=ghcr.io/zendamacf/loyalty-hive-api:0.2.3 docker compose up -d
 ```
 
-Brand logos live in [`packages/api/public/logos/`](packages/api/public/logos/).
+Brand logos live in [`packages/api/public/logos/`](packages/api/public/logos/) and are served by the API image at `/logos/*`.
 
 ## Releases
 

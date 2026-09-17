@@ -128,6 +128,9 @@ jobs:
       - name: Smoke test health endpoint
         run: curl -sf http://localhost:3000/health | grep -q ok
 
+      - name: Smoke test brand logo
+        run: curl -sfI http://localhost:3000/logos/mecca-v2.png | grep -qi 'content-type: image/png'
+
       - name: Smoke test OpenAPI document
         run: curl -sf http://localhost:3000/doc | grep -q '"openapi"'
 
