@@ -31,7 +31,9 @@ yarn-error.*
 
 # local env files
 .env
-.env.local
+.env.*
+!.env.example
+!.env.compose.example
 
 # typescript
 *.tsbuildinfo
@@ -41,7 +43,6 @@ yarn-error.*
 /android
 packages/app/android/
 packages/app/ios/
-.vercel
 
 # test coverage
 coverage/

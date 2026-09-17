@@ -64,6 +64,13 @@ describe("app", () => {
     ]);
   });
 
+  it("serves health check at /health", async () => {
+    const response = await app.request("/health");
+
+    expect(response.status).toBe(200);
+    expect(await response.text()).toBe("ok");
+  });
+
   it("serves Swagger UI at /", async () => {
     const response = await app.request("/");
 
