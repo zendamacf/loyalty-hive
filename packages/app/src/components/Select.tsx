@@ -18,6 +18,7 @@ import {
   StyleSheet,
   Text,
   View,
+  type ViewInstance,
   type ViewStyle,
 } from "react-native";
 
@@ -98,7 +99,7 @@ export const Select = <T extends string>({
   const [overlayShown, setOverlayShown] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState<MenuAnchor | null>(null);
   const [menuHeight, setMenuHeight] = useState(0);
-  const triggerRef = useRef<View>(null);
+  const triggerRef = useRef<ViewInstance | null>(null);
   const prevOpenRef = useRef(false);
   const chevronFlip = useRef(new Animated.Value(0)).current;
   const menuExpand = useRef(new Animated.Value(0)).current;

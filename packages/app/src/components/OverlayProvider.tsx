@@ -8,11 +8,11 @@ import {
   useRef,
   useState,
 } from "react";
-import { type View as RNView, StyleSheet, View } from "react-native";
+import { StyleSheet, View, type ViewInstance } from "react-native";
 
 type OverlayContextValue = {
   setOverlay: (content: ReactNode | null) => void;
-  layerRef: RefObject<RNView | null>;
+  layerRef: RefObject<ViewInstance | null>;
 };
 
 const OverlayContext = createContext<OverlayContextValue | null>(null);
@@ -24,7 +24,7 @@ type OverlayProviderProps = {
 /** Renders full-screen overlays in the main window (avoids RN Modal on Android). */
 export const OverlayProvider = ({ children }: OverlayProviderProps) => {
   const [overlay, setOverlayState] = useState<ReactNode | null>(null);
-  const layerRef = useRef<RNView | null>(null);
+  const layerRef = useRef<ViewInstance | null>(null);
   const setOverlay = useCallback((content: ReactNode | null) => {
     setOverlayState(content);
   }, []);
