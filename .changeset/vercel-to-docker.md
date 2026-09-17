@@ -1,5 +1,0 @@
----
-"@loyalty-hive/api": minor
----
-
-Self-host with Docker Compose instead of Vercel.

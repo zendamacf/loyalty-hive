@@ -1,5 +1,11 @@
 # @loyalty-hive/api
 
+## 1.0.0
+
+### Major Changes
+
+- 6fc65db: Self-host with Docker Compose instead of Vercel.
+
 ## 0.2.2
 
 ### Patch Changes
