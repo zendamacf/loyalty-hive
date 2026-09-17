@@ -8,7 +8,6 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  type TextInputInstance,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -32,7 +31,7 @@ export const LoginScreen = () => {
   const { t } = useTranslation([I18nNamespace.Auth, I18nNamespace.Common]);
   const { theme } = useTheme();
   const { signIn } = useAuth();
-  const passwordRef = useRef<TextInputInstance | null>(null);
+  const passwordRef = useRef<TextInput>(null);
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
