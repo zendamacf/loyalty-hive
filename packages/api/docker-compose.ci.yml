@@ -1,0 +1,11 @@
+services:
+  api:
+    build:
+      context: ../..
+      dockerfile: packages/api/Dockerfile
+    image: loyalty-hive-api:ci
+    environment:
+      DATABASE_URL: postgresql://loyaltyhive:${DB_PASSWORD:-loyaltyhive}@postgres:5432/loyaltyhive
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-ci-dummy-jwt-secret}
+      FILE_STORAGE_URL: ${FILE_STORAGE_URL:-http://localhost:3000/}
+      SENTRY_DSN: ${SENTRY_DSN:-}

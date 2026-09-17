@@ -6,7 +6,6 @@ on:
       - opened
       - reopened
       - synchronize
-      - closed
     paths:
       - 'packages/api/**'
 
@@ -18,42 +17,32 @@ permissions:
   pull-requests: write
 
 jobs:
-  setup:
-    name: setup
-    outputs:
-      branch: ${{ steps.branch_name.outputs.current_branch }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get branch name
-        id: branch_name
-        uses: tj-actions/branch-names@v8
-
   check-api:
     name: check-api
-    needs: setup
-    if: |
-      github.event_name == 'pull_request' && (
-      github.event.action == 'synchronize'
-      || github.event.action == 'opened'
-      || github.event.action == 'reopened')
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-api
       cancel-in-progress: false
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: loyaltyhive
+          POSTGRES_PASSWORD: loyaltyhive
+          POSTGRES_DB: loyaltyhive
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U loyaltyhive -d loyaltyhive"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://loyaltyhive:loyaltyhive@localhost:5432/loyaltyhive
+
     steps:
-      - name: Create Neon Branch
-        id: create-branch
-        uses: neondatabase/create-branch-action@v6
-        with:
-          project_id: ${{ vars.NEON_PROJECT_ID }}
-          branch_name: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
-          api_key: ${{ secrets.NEON_API_KEY }}
-          database: loyaltyhive
-          role: loyaltyhive_api
-
-      - name: Set DATABASE_URL
-        run: echo "DATABASE_URL=${{ steps.create-branch.outputs.db_url_pooled }}" >> $GITHUB_ENV
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -66,14 +55,6 @@ jobs:
       - name: Run Migrations
         run: bun run db:migrate
         working-directory: packages/api
-
-      - name: Post Schema Diff to PR
-        uses: neondatabase/schema-diff-action@v1
-        with:
-          project_id: ${{ vars.NEON_PROJECT_ID }}
-          compare_branch: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
-          api_key: ${{ secrets.NEON_API_KEY }}
-          database: loyaltyhive
 
       - name: Run lint
         run: bun run lint
@@ -123,15 +104,45 @@ jobs:
           show-function-coverage: true
           working-directory: packages/api
 
-  delete-neon-branch:
-    name: delete-neon-branch
-    needs: setup
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+  deploy-smoke:
+    name: deploy-smoke
     runs-on: ubuntu-latest
     steps:
-      - name: Delete Neon Branch
-        uses: neondatabase/delete-branch-action@v3
-        with:
-          project_id: ${{ vars.NEON_PROJECT_ID }}
-          branch: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
-          api_key: ${{ secrets.NEON_API_KEY }}
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create CI env file
+        working-directory: packages/api
+        run: |
+          {
+            echo 'DB_PASSWORD=loyaltyhive'
+            echo 'JWT_ACCESS_SECRET=ci-dummy-jwt-secret'
+            echo 'FILE_STORAGE_URL=http://localhost:3000/'
+            echo 'APP_IMAGE=loyalty-hive-api:ci'
+          } > .env
+
+      - name: Build and start Compose stack
+        working-directory: packages/api
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build --wait
+
+      - name: Smoke test health endpoint
+        run: curl -sf http://localhost:3000/health | grep -q ok
+
+      - name: Smoke test OpenAPI document
+        run: curl -sf http://localhost:3000/doc | grep -q '"openapi"'
+
+      - name: Smoke test auth-protected route
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/v1/brands)
+          test "$code" = "401"
+
+      - name: Verify migrations applied
+        working-directory: packages/api
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml exec -T postgres \
+            psql -U loyaltyhive -d loyaltyhive -c '\dt' | grep -q brands
+
+      - name: Tear down
+        if: always()
+        working-directory: packages/api
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml down -v

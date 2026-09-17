@@ -17,6 +17,7 @@ app
     sentry({ dsn: config.tracing.sentryDsn, environment: config.environment }),
   )
   .route("/api/v1", apiRouter)
+  .get("/health", (c) => c.text("ok"))
   .get("/doc", openAPIRouteHandler(app, publicDocs))
   .get("/doc/gen", openAPIRouteHandler(app, codeGenDocs))
   .get("/", swaggerUI({ url: "/doc", title: "LoyaltyHive API" }))
