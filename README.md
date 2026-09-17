@@ -37,6 +37,8 @@ Release tags are created automatically when package versions change on `main`, v
 - **API** — `api-v*` tags trigger [`publish-docker.yml`](.github/workflows/publish-docker.yml) (GHCR images)
 - **App** — `app-v*` tags trigger [`app-android-build.yml`](.github/workflows/app-android-build.yml) (EAS Android builds)
 
+**Required secret:** `REPO_PAT` — a personal access token with `contents: write`. Tags must be pushed with a PAT (not `GITHUB_TOKEN`) or downstream workflows will not run. Add it under **Settings → Secrets and variables → Actions**.
+
 ## Android
 
 - Release builds via EAS: [`packages/app/EAS.md`](packages/app/EAS.md)
