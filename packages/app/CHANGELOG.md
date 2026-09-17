@@ -1,5 +1,12 @@
 # @loyalty-hive/app
 
+## 1.1.7
+
+### Patch Changes
+
+- 5cad336: Updated hono, @biomejs/biome, @sentry/react-native, babel-preset-expo, expo, expo-dev-client, expo-router, expo-splash-screen, react-native, react-native-gesture-handler, react-native-safe-area-context, react-native-worklets (version-update:semver-minor).
+- eb3ec14: Fixes auto-tagging CI workflow not triggering downstream tag-based build/publish workflows.
+
 ## 1.1.6
 
 ### Patch Changes
