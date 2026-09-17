@@ -1,7 +1,7 @@
 name: Tag package releases
 
 permissions:
-  contents: write
+  contents: read
 
 on:
   push:
@@ -17,9 +17,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Require REPO_PAT
+        env:
+          REPO_PAT: ${{ secrets.REPO_PAT }}
+        run: |
+          if [ -z "${REPO_PAT}" ]; then
+            echo "::error::REPO_PAT repository secret is required. Add a PAT with contents:write scope so tag pushes trigger publish-docker and app-android-build (GITHUB_TOKEN tag pushes do not)."
+            exit 1
+          fi
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          # PAT so tag pushes trigger downstream workflows (GITHUB_TOKEN suppresses them).
+          token: ${{ secrets.REPO_PAT }}
           fetch-depth: 0
 
       - name: Create and push tags
