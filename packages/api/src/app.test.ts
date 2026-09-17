@@ -71,6 +71,14 @@ describe("app", () => {
     expect(await response.text()).toBe("ok");
   });
 
+  it("serves brand logos from /logos", async () => {
+    const response = await app.request("/logos/mecca-v2.png");
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toContain("image/png");
+    expect(response.headers.get("cache-control")).toBe("public, max-age=86400");
+  });
+
   it("serves Swagger UI at /", async () => {
     const response = await app.request("/");
 
