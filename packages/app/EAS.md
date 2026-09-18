@@ -8,8 +8,8 @@ Android release builds use [EAS Build](https://docs.expo.dev/build/introduction/
 
 ```sh
 cd packages/app
-bunx eas-cli login
-bunx eas-cli init
+bun x eas-cli login
+bun x eas-cli init
 ```
 
 ### 2. Configure EAS secrets
@@ -18,7 +18,7 @@ bunx eas-cli init
 
 ```sh
 # Repeat for each required environment variable
-bunx eas-cli secret:create --name FOO --value "BAR" --scope project
+bun x eas-cli secret:create --name FOO --value "BAR" --scope project
 ```
 
 ## Run builds
@@ -31,7 +31,7 @@ bun run build:android:preview
 bun run build:android:production
 
 # Dev client APK
-bunx eas-cli build --platform android --profile development
+bun x eas-cli build --platform android --profile development
 ```
 
 Download artifacts from the [Expo dashboard](https://expo.dev) or the CLI link printed when the build finishes.
