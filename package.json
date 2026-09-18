@@ -18,6 +18,6 @@
   "overrides": {
     "react-native-worklets": "0.10.1",
     "@expo/log-box": "57.0.4",
-    "expo-constants": "57.0.18"
+    "expo-constants": "57.0.19"
   }
 }
