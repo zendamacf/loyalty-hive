@@ -42,4 +42,11 @@ Release Android builds need a signing key. Use **EAS-managed credentials** unles
 
 ## Sentry
 
-The `@sentry/react-native/expo` plugin in `app.json` uses organization `kalopsiadev` and project `loyalty-hive`. After a production build with `SENTRY_AUTH_TOKEN` set, confirm debug symbols appear in Sentry for that release.
+The `@sentry/react-native/expo` plugin in `app.json` uses organization `kalopsiadev` and project `loyalty-hive`.
+
+Required EAS environment variables (set per environment: `production`, `preview`, `development`):
+
+- `EXPO_PUBLIC_SENTRY_DSN` — inlined into the JS bundle at build time; without it, production builds send no events.
+- `SENTRY_AUTH_TOKEN` — uploads debug symbols during the build so stack traces are readable in Sentry.
+
+Route-level render errors (e.g. a screen throwing on mount) are captured via `Sentry.wrapExpoRouterErrorBoundary` in `app/_layout.tsx`.

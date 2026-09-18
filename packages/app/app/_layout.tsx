@@ -2,7 +2,7 @@ import "react-native-gesture-handler";
 
 import * as Sentry from "@sentry/react-native";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { ErrorBoundary as ExpoErrorBoundary, Stack } from "expo-router";
 import { SheetProvider } from "react-native-actions-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
@@ -28,8 +28,15 @@ Sentry.init({
   enableLogs: true,
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1,
-  integrations: [Sentry.mobileReplayIntegration()],
+  integrations: [
+    Sentry.expoRouterIntegration(),
+    Sentry.mobileReplayIntegration(),
+  ],
 });
+
+export const ErrorBoundary = Sentry.wrapExpoRouterErrorBoundary(
+  ExpoErrorBoundary,
+);
 
 export default Sentry.wrap(function Layout() {
   return (
