@@ -4,7 +4,7 @@ export const config: Config = {
   environment: process.env.NODE_ENV ?? "development",
   libVersion: process.env.LIB_VERSION ?? "0.0.0",
   server: {
-    hostname: process.env.HOSTNAME ?? "0.0.0.0",
+    hostname: process.env.LISTEN_HOST ?? "0.0.0.0",
     port: Number.parseInt(process.env.PORT ?? "3000", 10),
     fileStorageUrl: process.env.FILE_STORAGE_URL ?? "",
   },
