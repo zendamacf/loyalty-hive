@@ -10,4 +10,9 @@ updates:
       everything:
         patterns:
           - "*"
+    # Pin to Expo SDK 57 bundledNativeModules, upgrade with `expo install --fix` + dev-client rebuild
+    ignore:
+      - dependency-name: react-native-gesture-handler
+      - dependency-name: react-native-reanimated
+      - dependency-name: react-native-worklets
     open-pull-requests-limit: 5
