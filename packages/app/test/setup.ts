@@ -326,7 +326,9 @@ mock.module("react-native-safe-area-context", () => ({
   }),
 }));
 
-mock.module("@react-navigation/native", () => createNavigationNativeModule());
+const navigationNativeModule = createNavigationNativeModule();
+
+mock.module("@react-navigation/native", () => navigationNativeModule);
 
 mock.module("expo-router", () => ({
   router: {
@@ -339,6 +341,7 @@ mock.module("expo-router", () => ({
       (expoRouterMocks.replace as unknown as (value: unknown) => void)(arg),
   },
   useLocalSearchParams: () => expoRouterMocks.params,
+  useFocusEffect: navigationNativeModule.useFocusEffect,
   Redirect: ({ href }: { href: string }) => {
     (expoRouterMocks.replace as (value: unknown) => void)(href);
     return null;
