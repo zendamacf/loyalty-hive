@@ -1,5 +1,11 @@
 # @loyalty-hive/api
 
+## 1.0.2
+
+### Patch Changes
+
+- 486184d: Make the API listen host configurable via `HOSTNAME`.
+
 ## 1.0.1
 
 ### Patch Changes

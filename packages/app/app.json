@@ -3,18 +3,18 @@
     "name": "LoyaltyHive",
     "slug": "loyaltyhive",
     "scheme": "loyaltyhive",
-    "version": "1.1.7",
+    "version": "1.1.8",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "buildNumber": "10",
+      "buildNumber": "11",
       "bundleIdentifier": "com.kalopsiaapps.loyaltyhive"
     },
     "android": {
       "package": "com.kalopsiaapps.loyaltyhive",
-      "versionCode": 10,
+      "versionCode": 11,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0D1B2A"

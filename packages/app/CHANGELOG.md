@@ -1,5 +1,14 @@
 # @loyalty-hive/app
 
+## 1.1.8
+
+### Patch Changes
+
+- 486184d: Align app native animation dependencies with Expo SDK 57 bundled versions (gesture-handler, reanimated, worklets) so the development client matches Metro, and exclude those packages from Dependabot auto-upgrades.
+- 2086086: Fixed view code screen crashing.
+- fa7321c: Fixes render errors not being reported to Sentry.
+- 0191a9f: Fix Android EAS build failure by downgrading react-native from 0.87.0 to 0.86.2 for Expo SDK 57 compatibility.
+
 ## 1.1.7
 
 ### Patch Changes
