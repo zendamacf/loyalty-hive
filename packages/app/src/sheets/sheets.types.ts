@@ -29,9 +29,15 @@ export type DeleteCardSheetPayload = {
 export type ScanManualEntrySheetPayload = {
   brandId?: string | null;
   brandName?: string | null;
+  brandRequestId?: string | null;
+  suggestedLabel?: string | null;
   isCustomCard?: boolean;
   initialCardNumber?: string;
   cardView?: CardView | null;
+};
+
+export type RequestBrandSheetPayload = {
+  requestedName: string;
 };
 
 declare module "react-native-actions-sheet" {
@@ -48,6 +54,9 @@ declare module "react-native-actions-sheet" {
     }>;
     [SheetIds.SCAN_MANUAL_ENTRY]: SheetDefinition<{
       payload: ScanManualEntrySheetPayload;
+    }>;
+    [SheetIds.REQUEST_BRAND]: SheetDefinition<{
+      payload: RequestBrandSheetPayload;
     }>;
   }
 }

@@ -34,6 +34,8 @@ export const ScanScreen = () => {
   const params = useLocalSearchParams<{
     brandName?: string;
     brandId?: string;
+    brandRequestId?: string;
+    suggestedLabel?: string;
     customCard?: string;
     defaultView?: CardView;
   }>();
@@ -41,6 +43,10 @@ export const ScanScreen = () => {
     typeof params.brandName === "string" ? params.brandName : null;
   const selectedBrandId =
     typeof params.brandId === "string" ? params.brandId : null;
+  const brandRequestId =
+    typeof params.brandRequestId === "string" ? params.brandRequestId : null;
+  const suggestedLabel =
+    typeof params.suggestedLabel === "string" ? params.suggestedLabel : null;
   const isCustomCard = params.customCard === "1";
   const defaultView: CardView | null =
     params.defaultView === "1D" || params.defaultView === "2D"
@@ -73,8 +79,19 @@ export const ScanScreen = () => {
     if (selectedBrandId && selectedBrandName) {
       return selectedBrandName;
     }
+    if (isCustomCard && suggestedLabel) {
+      return suggestedLabel;
+    }
     return isSaving ? t("savingCard") : scanPrompt;
-  }, [isSaving, scanPrompt, selectedBrandId, selectedBrandName, t]);
+  }, [
+    isCustomCard,
+    isSaving,
+    scanPrompt,
+    selectedBrandId,
+    selectedBrandName,
+    suggestedLabel,
+    t,
+  ]);
 
   const headerSubtitle = useMemo(() => {
     if (!hasHeaderContext) {
@@ -104,8 +121,9 @@ export const ScanScreen = () => {
         await createCard({
           body: {
             cardNumber: trimmed,
-            label: null,
+            label: isCustomCard ? suggestedLabel : null,
             brandId: selectedBrandId,
+            brandRequestId: isCustomCard ? brandRequestId : null,
             view: cardType,
           },
         });
@@ -123,7 +141,7 @@ export const ScanScreen = () => {
         setIsSaving(false);
       }
     },
-    [createCard, isCustomCard, selectedBrandId],
+    [brandRequestId, createCard, isCustomCard, selectedBrandId, suggestedLabel],
   );
 
   const openManualEntry = useCallback(
@@ -137,6 +155,8 @@ export const ScanScreen = () => {
         await showScanManualEntrySheet({
           brandId: selectedBrandId,
           brandName: selectedBrandName,
+          brandRequestId,
+          suggestedLabel,
           isCustomCard,
           initialCardNumber: prefill?.cardNumber ?? "",
           cardView: prefill?.view ?? null,
@@ -146,7 +166,14 @@ export const ScanScreen = () => {
         scanLockRef.current = false;
       }
     },
-    [isCustomCard, manualEntryOpen, selectedBrandId, selectedBrandName],
+    [
+      brandRequestId,
+      isCustomCard,
+      manualEntryOpen,
+      selectedBrandId,
+      selectedBrandName,
+      suggestedLabel,
+    ],
   );
 
   const handleScan = useCallback(

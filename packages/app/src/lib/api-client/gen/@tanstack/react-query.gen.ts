@@ -3,8 +3,8 @@
 import { queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { deleteApiV1CardsById, getApiV1AuthMe, getApiV1Brands, getApiV1Cards, getApiV1CardsById, type Options, patchApiV1CardsById, postApiV1AuthLogin, postApiV1AuthSignup, postApiV1Cards, postApiV1CardsByIdView } from '../sdk.gen';
-import type { DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdError, DeleteApiV1CardsByIdResponse, GetApiV1AuthMeData, GetApiV1AuthMeError, GetApiV1AuthMeResponse, GetApiV1BrandsData, GetApiV1BrandsError, GetApiV1BrandsResponse, GetApiV1CardsByIdData, GetApiV1CardsByIdError, GetApiV1CardsByIdResponse, GetApiV1CardsData, GetApiV1CardsError, GetApiV1CardsResponse, PatchApiV1CardsByIdData, PatchApiV1CardsByIdError, PatchApiV1CardsByIdResponse, PostApiV1AuthLoginData, PostApiV1AuthLoginError, PostApiV1AuthLoginResponse, PostApiV1AuthSignupData, PostApiV1AuthSignupError, PostApiV1AuthSignupResponse, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewError, PostApiV1CardsByIdViewResponse, PostApiV1CardsData, PostApiV1CardsError, PostApiV1CardsResponse } from '../types.gen';
+import { deleteApiV1CardsById, getApiV1AuthMe, getApiV1Brands, getApiV1Cards, getApiV1CardsById, type Options, patchApiV1CardsById, postApiV1AuthLogin, postApiV1AuthSignup, postApiV1BrandRequests, postApiV1Cards, postApiV1CardsByIdView } from '../sdk.gen';
+import type { DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdError, DeleteApiV1CardsByIdResponse, GetApiV1AuthMeData, GetApiV1AuthMeError, GetApiV1AuthMeResponse, GetApiV1BrandsData, GetApiV1BrandsError, GetApiV1BrandsResponse, GetApiV1CardsByIdData, GetApiV1CardsByIdError, GetApiV1CardsByIdResponse, GetApiV1CardsData, GetApiV1CardsError, GetApiV1CardsResponse, PatchApiV1CardsByIdData, PatchApiV1CardsByIdError, PatchApiV1CardsByIdResponse, PostApiV1AuthLoginData, PostApiV1AuthLoginError, PostApiV1AuthLoginResponse, PostApiV1AuthSignupData, PostApiV1AuthSignupError, PostApiV1AuthSignupResponse, PostApiV1BrandRequestsData, PostApiV1BrandRequestsError, PostApiV1BrandRequestsResponse, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewError, PostApiV1CardsByIdViewResponse, PostApiV1CardsData, PostApiV1CardsError, PostApiV1CardsResponse } from '../types.gen';
 
 /**
  * Sign in with email and password; returns a JWT access token
@@ -126,6 +126,23 @@ export const getApiV1CardsOptions = (options?: Options<GetApiV1CardsData>) => qu
     },
     queryKey: getApiV1CardsQueryKey(options)
 });
+
+/**
+ * Request a new loyalty brand be added to the catalog
+ */
+export const postApiV1BrandRequestsMutation = (options?: Partial<Options<PostApiV1BrandRequestsData>>): UseMutationOptions<PostApiV1BrandRequestsResponse, PostApiV1BrandRequestsError, Options<PostApiV1BrandRequestsData>> => {
+    const mutationOptions: UseMutationOptions<PostApiV1BrandRequestsResponse, PostApiV1BrandRequestsError, Options<PostApiV1BrandRequestsData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await postApiV1BrandRequests({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 /**
  * Create a new card for the authenticated user

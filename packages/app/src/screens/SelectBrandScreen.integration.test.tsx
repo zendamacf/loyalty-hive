@@ -100,8 +100,12 @@ describe("[Integration] SelectBrandScreen", () => {
   });
 
   it("keeps custom card option visible when search matches no brands", async () => {
-    const { getByPlaceholderText, getByLabelText, queryByLabelText } =
-      await renderWithProviders(<SelectBrandScreen />);
+    const {
+      getByPlaceholderText,
+      getByLabelText,
+      queryByLabelText,
+      getByText,
+    } = await renderWithProviders(<SelectBrandScreen />);
 
     await waitFor(() => {
       expect(getByLabelText("ASOS")).toBeTruthy();
@@ -113,6 +117,8 @@ describe("[Integration] SelectBrandScreen", () => {
     );
 
     expect(queryByLabelText("ASOS")).toBeNull();
+    expect(getByText('No brands match "no matching brands"')).toBeTruthy();
+    expect(getByLabelText('Request "no matching brands"')).toBeTruthy();
     expect(getByLabelText("Custom card")).toBeTruthy();
   });
 

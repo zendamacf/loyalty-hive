@@ -4,6 +4,7 @@ import type {
   CardDetailsSheetPayload,
   DeleteCardSheetPayload,
   EditCardSheetPayload,
+  RequestBrandSheetPayload,
   ScanManualEntrySheetPayload,
 } from "./sheets.types";
 
@@ -22,3 +23,6 @@ export const showDeleteCardSheet = (payload: DeleteCardSheetPayload) =>
 export const showScanManualEntrySheet = (
   payload: ScanManualEntrySheetPayload,
 ) => SheetManager.show(SheetIds.SCAN_MANUAL_ENTRY, { payload });
+
+export const showRequestBrandSheet = (payload: RequestBrandSheetPayload) =>
+  SheetManager.show(SheetIds.REQUEST_BRAND, { payload });
