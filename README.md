@@ -39,6 +39,10 @@ Release tags are created automatically when package versions change on `main`, v
 
 **Required secret:** `REPO_PAT` — a personal access token with `contents: write`. Tags must be pushed with a PAT (not `GITHUB_TOKEN`) or downstream workflows will not run. Add it under **Settings → Secrets and variables → Actions**.
 
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for development workflow, conventional commits, changesets, testing, and pull request expectations. Automated agents should also read [`AGENTS.md`](AGENTS.md).
+
 ## Android
 
 - Release builds via EAS: [`packages/app/EAS.md`](packages/app/EAS.md)
