@@ -5,6 +5,7 @@ import "./mocks/api-client";
 import "./mocks/assets";
 import "./mocks/card-code-svg";
 import { expoBrightnessMocks } from "./mocks/expo-brightness";
+import "./mocks/expo-constants";
 import "./mocks/expo-localization";
 import "./mocks/expo-secure-store";
 import {
@@ -312,6 +313,12 @@ mock.module("react-native", () => ({
     OS: "ios",
     select: <T>(options: { ios?: T; android?: T; default?: T }) =>
       options.ios ?? options.default,
+  },
+  TurboModuleRegistry: {
+    get: () => null,
+    getEnforcing: () => {
+      throw new Error("TurboModuleRegistry.getEnforcing is not available in tests");
+    },
   },
   useColorScheme: () => "light",
 }));
