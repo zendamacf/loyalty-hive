@@ -1,5 +1,11 @@
 # @loyalty-hive/api
 
+## 1.1.0
+
+### Minor Changes
+
+- 66ff39d: Added `/api/v1/auth/me` endpoint for retrieving current user's details.
+
 ## 1.0.3
 
 ### Patch Changes

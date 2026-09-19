@@ -1,5 +1,12 @@
 # @loyalty-hive/app
 
+## 1.1.10
+
+### Patch Changes
+
+- c46f4cf: Fixed all API requests failing due to missing crypto dependency.
+- 66ff39d: Regenerates API SDK for new '/api/v1/auth/me` endpoint.
+
 ## 1.1.9
 
 ### Patch Changes
