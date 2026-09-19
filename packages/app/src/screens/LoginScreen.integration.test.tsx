@@ -219,6 +219,7 @@ describe("[Integration] LoginScreen", () => {
       Promise.resolve({
         data: undefined,
         error: { error: "Invalid email or password" },
+        response: { status: 401 },
       }),
     );
 
@@ -232,6 +233,29 @@ describe("[Integration] LoginScreen", () => {
 
     await waitFor(() => {
       expect(getByText("Invalid email or password")).toBeTruthy();
+    });
+  });
+
+  it("shows invalid credentials when login returns 401 without a message", async () => {
+    postApiV1AuthLoginMock.mockImplementation(() =>
+      // @ts-expect-error - testing unexpected error response
+      Promise.resolve({
+        data: undefined,
+        error: {},
+        response: { status: 401 },
+      }),
+    );
+
+    const { getByText, getByPlaceholderText } = await renderWithProviders(
+      <LoginScreen />,
+    );
+
+    await changeText(getByPlaceholderText("Email"), "a@b.co");
+    await changeText(getByPlaceholderText("Password"), "wrong");
+    await press(getByText("Sign in"));
+
+    await waitFor(() => {
+      expect(getByText("Invalid email or password.")).toBeTruthy();
     });
   });
 

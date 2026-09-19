@@ -17,7 +17,7 @@ import { I18nNamespace } from "@/i18n/i18n.constants";
 import { postApiV1AuthLogin, postApiV1AuthSignup } from "@/lib/api-client";
 import { authApiHeaders } from "@/lib/api-client/auth-api-headers";
 import { useAuth } from "@/lib/auth";
-import { getErrorMessage } from "@/lib/getErrorMessage";
+import { getErrorMessage, isGenericErrorMessage } from "@/lib/getErrorMessage";
 import { AppTitle } from "../components/AppTitle";
 import { Button } from "../components/Button";
 import { icon as iconSize, radius, spacing, typography } from "../theme/theme";
@@ -49,14 +49,26 @@ export const LoginScreen = () => {
     router.replace(Routes.CARDS);
   };
 
+  const resolveApiError = (apiError: unknown, status?: number) => {
+    const message = getErrorMessage(apiError);
+    if (isGenericErrorMessage(message) && status === 401) {
+      return t("invalidCredentials");
+    }
+    return message;
+  };
+
   const submitLogin = async (trimmedEmail: string, pwd: string) => {
-    const { data, error: apiError } = await postApiV1AuthLogin({
+    const {
+      data,
+      error: apiError,
+      response,
+    } = await postApiV1AuthLogin({
       body: { email: trimmedEmail, password: pwd },
       headers: authApiHeaders(),
     });
 
     if (apiError) {
-      setError(getErrorMessage(apiError));
+      setError(resolveApiError(apiError, response?.status));
       return;
     }
 
@@ -68,13 +80,17 @@ export const LoginScreen = () => {
   };
 
   const submitSignup = async (trimmedEmail: string, pwd: string) => {
-    const { data, error: apiError } = await postApiV1AuthSignup({
+    const {
+      data,
+      error: apiError,
+      response,
+    } = await postApiV1AuthSignup({
       body: { email: trimmedEmail, password: pwd },
       headers: authApiHeaders(),
     });
 
     if (apiError) {
-      setError(getErrorMessage(apiError));
+      setError(resolveApiError(apiError, response?.status));
       return;
     }
 
