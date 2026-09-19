@@ -13,7 +13,7 @@
     },
     "packages/api": {
       "name": "@loyalty-hive/api",
-      "version": "1.0.2",
+      "version": "1.1.0",
       "dependencies": {
         "@hono/sentry": "^1.2.2",
         "@hono/standard-validator": "^0.4.0",
@@ -40,7 +40,7 @@
     },
     "packages/app": {
       "name": "@loyalty-hive/app",
-      "version": "1.1.8",
+      "version": "1.1.10",
       "dependencies": {
         "@hey-api/client-fetch": "^0.13.1",
         "@hey-api/openapi-ts": "^0.99.0",
@@ -52,6 +52,7 @@
         "dotenv": "^17.4.2",
         "expo": "~57.0.14",
         "expo-brightness": "~57.0.1",
+        "expo-build-properties": "~57.0.21",
         "expo-camera": "^57.0.3",
         "expo-clipboard": "~57.0.1",
         "expo-constants": "~57.0.19",
@@ -981,6 +982,8 @@
     "expo-asset": ["expo-asset@57.0.16", "", { "dependencies": { "@expo/image-utils": "^0.11.5", "expo-constants": "~57.0.17" }, "peerDependencies": { "expo": "*", "react": "*", "react-native": "*" } }, "sha512-IBRfQdW3iFT+GOBERMZLZM1MUNyrjMgMskuD0elVZ1ae44858UFlTJkHO3f8vi+u5zuv7O7KofsiN8NMG/uWzw=="],
 
     "expo-brightness": ["expo-brightness@57.0.1", "", { "peerDependencies": { "expo": "*", "react-native": "*" } }, "sha512-ISqKOPJYIM7GLT3qS918owWB2dE5JxpylWhGqbyau/YnMpbgx/H8nr/B/0wvB14HPTNFD+YDlxt8M7mYzOOiyg=="],
+
+    "expo-build-properties": ["expo-build-properties@57.0.21", "", { "dependencies": { "@expo/schema-utils": "^57.0.2", "resolve-from": "^5.0.0", "semver": "^7.6.0" }, "peerDependencies": { "expo": "*" } }, "sha512-IF5/FPU4SezMYMupB2gfH6eAu197/oKI6Bn0oOT9UQiAg70BNiiQJ499eV21kIWIOGGPdLHg6XqIV5Zq4Gnn7Q=="],
 
     "expo-camera": ["expo-camera@57.0.3", "", { "dependencies": { "barcode-detector": "^3.0.0" }, "peerDependencies": { "expo": "*", "react": "*", "react-native": "*", "react-native-web": "*" }, "optionalPeers": ["react-native-web"] }, "sha512-Q+3aZ63eQCkdB6/FZrO/lfacNAg/j8JCeKQL2nBdf6vBeOo1Y2PKYx1/vK+U5LaRnIo/0tMGmCOzZ1JGhTeMIw=="],
 

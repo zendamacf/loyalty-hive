@@ -40,6 +40,14 @@ Download artifacts from the [Expo dashboard](https://expo.dev) or the CLI link p
 
 Release Android builds need a signing key. Use **EAS-managed credentials** unless you have a strong reason not to — EAS generates, stores, and uses the upload keystore for every production build.
 
+## Android R8 minification
+
+Release builds (`preview` and `production`) enable R8 via `expo-build-properties` in `app.json`. This minifies and obfuscates native Java/Kotlin code and reduces app size. The `development` profile is unaffected.
+
+After enabling R8 on a new release, smoke-test a preview APK on a real device (launch, camera, navigation, auth) before shipping production.
+
+If Play Console warns that no deobfuscation file is associated with the bundle, check App bundle explorer for the release; with AAB + R8, Google usually extracts the mapping automatically.
+
 ## Sentry
 
 The `@sentry/react-native/expo` plugin in `app.json` uses organization `kalopsiadev` and project `loyalty-hive`.
@@ -47,6 +55,8 @@ The `@sentry/react-native/expo` plugin in `app.json` uses organization `kalopsia
 Required EAS environment variables (set per environment: `production`, `preview`, `development`):
 
 - `EXPO_PUBLIC_SENTRY_DSN` — inlined into the JS bundle at build time; without it, production builds send no events.
-- `SENTRY_AUTH_TOKEN` — uploads debug symbols during the build so stack traces are readable in Sentry.
+- `SENTRY_AUTH_TOKEN` — uploads JS source maps and native ProGuard mapping files during the build so stack traces are readable in Sentry.
+
+With R8 enabled, the plugin's `experimental_android` options upload ProGuard mappings for native crashes. JS/Hermes source maps are unchanged.
 
 Route-level render errors (e.g. a screen throwing on mount) are captured via `Sentry.wrapExpoRouterErrorBoundary` in `app/_layout.tsx`.
