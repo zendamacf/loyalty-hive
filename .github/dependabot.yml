@@ -13,6 +13,8 @@ updates:
     # Pin to Expo SDK 57 bundledNativeModules, upgrade with `expo install --fix` + dev-client rebuild
     ignore:
       - dependency-name: "@react-native-async-storage/async-storage"
+      - dependency-name: react
+      - dependency-name: react-native
       - dependency-name: react-native-gesture-handler
       - dependency-name: react-native-reanimated
       - dependency-name: react-native-worklets
