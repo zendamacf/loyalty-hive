@@ -32,13 +32,25 @@ describe("[Unit] getErrorMessage", () => {
     expect(consoleErrorMock).toHaveBeenCalledWith(null);
   });
 
+  it("returns message string from error object", () => {
+    expect(getErrorMessage({ message: "Server error" })).toBe("Server error");
+    expect(consoleErrorMock).not.toHaveBeenCalled();
+  });
+
+  it("returns Error message", () => {
+    expect(getErrorMessage(new Error("Network failed"))).toBe("Network failed");
+    expect(consoleErrorMock).not.toHaveBeenCalled();
+  });
+
   it("returns fallback when error field is not a string", () => {
     expect(getErrorMessage({ error: 123 })).toBe(
       "Something went wrong. Please try again.",
     );
-    expect(getErrorMessage({ message: "Server error" })).toBe(
-      "Something went wrong. Please try again.",
-    );
-    expect(consoleErrorMock).toHaveBeenCalledTimes(2);
+    expect(consoleErrorMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns fallback for empty string errors", () => {
+    expect(getErrorMessage("")).toBe("Something went wrong. Please try again.");
+    expect(consoleErrorMock).toHaveBeenCalledWith("");
   });
 });
