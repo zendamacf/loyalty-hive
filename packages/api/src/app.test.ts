@@ -132,6 +132,13 @@ describe("app", () => {
     );
   });
 
+  it("documents GET /auth/me with bearer security in the public OpenAPI spec", async () => {
+    const document = await fetchOpenApiDoc("/doc");
+
+    const me = document.paths["/api/v1/auth/me"]?.get;
+    expect(me?.security).toEqual([{ bearerAuth: [] }]);
+  });
+
   it("serves authenticated API routes through the full app", async () => {
     const token = await signTestToken(SMOKE_USER_ID);
 

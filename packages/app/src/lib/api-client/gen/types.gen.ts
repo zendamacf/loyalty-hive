@@ -101,6 +101,35 @@ export type PostApiV1AuthSignupResponses = {
 
 export type PostApiV1AuthSignupResponse = PostApiV1AuthSignupResponses[keyof PostApiV1AuthSignupResponses];
 
+export type GetApiV1AuthMeData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/me';
+};
+
+export type GetApiV1AuthMeErrors = {
+    /**
+     * Unauthorized
+     */
+    401: {
+        error: string;
+    };
+};
+
+export type GetApiV1AuthMeError = GetApiV1AuthMeErrors[keyof GetApiV1AuthMeErrors];
+
+export type GetApiV1AuthMeResponses = {
+    /**
+     * Successful response
+     */
+    200: {
+        id: string;
+    };
+};
+
+export type GetApiV1AuthMeResponse = GetApiV1AuthMeResponses[keyof GetApiV1AuthMeResponses];
+
 export type GetApiV1BrandsData = {
     body?: never;
     path?: never;
