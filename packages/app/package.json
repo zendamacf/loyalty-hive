@@ -23,6 +23,7 @@
     "postversion": "react-native-version --never-amend"
   },
   "dependencies": {
+    "@bitte-kaufen/expo-umami": "github:zendamacf/expo-umami#v0.3.0-analytics-rc2",
     "@hey-api/client-fetch": "^0.13.1",
     "@hey-api/openapi-ts": "^0.99.0",
     "@react-native-async-storage/async-storage": "2.2.0",

@@ -15,6 +15,7 @@ import { ScreenHeader } from "@/components/ScreenHeader";
 import { ScreenShell } from "@/components/ScreenShell";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
+import { useTrackScreenView } from "@/lib/analytics/use-track-screen-view";
 import {
   getApiV1CardsQueryKey,
   postApiV1CardsMutation,
@@ -28,6 +29,7 @@ import { useTheme } from "../theme/useTheme";
 export const ScanScreen = () => {
   const { t } = useTranslation(I18nNamespace.Scan);
   const { theme } = useTheme();
+  useTrackScreenView(Routes.SCAN, { title: "Scan Screen" });
   const params = useLocalSearchParams<{
     brandName?: string;
     brandId?: string;

@@ -1,6 +1,8 @@
 import { mock } from "bun:test";
 import React from "react";
 
+Object.assign(globalThis, { __DEV__: true });
+
 import "./mocks/api-client";
 import "./mocks/assets";
 import "./mocks/card-code-svg";
@@ -8,12 +10,14 @@ import { expoBrightnessMocks } from "./mocks/expo-brightness";
 import "./mocks/expo-constants";
 import "./mocks/expo-localization";
 import "./mocks/expo-secure-store";
+import "./mocks/expo-umami";
 import {
   createNavigationNativeModule,
   navigationFocusMocks,
 } from "./mocks/navigation-focus";
 import "./mocks/react-native-actions-sheet";
 import "./mocks/react-native-gesture-reanimated";
+import "./mocks/sentry";
 
 const asyncStorage = new Map<string, string>();
 
@@ -322,7 +326,9 @@ mock.module("react-native", () => ({
   TurboModuleRegistry: {
     get: () => null,
     getEnforcing: () => {
-      throw new Error("TurboModuleRegistry.getEnforcing is not available in tests");
+      throw new Error(
+        "TurboModuleRegistry.getEnforcing is not available in tests",
+      );
     },
   },
   useColorScheme: () => "light",

@@ -19,6 +19,7 @@ import { ScreenHeader } from "@/components/ScreenHeader";
 import { ScreenShell } from "@/components/ScreenShell";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
+import { useTrackScreenView } from "@/lib/analytics/use-track-screen-view";
 import {
   type GetApiV1BrandsResponse,
   getApiV1BrandsOptions,
@@ -35,6 +36,7 @@ type Brand = GetApiV1BrandsResponse[number];
 export const SelectBrandScreen = () => {
   const { t } = useTranslation(I18nNamespace.Brands);
   const { theme } = useTheme();
+  useTrackScreenView(Routes.SELECT_BRAND, { title: "Select Brand Screen" });
   const [query, setQuery] = useState("");
 
   const {

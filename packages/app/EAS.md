@@ -50,3 +50,14 @@ Required EAS environment variables (set per environment: `production`, `preview`
 - `SENTRY_AUTH_TOKEN` — uploads debug symbols during the build so stack traces are readable in Sentry.
 
 Route-level render errors (e.g. a screen throwing on mount) are captured via `Sentry.wrapExpoRouterErrorBoundary` in `app/_layout.tsx`.
+
+## Umami analytics
+
+Screen views are tracked with `trackScreenView()` from `@bitte-kaufen/expo-umami`. Umami is initialized in `app/_layout.tsx` and disabled in development (`__DEV__`).
+
+Required EAS environment variables for production/preview builds:
+
+- `EXPO_PUBLIC_UMAMI_HOST` — your Umami instance URL (e.g. `https://cloud.umami.is` or a self-hosted URL).
+- `EXPO_PUBLIC_UMAMI_WEBSITE_ID` — the website ID from your Umami dashboard.
+
+If either variable is missing, analytics initialization is skipped and screen tracking calls are no-ops.
