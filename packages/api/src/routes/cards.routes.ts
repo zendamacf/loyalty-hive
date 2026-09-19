@@ -11,7 +11,7 @@ import {
 } from "../common/openapi-responses.js";
 import { logoUrl } from "../common/storage.js";
 import { db } from "../db/client.js";
-import { brands, cards } from "../db/schema.js";
+import { brandRequests, brands, cards } from "../db/schema.js";
 import { requireUserAuth } from "../middleware/auth.middleware.js";
 
 export const cardSchema = z.object({
@@ -42,6 +42,7 @@ const cardCreateSchema = z.object({
   label: z.string().nullable().optional(),
   view: z.enum(["1D", "2D"]).nullable().optional(),
   brandId: z.uuid().nullable().optional(),
+  brandRequestId: z.uuid().nullable().optional(),
 });
 
 const cardUpdateSchema = z.object({
@@ -191,6 +192,77 @@ async function getCardForUser(userId: string, cardId: string) {
   return card;
 }
 
+type BrandRequestLinkResult =
+  | {
+      ok: true;
+      brandRequestId: string | null;
+      label: string | null;
+    }
+  | {
+      ok: false;
+      status: 400 | 409;
+      error: string;
+    };
+
+async function resolveBrandRequestLink(
+  userId: string,
+  brandRequestId: string | null | undefined,
+  brandId: string | null | undefined,
+  label: string | null | undefined,
+): Promise<BrandRequestLinkResult> {
+  if (!brandRequestId) {
+    return { ok: true, brandRequestId: null, label: label ?? null };
+  }
+
+  if (brandId) {
+    return {
+      ok: false,
+      status: 400,
+      error: "brandId and brandRequestId cannot both be set",
+    };
+  }
+
+  const [request] = await db
+    .select()
+    .from(brandRequests)
+    .where(
+      and(
+        eq(brandRequests.id, brandRequestId),
+        eq(brandRequests.userId, userId),
+        eq(brandRequests.status, "pending"),
+      ),
+    )
+    .limit(1);
+
+  if (!request) {
+    return {
+      ok: false,
+      status: 400,
+      error: "Brand request not found or not eligible",
+    };
+  }
+
+  const [linkedCard] = await db
+    .select({ id: cards.id })
+    .from(cards)
+    .where(and(eq(cards.brandRequestId, brandRequestId), activeCardCondition()))
+    .limit(1);
+
+  if (linkedCard) {
+    return {
+      ok: false,
+      status: 409,
+      error: "Brand request is already linked to a card",
+    };
+  }
+
+  return {
+    ok: true,
+    brandRequestId,
+    label: label ?? request.requestedName,
+  };
+}
+
 function respondFkViolation(c: AppContext) {
   return c.json(fkViolationBody, 400);
 }
@@ -232,25 +304,40 @@ const app = new Hono<{ Variables: ContextVariables }>()
         201: jsonResponse("Successful response", cardSchema),
         401: errorResponse("Unauthorized"),
         409: errorResponse("Card for user already exists"),
-        400: errorResponse("Referenced userId or brandId does not exist"),
+        400: errorResponse(
+          "Referenced userId, brandId, or brandRequestId does not exist",
+        ),
       },
     }),
     validator("json", cardCreateSchema),
     async (c) => {
       const body = c.req.valid("json");
+      const userId = c.get("userId");
+
+      const link = await resolveBrandRequestLink(
+        userId,
+        body.brandRequestId,
+        body.brandId,
+        body.label,
+      );
+
+      if (!link.ok) {
+        return c.json({ error: link.error }, link.status);
+      }
 
       try {
         const [created] = await db
           .insert(cards)
           .values({
-            userId: c.get("userId"),
+            userId,
             cardNumber: body.cardNumber,
-            label: body.label ?? null,
+            label: link.label,
             view: body.view ?? null,
             brandId: body.brandId ?? null,
+            brandRequestId: link.brandRequestId,
           })
           .returning();
-        const card = await getCardForUser(c.get("userId"), created.id);
+        const card = await getCardForUser(userId, created.id);
         if (!card) throw new Error("Card missing after insert");
         return c.json(toCardResponse(card), 201);
       } catch (error) {

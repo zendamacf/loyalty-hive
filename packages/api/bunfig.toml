@@ -2,6 +2,9 @@
 coverage = true
 coveragePathIgnorePatterns = [
   "test/**",
+  "src/db/schema.ts",
 ]
 # Aggregate minimums (%). Enforced in CI; see .github/workflows/api-pr-checks.yml.
+# schema.ts is declarative Drizzle table/relation config; relation callbacks are not
+# executed unless relational queries are used.
 coverageThresholds = { lines = 95, functions = 82 }

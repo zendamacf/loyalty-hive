@@ -25,6 +25,7 @@ import {
   getApiV1BrandsOptions,
 } from "@/lib/api-client";
 import { getErrorMessage } from "@/lib/getErrorMessage";
+import { showRequestBrandSheet } from "@/sheets";
 import { SearchBar } from "../components/SearchBar";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
 import { useThemedRefreshControl } from "../hooks/useThemedRefreshControl";
@@ -65,6 +66,14 @@ export const SelectBrandScreen = () => {
       brand.name.toLowerCase().includes(normalizedQuery),
     );
   }, [brands, query]);
+
+  const trimmedQuery = query.trim();
+  const showEmptySearchState =
+    loaded && !error && trimmedQuery.length >= 2 && filteredBrands.length === 0;
+
+  const openRequestBrandSheet = useCallback(() => {
+    void showRequestBrandSheet({ requestedName: trimmedQuery });
+  }, [trimmedQuery]);
 
   const openCustomCardScan = useCallback(() => {
     router.push({
@@ -139,6 +148,34 @@ export const SelectBrandScreen = () => {
 
       <DataLoadStatus error={error} loaded={loaded} loadingLabel={t("loading")}>
         <View style={styles.listSection}>
+          {showEmptySearchState ? (
+            <View style={styles.emptySearchState}>
+              <Text
+                style={[
+                  styles.emptySearchTitle,
+                  { color: theme.textSecondary },
+                ]}
+              >
+                {t("emptySearchTitle", { query: trimmedQuery })}
+              </Text>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t("requestBrandAction", {
+                  name: trimmedQuery,
+                })}
+                style={({ pressed }) => [
+                  styles.requestBrandButton,
+                  { backgroundColor: theme.primary },
+                  pressed && styles.requestBrandButtonPressed,
+                ]}
+                onPress={openRequestBrandSheet}
+              >
+                <Text style={styles.requestBrandButtonText}>
+                  {t("requestBrandAction", { name: trimmedQuery })}
+                </Text>
+              </Pressable>
+            </View>
+          ) : null}
           <FlatList
             testID="brands-list"
             data={filteredBrands}
@@ -168,6 +205,27 @@ const styles = StyleSheet.create({
   },
   listSection: {
     flex: 1,
+  },
+  emptySearchState: {
+    gap: spacing.md,
+    marginBottom: spacing.md,
+  },
+  emptySearchTitle: {
+    ...typography.body,
+    textAlign: "center",
+  },
+  requestBrandButton: {
+    borderRadius: radius.sm,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    alignItems: "center",
+  },
+  requestBrandButtonPressed: {
+    opacity: 0.85,
+  },
+  requestBrandButtonText: {
+    ...typography.bodySemibold,
+    color: "#0D1B2A",
   },
   list: {
     flex: 1,
