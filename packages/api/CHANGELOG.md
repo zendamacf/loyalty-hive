@@ -1,5 +1,18 @@
 # @loyalty-hive/api
 
+## 1.1.0
+
+### Minor Changes
+
+- 66ff39d: Added `/api/v1/auth/me` endpoint for retrieving current user's details.
+
+## 1.0.3
+
+### Patch Changes
+
+- ef16afb: Add client identification headers for API Sentry errors. The app sends `x-client-id`, `x-app-version`, `x-app-build`, and `x-app-platform` on API requests; the API enriches Sentry with these values as tags and context.
+- ef16afb: Add `x-request-id` and `x-os-version` headers for API Sentry context. Each request gets a unique request ID for correlation, and the OS version is included for platform-specific debugging.
+
 ## 1.0.2
 
 ### Patch Changes

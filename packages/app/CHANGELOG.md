@@ -1,5 +1,20 @@
 # @loyalty-hive/app
 
+## 1.1.10
+
+### Patch Changes
+
+- c46f4cf: Fixed all API requests failing due to missing crypto dependency.
+- 66ff39d: Regenerates API SDK for new '/api/v1/auth/me` endpoint.
+
+## 1.1.9
+
+### Patch Changes
+
+- a0d178a: Show the correct invalid credentials error message on login.
+- ef16afb: Add client identification headers for API Sentry errors. The app sends `x-client-id`, `x-app-version`, `x-app-build`, and `x-app-platform` on API requests; the API enriches Sentry with these values as tags and context.
+- ef16afb: Add `x-request-id` and `x-os-version` headers for API Sentry context. Each request gets a unique request ID for correlation, and the OS version is included for platform-specific debugging.
+
 ## 1.1.8
 
 ### Patch Changes

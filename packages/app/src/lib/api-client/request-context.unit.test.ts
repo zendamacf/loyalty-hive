@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 
 import { createClient, createConfig } from "./gen/client";
 import {
@@ -12,6 +12,25 @@ const uuidPattern =
 describe("[Unit] createRequestId", () => {
   it("returns a UUID", () => {
     expect(createRequestId()).toMatch(uuidPattern);
+  });
+
+  describe("without global crypto (Hermes-like runtime)", () => {
+    const originalCrypto = globalThis.crypto;
+
+    beforeEach(() => {
+      Reflect.deleteProperty(globalThis, "crypto");
+    });
+
+    afterEach(() => {
+      Object.defineProperty(globalThis, "crypto", {
+        value: originalCrypto,
+        configurable: true,
+      });
+    });
+
+    it("returns a UUID", () => {
+      expect(createRequestId()).toMatch(uuidPattern);
+    });
   });
 });
 

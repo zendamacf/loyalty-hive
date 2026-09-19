@@ -19,6 +19,28 @@
       "recommended": true
     }
   },
+  "overrides": [
+    {
+      "includes": ["packages/app/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@react-navigation/native": {
+                    "importNames": ["useFocusEffect"],
+                    "message": "Import useFocusEffect from expo-router instead."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
   "javascript": {
     "formatter": {
       "quoteStyle": "double"

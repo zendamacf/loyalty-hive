@@ -16,6 +16,10 @@ import {
 import { db } from "../db/client.js";
 import { lower, users } from "../db/schema.js";
 import { requireApiKey } from "../middleware/api-key.middleware.js";
+import {
+  type AuthEnv,
+  requireUserAuth,
+} from "../middleware/auth.middleware.js";
 
 const credentialsBodySchema = z.object({
   email: z.string().trim().toLowerCase().pipe(z.email()),
@@ -31,14 +35,18 @@ const signupResponseSchema = z.object({
   email: z.string(),
 });
 
+const meResponseSchema = z.object({
+  id: z.uuid(),
+});
+
 const apiKeyHeaderSchema = z.object({
   [API_KEY_HEADER]: z.string().min(1),
 });
 
-const app = new Hono()
-  .use(requireApiKey)
+const app = new Hono<AuthEnv>()
   .post(
     "/login",
+    requireApiKey,
     describeRoute({
       description:
         "Sign in with email and password; returns a JWT access token",
@@ -76,6 +84,7 @@ const app = new Hono()
   )
   .post(
     "/signup",
+    requireApiKey,
     describeRoute({
       description: "Create a new user account",
       security: [{ apiKeyAuth: [] }],
@@ -114,6 +123,22 @@ const app = new Hono()
         }
         throw error;
       }
+    },
+  )
+  .get(
+    "/me",
+    describeRoute({
+      description: "Get the authenticated user's id",
+      security: [{ bearerAuth: [] }],
+      responses: {
+        200: jsonResponse("Successful response", meResponseSchema),
+        401: errorResponse("Unauthorized"),
+      },
+    }),
+    requireUserAuth,
+    async (c) => {
+      const userId = c.get("userId");
+      return c.json({ id: userId });
     },
   );
 
