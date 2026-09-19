@@ -18,6 +18,10 @@
   "overrides": {
     "react-native-worklets": "0.10.1",
     "@expo/log-box": "57.0.4",
-    "expo-constants": "57.0.19"
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "expo-application": "~57.0.1",
+    "expo-constants": "57.0.19",
+    "expo-device": "~57.0.1",
+    "expo-localization": "~57.0.1"
   }
 }

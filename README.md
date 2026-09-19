@@ -2,6 +2,10 @@
 
 A clean, minimal mobile app for storing loyalty cards.
 
+## Monorepo notes
+
+- Root [`package.json` overrides](./docs/dependency-overrides.md) for why Bun pins certain transitive dependency versions.
+
 ## Get Started
 
 ```sh
