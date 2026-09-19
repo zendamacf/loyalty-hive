@@ -1,4 +1,5 @@
 import { getApiKey } from "./auth-api-headers";
+import { clientHeaders } from "./client-headers";
 import type { CreateClientConfig } from "./gen/client.gen";
 import type { Auth } from "./gen/core/auth.gen";
 
@@ -24,8 +25,12 @@ export const resolveClientAuth = (auth: Auth): string | undefined => {
   return undefined;
 };
 
-export const createClientConfig: CreateClientConfig = (clientConfig) => ({
+export const createClientConfig: CreateClientConfig = (clientConfig = {}) => ({
   ...clientConfig,
   baseUrl,
   auth: resolveClientAuth,
+  headers: {
+    ...clientHeaders(),
+    ...clientConfig.headers,
+  },
 });

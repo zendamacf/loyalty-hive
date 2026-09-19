@@ -8,6 +8,8 @@ import { openAPIRouteHandler } from "hono-openapi";
 import apiRouter from "./api.router";
 import { config } from "./common/config";
 import { codeGenDocs, publicDocs } from "./common/openapi-schema";
+import { enrichSentryScope } from "./common/sentry-context";
+import { sentryContext } from "./middleware/sentry-context.middleware";
 
 const app = new Hono<{ Variables: { userId?: string } }>();
 
@@ -17,6 +19,7 @@ app
     "*",
     sentry({ dsn: config.tracing.sentryDsn, environment: config.environment }),
   )
+  .use("*", sentryContext)
   .use(
     "/logos/*",
     serveStatic({
@@ -32,10 +35,9 @@ app
   .get("/doc/gen", openAPIRouteHandler(app, codeGenDocs))
   .get("/", swaggerUI({ url: "/doc", title: "LoyaltyHive API" }))
   .onError((e, c) => {
-    c.get("sentry").setUser({
-      id: c.get("userId"),
-    });
-    c.get("sentry").captureException(e);
+    const sentryScope = c.get("sentry");
+    enrichSentryScope(sentryScope, c, c.get("userId"));
+    sentryScope.captureException(e);
     return c.text("Internal Server Error", 500);
   });
 
