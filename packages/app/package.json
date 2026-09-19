@@ -16,7 +16,8 @@
     "lint": "biome check src",
     "lint:fix": "biome check src --write",
     "typecheck": "tsc --noEmit",
-    "doctor": "bun scripts/check-native-deps.ts && bun x expo-doctor",
+    "bundle:android:ci": "bun x expo export:embed --eager --platform android --dev false",
+    "doctor": "bun scripts/check-native-deps.ts && bun scripts/check-rn-runtime.ts && bun x eas-cli --version && bun x expo install --check && bun x expo-doctor",
     "api:generate": "openapi-ts && bun run api:generate:hotfix",
     "api:generate:hotfix": "sed -i '1s;^;// @ts-expect-error Generated runtimeConfigPath import uses a .ts extension\\n;' src/lib/api-client/gen/client.gen.ts",
     "postversion": "react-native-version --never-amend"
