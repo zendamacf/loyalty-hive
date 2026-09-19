@@ -31,6 +31,14 @@
       "expo-router",
       "expo-camera",
       [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": true
+          }
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "backgroundColor": "#FFFFFF",
@@ -47,7 +55,12 @@
         {
           "url": "https://sentry.io/",
           "project": "loyalty-hive",
-          "organization": "kalopsiadev"
+          "organization": "kalopsiadev",
+          "experimental_android": {
+            "enableAndroidGradlePlugin": true,
+            "autoUploadProguardMapping": true,
+            "includeProguardMapping": true
+          }
         }
       ]
     ],

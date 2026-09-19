@@ -33,6 +33,7 @@
     "dotenv": "^17.4.2",
     "expo": "~57.0.14",
     "expo-brightness": "~57.0.1",
+    "expo-build-properties": "~57.0.21",
     "expo-camera": "^57.0.3",
     "expo-clipboard": "~57.0.1",
     "expo-constants": "~57.0.19",
