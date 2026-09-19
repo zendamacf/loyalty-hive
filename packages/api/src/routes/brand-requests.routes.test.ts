@@ -94,6 +94,9 @@ describe("brand-requests routes", () => {
   });
 
   it("returns an existing pending request for the same normalized name", async () => {
+    const suffix = crypto.randomUUID();
+    const requestedName = `Idempotent Brand ${suffix}`;
+
     const first = await app.request("/api/v1/brand-requests", {
       method: "POST",
       headers: {
@@ -101,8 +104,8 @@ describe("brand-requests routes", () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        requestedName: "  coles ",
-        url: "https://www.coles.com.au/loyalty",
+        requestedName,
+        url: "https://example.com/idempotent-brand",
       }),
     });
 
@@ -113,12 +116,12 @@ describe("brand-requests routes", () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        requestedName: "COLES",
-        url: "https://www.coles.com.au/another-page",
+        requestedName: `  ${requestedName.toUpperCase()} `,
+        url: "https://example.com/idempotent-brand-updated",
       }),
     });
 
-    expect(first.status).toBe(200);
+    expect(first.status).toBe(201);
     expect(second.status).toBe(200);
     const firstBody = (await first.json()) as { id: string };
     const secondBody = (await second.json()) as { id: string };
