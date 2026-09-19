@@ -8,6 +8,7 @@ import type {
   PatchApiV1CardsByIdResponse,
   PostApiV1AuthLoginResponse,
   PostApiV1AuthSignupResponse,
+  PostApiV1BrandRequestsResponse,
   PostApiV1CardsByIdViewResponse,
   PostApiV1CardsResponse,
 } from "@/lib/api-client";
@@ -74,6 +75,26 @@ export const postApiV1AuthSignupMock = mock(
 export const getApiV1BrandsMock = mock(
   (options?: SdkOptions): Promise<ApiMockResult<GetApiV1BrandsResponse>> =>
     resolveApiMock({ data: [], error: undefined }, options),
+);
+
+export const postApiV1BrandRequestsMock = mock(
+  (
+    options?: SdkOptions,
+  ): Promise<ApiMockResult<PostApiV1BrandRequestsResponse>> =>
+    resolveApiMock(
+      {
+        data: {
+          id: "00000000-0000-4000-8000-000000000010",
+          requestedName: "Requested Brand",
+          url: "https://example.com/loyalty",
+          notes: null,
+          status: "pending",
+          createdAt: new Date().toISOString(),
+        },
+        error: undefined,
+      },
+      options,
+    ),
 );
 
 export const getApiV1CardsMock = mock(
@@ -153,6 +174,7 @@ const sdkMocks = {
   postApiV1AuthSignup: postApiV1AuthSignupMock,
   getApiV1AuthMe: getApiV1AuthMeMock,
   getApiV1Brands: getApiV1BrandsMock,
+  postApiV1BrandRequests: postApiV1BrandRequestsMock,
   getApiV1Cards: getApiV1CardsMock,
   postApiV1Cards: postApiV1CardsMock,
   getApiV1CardsById: getApiV1CardsByIdMock,

@@ -3,11 +3,13 @@ import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
 import type { AuthEnv } from "./middleware/auth.middleware.js";
 import authRouter from "./routes/auth.routes.js";
+import brandRequestsRouter from "./routes/brand-requests.routes.js";
 import brandsRouter from "./routes/brands.routes.js";
 import cardsRouter from "./routes/cards.routes.js";
 
 const app = new Hono<AuthEnv>()
   .route("/auth", authRouter)
+  .route("/brand-requests", brandRequestsRouter)
   .route("/brands", brandsRouter)
   .route("/cards", cardsRouter)
   .onError((error, c) => {

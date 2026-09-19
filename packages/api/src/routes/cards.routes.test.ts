@@ -53,6 +53,7 @@ function upsertTestCard(
         label: sql`excluded.label`,
         view: sql`excluded.view`,
         brandId: sql`excluded.brand_id`,
+        brandRequestId: sql`excluded.brand_request_id`,
         viewCount: sql`excluded.view_count`,
         lastViewedAt: sql`excluded.last_viewed_at`,
         deletedAt: sql`excluded.deleted_at`,
@@ -656,6 +657,123 @@ describe("cards routes", () => {
     expect(response.status).toBe(400);
     expect(await response.json()).toEqual({
       error: "Referenced userId or brandId does not exist",
+    });
+  });
+
+  it("creates a custom card linked to a brand request", async () => {
+    const suffix = crypto.randomUUID();
+    const requestResponse = await app.request("/api/v1/brand-requests", {
+      method: "POST",
+      headers: {
+        ...authBearerHeaders(authToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        requestedName: `Linked Brand Card Test ${suffix}`,
+        url: "https://example.com/linked-brand-card-test",
+      }),
+    });
+
+    expect([200, 201]).toContain(requestResponse.status);
+    const requestBody = (await requestResponse.json()) as { id: string };
+
+    const response = await app.request("/api/v1/cards", {
+      method: "POST",
+      headers: {
+        ...authBearerHeaders(authToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        cardNumber: "7777666655554444",
+        brandRequestId: requestBody.id,
+      }),
+    });
+
+    expect(response.status).toBe(201);
+    expect(await response.json()).toMatchObject({
+      userId: USER_ID,
+      cardNumber: "7777666655554444",
+      label: `Linked Brand Card Test ${suffix}`,
+      brand: null,
+    });
+  });
+
+  it("rejects linking both brandId and brandRequestId", async () => {
+    const requestResponse = await app.request("/api/v1/brand-requests", {
+      method: "POST",
+      headers: {
+        ...authBearerHeaders(authToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        requestedName: "Both IDs Brand",
+        url: "https://example.com/both-ids",
+      }),
+    });
+    const requestBody = (await requestResponse.json()) as { id: string };
+
+    const response = await app.request("/api/v1/cards", {
+      method: "POST",
+      headers: {
+        ...authBearerHeaders(authToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        cardNumber: "1111222233334444",
+        brandId: BRAND_ID,
+        brandRequestId: requestBody.id,
+      }),
+    });
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      error: "brandId and brandRequestId cannot both be set",
+    });
+  });
+
+  it("rejects linking a brand request that is already linked to a card", async () => {
+    const suffix = crypto.randomUUID();
+    const requestResponse = await app.request("/api/v1/brand-requests", {
+      method: "POST",
+      headers: {
+        ...authBearerHeaders(authToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        requestedName: `Duplicate Link Brand Test ${suffix}`,
+        url: "https://example.com/duplicate-link-brand-test",
+      }),
+    });
+    const requestBody = (await requestResponse.json()) as { id: string };
+
+    const firstLink = await app.request("/api/v1/cards", {
+      method: "POST",
+      headers: {
+        ...authBearerHeaders(authToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        cardNumber: "4444333322221111",
+        brandRequestId: requestBody.id,
+      }),
+    });
+    expect(firstLink.status).toBe(201);
+
+    const secondLink = await app.request("/api/v1/cards", {
+      method: "POST",
+      headers: {
+        ...authBearerHeaders(authToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        cardNumber: "8888777766665555",
+        brandRequestId: requestBody.id,
+      }),
+    });
+
+    expect(secondLink.status).toBe(409);
+    expect(await secondLink.json()).toEqual({
+      error: "Brand request is already linked to a card",
     });
   });
 

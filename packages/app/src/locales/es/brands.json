@@ -3,5 +3,20 @@
   "subtitle": "Selecciona la marca de fidelidad antes de escanear tu tarjeta.",
   "searchPlaceholder": "Buscar marcas...",
   "loading": "Cargando marcas…",
-  "customCardTitle": "Tarjeta personalizada"
+  "customCardTitle": "Tarjeta personalizada",
+  "emptySearchTitle": "Ninguna marca coincide con \"{{query}}\"",
+  "requestBrandAction": "Solicitar \"{{name}}\"",
+  "requestBrandTitle": "Solicitar una marca",
+  "requestBrandNameLabel": "Nombre de la marca",
+  "requestBrandUrlLabel": "URL del programa de fidelidad",
+  "requestBrandUrlPlaceholder": "https://ejemplo.com/fidelidad",
+  "requestBrandNotesLabel": "Notas (opcional)",
+  "requestBrandNotesPlaceholder": "Detalles adicionales",
+  "requestBrandSubmit": "Enviar solicitud",
+  "requestBrandSubmitting": "Enviando…",
+  "requestBrandSuccessTitle": "Solicitud enviada",
+  "requestBrandSuccessMessage": "Revisaremos tu solicitud. Puedes guardar tu tarjeta ahora como tarjeta personalizada.",
+  "requestBrandAddCustomCard": "Añadir tarjeta personalizada ahora",
+  "requestBrandDone": "Listo",
+  "closeRequestBrandSheetA11y": "Cerrar solicitud de marca"
 }

@@ -113,6 +113,13 @@
       "when": 1779512561763,
       "tag": "0015_cards_soft_delete",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1779600000000,
+      "tag": "0016_brand_requests",
+      "breakpoints": true
     }
   ]
 }

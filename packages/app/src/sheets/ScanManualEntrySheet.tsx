@@ -29,6 +29,8 @@ export const ScanManualEntrySheet = () => {
   const payload = useSheetPayload(SheetIds.SCAN_MANUAL_ENTRY);
   const selectedBrandName = payload?.brandName ?? null;
   const selectedBrandId = payload?.brandId ?? null;
+  const brandRequestId = payload?.brandRequestId ?? null;
+  const suggestedLabel = payload?.suggestedLabel ?? "";
   const isCustomCard = payload?.isCustomCard ?? false;
   const initialCardNumber = payload?.initialCardNumber ?? "";
   const cardView: CardView | null = payload?.cardView ?? null;
@@ -42,11 +44,11 @@ export const ScanManualEntrySheet = () => {
 
   useEffect(() => {
     setCardNumber(initialCardNumber);
-    setCustomLabel("");
+    setCustomLabel(isCustomCard ? suggestedLabel : "");
     setSaveError(null);
     setIsSaving(false);
     saveLockRef.current = false;
-  }, [initialCardNumber]);
+  }, [initialCardNumber, isCustomCard, suggestedLabel]);
 
   const sheetTitle = useMemo(() => {
     if (selectedBrandId && selectedBrandName) {
@@ -83,6 +85,7 @@ export const ScanManualEntrySheet = () => {
           cardNumber: trimmedCardNumber,
           label: isCustomCard ? trimmedCustomLabel : null,
           brandId: selectedBrandId,
+          brandRequestId: isCustomCard ? brandRequestId : null,
           view: cardView,
         },
       });
@@ -95,6 +98,7 @@ export const ScanManualEntrySheet = () => {
       setIsSaving(false);
     }
   }, [
+    brandRequestId,
     canSubmit,
     cardView,
     createCard,
