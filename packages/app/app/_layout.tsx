@@ -18,6 +18,7 @@ import "@/i18n";
 import { AuthProvider } from "@/lib/auth";
 import { queryClient } from "@/lib/query-client";
 import { UserPreferencesProvider } from "@/lib/user-preferences";
+import { VersionCheckProvider } from "@/lib/version-check";
 import { AppSheets } from "@/sheets";
 
 Sentry.init({
@@ -42,22 +43,24 @@ export default Sentry.wrap(function Layout() {
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-        <AuthProvider>
-          <UserPreferencesProvider>
-            <ThemedRoot>
-              <GestureHandlerRootView style={{ flex: 1 }}>
-                <SheetProvider>
-                  <AppSheets />
-                  <OverlayProvider>
-                    <KeyboardAvoidingShell>
-                      <Stack screenOptions={{ headerShown: false }} />
-                    </KeyboardAvoidingShell>
-                  </OverlayProvider>
-                </SheetProvider>
-              </GestureHandlerRootView>
-            </ThemedRoot>
-          </UserPreferencesProvider>
-        </AuthProvider>
+        <VersionCheckProvider>
+          <AuthProvider>
+            <UserPreferencesProvider>
+              <ThemedRoot>
+                <GestureHandlerRootView style={{ flex: 1 }}>
+                  <SheetProvider>
+                    <AppSheets />
+                    <OverlayProvider>
+                      <KeyboardAvoidingShell>
+                        <Stack screenOptions={{ headerShown: false }} />
+                      </KeyboardAvoidingShell>
+                    </OverlayProvider>
+                  </SheetProvider>
+                </GestureHandlerRootView>
+              </ThemedRoot>
+            </UserPreferencesProvider>
+          </AuthProvider>
+        </VersionCheckProvider>
       </SafeAreaProvider>
     </QueryClientProvider>
   );

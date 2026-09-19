@@ -5,6 +5,7 @@ import type {
   GetApiV1BrandsResponse,
   GetApiV1CardsByIdResponse,
   GetApiV1CardsResponse,
+  GetApiV1MetaAppVersionResponse,
   PatchApiV1CardsByIdResponse,
   PostApiV1AuthLoginResponse,
   PostApiV1AuthSignupResponse,
@@ -81,6 +82,22 @@ export const getApiV1CardsMock = mock(
     resolveApiMock({ data: [], error: undefined }, options),
 );
 
+export const getApiV1MetaAppVersionMock = mock(
+  (
+    options?: SdkOptions,
+  ): Promise<ApiMockResult<GetApiV1MetaAppVersionResponse>> =>
+    resolveApiMock(
+      {
+        data: {
+          platform: "ios",
+          minimumVersion: "0.0.1",
+        },
+        error: undefined,
+      },
+      options,
+    ),
+);
+
 export const createCardMock = (
   overrides: Partial<PostApiV1CardsResponse> = {},
 ): PostApiV1CardsResponse => ({
@@ -154,6 +171,7 @@ const sdkMocks = {
   getApiV1AuthMe: getApiV1AuthMeMock,
   getApiV1Brands: getApiV1BrandsMock,
   getApiV1Cards: getApiV1CardsMock,
+  getApiV1MetaAppVersion: getApiV1MetaAppVersionMock,
   postApiV1Cards: postApiV1CardsMock,
   getApiV1CardsById: getApiV1CardsByIdMock,
   deleteApiV1CardsById: deleteApiV1CardsByIdMock,

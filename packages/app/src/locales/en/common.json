@@ -8,5 +8,10 @@
   "dark": "Dark",
   "purple": "Purple",
   "system": "System",
-  "appLogo": "App logo"
+  "appLogo": "App logo",
+  "forceUpdate": {
+    "title": "Update required",
+    "message": "A newer version of LoyaltyHive is available. Please update to continue using the app.",
+    "updateButton": "Update now"
+  }
 }

@@ -274,6 +274,49 @@ export type PostApiV1CardsResponses = {
 
 export type PostApiV1CardsResponse = PostApiV1CardsResponses[keyof PostApiV1CardsResponses];
 
+export type GetApiV1MetaAppVersionData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/meta/app-version';
+};
+
+export type GetApiV1MetaAppVersionErrors = {
+    /**
+     * Invalid request input
+     */
+    400: {
+        error: string;
+        issues: Array<unknown>;
+    };
+    /**
+     * API key is required
+     */
+    401: {
+        error: string;
+    };
+    /**
+     * Invalid API key
+     */
+    403: {
+        error: string;
+    };
+};
+
+export type GetApiV1MetaAppVersionError = GetApiV1MetaAppVersionErrors[keyof GetApiV1MetaAppVersionErrors];
+
+export type GetApiV1MetaAppVersionResponses = {
+    /**
+     * Successful response
+     */
+    200: {
+        platform: 'android' | 'ios';
+        minimumVersion: string;
+    };
+};
+
+export type GetApiV1MetaAppVersionResponse = GetApiV1MetaAppVersionResponses[keyof GetApiV1MetaAppVersionResponses];
+
 export type DeleteApiV1CardsByIdData = {
     body?: never;
     path: {
