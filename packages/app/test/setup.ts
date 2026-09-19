@@ -311,6 +311,11 @@ mock.module("react-native", () => ({
   },
   Platform: {
     OS: "ios",
+    Version: "17.0",
+    constants: {
+      systemName: "iOS",
+      osVersion: "17.0",
+    },
     select: <T>(options: { ios?: T; android?: T; default?: T }) =>
       options.ios ?? options.default,
   },

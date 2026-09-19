@@ -17,6 +17,8 @@ export function readClientRequestMetadata(c: Context): ClientRequestMetadata {
     "x-app-version": c.req.header("x-app-version"),
     "x-app-build": c.req.header("x-app-build"),
     "x-app-platform": c.req.header("x-app-platform"),
+    "x-request-id": c.req.header("x-request-id"),
+    "x-os-version": c.req.header("x-os-version"),
     "user-agent": c.req.header("user-agent"),
   });
 }
@@ -37,16 +39,24 @@ export function enrichSentryScope(
   if (client.appPlatform) {
     sentry.setTag("app.platform", client.appPlatform);
   }
+  if (client.requestId) {
+    sentry.setTag("request.id", client.requestId);
+  }
+  if (client.osVersion) {
+    sentry.setTag("app.os_version", client.osVersion);
+  }
 
   sentry.setContext("client", {
     id: client.clientId,
     version: client.appVersion,
     build: client.appBuild,
     platform: client.appPlatform,
+    osVersion: client.osVersion,
     userAgent: client.userAgent,
   });
 
   sentry.setContext("request", {
+    id: client.requestId,
     method: c.req.method,
     path: c.req.path,
   });

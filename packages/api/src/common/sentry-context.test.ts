@@ -24,6 +24,8 @@ describe("enrichSentryScope", () => {
         "x-app-version": "1.1.8",
         "x-app-build": "11",
         "x-app-platform": "ios",
+        "x-request-id": "req-123",
+        "x-os-version": "iOS 18.2",
         "user-agent": "LoyaltyHive/1.1.8",
       },
     });
@@ -32,14 +34,18 @@ describe("enrichSentryScope", () => {
     expect(setTag).toHaveBeenCalledWith("client.id", "loyaltyhive-app");
     expect(setTag).toHaveBeenCalledWith("app.version", "1.1.8");
     expect(setTag).toHaveBeenCalledWith("app.platform", "ios");
+    expect(setTag).toHaveBeenCalledWith("request.id", "req-123");
+    expect(setTag).toHaveBeenCalledWith("app.os_version", "iOS 18.2");
     expect(setContext).toHaveBeenCalledWith("client", {
       id: "loyaltyhive-app",
       version: "1.1.8",
       build: "11",
       platform: "ios",
+      osVersion: "iOS 18.2",
       userAgent: "LoyaltyHive/1.1.8",
     });
     expect(setContext).toHaveBeenCalledWith("request", {
+      id: "req-123",
       method: "GET",
       path: "/",
     });

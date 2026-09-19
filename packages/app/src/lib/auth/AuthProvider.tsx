@@ -11,6 +11,7 @@ import {
 } from "react";
 
 import { Routes } from "@/constants/routes.constants";
+import { installRequestContextInterceptor } from "@/lib/api-client/request-context";
 import {
   installUnauthorizedInterceptor,
   setUnauthorizedHandler,
@@ -34,6 +35,7 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 installUnauthorizedInterceptor();
+installRequestContextInterceptor();
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isReady, setIsReady] = useState(false);
