@@ -3,8 +3,8 @@
 import { queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { deleteApiV1CardsById, getApiV1Brands, getApiV1Cards, getApiV1CardsById, type Options, patchApiV1CardsById, postApiV1AuthLogin, postApiV1AuthSignup, postApiV1Cards, postApiV1CardsByIdView } from '../sdk.gen';
-import type { DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdError, DeleteApiV1CardsByIdResponse, GetApiV1BrandsData, GetApiV1BrandsError, GetApiV1BrandsResponse, GetApiV1CardsByIdData, GetApiV1CardsByIdError, GetApiV1CardsByIdResponse, GetApiV1CardsData, GetApiV1CardsError, GetApiV1CardsResponse, PatchApiV1CardsByIdData, PatchApiV1CardsByIdError, PatchApiV1CardsByIdResponse, PostApiV1AuthLoginData, PostApiV1AuthLoginError, PostApiV1AuthLoginResponse, PostApiV1AuthSignupData, PostApiV1AuthSignupError, PostApiV1AuthSignupResponse, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewError, PostApiV1CardsByIdViewResponse, PostApiV1CardsData, PostApiV1CardsError, PostApiV1CardsResponse } from '../types.gen';
+import { deleteApiV1CardsById, getApiV1AuthMe, getApiV1Brands, getApiV1Cards, getApiV1CardsById, type Options, patchApiV1CardsById, postApiV1AuthLogin, postApiV1AuthSignup, postApiV1Cards, postApiV1CardsByIdView } from '../sdk.gen';
+import type { DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdError, DeleteApiV1CardsByIdResponse, GetApiV1AuthMeData, GetApiV1AuthMeError, GetApiV1AuthMeResponse, GetApiV1BrandsData, GetApiV1BrandsError, GetApiV1BrandsResponse, GetApiV1CardsByIdData, GetApiV1CardsByIdError, GetApiV1CardsByIdResponse, GetApiV1CardsData, GetApiV1CardsError, GetApiV1CardsResponse, PatchApiV1CardsByIdData, PatchApiV1CardsByIdError, PatchApiV1CardsByIdResponse, PostApiV1AuthLoginData, PostApiV1AuthLoginError, PostApiV1AuthLoginResponse, PostApiV1AuthSignupData, PostApiV1AuthSignupError, PostApiV1AuthSignupResponse, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewError, PostApiV1CardsByIdViewResponse, PostApiV1CardsData, PostApiV1CardsError, PostApiV1CardsResponse } from '../types.gen';
 
 /**
  * Sign in with email and password; returns a JWT access token
@@ -72,6 +72,24 @@ const createQueryKey = <TOptions extends Options>(id: string, options?: TOptions
     }
     return [params];
 };
+
+export const getApiV1AuthMeQueryKey = (options?: Options<GetApiV1AuthMeData>) => createQueryKey('getApiV1AuthMe', options);
+
+/**
+ * Get the authenticated user's id
+ */
+export const getApiV1AuthMeOptions = (options?: Options<GetApiV1AuthMeData>) => queryOptions<GetApiV1AuthMeResponse, GetApiV1AuthMeError, GetApiV1AuthMeResponse, ReturnType<typeof getApiV1AuthMeQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getApiV1AuthMe({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getApiV1AuthMeQueryKey(options)
+});
 
 export const getApiV1BrandsQueryKey = (options?: Options<GetApiV1BrandsData>) => createQueryKey('getApiV1Brands', options);
 

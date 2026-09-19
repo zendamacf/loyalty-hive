@@ -1,12 +1,13 @@
 import { mock } from "bun:test";
 
 import type {
+  GetApiV1AuthMeResponse,
   GetApiV1BrandsResponse,
   GetApiV1CardsByIdResponse,
   GetApiV1CardsResponse,
+  PatchApiV1CardsByIdResponse,
   PostApiV1AuthLoginResponse,
   PostApiV1AuthSignupResponse,
-  PatchApiV1CardsByIdResponse,
   PostApiV1CardsByIdViewResponse,
   PostApiV1CardsResponse,
 } from "@/lib/api-client";
@@ -37,6 +38,19 @@ export const postApiV1AuthLoginMock = mock(
     resolveApiMock(
       {
         data: { token: "test-token" },
+        error: undefined,
+      },
+      options,
+    ),
+);
+
+export const getApiV1AuthMeMock = mock(
+  (options?: SdkOptions): Promise<ApiMockResult<GetApiV1AuthMeResponse>> =>
+    resolveApiMock(
+      {
+        data: {
+          id: "00000000-0000-4000-8000-000000000001",
+        },
         error: undefined,
       },
       options,
@@ -124,7 +138,10 @@ export const postApiV1CardsByIdViewMock = mock(
   ): Promise<ApiMockResult<PostApiV1CardsByIdViewResponse>> =>
     resolveApiMock(
       {
-        data: createCardMock({ viewCount: 1, lastViewedAt: new Date().toISOString() }),
+        data: createCardMock({
+          viewCount: 1,
+          lastViewedAt: new Date().toISOString(),
+        }),
         error: undefined,
       },
       options,
@@ -134,6 +151,7 @@ export const postApiV1CardsByIdViewMock = mock(
 const sdkMocks = {
   postApiV1AuthLogin: postApiV1AuthLoginMock,
   postApiV1AuthSignup: postApiV1AuthSignupMock,
+  getApiV1AuthMe: getApiV1AuthMeMock,
   getApiV1Brands: getApiV1BrandsMock,
   getApiV1Cards: getApiV1CardsMock,
   postApiV1Cards: postApiV1CardsMock,
@@ -148,7 +166,8 @@ mock.module("@/lib/api-client/gen/sdk.gen", () => ({
 }));
 
 mock.module("@/lib/api-client", () => {
-  const generated = require("@/lib/api-client/gen") as typeof import("@/lib/api-client/gen");
+  const generated =
+    require("@/lib/api-client/gen") as typeof import("@/lib/api-client/gen");
   const reactQueryGen =
     require("@/lib/api-client/gen/@tanstack/react-query.gen") as typeof import("@/lib/api-client/gen/@tanstack/react-query.gen");
 

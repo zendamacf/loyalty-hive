@@ -4,7 +4,12 @@ import { randomUUID } from "node:crypto";
 import { compare as bcryptCompare, hash as bcryptHash } from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { verify } from "hono/jwt";
-import { apiKeyHeaders, createApiRouterApp } from "../../test/create-app";
+import {
+  apiKeyHeaders,
+  authBearerHeaders,
+  createApiRouterApp,
+  signTestToken,
+} from "../../test/create-app";
 import { config } from "../common/config";
 import { BCRYPT_COST } from "../common/constants";
 import { db } from "../db/client";
@@ -276,6 +281,37 @@ describe("auth routes", () => {
     });
 
     expect(response.status).toBe(400);
+  });
+
+  it("returns 401 for GET /me without a bearer token", async () => {
+    const response = await app.request("/api/v1/auth/me");
+
+    expect(response.status).toBe(401);
+    expect(await response.json()).toEqual({
+      error: "You must be logged in to access this resource",
+    });
+  });
+
+  it("returns the authenticated user id for GET /me", async () => {
+    const token = await signTestToken(USER_ID);
+
+    const response = await app.request("/api/v1/auth/me", {
+      headers: authBearerHeaders(token),
+    });
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ id: USER_ID });
+  });
+
+  it("does not require an API key for GET /me", async () => {
+    const token = await signTestToken(USER_ID);
+
+    const response = await app.request("/api/v1/auth/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ id: USER_ID });
   });
 
   it("allows login after signup", async () => {
