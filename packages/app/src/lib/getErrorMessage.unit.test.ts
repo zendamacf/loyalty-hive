@@ -50,9 +50,7 @@ describe("[Unit] getErrorMessage", () => {
   });
 
   it("returns fallback for empty string errors", () => {
-    expect(getErrorMessage("")).toBe(
-      "Something went wrong. Please try again.",
-    );
+    expect(getErrorMessage("")).toBe("Something went wrong. Please try again.");
     expect(consoleErrorMock).toHaveBeenCalledWith("");
   });
 });

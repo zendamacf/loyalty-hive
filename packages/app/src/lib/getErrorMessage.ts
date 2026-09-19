@@ -9,7 +9,10 @@ function readStringField(
   err: object,
   field: "error" | "message",
 ): string | undefined {
-  if (field in err && typeof (err as Record<string, unknown>)[field] === "string") {
+  if (
+    field in err &&
+    typeof (err as Record<string, unknown>)[field] === "string"
+  ) {
     return (err as Record<string, string>)[field];
   }
   return undefined;
