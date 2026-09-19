@@ -777,6 +777,57 @@ describe("cards routes", () => {
     });
   });
 
+  it("returns 400 when brandRequestId does not exist", async () => {
+    const response = await app.request("/api/v1/cards", {
+      method: "POST",
+      headers: {
+        ...authBearerHeaders(authToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        cardNumber: "1212121212121212",
+        brandRequestId: UNKNOWN_BRAND_ID,
+      }),
+    });
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      error: "Brand request not found or not eligible",
+    });
+  });
+
+  it("returns 400 when brandRequestId belongs to another user", async () => {
+    const requestResponse = await app.request("/api/v1/brand-requests", {
+      method: "POST",
+      headers: {
+        ...authBearerHeaders(otherUserToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        requestedName: `Other User Brand ${crypto.randomUUID()}`,
+        url: "https://example.com/other-user-brand",
+      }),
+    });
+    const requestBody = (await requestResponse.json()) as { id: string };
+
+    const response = await app.request("/api/v1/cards", {
+      method: "POST",
+      headers: {
+        ...authBearerHeaders(authToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        cardNumber: "1313131313131313",
+        brandRequestId: requestBody.id,
+      }),
+    });
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      error: "Brand request not found or not eligible",
+    });
+  });
+
   it("returns 404 on delete for non-existent card", async () => {
     const response = await app.request(`/api/v1/cards/${UNKNOWN_CARD_ID}`, {
       method: "DELETE",

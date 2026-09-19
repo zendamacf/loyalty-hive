@@ -119,4 +119,32 @@ describe("[Integration] RequestBrandSheet", () => {
       },
     });
   });
+
+  it("closes after a successful request when done is pressed", async () => {
+    const { getByLabelText, getByText } = await renderWithProviders(
+      <View testID="sheet-host" />,
+    );
+
+    await act(async () => {
+      void SheetManager.show(SheetIds.REQUEST_BRAND, {
+        payload: { requestedName: "Done Test Brand" },
+      });
+    });
+
+    await waitFor(() => {
+      expect(getByLabelText("Brand name")).toBeTruthy();
+    });
+
+    await changeText(
+      getByLabelText("Loyalty program URL"),
+      "https://example.com/done-test-brand",
+    );
+    await press(getByText("Submit request"));
+
+    await waitFor(() => {
+      expect(getByText("Done")).toBeTruthy();
+    });
+
+    await press(getByText("Done"));
+  });
 });

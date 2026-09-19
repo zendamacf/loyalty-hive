@@ -122,6 +122,23 @@ describe("[Integration] SelectBrandScreen", () => {
     expect(getByLabelText("Custom card")).toBeTruthy();
   });
 
+  it("opens the request brand sheet from the empty search state", async () => {
+    const { getByPlaceholderText, getByLabelText, getByText } =
+      await renderWithProviders(<SelectBrandScreen />);
+
+    await waitFor(() => {
+      expect(getByLabelText("ASOS")).toBeTruthy();
+    });
+
+    await changeText(getByPlaceholderText("Search brands..."), "missing brand");
+    await press(getByLabelText('Request "missing brand"'));
+
+    await waitFor(() => {
+      expect(getByText("Request a brand")).toBeTruthy();
+      expect(getByLabelText("Brand name").props.value).toBe("missing brand");
+    });
+  });
+
   it("navigates to scan screen for custom card", async () => {
     const { getByLabelText } = await renderWithProviders(<SelectBrandScreen />);
 
