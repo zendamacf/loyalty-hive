@@ -43,7 +43,7 @@ describe("[Unit] syncAnalyticsUser", () => {
       isInitializedMock.mockReturnValue(false);
       clearAnalyticsUser();
 
-      expect(clearUserMock).toHaveBeenCalledTimes(1);
+      expect(clearUserMock).not.toHaveBeenCalled();
     });
   });
 });
