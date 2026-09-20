@@ -16,8 +16,8 @@ import {
   navigationFocusMocks,
 } from "./mocks/navigation-focus";
 import "./mocks/react-native-actions-sheet";
-import "./mocks/react-native-gesture-reanimated";
 import { appStateMock } from "./mocks/react-native-app-state";
+import "./mocks/react-native-gesture-reanimated";
 import "./mocks/sentry";
 
 const asyncStorage = new Map<string, string>();

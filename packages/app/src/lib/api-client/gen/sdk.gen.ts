@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdErrors, DeleteApiV1CardsByIdResponses, GetApiV1AuthMeData, GetApiV1AuthMeErrors, GetApiV1AuthMeResponses, GetApiV1BrandsData, GetApiV1BrandsErrors, GetApiV1BrandsResponses, GetApiV1CardsByIdData, GetApiV1CardsByIdErrors, GetApiV1CardsByIdResponses, GetApiV1CardsData, GetApiV1CardsErrors, GetApiV1CardsResponses, PatchApiV1CardsByIdData, PatchApiV1CardsByIdErrors, PatchApiV1CardsByIdResponses, PostApiV1AuthLoginData, PostApiV1AuthLoginErrors, PostApiV1AuthLoginResponses, PostApiV1AuthSignupData, PostApiV1AuthSignupErrors, PostApiV1AuthSignupResponses, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewErrors, PostApiV1CardsByIdViewResponses, PostApiV1CardsData, PostApiV1CardsErrors, PostApiV1CardsResponses } from './types.gen';
+import type { DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdErrors, DeleteApiV1CardsByIdResponses, GetApiV1AuthMeData, GetApiV1AuthMeErrors, GetApiV1AuthMeResponses, GetApiV1BrandsData, GetApiV1BrandsErrors, GetApiV1BrandsResponses, GetApiV1CardsByIdData, GetApiV1CardsByIdErrors, GetApiV1CardsByIdResponses, GetApiV1CardsData, GetApiV1CardsErrors, GetApiV1CardsResponses, PatchApiV1CardsByIdData, PatchApiV1CardsByIdErrors, PatchApiV1CardsByIdResponses, PostApiV1AuthLoginData, PostApiV1AuthLoginErrors, PostApiV1AuthLoginResponses, PostApiV1AuthSignupData, PostApiV1AuthSignupErrors, PostApiV1AuthSignupResponses, PostApiV1BrandRequestsData, PostApiV1BrandRequestsErrors, PostApiV1BrandRequestsResponses, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewErrors, PostApiV1CardsByIdViewResponses, PostApiV1CardsData, PostApiV1CardsErrors, PostApiV1CardsResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -60,6 +60,19 @@ export const getApiV1Brands = <ThrowOnError extends boolean = false>(options?: O
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/brands',
     ...options
+});
+
+/**
+ * Request a new loyalty brand be added to the catalog
+ */
+export const postApiV1BrandRequests = <ThrowOnError extends boolean = false>(options: Options<PostApiV1BrandRequestsData, ThrowOnError>) => (options.client ?? client).post<PostApiV1BrandRequestsResponses, PostApiV1BrandRequestsErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/brand-requests',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
 });
 
 /**

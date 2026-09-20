@@ -3,5 +3,20 @@
   "subtitle": "Select the loyalty brand before scanning your card.",
   "searchPlaceholder": "Search brands...",
   "loading": "Loading brands…",
-  "customCardTitle": "Custom card"
+  "customCardTitle": "Custom card",
+  "emptySearchTitle": "No brands match \"{{query}}\"",
+  "requestBrandAction": "Request \"{{name}}\"",
+  "requestBrandTitle": "Request a brand",
+  "requestBrandNameLabel": "Brand name",
+  "requestBrandUrlLabel": "Loyalty program URL",
+  "requestBrandUrlPlaceholder": "https://example.com/loyalty",
+  "requestBrandNotesLabel": "Notes (optional)",
+  "requestBrandNotesPlaceholder": "Any extra details",
+  "requestBrandSubmit": "Submit request",
+  "requestBrandSubmitting": "Submitting…",
+  "requestBrandSuccessTitle": "Request submitted",
+  "requestBrandSuccessMessage": "We'll review your request. You can save your card now as a custom card.",
+  "requestBrandAddCustomCard": "Add custom card now",
+  "requestBrandDone": "Done",
+  "closeRequestBrandSheetA11y": "Close request brand sheet"
 }

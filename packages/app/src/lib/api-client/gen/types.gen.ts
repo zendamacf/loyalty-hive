@@ -164,6 +164,56 @@ export type GetApiV1BrandsResponses = {
 
 export type GetApiV1BrandsResponse = GetApiV1BrandsResponses[keyof GetApiV1BrandsResponses];
 
+export type BrandRequestResponse = {
+    id: string;
+    requestedName: string;
+    url: string;
+    notes: string | null;
+    status: 'pending' | 'approved' | 'rejected';
+    createdAt: string;
+};
+
+export type PostApiV1BrandRequestsData = {
+    body: {
+        requestedName: string;
+        url: string;
+        notes?: string | null;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/brand-requests';
+};
+
+export type PostApiV1BrandRequestsErrors = {
+    /**
+     * Invalid input or brand already exists
+     */
+    400: {
+        error: string;
+    };
+    /**
+     * Unauthorized
+     */
+    401: {
+        error: string;
+    };
+};
+
+export type PostApiV1BrandRequestsError = PostApiV1BrandRequestsErrors[keyof PostApiV1BrandRequestsErrors];
+
+export type PostApiV1BrandRequestsResponses = {
+    /**
+     * Existing pending request for this brand name
+     */
+    200: BrandRequestResponse;
+    /**
+     * Brand request created
+     */
+    201: BrandRequestResponse;
+};
+
+export type PostApiV1BrandRequestsResponse = PostApiV1BrandRequestsResponses[keyof PostApiV1BrandRequestsResponses];
+
 export type GetApiV1CardsData = {
     body?: never;
     path?: never;
@@ -221,6 +271,7 @@ export type PostApiV1CardsData = {
         label?: string | null;
         view?: '1D' | '2D' | null;
         brandId?: string | null;
+        brandRequestId?: string | null;
     };
     path?: never;
     query?: never;
@@ -229,7 +280,7 @@ export type PostApiV1CardsData = {
 
 export type PostApiV1CardsErrors = {
     /**
-     * Referenced userId or brandId does not exist
+     * Referenced userId, brandId, or brandRequestId does not exist
      */
     400: {
         error: string;
