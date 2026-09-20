@@ -3,6 +3,7 @@ import "react-native-gesture-handler";
 import * as Sentry from "@sentry/react-native";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ErrorBoundary as ExpoErrorBoundary, Stack } from "expo-router";
+import { useEffect } from "react";
 import { SheetProvider } from "react-native-actions-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
@@ -15,6 +16,7 @@ import { OverlayProvider } from "@/components/OverlayProvider";
 import { ThemedRoot } from "@/components/ThemedRoot";
 import "@/i18n";
 
+import { setupUmami } from "@/lib/analytics/setup-umami";
 import { AuthProvider } from "@/lib/auth";
 import { queryClient } from "@/lib/query-client";
 import { UserPreferencesProvider } from "@/lib/user-preferences";
@@ -34,11 +36,14 @@ Sentry.init({
   ],
 });
 
-export const ErrorBoundary = Sentry.wrapExpoRouterErrorBoundary(
-  ExpoErrorBoundary,
-);
+export const ErrorBoundary =
+  Sentry.wrapExpoRouterErrorBoundary(ExpoErrorBoundary);
 
 export default Sentry.wrap(function Layout() {
+  useEffect(() => {
+    void setupUmami();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider initialMetrics={initialWindowMetrics}>

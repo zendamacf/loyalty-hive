@@ -12,7 +12,9 @@ import { ScreenShell } from "@/components/ScreenShell";
 import {
   CARD_CODE_FROM_CARDS_PARAM,
   CARD_CODE_FROM_CARDS_VALUE,
+  Routes,
 } from "@/constants/routes.constants";
+import { useTrackScreenView } from "@/lib/analytics/use-track-screen-view";
 import {
   getApiV1CardsQueryKey,
   postApiV1CardsByIdViewMutation,
@@ -28,6 +30,7 @@ import { useTheme } from "@/theme/useTheme";
 
 export const CardCodeScreen = () => {
   const { theme } = useTheme();
+  useTrackScreenView(Routes.CARD_CODE, { title: "Card Code Screen" });
   const params = useLocalSearchParams<{
     id?: string;
     cardNumber?: string;

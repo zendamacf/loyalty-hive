@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
+import { useTrackScreenView } from "@/lib/analytics/use-track-screen-view";
 import { postApiV1AuthLogin, postApiV1AuthSignup } from "@/lib/api-client";
 import { authApiHeaders } from "@/lib/api-client/auth-api-headers";
 import { useAuth } from "@/lib/auth";
@@ -31,6 +32,7 @@ export const LoginScreen = () => {
   const { t } = useTranslation([I18nNamespace.Auth, I18nNamespace.Common]);
   const { theme } = useTheme();
   const { signIn } = useAuth();
+  useTrackScreenView(Routes.LOGIN, { title: "Login" });
   const passwordRef = useRef<TextInput>(null);
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");

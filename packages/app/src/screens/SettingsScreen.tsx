@@ -13,12 +13,14 @@ import { ScreenShell } from "@/components/ScreenShell";
 import { ThemePicker } from "@/components/ThemePicker";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
+import { useTrackScreenView } from "@/lib/analytics/use-track-screen-view";
 import { useAuth } from "@/lib/auth";
 import { spacing } from "@/theme/theme";
 
 export const SettingsScreen = () => {
   const { t } = useTranslation(I18nNamespace.Settings);
   const { signOut: clearSession } = useAuth();
+  useTrackScreenView(Routes.SETTINGS, { title: "Settings Screen" });
 
   const signOut = useCallback(() => {
     void (async () => {

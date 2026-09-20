@@ -29,6 +29,7 @@ import {
   Routes,
 } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
+import { useTrackScreenView } from "@/lib/analytics/use-track-screen-view";
 import {
   type GetApiV1CardsResponse,
   getApiV1CardsOptions,
@@ -84,6 +85,7 @@ function filterCards(
 export const CardsScreen = () => {
   const { t } = useTranslation([I18nNamespace.Cards, I18nNamespace.Common]);
   const { theme } = useTheme();
+  useTrackScreenView(Routes.CARDS, { title: "Cards List Screen" });
   const [searchQuery, setSearchQuery] = useState("");
   const { sort, setSort, hydrated: cardSortHydrated } = useCardSort();
 
