@@ -19,6 +19,8 @@ import { ScreenHeader } from "@/components/ScreenHeader";
 import { ScreenShell } from "@/components/ScreenShell";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
+import { AnalyticsEvents } from "@/lib/analytics/analytics-events";
+import { useTrackDebouncedSearch } from "@/lib/analytics/use-track-debounced-search";
 import { useTrackScreenView } from "@/lib/analytics/use-track-screen-view";
 import {
   type GetApiV1BrandsResponse,
@@ -65,6 +67,12 @@ export const SelectBrandScreen = () => {
       brand.name.toLowerCase().includes(normalizedQuery),
     );
   }, [brands, query]);
+
+  useTrackDebouncedSearch(
+    AnalyticsEvents.BRANDS_SEARCH,
+    query,
+    filteredBrands.length,
+  );
 
   const openCustomCardScan = useCallback(() => {
     router.push({

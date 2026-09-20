@@ -1,11 +1,15 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+
 import {
   I18nNamespace,
   SUPPORTED_LOCALES,
   type SupportedLocale,
 } from "@/i18n/i18n.constants";
 import { useLanguage } from "@/i18n/useLanguage";
+
+import { AnalyticsEvents } from "@/lib/analytics/analytics-events";
+import { trackAppEvent } from "@/lib/analytics/track-app-event";
 import { Select } from "./Select";
 
 const PREFERENCE_LABEL_KEYS: Record<
@@ -29,10 +33,17 @@ export const LanguagePicker = () => {
     [t],
   );
 
+  const handleLanguageChange = (nextLanguage: SupportedLocale) => {
+    setLanguagePreference(nextLanguage);
+    void trackAppEvent(AnalyticsEvents.SETTINGS_LANGUAGE_CHANGE, {
+      language: nextLanguage,
+    });
+  };
+
   return (
     <Select
       value={preference}
-      onValueChange={setLanguagePreference}
+      onValueChange={handleLanguageChange}
       options={options}
       accessibilityLabel={t("language")}
     />

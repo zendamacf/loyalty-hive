@@ -9,6 +9,8 @@ import { CardCodeViewToggle } from "@/components/CardCodeViewToggle";
 import { Form } from "@/components/Form";
 import { FormGroup } from "@/components/FormGroup";
 import { I18nNamespace } from "@/i18n/i18n.constants";
+import { AnalyticsEvents } from "@/lib/analytics/analytics-events";
+import { trackAppEvent } from "@/lib/analytics/track-app-event";
 import {
   getApiV1CardsQueryKey,
   patchApiV1CardsByIdMutation,
@@ -75,11 +77,25 @@ export const EditCardSheet = () => {
         label: (updated.label ?? editLabel).trim(),
         view: resolveCardView(updated.view ?? editView),
       };
+      void trackAppEvent(AnalyticsEvents.CARD_EDIT, {
+        card_id: cardId,
+        has_brand: hasBrand,
+        view: returnValue.view,
+      });
       sheetRef.current?.hide(returnValue);
     } catch (err) {
       Alert.alert(t("saveCardErrorTitle"), getErrorMessage(err));
     }
-  }, [cardId, editLabel, editView, isSaving, sheetRef, t, updateCard]);
+  }, [
+    cardId,
+    editLabel,
+    editView,
+    isSaving,
+    sheetRef,
+    t,
+    updateCard,
+    hasBrand,
+  ]);
 
   return (
     <ActionSheetFrame

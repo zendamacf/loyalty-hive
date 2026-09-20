@@ -13,6 +13,8 @@ import { ScreenShell } from "@/components/ScreenShell";
 import { ThemePicker } from "@/components/ThemePicker";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
+import { AnalyticsEvents } from "@/lib/analytics/analytics-events";
+import { trackAppEvent } from "@/lib/analytics/track-app-event";
 import { useTrackScreenView } from "@/lib/analytics/use-track-screen-view";
 import { useAuth } from "@/lib/auth";
 import { spacing } from "@/theme/theme";
@@ -24,6 +26,7 @@ export const SettingsScreen = () => {
 
   const signOut = useCallback(() => {
     void (async () => {
+      void trackAppEvent(AnalyticsEvents.AUTH_SIGN_OUT);
       await clearSession();
       router.replace(Routes.LOGIN);
     })();

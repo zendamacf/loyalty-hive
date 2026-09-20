@@ -2,7 +2,11 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { I18nNamespace } from "@/i18n/i18n.constants";
+
+import { AnalyticsEvents } from "@/lib/analytics/analytics-events";
+import { trackAppEvent } from "@/lib/analytics/track-app-event";
 import type { ThemeMode } from "@/theme/theme.constants";
+
 import { THEME_PICKER_OPTIONS } from "@/theme/theme-registry";
 import { useTheme } from "@/theme/useTheme";
 import { Select, type SelectOption } from "./Select";
@@ -22,10 +26,17 @@ export const ThemePicker = () => {
     [t],
   );
 
+  const handleThemeChange = (nextTheme: ThemeMode) => {
+    setThemeMode(nextTheme);
+    void trackAppEvent(AnalyticsEvents.SETTINGS_THEME_CHANGE, {
+      theme: nextTheme,
+    });
+  };
+
   return (
     <Select
       value={themeMode}
-      onValueChange={setThemeMode}
+      onValueChange={handleThemeChange}
       options={options}
       accessibilityLabel={t("theme", { ns: I18nNamespace.Settings })}
     />

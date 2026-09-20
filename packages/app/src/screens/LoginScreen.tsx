@@ -14,6 +14,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
+import { AnalyticsEvents } from "@/lib/analytics/analytics-events";
+import { trackAppEvent } from "@/lib/analytics/track-app-event";
 import { useTrackScreenView } from "@/lib/analytics/use-track-screen-view";
 import { postApiV1AuthLogin, postApiV1AuthSignup } from "@/lib/api-client";
 import { authApiHeaders } from "@/lib/api-client/auth-api-headers";
@@ -75,6 +77,7 @@ export const LoginScreen = () => {
     }
 
     if (data?.token) {
+      void trackAppEvent(AnalyticsEvents.AUTH_LOGIN);
       await completeWithToken(data.token);
     } else {
       setError(t("unexpectedResponse"));
@@ -101,6 +104,7 @@ export const LoginScreen = () => {
       return;
     }
 
+    void trackAppEvent(AnalyticsEvents.AUTH_SIGNUP);
     await submitLogin(trimmedEmail, pwd);
   };
 
