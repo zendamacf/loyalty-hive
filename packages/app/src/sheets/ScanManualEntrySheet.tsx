@@ -10,6 +10,7 @@ import { Form } from "@/components/Form";
 import { FormGroup } from "@/components/FormGroup";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
+import { trackCardAdd } from "@/lib/analytics/track-card-add";
 import {
   getApiV1CardsQueryKey,
   postApiV1CardsMutation,
@@ -85,6 +86,12 @@ export const ScanManualEntrySheet = () => {
           brandId: selectedBrandId,
           view: cardView,
         },
+      });
+      trackCardAdd({
+        method: "manual",
+        isCustomCard,
+        brandId: selectedBrandId,
+        view: cardView,
       });
       sheetRef.current?.hide();
       router.dismissTo(Routes.CARDS);

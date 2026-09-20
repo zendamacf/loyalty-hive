@@ -7,6 +7,8 @@ import { useSheetPayload, useSheetRef } from "react-native-actions-sheet";
 
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
+import { AnalyticsEvents } from "@/lib/analytics/analytics-events";
+import { trackAppEvent } from "@/lib/analytics/track-app-event";
 import {
   deleteApiV1CardsByIdMutation,
   getApiV1CardsQueryKey,
@@ -39,6 +41,7 @@ export const DeleteCardSheet = () => {
 
     try {
       await deleteCard({ path: { id: cardId } });
+      void trackAppEvent(AnalyticsEvents.CARD_DELETE, { card_id: cardId });
       sheetRef.current?.hide();
       router.dismissTo(Routes.CARDS);
     } catch (err) {

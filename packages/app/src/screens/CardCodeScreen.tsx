@@ -14,6 +14,8 @@ import {
   CARD_CODE_FROM_CARDS_VALUE,
   Routes,
 } from "@/constants/routes.constants";
+import { AnalyticsEvents } from "@/lib/analytics/analytics-events";
+import { trackAppEvent } from "@/lib/analytics/track-app-event";
 import { useTrackScreenView } from "@/lib/analytics/use-track-screen-view";
 import {
   getApiV1CardsQueryKey,
@@ -112,6 +114,19 @@ export const CardCodeScreen = () => {
   );
 
   useEffect(() => {
+    if (!cardId) {
+      return;
+    }
+
+    void trackAppEvent(AnalyticsEvents.CARD_VIEW_CODE, {
+      card_id: cardId,
+      view: displayView,
+      has_brand: Boolean(brandName.trim()),
+      from_cards: fromCards,
+    });
+  }, [brandName, cardId, displayView, fromCards]);
+
+  useEffect(() => {
     if (!fromCards || !cardId) {
       return;
     }
@@ -123,6 +138,9 @@ export const CardCodeScreen = () => {
   const manageSection = (
     <CardManageSection
       onDetailsPress={() => {
+        void trackAppEvent(AnalyticsEvents.CARD_VIEW_DETAILS, {
+          card_id: cardId,
+        });
         void showCardDetailsSheet({ cardNumber, createdAt });
       }}
       onEditPress={() => {
