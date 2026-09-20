@@ -1,5 +1,18 @@
 # @loyalty-hive/app
 
+## 1.2.0
+
+### Minor Changes
+
+- d05876f: Add Umami custom event tracking for auth, card management, search, sort, and settings actions.
+- 7b394d8: Added Umami for basic analytics tracking of screen views.
+- abc68a7: Added brand request flow so users can request missing loyalty brands with a required program URL, optional notes, and an optional linked custom card for future brand migration. Tracks `brand_request_submitted` in Umami analytics.
+
+### Patch Changes
+
+- 2ea9c60: Add CI guards for Android bundle smoke, Expo SDK alignment, Hermes runtime APIs, and expo-router import restrictions.
+- 5edaf60: Identify user in Umami on login & resume.
+
 ## 1.1.10
 
 ### Patch Changes

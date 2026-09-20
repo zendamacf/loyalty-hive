@@ -1,5 +1,11 @@
 # @loyalty-hive/api
 
+## 1.2.0
+
+### Minor Changes
+
+- abc68a7: Added brand request endpoint so users can request missing loyalty brands.
+
 ## 1.1.0
 
 ### Minor Changes
