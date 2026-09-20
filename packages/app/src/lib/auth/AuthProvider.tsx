@@ -11,6 +11,10 @@ import {
 } from "react";
 
 import { Routes } from "@/constants/routes.constants";
+import {
+  clearAnalyticsUser,
+  syncAnalyticsUser,
+} from "@/lib/analytics/sync-analytics-user";
 import { installRequestContextInterceptor } from "@/lib/api-client/request-context";
 import {
   installUnauthorizedInterceptor,
@@ -18,18 +22,22 @@ import {
 } from "@/lib/api-client/unauthorized";
 import { queryClient } from "@/lib/query-client";
 
+import { type CurrentUser, fetchCurrentUser } from "./current-user";
 import {
   clearAuthToken,
   loadAuthToken,
   persistAuthToken,
   setClientAuth,
 } from "./session";
+import { subscribeOnAppResume } from "./subscribe-app-resume";
 
 type AuthContextValue = {
   isReady: boolean;
   isAuthenticated: boolean;
+  user: CurrentUser | null;
   signIn: (token: string) => Promise<void>;
   signOut: () => Promise<void>;
+  refreshUser: () => Promise<CurrentUser | null>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -40,7 +48,14 @@ installRequestContextInterceptor();
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isReady, setIsReady] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<CurrentUser | null>(null);
   const signOutRef = useRef<() => Promise<void>>(async () => {});
+
+  const refreshUser = useCallback(async (): Promise<CurrentUser | null> => {
+    const nextUser = await fetchCurrentUser();
+    setUser(nextUser);
+    return nextUser;
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -54,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (token) {
         setClientAuth(token);
         setIsAuthenticated(true);
+        void refreshUser();
       }
 
       setIsReady(true);
@@ -62,15 +78,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [refreshUser]);
 
-  const signIn = useCallback(async (token: string) => {
-    await persistAuthToken(token);
-    setClientAuth(token);
-    setIsAuthenticated(true);
-  }, []);
+  const signIn = useCallback(
+    async (token: string) => {
+      await persistAuthToken(token);
+      setClientAuth(token);
+      setIsAuthenticated(true);
+      await refreshUser();
+    },
+    [refreshUser],
+  );
 
   const signOut = useCallback(async () => {
+    clearAnalyticsUser();
+    setUser(null);
     await clearAuthToken();
     setClientAuth(undefined);
     setIsAuthenticated(false);
@@ -78,6 +100,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   signOutRef.current = signOut;
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    void syncAnalyticsUser(user.id);
+  }, [user]);
 
   useEffect(() => {
     setUnauthorizedHandler(async () => {
@@ -90,9 +120,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return;
+    }
+
+    return subscribeOnAppResume(() => {
+      void refreshUser();
+    });
+  }, [isAuthenticated, refreshUser]);
+
   const value = useMemo(
-    () => ({ isReady, isAuthenticated, signIn, signOut }),
-    [isReady, isAuthenticated, signIn, signOut],
+    () => ({
+      isReady,
+      isAuthenticated,
+      user,
+      signIn,
+      signOut,
+      refreshUser,
+    }),
+    [isReady, isAuthenticated, user, signIn, signOut, refreshUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
