@@ -1,16 +1,22 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
+
 import { act, renderHook, waitFor } from "@testing-library/react-native";
 import type { ReactNode } from "react";
 
 import { Routes } from "@/constants/routes.constants";
 import { getBearerToken, setBearerToken } from "@/lib/api-client/setup";
 import { queryClient } from "@/lib/query-client";
+import { getApiV1AuthMeMock } from "../../../test/mocks/api-client";
 import { getExpoRouterMocks } from "../../../test/mocks/expo-router";
 import {
   clearSecureStoreMock,
   secureStoreSetMock,
   setSecureStoreItem,
 } from "../../../test/mocks/expo-secure-store";
+import {
+  clearUserMock,
+  identifyUserMock,
+} from "../../../test/mocks/expo-umami";
 import {
   clearUnauthorizedHandlerMock,
   getUnauthorizedHandler,
@@ -40,6 +46,15 @@ describe("[Unit] AuthProvider", () => {
     setUnauthorizedHandlerMock.mockClear();
     expoRouterMocks.replace.mockClear();
     queryClient.clear();
+    getApiV1AuthMeMock.mockClear();
+    identifyUserMock.mockClear();
+    clearUserMock.mockClear();
+    getApiV1AuthMeMock.mockImplementation(() =>
+      Promise.resolve({
+        data: { id: "00000000-0000-4000-8000-000000000001" },
+        error: undefined,
+      }),
+    );
   });
 
   it("throws when useAuth is used outside AuthProvider", async () => {
@@ -55,10 +70,17 @@ describe("[Unit] AuthProvider", () => {
 
     await waitFor(() => {
       expect(result.current.isReady).toBe(true);
+      expect(result.current.user).toEqual({
+        id: "00000000-0000-4000-8000-000000000001",
+      });
     });
 
     expect(result.current.isAuthenticated).toBe(true);
     expect(getBearerToken()).toBe("stored-jwt");
+    expect(getApiV1AuthMeMock).toHaveBeenCalledTimes(1);
+    expect(identifyUserMock).toHaveBeenCalledWith(
+      "00000000-0000-4000-8000-000000000001",
+    );
   });
 
   it("starts unauthenticated when no token is stored", async () => {
@@ -82,10 +104,17 @@ describe("[Unit] AuthProvider", () => {
     });
 
     expect(result.current.isAuthenticated).toBe(true);
+    expect(result.current.user).toEqual({
+      id: "00000000-0000-4000-8000-000000000001",
+    });
     expect(getBearerToken()).toBe("fresh-jwt");
     expect(secureStoreSetMock).toHaveBeenCalledWith(
       AUTH_TOKEN_STORAGE_KEY,
       "fresh-jwt",
+    );
+    expect(getApiV1AuthMeMock).toHaveBeenCalledTimes(1);
+    expect(identifyUserMock).toHaveBeenCalledWith(
+      "00000000-0000-4000-8000-000000000001",
     );
   });
 
@@ -102,8 +131,10 @@ describe("[Unit] AuthProvider", () => {
     });
 
     expect(result.current.isAuthenticated).toBe(false);
+    expect(result.current.user).toBeNull();
     expect(getBearerToken()).toBeUndefined();
     expect(queryClient.getQueryData(["cards"])).toBeUndefined();
+    expect(clearUserMock).toHaveBeenCalledTimes(1);
   });
 
   it("registers an unauthorized handler that signs out and returns to login", async () => {

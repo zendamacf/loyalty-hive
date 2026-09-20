@@ -17,6 +17,7 @@ import {
 } from "./mocks/navigation-focus";
 import "./mocks/react-native-actions-sheet";
 import "./mocks/react-native-gesture-reanimated";
+import { appStateMock } from "./mocks/react-native-app-state";
 import "./mocks/sentry";
 
 const asyncStorage = new Map<string, string>();
@@ -299,11 +300,7 @@ mock.module("react-native", () => ({
   Image: createPrimitive("Image"),
   Animated,
   Easing,
-  AppState: {
-    addEventListener: (_event: string, handler: (state: string) => void) => ({
-      remove: () => {},
-    }),
-  },
+  AppState: appStateMock,
   BackHandler: {
     addEventListener: (_event: string, _handler: () => boolean) => ({
       remove: () => {},
