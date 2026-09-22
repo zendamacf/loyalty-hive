@@ -29,10 +29,12 @@ import {
   Routes,
 } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
-import { AnalyticsEvents } from "@/lib/analytics/analytics-events";
-import { trackAppEvent } from "@/lib/analytics/track-app-event";
-import { useTrackDebouncedSearch } from "@/lib/analytics/use-track-debounced-search";
-import { useTrackScreenView } from "@/lib/analytics/use-track-screen-view";
+import {
+  AnalyticsEvents,
+  trackAppEvent,
+  useTrackDebouncedSearch,
+  useTrackScreenView,
+} from "@/lib/analytics";
 import {
   type GetApiV1CardsResponse,
   getApiV1CardsOptions,

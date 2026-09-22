@@ -10,7 +10,7 @@ import { Form } from "@/components/Form";
 import { FormGroup } from "@/components/FormGroup";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
-import { trackCardAdd } from "@/lib/analytics/track-card-add";
+import { trackCardAdd } from "@/lib/analytics";
 import {
   getApiV1CardsQueryKey,
   postApiV1CardsMutation,

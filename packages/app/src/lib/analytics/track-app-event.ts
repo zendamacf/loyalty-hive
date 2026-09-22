@@ -1,6 +1,5 @@
-import { isInitialized, trackCustomEvent } from "@bitte-kaufen/expo-umami";
-
 import type { AnalyticsEventName } from "./analytics-events";
+import { dispatchCustomEvent } from "./analytics-state";
 
 export type AnalyticsEventData = Record<
   string,
@@ -29,15 +28,7 @@ export async function trackAppEvent(
   eventName: AnalyticsEventName,
   data?: AnalyticsEventData,
 ): Promise<void> {
-  if (!isInitialized()) {
-    return;
-  }
-
   const normalizedData = normalizeEventData(data);
 
-  await trackCustomEvent(
-    `/events/${eventName}`,
-    eventName,
-    normalizedData ? { data: normalizedData } : undefined,
-  );
+  await dispatchCustomEvent(`/events/${eventName}`, eventName, normalizedData);
 }

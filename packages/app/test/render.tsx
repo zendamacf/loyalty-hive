@@ -1,25 +1,29 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  type RenderOptions,
+  type RenderResult,
+  act,
+  fireEvent,
+  render,
+} from "@testing-library/react-native";
+
+import { type ReactElement, type ReactNode, useState } from "react";
+import { I18nextProvider } from "react-i18next";
+import { View } from "react-native";
+import { SheetProvider } from "react-native-actions-sheet";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+
 import { OverlayProvider } from "@/components/OverlayProvider";
 import i18n from "@/i18n";
+import { AnalyticsProvider } from "@/lib/analytics";
 import { AuthProvider, useAuth } from "@/lib/auth";
+
 import { QUERY_STALE_TIME_MS } from "@/lib/query-client";
 import {
   UserPreferencesProvider,
   usePreferencesHydrated,
 } from "@/lib/user-preferences";
 import { AppSheets } from "@/sheets";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  act,
-  fireEvent,
-  render,
-  type RenderOptions,
-  type RenderResult,
-} from "@testing-library/react-native";
-import { type ReactElement, type ReactNode, useState } from "react";
-import { I18nextProvider } from "react-i18next";
-import { View } from "react-native";
-import { SheetProvider } from "react-native-actions-sheet";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export const TEST_PROVIDERS_READY_ID = "test-providers-ready";
 
@@ -92,18 +96,20 @@ function TestProviders({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <I18nextProvider i18n={i18n}>
-          <UserPreferencesProvider>
-            <GestureHandlerRootView style={{ flex: 1 }}>
-              <SheetProvider>
-                <AppSheets />
-                <OverlayProvider>
-                  <ProvidersSettled>{children}</ProvidersSettled>
-                </OverlayProvider>
-              </SheetProvider>
-            </GestureHandlerRootView>
-          </UserPreferencesProvider>
-        </I18nextProvider>
+        <AnalyticsProvider>
+          <I18nextProvider i18n={i18n}>
+            <UserPreferencesProvider>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <SheetProvider>
+                  <AppSheets />
+                  <OverlayProvider>
+                    <ProvidersSettled>{children}</ProvidersSettled>
+                  </OverlayProvider>
+                </SheetProvider>
+              </GestureHandlerRootView>
+            </UserPreferencesProvider>
+          </I18nextProvider>
+        </AnalyticsProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
@@ -133,18 +139,20 @@ export function createQueryClientWrapper(queryClient: QueryClient) {
     return (
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <I18nextProvider i18n={i18n}>
-            <UserPreferencesProvider>
-              <GestureHandlerRootView style={{ flex: 1 }}>
-                <SheetProvider>
-                  <AppSheets />
-                  <OverlayProvider>
-                    <ProvidersSettled>{children}</ProvidersSettled>
-                  </OverlayProvider>
-                </SheetProvider>
-              </GestureHandlerRootView>
-            </UserPreferencesProvider>
-          </I18nextProvider>
+          <AnalyticsProvider>
+            <I18nextProvider i18n={i18n}>
+              <UserPreferencesProvider>
+                <GestureHandlerRootView style={{ flex: 1 }}>
+                  <SheetProvider>
+                    <AppSheets />
+                    <OverlayProvider>
+                      <ProvidersSettled>{children}</ProvidersSettled>
+                    </OverlayProvider>
+                  </SheetProvider>
+                </GestureHandlerRootView>
+              </UserPreferencesProvider>
+            </I18nextProvider>
+          </AnalyticsProvider>
         </AuthProvider>
       </QueryClientProvider>
     );

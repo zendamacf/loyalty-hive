@@ -3,7 +3,6 @@ import "react-native-gesture-handler";
 import * as Sentry from "@sentry/react-native";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ErrorBoundary as ExpoErrorBoundary, Stack } from "expo-router";
-import { useEffect } from "react";
 import { SheetProvider } from "react-native-actions-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
@@ -16,7 +15,7 @@ import { OverlayProvider } from "@/components/OverlayProvider";
 import { ThemedRoot } from "@/components/ThemedRoot";
 import "@/i18n";
 
-import { setupUmami } from "@/lib/analytics/setup-umami";
+import { AnalyticsProvider } from "@/lib/analytics";
 import { AuthProvider } from "@/lib/auth";
 import { queryClient } from "@/lib/query-client";
 import { UserPreferencesProvider } from "@/lib/user-preferences";
@@ -40,28 +39,26 @@ export const ErrorBoundary =
   Sentry.wrapExpoRouterErrorBoundary(ExpoErrorBoundary);
 
 export default Sentry.wrap(function Layout() {
-  useEffect(() => {
-    void setupUmami();
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider initialMetrics={initialWindowMetrics}>
         <AuthProvider>
-          <UserPreferencesProvider>
-            <ThemedRoot>
-              <GestureHandlerRootView style={{ flex: 1 }}>
-                <SheetProvider>
-                  <AppSheets />
-                  <OverlayProvider>
-                    <KeyboardAvoidingShell>
-                      <Stack screenOptions={{ headerShown: false }} />
-                    </KeyboardAvoidingShell>
-                  </OverlayProvider>
-                </SheetProvider>
-              </GestureHandlerRootView>
-            </ThemedRoot>
-          </UserPreferencesProvider>
+          <AnalyticsProvider>
+            <UserPreferencesProvider>
+              <ThemedRoot>
+                <GestureHandlerRootView style={{ flex: 1 }}>
+                  <SheetProvider>
+                    <AppSheets />
+                    <OverlayProvider>
+                      <KeyboardAvoidingShell>
+                        <Stack screenOptions={{ headerShown: false }} />
+                      </KeyboardAvoidingShell>
+                    </OverlayProvider>
+                  </SheetProvider>
+                </GestureHandlerRootView>
+              </ThemedRoot>
+            </UserPreferencesProvider>
+          </AnalyticsProvider>
         </AuthProvider>
       </SafeAreaProvider>
     </QueryClientProvider>

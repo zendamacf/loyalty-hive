@@ -14,9 +14,11 @@ import {
   CARD_CODE_FROM_CARDS_VALUE,
   Routes,
 } from "@/constants/routes.constants";
-import { AnalyticsEvents } from "@/lib/analytics/analytics-events";
-import { trackAppEvent } from "@/lib/analytics/track-app-event";
-import { useTrackScreenView } from "@/lib/analytics/use-track-screen-view";
+import {
+  AnalyticsEvents,
+  trackAppEvent,
+  useTrackScreenView,
+} from "@/lib/analytics";
 import {
   getApiV1CardsQueryKey,
   postApiV1CardsByIdViewMutation,

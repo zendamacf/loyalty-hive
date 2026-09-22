@@ -10,10 +10,7 @@ import { Form } from "@/components/Form";
 import { FormGroup } from "@/components/FormGroup";
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
-import {
-  getUrlHost,
-  trackBrandRequestSubmitted,
-} from "@/lib/analytics/track-brand-request";
+import { getUrlHost, trackBrandRequestSubmitted } from "@/lib/analytics";
 import {
   type BrandRequestResponse,
   postApiV1BrandRequestsMutation,

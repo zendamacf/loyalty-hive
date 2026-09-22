@@ -11,10 +11,7 @@ import {
 } from "react";
 
 import { Routes } from "@/constants/routes.constants";
-import {
-  clearAnalyticsUser,
-  syncAnalyticsUser,
-} from "@/lib/analytics/sync-analytics-user";
+import { clearAnalyticsUser, clearAnalyticsUserId } from "@/lib/analytics";
 import { installRequestContextInterceptor } from "@/lib/api-client/request-context";
 import {
   installUnauthorizedInterceptor,
@@ -92,6 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     clearAnalyticsUser();
+    await clearAnalyticsUserId();
     setUser(null);
     await clearAuthToken();
     setClientAuth(undefined);
@@ -100,14 +98,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   signOutRef.current = signOut;
-
-  useEffect(() => {
-    if (!user) {
-      return;
-    }
-
-    void syncAnalyticsUser(user.id);
-  }, [user]);
 
   useEffect(() => {
     setUnauthorizedHandler(async () => {

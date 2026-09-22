@@ -8,8 +8,7 @@ import {
 } from "@/i18n/i18n.constants";
 import { useLanguage } from "@/i18n/useLanguage";
 
-import { AnalyticsEvents } from "@/lib/analytics/analytics-events";
-import { trackAppEvent } from "@/lib/analytics/track-app-event";
+import { AnalyticsEvents, trackAppEvent } from "@/lib/analytics";
 import { Select } from "./Select";
 
 const PREFERENCE_LABEL_KEYS: Record<
