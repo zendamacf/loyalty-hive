@@ -39,35 +39,79 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           SAFE_BRANCH=$(echo "$HEAD_REF" | sed 's/\//-/g')
-          FILE=".changeset/${SAFE_BRANCH}.md"
+          LEGACY_FILE=".changeset/${SAFE_BRANCH}.md"
+          API_FILE=".changeset/${SAFE_BRANCH}-api.md"
+          APP_FILE=".changeset/${SAFE_BRANCH}-app.md"
 
-          DESCRIPTION=$(echo "$UPDATED_DEPS_JSON" | jq -r '
-            if type == "array" and length > 0 then
-              map(
-                if (.prevVersion // "") != "" and (.newVersion // "") != "" then
-                  "\(.dependencyName) from \(.prevVersion) to \(.newVersion)"
-                else
-                  .dependencyName
-                end
-              ) | join(", ")
-            else
-              empty
-            end
-          ')
+          rm -f "$LEGACY_FILE"
 
-          if [ -z "$DESCRIPTION" ]; then
-            if [ -n "$PREVIOUS_VERSION" ] && [ -n "$NEW_VERSION" ]; then
-              DESCRIPTION="${DEPS} from ${PREVIOUS_VERSION} to ${NEW_VERSION}"
-            else
-              DESCRIPTION="${DEPS}"
+          filter_deps_for_package() {
+            local pkg_json="$1"
+            local keys
+            keys=$(jq -c '(.dependencies + .devDependencies) | keys' "$pkg_json")
+            echo "$UPDATED_DEPS_JSON" | jq -c --argjson keys "$keys" '
+              [.[] | select(.dependencyName as $d | $keys | index($d) != null)]
+            '
+          }
+
+          build_description() {
+            local deps_json="$1"
+            local description
+            description=$(echo "$deps_json" | jq -r '
+              if type == "array" and length > 0 then
+                map(
+                  if (.prevVersion // "") != "" and (.newVersion // "") != "" then
+                    "\(.dependencyName) from \(.prevVersion) to \(.newVersion)"
+                  else
+                    .dependencyName
+                  end
+                ) | join(", ")
+              else
+                empty
+              end
+            ')
+
+            if [ -z "$description" ]; then
+              if [ -n "$PREVIOUS_VERSION" ] && [ -n "$NEW_VERSION" ]; then
+                description="${DEPS} from ${PREVIOUS_VERSION} to ${NEW_VERSION}"
+              else
+                description="${DEPS}"
+              fi
             fi
-          fi
 
-          if [ -n "$UPDATE_TYPE" ]; then
-            BODY="Updated ${DESCRIPTION} (${UPDATE_TYPE})."
-          else
-            BODY="Updated ${DESCRIPTION}."
-          fi
+            printf '%s' "$description"
+          }
+
+          build_body() {
+            local description="$1"
+            if [ -n "$UPDATE_TYPE" ]; then
+              printf 'Updated %s (%s).\n' "$description" "$UPDATE_TYPE"
+            else
+              printf 'Updated %s.\n' "$description"
+            fi
+          }
+
+          write_changeset() {
+            local file="$1"
+            local pkg="$2"
+            local deps_json="$3"
+            local description body
+
+            if [ "$(echo "$deps_json" | jq 'length')" -eq 0 ]; then
+              echo "No matching dependencies for ${pkg}; skipping changeset."
+              rm -f "$file"
+              return
+            fi
+
+            description=$(build_description "$deps_json")
+            body=$(build_body "$description")
+            {
+              printf '%s\n' "---"
+              printf '"%s": patch\n' "$pkg"
+              printf '%s\n\n' "---"
+              printf '%s' "$body"
+            } > "$file"
+          }
 
           CHANGED_PKG_FILES=$(
             git diff --name-only "$BASE_SHA" HEAD -- \
@@ -76,48 +120,41 @@ jobs:
               packages/app/package.json
           )
 
-          PACKAGES=()
+          API_CHANGED=false
+          APP_CHANGED=false
           if echo "$CHANGED_PKG_FILES" | grep -qx 'packages/api/package.json'; then
-            PACKAGES+=("@loyalty-hive/api")
+            API_CHANGED=true
           fi
           if echo "$CHANGED_PKG_FILES" | grep -qx 'packages/app/package.json'; then
-            PACKAGES+=("@loyalty-hive/app")
+            APP_CHANGED=true
           fi
 
-          if [ ${#PACKAGES[@]} -eq 0 ]; then
+          if [ "$API_CHANGED" = false ] && [ "$APP_CHANGED" = false ]; then
             if echo "$CHANGED_PKG_FILES" | grep -qx 'package.json'; then
               echo "Only root package.json changed; skipping workspace changeset."
+              rm -f "$API_FILE" "$APP_FILE"
               exit 0
             fi
 
-            API_MATCH=false
-            APP_MATCH=false
-            while IFS= read -r dep; do
-              [ -z "$dep" ] && continue
-              if jq -e --arg d "$dep" '(.dependencies + .devDependencies) | has($d)' packages/api/package.json >/dev/null; then
-                API_MATCH=true
-              fi
-              if jq -e --arg d "$dep" '(.dependencies + .devDependencies) | has($d)' packages/app/package.json >/dev/null; then
-                APP_MATCH=true
-              fi
-            done < <(echo "$UPDATED_DEPS_JSON" | jq -r '.[].dependencyName // empty')
-
-            if [ "$API_MATCH" = true ] && [ "$APP_MATCH" = false ]; then
-              PACKAGES=("@loyalty-hive/api")
-            elif [ "$APP_MATCH" = true ] && [ "$API_MATCH" = false ]; then
-              PACKAGES=("@loyalty-hive/app")
-            else
-              PACKAGES=("@loyalty-hive/api" "@loyalty-hive/app")
+            if [ "$(filter_deps_for_package packages/api/package.json | jq 'length')" -gt 0 ]; then
+              API_CHANGED=true
+            fi
+            if [ "$(filter_deps_for_package packages/app/package.json | jq 'length')" -gt 0 ]; then
+              APP_CHANGED=true
             fi
           fi
 
-          FRONTMATTER="---"
-          for pkg in "${PACKAGES[@]}"; do
-            FRONTMATTER="${FRONTMATTER}"$'\n'"\"${pkg}\": patch"
-          done
-          FRONTMATTER="${FRONTMATTER}"$'\n'"---"
+          if [ "$API_CHANGED" = true ]; then
+            write_changeset "$API_FILE" "@loyalty-hive/api" "$(filter_deps_for_package packages/api/package.json)"
+          else
+            rm -f "$API_FILE"
+          fi
 
-          printf '%s\n\n%s\n' "$FRONTMATTER" "$BODY" > "$FILE"
+          if [ "$APP_CHANGED" = true ]; then
+            write_changeset "$APP_FILE" "@loyalty-hive/app" "$(filter_deps_for_package packages/app/package.json)"
+          else
+            rm -f "$APP_FILE"
+          fi
 
       - name: Commit changeset
         run: |
