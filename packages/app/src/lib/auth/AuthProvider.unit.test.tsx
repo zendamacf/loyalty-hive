@@ -16,6 +16,7 @@ import {
 import {
   clearUserMock,
   identifyUserMock,
+  isInitializedMock,
 } from "../../../test/mocks/expo-umami";
 import {
   clearUnauthorizedHandlerMock,
@@ -47,6 +48,7 @@ describe("[Unit] AuthProvider", () => {
     expoRouterMocks.replace.mockClear();
     queryClient.clear();
     getApiV1AuthMeMock.mockClear();
+    isInitializedMock.mockReturnValue(true);
     identifyUserMock.mockClear();
     clearUserMock.mockClear();
     getApiV1AuthMeMock.mockImplementation(() =>
