@@ -11,7 +11,10 @@ import {
 } from "react";
 
 import { Routes } from "@/constants/routes.constants";
-import { clearAnalyticsUser, clearAnalyticsUserId } from "@/lib/analytics";
+import {
+  clearAnalyticsUser,
+  clearAnalyticsUserId,
+} from "@/lib/analytics/analytics-user";
 import { installRequestContextInterceptor } from "@/lib/api-client/request-context";
 import {
   installUnauthorizedInterceptor,

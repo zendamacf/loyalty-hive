@@ -1,7 +1,7 @@
 import { type ReactNode, useEffect, useState } from "react";
 import { AppState } from "react-native";
 
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth/AuthProvider";
 import {
   flushBufferedAnalyticsEvents,
   getAnalyticsIdentityMode,
