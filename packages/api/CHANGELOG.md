@@ -1,5 +1,12 @@
 # @loyalty-hive/api
 
+## 1.2.1
+
+### Patch Changes
+
+- 26c17f4: Updated @biomejs/biome (version-update:semver-patch).
+- 300f90e: Updated hono, @biomejs/biome, @types/pg, bun-types (version-update:semver-minor).
+
 ## 1.2.0
 
 ### Minor Changes
