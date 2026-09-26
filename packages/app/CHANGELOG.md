@@ -1,5 +1,14 @@
 # @loyalty-hive/app
 
+## 1.2.1
+
+### Patch Changes
+
+- 26c17f4: Updated @biomejs/biome (version-update:semver-patch).
+- 300f90e: Updated @biomejs/biome, bun-types, @react-navigation/native, expo, expo-camera, expo-dev-client, expo-router, i18next, lucide-react-native, react-i18next, react-native-safe-area-context (version-update:semver-minor).
+- 21f3392: Fix Umami session splitting on app resume by identifying users from persisted ID before the first page view. Login-page analytics are buffered until the user signs in (then sent with their ID) or flushed when the app backgrounds without a login.
+- 21f3392: Add tracking of failed login attempts to Umami.
+
 ## 1.2.0
 
 ### Minor Changes
