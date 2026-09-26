@@ -4,10 +4,17 @@ import {
   isInitializedMock,
   trackEventMock,
 } from "../../../test/mocks/expo-umami";
+import {
+  clearBufferedAnalyticsEvents,
+  resetAnalyticsIdentityForTests,
+  setAnalyticsIdentityMode,
+} from "./analytics-state";
 import { getUrlHost, trackBrandRequestSubmitted } from "./track-brand-request";
 
 describe("trackBrandRequestSubmitted", () => {
   beforeEach(() => {
+    resetAnalyticsIdentityForTests();
+    clearBufferedAnalyticsEvents();
     trackEventMock.mockClear();
     isInitializedMock.mockReturnValue(false);
   });
@@ -26,6 +33,7 @@ describe("trackBrandRequestSubmitted", () => {
 
   it("tracks the brand request event when Umami is initialized", () => {
     isInitializedMock.mockReturnValue(true);
+    setAnalyticsIdentityMode("identified");
 
     trackBrandRequestSubmitted({
       request_id: "00000000-0000-4000-8000-000000000001",

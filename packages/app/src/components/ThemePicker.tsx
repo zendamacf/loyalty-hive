@@ -3,8 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { I18nNamespace } from "@/i18n/i18n.constants";
 
-import { AnalyticsEvents } from "@/lib/analytics/analytics-events";
-import { trackAppEvent } from "@/lib/analytics/track-app-event";
+import { AnalyticsEvents, trackAppEvent } from "@/lib/analytics";
 import type { ThemeMode } from "@/theme/theme.constants";
 
 import { THEME_PICKER_OPTIONS } from "@/theme/theme-registry";

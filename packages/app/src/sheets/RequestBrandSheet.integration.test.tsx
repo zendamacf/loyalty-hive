@@ -1,33 +1,62 @@
 import { beforeEach, describe, expect, it } from "bun:test";
+
 import { act, waitFor } from "@testing-library/react-native";
 import { View } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 
 import { Routes } from "@/constants/routes.constants";
 import {
+  clearBufferedAnalyticsEvents,
+  getAnalyticsIdentityMode,
+  resetAnalyticsIdentityForTests,
+} from "@/lib/analytics/analytics-state";
+import { ANALYTICS_USER_ID_STORAGE_KEY } from "@/lib/analytics/analytics-user";
+import { AUTH_TOKEN_STORAGE_KEY } from "@/lib/auth/auth.constants";
+import {
   postApiV1BrandRequestsMock,
   resolveApiMock,
 } from "../../test/mocks/api-client";
 import { getExpoRouterMocks } from "../../test/mocks/expo-router";
+import {
+  clearSecureStoreMock,
+  setSecureStoreItem,
+} from "../../test/mocks/expo-secure-store";
 import { isInitializedMock, trackEventMock } from "../../test/mocks/expo-umami";
 import { changeText, press, renderWithProviders } from "../../test/render";
 import { SheetIds } from "./sheetIds";
 
 const expoRouterMocks = getExpoRouterMocks();
 
+async function waitForIdentifiedAnalytics(): Promise<void> {
+  await waitFor(() => {
+    expect(getAnalyticsIdentityMode()).toBe("identified");
+  });
+}
+
 describe("[Integration] RequestBrandSheet", () => {
   beforeEach(async () => {
+    clearSecureStoreMock();
+    resetAnalyticsIdentityForTests();
+    clearBufferedAnalyticsEvents();
+    setSecureStoreItem(AUTH_TOKEN_STORAGE_KEY, "stored-jwt");
+    setSecureStoreItem(
+      ANALYTICS_USER_ID_STORAGE_KEY,
+      "00000000-0000-4000-8000-000000000001",
+    );
     await SheetManager.hide(SheetIds.REQUEST_BRAND);
     expoRouterMocks.push.mockClear();
     postApiV1BrandRequestsMock.mockClear();
     trackEventMock.mockClear();
     isInitializedMock.mockReturnValue(true);
+    process.env.EXPO_PUBLIC_UMAMI_HOST = "https://analytics.example.com";
+    process.env.EXPO_PUBLIC_UMAMI_WEBSITE_ID = "website-id";
   });
 
   it("submits a brand request and tracks the analytics event", async () => {
     const { getByLabelText, getByText } = await renderWithProviders(
       <View testID="sheet-host" />,
     );
+    await waitForIdentifiedAnalytics();
 
     await act(async () => {
       void SheetManager.show(SheetIds.REQUEST_BRAND, {
@@ -87,6 +116,7 @@ describe("[Integration] RequestBrandSheet", () => {
     const { getByLabelText, getByText } = await renderWithProviders(
       <View testID="sheet-host" />,
     );
+    await waitForIdentifiedAnalytics();
 
     await act(async () => {
       void SheetManager.show(SheetIds.REQUEST_BRAND, {
@@ -124,6 +154,7 @@ describe("[Integration] RequestBrandSheet", () => {
     const { getByLabelText, getByText } = await renderWithProviders(
       <View testID="sheet-host" />,
     );
+    await waitForIdentifiedAnalytics();
 
     await act(async () => {
       void SheetManager.show(SheetIds.REQUEST_BRAND, {

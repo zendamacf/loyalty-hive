@@ -1,4 +1,4 @@
-import { isInitialized, trackEvent } from "@bitte-kaufen/expo-umami";
+import { dispatchTrackEvent } from "./analytics-state";
 
 export type BrandRequestSubmittedData = {
   request_id: string;
@@ -11,11 +11,7 @@ export type BrandRequestSubmittedData = {
 export function trackBrandRequestSubmitted(
   data: BrandRequestSubmittedData,
 ): void {
-  if (!isInitialized()) {
-    return;
-  }
-
-  void trackEvent("/brand-request", {
+  void dispatchTrackEvent("/brand-request", {
     eventName: "brand_request_submitted",
     title: "Brand Request Submitted",
     data,

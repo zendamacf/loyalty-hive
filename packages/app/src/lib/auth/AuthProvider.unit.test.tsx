@@ -4,20 +4,29 @@ import { act, renderHook, waitFor } from "@testing-library/react-native";
 import type { ReactNode } from "react";
 
 import { Routes } from "@/constants/routes.constants";
+import { ANALYTICS_USER_ID_STORAGE_KEY } from "@/lib/analytics";
+import {
+  getAnalyticsIdentityMode,
+  resetAnalyticsIdentityForTests,
+  setAnalyticsIdentityMode,
+} from "@/lib/analytics/analytics-state";
 import { getBearerToken, setBearerToken } from "@/lib/api-client/setup";
 import { queryClient } from "@/lib/query-client";
 import { getApiV1AuthMeMock } from "../../../test/mocks/api-client";
 import { getExpoRouterMocks } from "../../../test/mocks/expo-router";
 import {
   clearSecureStoreMock,
+  secureStoreDeleteMock,
   secureStoreSetMock,
   setSecureStoreItem,
 } from "../../../test/mocks/expo-secure-store";
+
 import {
   clearUserMock,
   identifyUserMock,
   isInitializedMock,
 } from "../../../test/mocks/expo-umami";
+
 import {
   clearUnauthorizedHandlerMock,
   getUnauthorizedHandler,
@@ -51,6 +60,7 @@ describe("[Unit] AuthProvider", () => {
     isInitializedMock.mockReturnValue(true);
     identifyUserMock.mockClear();
     clearUserMock.mockClear();
+    resetAnalyticsIdentityForTests();
     getApiV1AuthMeMock.mockImplementation(() =>
       Promise.resolve({
         data: { id: "00000000-0000-4000-8000-000000000001" },
@@ -80,9 +90,6 @@ describe("[Unit] AuthProvider", () => {
     expect(result.current.isAuthenticated).toBe(true);
     expect(getBearerToken()).toBe("stored-jwt");
     expect(getApiV1AuthMeMock).toHaveBeenCalledTimes(1);
-    expect(identifyUserMock).toHaveBeenCalledWith(
-      "00000000-0000-4000-8000-000000000001",
-    );
   });
 
   it("starts unauthenticated when no token is stored", async () => {
@@ -115,9 +122,6 @@ describe("[Unit] AuthProvider", () => {
       "fresh-jwt",
     );
     expect(getApiV1AuthMeMock).toHaveBeenCalledTimes(1);
-    expect(identifyUserMock).toHaveBeenCalledWith(
-      "00000000-0000-4000-8000-000000000001",
-    );
   });
 
   it("signOut clears the session and query cache", async () => {
@@ -127,16 +131,21 @@ describe("[Unit] AuthProvider", () => {
     const { result } = await renderHook(() => useAuth(), { wrapper });
 
     await waitFor(() => expect(result.current.isAuthenticated).toBe(true));
+    setAnalyticsIdentityMode("identified");
 
     await act(async () => {
       await result.current.signOut();
     });
 
+    expect(getAnalyticsIdentityMode()).toBe("deferred");
     expect(result.current.isAuthenticated).toBe(false);
     expect(result.current.user).toBeNull();
     expect(getBearerToken()).toBeUndefined();
     expect(queryClient.getQueryData(["cards"])).toBeUndefined();
     expect(clearUserMock).toHaveBeenCalledTimes(1);
+    expect(secureStoreDeleteMock).toHaveBeenCalledWith(
+      ANALYTICS_USER_ID_STORAGE_KEY,
+    );
   });
 
   it("registers an unauthorized handler that signs out and returns to login", async () => {

@@ -7,6 +7,8 @@ import { APP_NAME } from "@/constants/branding.constants";
 import { Routes } from "@/constants/routes.constants";
 import i18n from "@/i18n";
 import { LANGUAGE_STORAGE_KEY } from "@/i18n/i18n.constants";
+import { AnalyticsEvents } from "@/lib/analytics/analytics-events";
+import { flushBufferedAnalyticsEvents } from "@/lib/analytics/analytics-state";
 import type {
   PostApiV1AuthLoginResponse,
   PostApiV1AuthSignupResponse,
@@ -22,6 +24,10 @@ import {
   clearSecureStoreMock,
   secureStoreSetMock,
 } from "../../test/mocks/expo-secure-store";
+import {
+  isInitializedMock,
+  trackCustomEventMock,
+} from "../../test/mocks/expo-umami";
 import { changeText, press, renderWithProviders } from "../../test/render";
 
 const expoRouterMocks = getExpoRouterMocks();
@@ -56,6 +62,8 @@ describe("[Integration] LoginScreen", () => {
         error: undefined,
       }),
     );
+    trackCustomEventMock.mockClear();
+    isInitializedMock.mockReturnValue(true);
   });
 
   it("renders login fields and copy by default", async () => {
@@ -234,6 +242,16 @@ describe("[Integration] LoginScreen", () => {
     await waitFor(() => {
       expect(getByText("Invalid email or password")).toBeTruthy();
     });
+
+    expect(trackCustomEventMock).not.toHaveBeenCalled();
+    await flushBufferedAnalyticsEvents();
+    expect(trackCustomEventMock).toHaveBeenCalledWith(
+      `/events/${AnalyticsEvents.AUTH_LOGIN_FAILED}`,
+      AnalyticsEvents.AUTH_LOGIN_FAILED,
+      {
+        data: { reason: "invalid_credentials", status_code: 401 },
+      },
+    );
   });
 
   it("shows invalid credentials when login returns 401 without a message", async () => {

@@ -14,9 +14,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
-import { AnalyticsEvents } from "@/lib/analytics/analytics-events";
-import { trackAppEvent } from "@/lib/analytics/track-app-event";
-import { useTrackScreenView } from "@/lib/analytics/use-track-screen-view";
+import {
+  AnalyticsEvents,
+  trackAppEvent,
+  useTrackScreenView,
+} from "@/lib/analytics";
 import { postApiV1AuthLogin, postApiV1AuthSignup } from "@/lib/api-client";
 import { authApiHeaders } from "@/lib/api-client/auth-api-headers";
 import { useAuth } from "@/lib/auth";
@@ -61,6 +63,18 @@ export const LoginScreen = () => {
     return message;
   };
 
+  const trackLoginFailed = (options: {
+    reason: "invalid_credentials" | "api_error" | "unexpected_response";
+    statusCode?: number;
+  }) => {
+    void trackAppEvent(AnalyticsEvents.AUTH_LOGIN_FAILED, {
+      reason: options.reason,
+      ...(options.statusCode !== undefined
+        ? { status_code: options.statusCode }
+        : {}),
+    });
+  };
+
   const submitLogin = async (trimmedEmail: string, pwd: string) => {
     const {
       data,
@@ -72,7 +86,12 @@ export const LoginScreen = () => {
     });
 
     if (apiError) {
-      setError(resolveApiError(apiError, response?.status));
+      const statusCode = response?.status;
+      trackLoginFailed({
+        reason: statusCode === 401 ? "invalid_credentials" : "api_error",
+        statusCode,
+      });
+      setError(resolveApiError(apiError, statusCode));
       return;
     }
 
@@ -80,6 +99,7 @@ export const LoginScreen = () => {
       void trackAppEvent(AnalyticsEvents.AUTH_LOGIN);
       await completeWithToken(data.token);
     } else {
+      trackLoginFailed({ reason: "unexpected_response" });
       setError(t("unexpectedResponse"));
     }
   };
