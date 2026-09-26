@@ -12,8 +12,8 @@ import {
 
 import { Routes } from "@/constants/routes.constants";
 import {
-  clearAnalyticsUser,
   clearAnalyticsUserId,
+  signOutAnalytics,
 } from "@/lib/analytics/analytics-user";
 import { installRequestContextInterceptor } from "@/lib/api-client/request-context";
 import {
@@ -91,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const signOut = useCallback(async () => {
-    clearAnalyticsUser();
+    signOutAnalytics();
     await clearAnalyticsUserId();
     setUser(null);
     await clearAuthToken();

@@ -63,6 +63,18 @@ export const LoginScreen = () => {
     return message;
   };
 
+  const trackLoginFailed = (options: {
+    reason: "invalid_credentials" | "api_error" | "unexpected_response";
+    statusCode?: number;
+  }) => {
+    void trackAppEvent(AnalyticsEvents.AUTH_LOGIN_FAILED, {
+      reason: options.reason,
+      ...(options.statusCode !== undefined
+        ? { status_code: options.statusCode }
+        : {}),
+    });
+  };
+
   const submitLogin = async (trimmedEmail: string, pwd: string) => {
     const {
       data,
@@ -74,7 +86,12 @@ export const LoginScreen = () => {
     });
 
     if (apiError) {
-      setError(resolveApiError(apiError, response?.status));
+      const statusCode = response?.status;
+      trackLoginFailed({
+        reason: statusCode === 401 ? "invalid_credentials" : "api_error",
+        statusCode,
+      });
+      setError(resolveApiError(apiError, statusCode));
       return;
     }
 
@@ -82,6 +99,7 @@ export const LoginScreen = () => {
       void trackAppEvent(AnalyticsEvents.AUTH_LOGIN);
       await completeWithToken(data.token);
     } else {
+      trackLoginFailed({ reason: "unexpected_response" });
       setError(t("unexpectedResponse"));
     }
   };

@@ -5,6 +5,11 @@ import type { ReactNode } from "react";
 
 import { Routes } from "@/constants/routes.constants";
 import { ANALYTICS_USER_ID_STORAGE_KEY } from "@/lib/analytics";
+import {
+  getAnalyticsIdentityMode,
+  resetAnalyticsIdentityForTests,
+  setAnalyticsIdentityMode,
+} from "@/lib/analytics/analytics-state";
 import { getBearerToken, setBearerToken } from "@/lib/api-client/setup";
 import { queryClient } from "@/lib/query-client";
 import { getApiV1AuthMeMock } from "../../../test/mocks/api-client";
@@ -55,6 +60,7 @@ describe("[Unit] AuthProvider", () => {
     isInitializedMock.mockReturnValue(true);
     identifyUserMock.mockClear();
     clearUserMock.mockClear();
+    resetAnalyticsIdentityForTests();
     getApiV1AuthMeMock.mockImplementation(() =>
       Promise.resolve({
         data: { id: "00000000-0000-4000-8000-000000000001" },
@@ -125,11 +131,13 @@ describe("[Unit] AuthProvider", () => {
     const { result } = await renderHook(() => useAuth(), { wrapper });
 
     await waitFor(() => expect(result.current.isAuthenticated).toBe(true));
+    setAnalyticsIdentityMode("identified");
 
     await act(async () => {
       await result.current.signOut();
     });
 
+    expect(getAnalyticsIdentityMode()).toBe("deferred");
     expect(result.current.isAuthenticated).toBe(false);
     expect(result.current.user).toBeNull();
     expect(getBearerToken()).toBeUndefined();

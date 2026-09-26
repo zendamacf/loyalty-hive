@@ -15,6 +15,7 @@ import {
   sentryLoggerErrorMock,
   sentryLoggerInfoMock,
 } from "../../../test/mocks/sentry";
+import { getAnalyticsIdentityMode } from "./analytics-state";
 import {
   ANALYTICS_USER_ID_STORAGE_KEY,
   clearAnalyticsUser,
@@ -22,6 +23,7 @@ import {
   loadAnalyticsUserId,
   persistAnalyticsUserId,
   setupUmami,
+  signOutAnalytics,
   syncAnalyticsUser,
 } from "./analytics-user";
 
@@ -78,6 +80,15 @@ describe("[Unit] analytics user", () => {
       syncAnalyticsUser("00000000-0000-4000-8000-000000000001");
 
       expect(identifyUserMock).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("signOutAnalytics", () => {
+    it("clears Umami identity and defers tracking", () => {
+      signOutAnalytics();
+
+      expect(clearUserMock).toHaveBeenCalledTimes(1);
+      expect(getAnalyticsIdentityMode()).toBe("deferred");
     });
   });
 

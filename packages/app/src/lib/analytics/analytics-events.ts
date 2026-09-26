@@ -1,5 +1,6 @@
 export const AnalyticsEvents = {
   AUTH_LOGIN: "auth_login",
+  AUTH_LOGIN_FAILED: "auth_login_failed",
   AUTH_SIGNUP: "auth_signup",
   AUTH_SIGN_OUT: "auth_sign_out",
   CARDS_SORT: "cards_sort",

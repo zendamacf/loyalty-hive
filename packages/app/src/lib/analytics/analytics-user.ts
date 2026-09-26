@@ -7,6 +7,8 @@ import {
 import { logger } from "@sentry/react-native";
 import * as SecureStore from "expo-secure-store";
 
+import { setAnalyticsIdentityMode } from "./analytics-state";
+
 export const ANALYTICS_USER_ID_STORAGE_KEY = "loyalty-hive.analytics.user-id";
 
 export async function setupUmami(): Promise<void> {
@@ -52,4 +54,10 @@ export function clearAnalyticsUser(): void {
   }
 
   clearUser();
+}
+
+/** Clears Umami identity and defers tracking so login-page views buffer instead of sending anonymously. */
+export function signOutAnalytics(): void {
+  clearAnalyticsUser();
+  setAnalyticsIdentityMode("deferred");
 }
