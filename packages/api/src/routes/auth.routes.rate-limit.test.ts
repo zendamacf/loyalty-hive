@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
+import { randomUUID } from "node:crypto";
 
 import { apiKeyHeaders, createApiRouterApp } from "../../test/create-app";
 import { resetRateLimitStoreForTests } from "../common/rate-limit-store";
@@ -122,12 +123,12 @@ describe("[Integration] auth route rate limits", () => {
       "x-forwarded-for": "203.0.113.60",
     });
 
-    for (let i = 0; i < 2; i++) {
+    for (let n = 0; n < 2; n++) {
       const response = await app.request("/api/v1/auth/signup", {
         method: "POST",
         headers,
         body: JSON.stringify({
-          email: `rate.limit.signup.${i}@example.com`,
+          email: `rate.limit.signup.${randomUUID()}@example.com`,
           password: TEST_PASSWORD,
         }),
       });
@@ -138,7 +139,7 @@ describe("[Integration] auth route rate limits", () => {
       method: "POST",
       headers,
       body: JSON.stringify({
-        email: "rate.limit.signup.final@example.com",
+        email: `rate.limit.signup.${randomUUID()}@example.com`,
         password: TEST_PASSWORD,
       }),
     });
