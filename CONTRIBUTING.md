@@ -254,7 +254,7 @@ Document what you tested in the PR description (device/OS, steps, screenshots or
 ### API
 
 - **Migrations:** After schema changes, run `bun run db:generate` then commit SQL under `packages/api/drizzle/`.
-- **OpenAPI:** Routes use `hono-openapi`; the spec is served at `/doc`.
+- **OpenAPI:** Routes use `hono-openapi`; the spec is at `/doc` and Swagger UI at `/` whenever `NODE_ENV` is not `production`. Production Docker images return **404** for those routes. `LIB_VERSION` is optional — the API falls back to `packages/api/package.json` version when unset.
 - **Brand logos:** Static files in `packages/api/public/logos/`, served at `/logos/*`.
 
 ### App

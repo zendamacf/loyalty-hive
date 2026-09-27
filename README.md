@@ -34,6 +34,8 @@ docker compose -f docker-compose.yml -f docker-compose.ci.yml up --build
 
 Brand logos live in [`packages/api/public/logos/`](packages/api/public/logos/) and are served by the API image at `/logos/*`.
 
+OpenAPI (`/doc`) and Swagger UI (`/`) are available when `NODE_ENV` is not `production` (local dev, tests, CI Compose). Production API containers hide those routes.
+
 ## Releases
 
 Release tags are created automatically when package versions change on `main`, via [`.github/workflows/tag-on-version-change.yml`](.github/workflows/tag-on-version-change.yml):

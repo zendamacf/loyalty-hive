@@ -30,15 +30,28 @@ app
     }),
   )
   .route("/api/v1", apiRouter)
-  .get("/health", (c) => c.text("ok"))
-  .get("/doc", openAPIRouteHandler(app, publicDocs))
-  .get("/doc/gen", openAPIRouteHandler(app, codeGenDocs))
-  .get("/", swaggerUI({ url: "/doc", title: "LoyaltyHive API" }))
-  .onError((e, c) => {
-    const sentryScope = c.get("sentry");
-    enrichSentryScope(sentryScope, c, c.get("userId"));
-    sentryScope.captureException(e);
-    return c.text("Internal Server Error", 500);
-  });
+  .get("/health", (c) => c.text("ok"));
+
+if (config.exposeOpenApi) {
+  app
+    .get("/doc", openAPIRouteHandler(app, publicDocs))
+    .get("/doc/gen", openAPIRouteHandler(app, codeGenDocs))
+    .get("/", swaggerUI({ url: "/doc", title: "LoyaltyHive API" }));
+} else {
+  const openApiNotFound = (c: {
+    body: (body: null, status: 404) => Response;
+  }) => c.body(null, 404);
+  app
+    .get("/doc", openApiNotFound)
+    .get("/doc/gen", openApiNotFound)
+    .get("/", openApiNotFound);
+}
+
+app.onError((e, c) => {
+  const sentryScope = c.get("sentry");
+  enrichSentryScope(sentryScope, c, c.get("userId"));
+  sentryScope.captureException(e);
+  return c.text("Internal Server Error", 500);
+});
 
 export default app;
