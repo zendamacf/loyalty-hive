@@ -249,7 +249,11 @@ describe("[Integration] LoginScreen", () => {
       `/events/${AnalyticsEvents.AUTH_LOGIN_FAILED}`,
       AnalyticsEvents.AUTH_LOGIN_FAILED,
       {
-        data: { reason: "invalid_credentials", status_code: 401 },
+        data: {
+          reason: "invalid_credentials",
+          status_code: 401,
+          app_version: "1.1.8",
+        },
       },
     );
   });

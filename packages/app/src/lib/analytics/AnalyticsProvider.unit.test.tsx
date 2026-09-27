@@ -101,7 +101,7 @@ describe("[Unit] AnalyticsProvider", () => {
       expect(trackCustomEventMock).toHaveBeenCalledWith(
         "/events/auth_signup",
         "auth_signup",
-        undefined,
+        { data: { app_version: "1.1.8" } },
       );
       expect(flushMock).toHaveBeenCalledTimes(1);
     });
