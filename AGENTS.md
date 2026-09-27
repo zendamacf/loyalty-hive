@@ -50,23 +50,22 @@ Dependabot PRs receive changesets automatically — do not duplicate.
 
 From the repo root after `bun install`:
 
-**API changes** (`packages/api`):
-
 ```sh
-cd packages/api
-bun run lint
+bun run lint            # both packages
 bun run typecheck
-bun run test    # requires DATABASE_URL
+bun run test            # API tests require DATABASE_URL (Postgres)
+bun run test:api        # requires DATABASE_URL
+bun run test:app
+bun run check           # lint, then typecheck, then test
 ```
 
-**App changes** (`packages/app`):
+Package-scoped equivalents: `lint:api`, `lint:app`, `typecheck:api`, `typecheck:app`.
+
+**App native/deps changes** — still run from the app package:
 
 ```sh
 cd packages/app
-bun run lint
-bun run typecheck
-bun run test
-bun run doctor  # when native/deps change
+bun run doctor
 ```
 
 **API contract changes** — regenerate the app client after the API is runnable:
