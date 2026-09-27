@@ -2,4 +2,4 @@
 "@loyalty-hive/app": patch
 ---
 
-Include the app version on Sentry events and Umami analytics payloads so usage can be tracked by release.
+Set the Sentry release from the app version and include `app_version` on Umami analytics payloads so usage can be tracked by release.
