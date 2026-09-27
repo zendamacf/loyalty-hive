@@ -52,6 +52,7 @@ describe("trackBrandRequestSubmitted", () => {
         url_host: "www.coles.com.au",
         has_notes: true,
         source: "empty_search",
+        app_version: "1.1.8",
       },
     });
   });

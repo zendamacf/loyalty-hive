@@ -6,6 +6,25 @@ import {
   trackScreenView,
 } from "@bitte-kaufen/expo-umami";
 
+import { getAppVersion } from "@/lib/app-version";
+
+export const ANALYTICS_APP_VERSION_KEY = "app_version";
+
+function withAppVersionData<T extends Record<string, unknown>>(
+  data: T = {} as T,
+): T & { app_version: string } {
+  return {
+    ...data,
+    [ANALYTICS_APP_VERSION_KEY]: getAppVersion(),
+  };
+}
+
+function withAppVersionEventData(
+  data?: Record<string, string | number | boolean>,
+): Record<string, string | number | boolean> {
+  return withAppVersionData(data ?? {});
+}
+
 export type AnalyticsIdentityMode = "pending" | "identified" | "deferred";
 
 export type AnalyticsIdentityInput = {
@@ -145,23 +164,21 @@ export async function flushBufferedAnalyticsEvents(): Promise<void> {
   for (const event of events) {
     switch (event.type) {
       case "screen":
-        await trackScreenView(
-          event.path,
-          event.title ? { title: event.title } : undefined,
-        );
+        await trackScreenView(event.path, {
+          ...(event.title ? { title: event.title } : {}),
+          data: withAppVersionEventData(),
+        });
         break;
       case "custom":
-        await trackCustomEvent(
-          event.url,
-          event.eventName,
-          event.data ? { data: event.data } : undefined,
-        );
+        await trackCustomEvent(event.url, event.eventName, {
+          data: withAppVersionEventData(event.data),
+        });
         break;
       case "event":
         await trackEvent(event.url, {
           eventName: event.eventName,
           title: event.title,
-          data: event.data,
+          data: withAppVersionData(event.data),
         });
         break;
     }
@@ -183,7 +200,10 @@ export async function dispatchScreenView(
     return;
   }
 
-  await trackScreenView(path, title ? { title } : undefined);
+  await trackScreenView(path, {
+    ...(title ? { title } : {}),
+    data: withAppVersionEventData(),
+  });
 }
 
 export async function dispatchCustomEvent(
@@ -200,7 +220,9 @@ export async function dispatchCustomEvent(
     return;
   }
 
-  await trackCustomEvent(url, eventName, data ? { data } : undefined);
+  await trackCustomEvent(url, eventName, {
+    data: withAppVersionEventData(data),
+  });
 }
 
 export async function dispatchTrackEvent(
@@ -226,5 +248,8 @@ export async function dispatchTrackEvent(
     return;
   }
 
-  await trackEvent(url, options);
+  await trackEvent(url, {
+    ...options,
+    data: withAppVersionData(options.data),
+  });
 }

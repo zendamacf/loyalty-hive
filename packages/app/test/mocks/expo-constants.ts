@@ -3,6 +3,7 @@ import { mock } from "bun:test";
 mock.module("expo-constants", () => ({
   default: {
     expoConfig: {
+      slug: "loyaltyhive",
       version: "1.1.8",
       ios: { buildNumber: "11" },
       android: { versionCode: 11 },

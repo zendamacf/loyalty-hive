@@ -1,5 +1,6 @@
-import Constants from "expo-constants";
 import { Platform } from "react-native";
+
+import { getAppBuild, getAppVersion } from "@/lib/app-version";
 
 export const CLIENT_ID = "loyaltyhive-app";
 
@@ -23,19 +24,10 @@ export function osVersionHeader(): string {
 }
 
 export function clientHeaders(): Record<string, string> {
-  const version =
-    Constants.expoConfig?.version ?? Constants.nativeAppVersion ?? "unknown";
-  const build =
-    Constants.nativeBuildVersion ??
-    (Platform.OS === "ios"
-      ? Constants.expoConfig?.ios?.buildNumber
-      : Constants.expoConfig?.android?.versionCode?.toString()) ??
-    "unknown";
-
   return {
     "x-client-id": CLIENT_ID,
-    "x-app-version": version,
-    "x-app-build": String(build),
+    "x-app-version": getAppVersion(),
+    "x-app-build": getAppBuild(),
     "x-app-platform": Platform.OS,
     "x-os-version": osVersionHeader(),
   };

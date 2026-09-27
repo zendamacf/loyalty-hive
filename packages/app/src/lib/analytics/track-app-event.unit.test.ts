@@ -32,7 +32,7 @@ describe("[Unit] trackAppEvent", () => {
     expect(trackCustomEventMock).toHaveBeenCalledWith(
       "/events/cards_sort",
       "cards_sort",
-      { data: { sort: "alphabetical" } },
+      { data: { sort: "alphabetical", app_version: "1.1.8" } },
     );
   });
 
@@ -47,7 +47,7 @@ describe("[Unit] trackAppEvent", () => {
     expect(trackCustomEventMock).toHaveBeenCalledWith(
       "/events/card_add",
       "card_add",
-      { data: { method: "scan", is_custom_card: false } },
+      { data: { method: "scan", is_custom_card: false, app_version: "1.1.8" } },
     );
   });
 
@@ -86,7 +86,7 @@ describe("[Unit] trackAppEvent", () => {
     expect(trackCustomEventMock).toHaveBeenCalledWith(
       "/events/auth_signup",
       "auth_signup",
-      undefined,
+      { data: { app_version: "1.1.8" } },
     );
     expect(flushMock).toHaveBeenCalledTimes(1);
     expect(getBufferedAnalyticsEventCount()).toBe(0);

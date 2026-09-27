@@ -91,6 +91,7 @@ describe("[Integration] RequestBrandSheet", () => {
         url_host: "example.com",
         has_notes: false,
         source: "empty_search",
+        app_version: "1.1.8",
       },
     });
   });

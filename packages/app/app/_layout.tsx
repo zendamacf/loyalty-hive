@@ -16,6 +16,7 @@ import { ThemedRoot } from "@/components/ThemedRoot";
 import "@/i18n";
 
 import { AnalyticsProvider } from "@/lib/analytics";
+import { getAppBuild, getAppRelease, getAppVersion } from "@/lib/app-version";
 import { AuthProvider } from "@/lib/auth";
 import { queryClient } from "@/lib/query-client";
 import { UserPreferencesProvider } from "@/lib/user-preferences";
@@ -25,6 +26,8 @@ Sentry.init({
   enabled: !__DEV__,
   environment: __DEV__ ? "development" : (process.env.NODE_ENV ?? "production"),
   dsn: __DEV__ ? undefined : process.env.EXPO_PUBLIC_SENTRY_DSN,
+  release: getAppRelease(),
+  dist: getAppBuild(),
   sendDefaultPii: true,
   enableLogs: true,
   replaysSessionSampleRate: 0.1,
@@ -34,6 +37,8 @@ Sentry.init({
     Sentry.mobileReplayIntegration(),
   ],
 });
+
+Sentry.setTag("app.version", getAppVersion());
 
 export const ErrorBoundary =
   Sentry.wrapExpoRouterErrorBoundary(ExpoErrorBoundary);
