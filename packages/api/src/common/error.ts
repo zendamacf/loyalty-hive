@@ -9,3 +9,7 @@ export class InvalidApiKeyError extends HTTPException {
     super(403, { message });
   }
 }
+
+export function TooManyRequests(message: string = "Too many requests") {
+  return new HTTPException(429, { message });
+}

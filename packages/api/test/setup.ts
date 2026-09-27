@@ -12,6 +12,9 @@ process.env.NODE_ENV = "test";
 process.env.DATABASE_URL = testDatabaseUrl;
 process.env.JWT_ACCESS_SECRET ??= "test-secret";
 process.env.FILE_STORAGE_URL ??= "https://cdn.test/";
+process.env.RATE_LIMIT_AUTH_LOGIN_IP_MAX ??= "10000";
+process.env.RATE_LIMIT_AUTH_LOGIN_EMAIL_MAX ??= "10000";
+process.env.RATE_LIMIT_AUTH_SIGNUP_IP_MAX ??= "10000";
 
 await migrateDatabase(testDatabaseUrl);
 

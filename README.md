@@ -36,6 +36,10 @@ Brand logos live in [`packages/api/public/logos/`](packages/api/public/logos/) a
 
 OpenAPI (`/doc`) and Swagger UI (`/`) are available when `NODE_ENV` is not `production` (local dev, tests, CI Compose). Production API containers hide those routes.
 
+### Rate limiting
+
+Auth routes enforce in-app limits (in-memory per API process): login by IP and email, signup by IP. Configure with `RATE_LIMIT_AUTH_*` in `.env` (see [`.env.example`](packages/api/.env.example)). For multi-instance or VPS deployments, you can add stricter limits at the edge (nginx, Cloudflare) in addition to these defaults.
+
 ## Releases
 
 Release tags are created automatically when package versions change on `main`, via [`.github/workflows/tag-on-version-change.yml`](.github/workflows/tag-on-version-change.yml):
