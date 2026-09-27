@@ -140,6 +140,25 @@ A [pre-commit hook](.husky/pre-commit) runs Biome auto-fix in both packages:
 
 Run lint locally before committing so hooks do not surprise you.
 
+### From the repository root
+
+After `bun install`, these scripts run the matching package script in the Bun workspace. Aggregate commands use `bun run --workspaces` (every package under `packages/*`). Package-scoped commands use `bun run --filter`.
+
+```sh
+bun run lint              # Biome in api and app
+bun run lint:api          # packages/api only
+bun run lint:app          # packages/app only
+bun run typecheck         # tsc --noEmit in api and app
+bun run typecheck:api
+bun run typecheck:app
+bun run test              # both packages
+bun run test:api          # requires DATABASE_URL (Postgres)
+bun run test:app
+bun run check             # lint, then typecheck, then test
+```
+
+`bun run test`, `bun run test:api`, and `bun run check` run the API integration tests. Those need a reachable Postgres database and `DATABASE_URL` (see [`packages/api/.env.example`](packages/api/.env.example)). The API test preload migrates and seeds that database. Use `bun run test:app` when you only changed the app.
+
 ### Per-package commands
 
 **API** (`packages/api`):
@@ -235,7 +254,7 @@ Document what you tested in the PR description (device/OS, steps, screenshots or
 ### API
 
 - **Migrations:** After schema changes, run `bun run db:generate` then commit SQL under `packages/api/drizzle/`.
-- **OpenAPI:** Routes use `hono-openapi`; the spec is served at `/doc`.
+- **OpenAPI:** Routes use `hono-openapi`; the spec is at `/doc` and Swagger UI at `/` whenever `NODE_ENV` is not `production`. Production Docker images return **404** for those routes. `LIB_VERSION` is optional — the API falls back to `packages/api/package.json` version when unset.
 - **Brand logos:** Static files in `packages/api/public/logos/`, served at `/logos/*`.
 
 ### App
@@ -258,7 +277,7 @@ Before requesting review, confirm:
 
 - [ ] Changes are scoped and explained in the PR description
 - [ ] Conventional commit / PR title format
-- [ ] `bun run lint`, `bun run typecheck`, and `bun run test` pass in affected package(s)
+- [ ] `bun run lint`, `bun run typecheck`, and `bun run test` pass from the repo root (or the equivalent commands inside affected packages). API tests need `DATABASE_URL`.
 - [ ] Changeset added (if releasing a user-facing change)
 - [ ] API migrations generated and committed (if schema changed)
 - [ ] App API client regenerated (if API contract changed)

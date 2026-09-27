@@ -7,7 +7,17 @@
   "scripts": {
     "changeset": "changeset",
     "changeset:version": "changeset version",
-    "prepare": "husky"
+    "prepare": "husky",
+    "lint": "bun run --workspaces lint",
+    "lint:api": "bun run --filter @loyalty-hive/api lint",
+    "lint:app": "bun run --filter @loyalty-hive/app lint",
+    "typecheck": "bun run --workspaces typecheck",
+    "typecheck:api": "bun run --filter @loyalty-hive/api typecheck",
+    "typecheck:app": "bun run --filter @loyalty-hive/app typecheck",
+    "test": "bun run --workspaces test",
+    "test:api": "bun run --filter @loyalty-hive/api test",
+    "test:app": "bun run --filter @loyalty-hive/app test",
+    "check": "bun run lint && bun run typecheck && bun run test"
   },
   "dependencies": {
     "@changesets/cli": "^3.0.3"

@@ -9,11 +9,16 @@ if (!apiUrl) {
 
 export default defineConfig({
   input: `${apiUrl}/doc/gen`,
-  output: "src/lib/api-client/gen",
+  output: {
+    path: "src/lib/api-client/gen",
+    // Expo/RN uses bundler resolution; omit extensions on generated relative imports.
+    importFileExtension: null,
+  },
   plugins: [
     {
       name: "@hey-api/client-fetch",
-      runtimeConfigPath: "./src/lib/api-client/setup.ts",
+      // Omit `.ts` so generated `client.gen.ts` imports resolve without @ts-expect-error.
+      runtimeConfigPath: "./src/lib/api-client/setup",
     },
     "@tanstack/react-query",
   ],

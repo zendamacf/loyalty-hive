@@ -1,8 +1,13 @@
 import "dotenv/config";
 
+import { API_PACKAGE_VERSION } from "../api-package";
+
+const environment = process.env.NODE_ENV ?? "development";
+
 export const config: Config = {
-  environment: process.env.NODE_ENV ?? "development",
-  libVersion: process.env.LIB_VERSION ?? "0.0.0",
+  environment,
+  exposeOpenApi: environment !== "production",
+  libVersion: process.env.LIB_VERSION ?? API_PACKAGE_VERSION,
   server: {
     hostname: process.env.LISTEN_HOST ?? "0.0.0.0",
     port: Number.parseInt(process.env.PORT ?? "3000", 10),
@@ -21,6 +26,7 @@ export const config: Config = {
 
 interface Config {
   environment: string;
+  exposeOpenApi: boolean;
   libVersion: string;
   server: {
     hostname: string;
