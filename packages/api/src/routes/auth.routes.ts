@@ -20,6 +20,11 @@ import {
   type AuthEnv,
   requireUserAuth,
 } from "../middleware/auth.middleware.js";
+import {
+  authLoginEmailRateLimit,
+  authLoginIpRateLimit,
+  authSignupIpRateLimit,
+} from "../middleware/rate-limit.middleware.js";
 
 const credentialsBodySchema = z.object({
   email: z.string().trim().toLowerCase().pipe(z.email()),
@@ -46,20 +51,23 @@ const apiKeyHeaderSchema = z.object({
 const app = new Hono<AuthEnv>()
   .post(
     "/login",
+    authLoginIpRateLimit,
     requireApiKey,
     describeRoute({
       description:
-        "Sign in with email and password; returns a JWT access token",
+        "Sign in with email and password; returns a JWT access token. Rate limits (defaults): 10 requests/minute per IP and 5/minute per email (see `RATE_LIMIT_AUTH_*` env vars).",
       security: [{ apiKeyAuth: [] }],
       responses: {
         200: jsonResponse("Successful response", loginResponseSchema),
         401: errorResponse("Invalid email or password"),
         403: errorResponse("Invalid API key"),
+        429: errorResponse("Too many requests"),
         400: validationErrorResponse(),
       },
     }),
     validator("header", apiKeyHeaderSchema),
     validator("json", credentialsBodySchema),
+    authLoginEmailRateLimit,
     async (c) => {
       const { email, password } = c.req.valid("json");
 
@@ -84,14 +92,17 @@ const app = new Hono<AuthEnv>()
   )
   .post(
     "/signup",
+    authSignupIpRateLimit,
     requireApiKey,
     describeRoute({
-      description: "Create a new user account",
+      description:
+        "Create a new user account. Rate limit (default): 5 signups/minute per IP (see `RATE_LIMIT_AUTH_*` env vars).",
       security: [{ apiKeyAuth: [] }],
       responses: {
         201: jsonResponse("Account created", signupResponseSchema),
         403: errorResponse("Invalid API key"),
         409: errorResponse("Email already registered"),
+        429: errorResponse("Too many requests"),
         400: validationErrorResponse(),
       },
     }),
