@@ -9,3 +9,4 @@ services:
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-ci-dummy-jwt-secret}
       FILE_STORAGE_URL: ${FILE_STORAGE_URL:-http://localhost:3000/}
       SENTRY_DSN: ${SENTRY_DSN:-}
+      EXPOSE_OPENAPI: "true"
