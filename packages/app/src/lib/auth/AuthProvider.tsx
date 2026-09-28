@@ -29,6 +29,7 @@ import {
   persistAuthToken,
   setClientAuth,
 } from "./session";
+import { markSessionExpired } from "./session-expired-notice";
 import { subscribeOnAppResume } from "./subscribe-app-resume";
 
 type AuthContextValue = {
@@ -104,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setUnauthorizedHandler(async () => {
+      markSessionExpired();
       await signOutRef.current();
       router.replace(Routes.LOGIN);
     });

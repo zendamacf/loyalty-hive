@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 
 import { compare as bcryptCompare, hash as bcryptHash } from "bcryptjs";
 import { eq } from "drizzle-orm";
-import { verify } from "hono/jwt";
+import { sign, verify } from "hono/jwt";
 import {
   apiKeyHeaders,
   authBearerHeaders,
@@ -120,6 +120,9 @@ describe("auth routes", () => {
 
     const payload = await verify(body.token, config.jwt.accessSecret, "HS256");
     expect(payload.sub).toBe(USER_ID);
+    expect(payload.iat).toBeNumber();
+    expect(payload.exp).toBeNumber();
+    expect(payload.exp).toBeGreaterThan(payload.iat as number);
   });
 
   it("logs in with different email casing and surrounding whitespace", async () => {
@@ -301,6 +304,24 @@ describe("auth routes", () => {
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ id: USER_ID });
+  });
+
+  it("returns 401 for GET /me when bearer token is expired", async () => {
+    const now = Math.floor(Date.now() / 1000);
+    const token = await sign(
+      { sub: USER_ID, iat: now - 120, exp: now - 60 },
+      config.jwt.accessSecret,
+      "HS256",
+    );
+
+    const response = await app.request("/api/v1/auth/me", {
+      headers: authBearerHeaders(token),
+    });
+
+    expect(response.status).toBe(401);
+    expect(await response.json()).toEqual({
+      error: "You must be logged in to access this resource",
+    });
   });
 
   it("does not require an API key for GET /me", async () => {

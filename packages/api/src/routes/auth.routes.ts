@@ -1,13 +1,11 @@
 import { compare as bcryptCompare, hash as bcryptHash } from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
-import { sign } from "hono/jwt";
-
 import { describeRoute, validator } from "hono-openapi";
 import z from "zod";
-import { config } from "../common/config.js";
 import { API_KEY_HEADER, BCRYPT_COST } from "../common/constants.js";
 import { Unauthorized } from "../common/error.js";
+import { signAccessToken } from "../common/jwt-access-token.js";
 import {
   errorResponse,
   jsonResponse,
@@ -55,7 +53,7 @@ const app = new Hono<AuthEnv>()
     requireApiKey,
     describeRoute({
       description:
-        "Sign in with email and password; returns a JWT access token. Rate limits (defaults): 10 requests/minute per IP and 5/minute per email (see `RATE_LIMIT_AUTH_*` env vars).",
+        "Sign in with email and password; returns a short-lived JWT access token (lifetime via `JWT_ACCESS_TTL`, default 7d). There is no refresh token — sign in again after expiry. Rate limits (defaults): 10 requests/minute per IP and 5/minute per email (see `RATE_LIMIT_AUTH_*` env vars).",
       security: [{ apiKeyAuth: [] }],
       responses: {
         200: jsonResponse("Successful response", loginResponseSchema),
@@ -85,7 +83,7 @@ const app = new Hono<AuthEnv>()
 
       if (!valid) throw Unauthorized("Invalid email or password");
 
-      const token = await sign({ sub: user.id }, config.jwt.accessSecret);
+      const token = await signAccessToken(user.id);
 
       return c.json({ token });
     },

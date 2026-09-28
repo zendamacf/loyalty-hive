@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { EyeIcon, EyeOffIcon } from "lucide-react-native";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Image,
@@ -22,6 +22,7 @@ import {
 import { postApiV1AuthLogin, postApiV1AuthSignup } from "@/lib/api-client";
 import { authApiHeaders } from "@/lib/api-client/auth-api-headers";
 import { useAuth } from "@/lib/auth";
+import { consumeSessionExpiredNotice } from "@/lib/auth/session-expired-notice";
 import { getErrorMessage, isGenericErrorMessage } from "@/lib/getErrorMessage";
 import { AppTitle } from "../components/AppTitle";
 import { Button } from "../components/Button";
@@ -44,6 +45,12 @@ export const LoginScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (consumeSessionExpiredNotice()) {
+      setError(t("sessionExpired"));
+    }
+  }, [t]);
 
   const switchMode = (next: AuthMode) => {
     setMode(next);

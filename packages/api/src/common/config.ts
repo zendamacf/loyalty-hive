@@ -1,6 +1,7 @@
 import "dotenv/config";
 
 import { API_PACKAGE_VERSION } from "../api-package";
+import { parseJwtAccessTtlSeconds } from "./jwt-access-ttl";
 
 const environment = process.env.NODE_ENV ?? "development";
 
@@ -15,6 +16,7 @@ export const config: Config = {
   },
   jwt: {
     accessSecret: process.env.JWT_ACCESS_SECRET ?? "",
+    accessTtlSeconds: parseJwtAccessTtlSeconds(process.env.JWT_ACCESS_TTL),
   },
   db: {
     url: process.env.DATABASE_URL ?? "",
@@ -35,6 +37,7 @@ interface Config {
   };
   jwt: {
     accessSecret: string;
+    accessTtlSeconds: number;
   };
   db: {
     url: string;

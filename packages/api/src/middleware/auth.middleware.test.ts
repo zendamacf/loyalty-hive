@@ -60,4 +60,25 @@ describe("requireUserAuth middleware", () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ userId: USER_ID });
   });
+
+  it("returns 401 when bearer token is expired", async () => {
+    const app = createApp();
+    const now = Math.floor(Date.now() / 1000);
+    const token = await sign(
+      { sub: USER_ID, iat: now - 120, exp: now - 60 },
+      config.jwt.accessSecret,
+      "HS256",
+    );
+
+    const response = await app.request("/", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    expect(response.status).toBe(401);
+    expect(await response.json()).toEqual({
+      error: "You must be logged in to access this resource",
+    });
+  });
 });
