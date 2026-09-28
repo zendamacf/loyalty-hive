@@ -12,6 +12,8 @@ import {
 } from "../../test/create-app";
 import { config } from "../common/config";
 import { BCRYPT_COST } from "../common/constants";
+import { assignVerificationTokenToUser } from "../common/email-verification";
+import { INVALID_VERIFICATION_TOKEN_MESSAGE } from "../common/error";
 import { db } from "../db/client";
 import { users } from "../db/schema";
 
@@ -341,7 +343,11 @@ describe("auth routes", () => {
     });
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ id: USER_ID });
+    expect(await response.json()).toEqual({
+      id: USER_ID,
+      email: TEST_EMAIL,
+      emailVerified: true,
+    });
   });
 
   it("returns 401 for GET /me when bearer token is expired", async () => {
@@ -370,7 +376,83 @@ describe("auth routes", () => {
     });
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ id: USER_ID });
+    expect(await response.json()).toEqual({
+      id: USER_ID,
+      email: TEST_EMAIL,
+      emailVerified: true,
+    });
+  });
+
+  it("stores a verification token on signup", async () => {
+    const email = `token.signup.${randomUUID()}@example.com`;
+
+    const response = await app.request("/api/v1/auth/signup", {
+      method: "POST",
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ email, password: VALID_SIGNUP_PASSWORD }),
+    });
+
+    expect(response.status).toBe(201);
+    const body = (await response.json()) as { id: string };
+
+    const [row] = await db
+      .select({
+        emailVerifiedAt: users.emailVerifiedAt,
+        tokenHash: users.emailVerificationTokenHash,
+        expiresAt: users.emailVerificationExpiresAt,
+      })
+      .from(users)
+      .where(eq(users.id, body.id));
+
+    expect(row.emailVerifiedAt).toBeNull();
+    expect(row.tokenHash).toBeString();
+    expect(row.expiresAt).not.toBeNull();
+  });
+
+  it("verifies email with a valid token", async () => {
+    const email = `verify.flow.${randomUUID()}@example.com`;
+    const signupRes = await app.request("/api/v1/auth/signup", {
+      method: "POST",
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ email, password: VALID_SIGNUP_PASSWORD }),
+    });
+    const { id } = (await signupRes.json()) as { id: string };
+    const token = await assignVerificationTokenToUser(id);
+
+    const verifyRes = await app.request("/api/v1/auth/verify-email", {
+      method: "POST",
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ token }),
+    });
+
+    expect(verifyRes.status).toBe(200);
+    expect(await verifyRes.json()).toEqual({ verified: true });
+  });
+
+  it("returns 400 for an invalid verification token", async () => {
+    const response = await app.request("/api/v1/auth/verify-email", {
+      method: "POST",
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ token: "invalid-token" }),
+    });
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      error: INVALID_VERIFICATION_TOKEN_MESSAGE,
+    });
+  });
+
+  it("returns a generic message for resend verification", async () => {
+    const response = await app.request("/api/v1/auth/resend-verification", {
+      method: "POST",
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ email: "nobody@example.com" }),
+    });
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      message: "If your account needs verification, we sent an email.",
+    });
   });
 
   it("allows login after signup", async () => {

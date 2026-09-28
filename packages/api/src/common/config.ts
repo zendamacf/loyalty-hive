@@ -24,6 +24,10 @@ export const config: Config = {
   tracing: {
     sentryDsn: process.env.SENTRY_DSN ?? "",
   },
+  mail: {
+    resendApiKey: process.env.RESEND_API_KEY ?? "",
+    from: process.env.EMAIL_FROM ?? "",
+  },
 };
 
 interface Config {
@@ -44,5 +48,9 @@ interface Config {
   };
   tracing: {
     sentryDsn: string;
+  };
+  mail: {
+    resendApiKey: string;
+    from: string;
   };
 }

@@ -5,6 +5,8 @@ import { TooManyRequests } from "../common/error.js";
 import {
   getAuthLoginEmailRateLimit,
   getAuthLoginIpRateLimit,
+  getAuthResendVerificationEmailRateLimit,
+  getAuthResendVerificationIpRateLimit,
   getAuthSignupIpRateLimit,
 } from "../common/rate-limit-config.js";
 import { rateLimitStore } from "../common/rate-limit-store.js";
@@ -39,5 +41,30 @@ export const authLoginEmailRateLimit: MiddlewareHandler = async (c, next) => {
   const { email } = c.req.valid("json" as never) as { email: string };
   const { max, windowMs } = getAuthLoginEmailRateLimit();
   enforceRateLimit(c, "auth:login:email", email, max, windowMs);
+  return next();
+};
+
+export const authResendVerificationIpRateLimit: MiddlewareHandler = async (
+  c,
+  next,
+) => {
+  const { max, windowMs } = getAuthResendVerificationIpRateLimit();
+  enforceRateLimit(
+    c,
+    "auth:resend-verification:ip",
+    getClientIp(c),
+    max,
+    windowMs,
+  );
+  return next();
+};
+
+export const authResendVerificationEmailRateLimit: MiddlewareHandler = async (
+  c,
+  next,
+) => {
+  const { email } = c.req.valid("json" as never) as { email: string };
+  const { max, windowMs } = getAuthResendVerificationEmailRateLimit();
+  enforceRateLimit(c, "auth:resend-verification:email", email, max, windowMs);
   return next();
 };
