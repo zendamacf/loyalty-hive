@@ -74,3 +74,5 @@ const response = await app.request("/api/v1/auth/login", {
 ### Fixed UUIDs + `onConflictDoNothing`
 
 Route suites use stable user/card/brand IDs and upsert helpers so tests tolerate a shared CI database without per-test transactions.
+
+Protected routes require a verified email. Seed users with [`upsertVerifiedTestUsers`](upsert-test-users.ts) (or call `ensureEmailVerifiedForTestUsers` when the row may already exist).

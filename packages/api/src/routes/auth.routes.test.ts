@@ -41,12 +41,14 @@ beforeAll(async () => {
       id: AUTH_USER_ID,
       email: TEST_EMAIL,
       passwordHash,
+      emailVerifiedAt: new Date(),
     })
     .onConflictDoUpdate({
       target: users.id,
       set: {
         email: TEST_EMAIL,
         passwordHash,
+        emailVerifiedAt: new Date(),
       },
     });
 });
