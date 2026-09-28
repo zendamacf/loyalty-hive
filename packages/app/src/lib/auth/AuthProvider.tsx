@@ -36,7 +36,7 @@ type AuthContextValue = {
   isReady: boolean;
   isAuthenticated: boolean;
   user: CurrentUser | null;
-  signIn: (token: string) => Promise<void>;
+  signIn: (token: string) => Promise<CurrentUser | null>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<CurrentUser | null>;
 };
@@ -86,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await persistAuthToken(token);
       setClientAuth(token);
       setIsAuthenticated(true);
-      await refreshUser();
+      return await refreshUser();
     },
     [refreshUser],
   );

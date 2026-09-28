@@ -8,6 +8,7 @@ import { BCRYPT_COST } from "./constants.js";
 import {
   assignVerificationTokenToUser,
   hashVerificationToken,
+  userNeedsVerificationEmail,
   verifyEmailWithToken,
 } from "./email-verification.js";
 
@@ -46,5 +47,31 @@ describe("[Unit] email verification", () => {
   it("hashes tokens deterministically", () => {
     expect(hashVerificationToken("abc")).toBe(hashVerificationToken("abc"));
     expect(hashVerificationToken("abc")).not.toBe(hashVerificationToken("def"));
+  });
+
+  it("detects when a verification email should be sent", () => {
+    expect(
+      userNeedsVerificationEmail({
+        emailVerifiedAt: new Date(),
+        emailVerificationTokenHash: "abc",
+        emailVerificationExpiresAt: new Date(Date.now() + 60_000),
+      }),
+    ).toBe(false);
+
+    expect(
+      userNeedsVerificationEmail({
+        emailVerifiedAt: null,
+        emailVerificationTokenHash: null,
+        emailVerificationExpiresAt: null,
+      }),
+    ).toBe(true);
+
+    expect(
+      userNeedsVerificationEmail({
+        emailVerifiedAt: null,
+        emailVerificationTokenHash: "abc",
+        emailVerificationExpiresAt: new Date(Date.now() - 60_000),
+      }),
+    ).toBe(true);
   });
 });

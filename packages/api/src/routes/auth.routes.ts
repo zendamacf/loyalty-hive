@@ -5,7 +5,8 @@ import { describeRoute, validator } from "hono-openapi";
 import z from "zod";
 import { API_KEY_HEADER, BCRYPT_COST } from "../common/constants.js";
 import {
-  assignVerificationTokenToUser,
+  issueAndSendVerificationEmail,
+  userNeedsVerificationEmail,
   verifyEmailWithToken,
 } from "../common/email-verification.js";
 import {
@@ -14,7 +15,6 @@ import {
   Unauthorized,
 } from "../common/error.js";
 import { signAccessToken } from "../common/jwt-access-token.js";
-import { sendVerificationEmail } from "../common/mail/verification-email.js";
 import {
   errorResponse,
   jsonResponse,
@@ -87,18 +87,6 @@ const apiKeyHeaderSchema = z.object({
   [API_KEY_HEADER]: z.string().min(1),
 });
 
-async function sendVerificationEmailForUser(
-  userId: string,
-  email: string,
-): Promise<void> {
-  const token = await assignVerificationTokenToUser(userId);
-  try {
-    await sendVerificationEmail(email, token);
-  } catch (error) {
-    console.error("[auth] Failed to send verification email", error);
-  }
-}
-
 const app = new Hono<AuthEnv>()
   .post(
     "/login",
@@ -126,6 +114,9 @@ const app = new Hono<AuthEnv>()
         .select({
           id: users.id,
           passwordHash: users.passwordHash,
+          emailVerifiedAt: users.emailVerifiedAt,
+          emailVerificationTokenHash: users.emailVerificationTokenHash,
+          emailVerificationExpiresAt: users.emailVerificationExpiresAt,
         })
         .from(users)
         .where(eq(lower(users.email), email));
@@ -135,6 +126,17 @@ const app = new Hono<AuthEnv>()
         (await bcryptCompare(password, user.passwordHash).catch(() => false));
 
       if (!valid) throw Unauthorized("Invalid email or password");
+
+      if (userNeedsVerificationEmail(user)) {
+        try {
+          await issueAndSendVerificationEmail(user.id, email);
+        } catch (error) {
+          console.error(
+            "[auth] Failed to send verification email on login",
+            error,
+          );
+        }
+      }
 
       const token = await signAccessToken(user.id);
 
@@ -175,7 +177,14 @@ const app = new Hono<AuthEnv>()
             email: users.email,
           });
 
-        await sendVerificationEmailForUser(created.id, created.email);
+        try {
+          await issueAndSendVerificationEmail(created.id, created.email);
+        } catch (error) {
+          console.error(
+            "[auth] Failed to send verification email on signup",
+            error,
+          );
+        }
 
         return c.json(created, 201);
       } catch (error) {
@@ -248,7 +257,14 @@ const app = new Hono<AuthEnv>()
         .where(eq(lower(users.email), email));
 
       if (user && !user.emailVerifiedAt) {
-        await sendVerificationEmailForUser(user.id, user.email);
+        try {
+          await issueAndSendVerificationEmail(user.id, user.email);
+        } catch (error) {
+          console.error(
+            "[auth] Failed to send verification email on resend",
+            error,
+          );
+        }
       }
 
       return c.json({ message: RESEND_VERIFICATION_MESSAGE });

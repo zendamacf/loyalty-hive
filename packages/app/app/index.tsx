@@ -23,7 +23,14 @@ export default function Index() {
       return null;
     }
     if (!user.emailVerified) {
-      return <Redirect href={Routes.CHECK_EMAIL} />;
+      return (
+        <Redirect
+          href={{
+            pathname: Routes.CHECK_EMAIL,
+            params: { email: user.email },
+          }}
+        />
+      );
     }
     return <Redirect href={Routes.CARDS} />;
   }
