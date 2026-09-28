@@ -19,6 +19,7 @@ const BASE_DOCS = {
           type: "http",
           scheme: "bearer",
           bearerFormat: "JWT",
+          description: `Access token from POST /auth/login. Expires after JWT_ACCESS_TTL (default 7d); re-authenticate when expired.`,
         },
       },
     },
