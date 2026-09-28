@@ -22,10 +22,15 @@ import {
 import { postApiV1AuthLogin, postApiV1AuthSignup } from "@/lib/api-client";
 import { authApiHeaders } from "@/lib/api-client/auth-api-headers";
 import { useAuth } from "@/lib/auth";
+import {
+  getPasswordPolicyFailure,
+  PASSWORD_MIN_LENGTH,
+} from "@/lib/auth/password-policy";
 import { consumeSessionExpiredNotice } from "@/lib/auth/session-expired-notice";
 import { getErrorMessage, isGenericErrorMessage } from "@/lib/getErrorMessage";
 import { AppTitle } from "../components/AppTitle";
 import { Button } from "../components/Button";
+import { PasswordPolicyChecklist } from "../components/PasswordPolicyChecklist";
 import { icon as iconSize, radius, spacing, typography } from "../theme/theme";
 import { useTheme } from "../theme/useTheme";
 
@@ -143,6 +148,18 @@ export const LoginScreen = () => {
       return;
     }
 
+    if (mode === "signup") {
+      const policyFailure = getPasswordPolicyFailure(password);
+      if (policyFailure) {
+        setError(
+          policyFailure === "too_short"
+            ? t("passwordPolicy.too_short", { count: PASSWORD_MIN_LENGTH })
+            : t(`passwordPolicy.${policyFailure}`),
+        );
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     try {
       if (mode === "login") {
@@ -243,6 +260,8 @@ export const LoginScreen = () => {
             )}
           </Pressable>
         </View>
+
+        {mode === "signup" && <PasswordPolicyChecklist password={password} />}
 
         {error && (
           <Text style={[styles.error, { color: theme.error }]}>{error}</Text>

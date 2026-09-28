@@ -19,6 +19,9 @@ import {
   postApiV1AuthLoginMock,
   postApiV1AuthSignupMock,
 } from "../../test/mocks/api-client";
+
+const SIGNUP_TEST_PASSWORD = "ValidPass1234";
+
 import { getExpoRouterMocks } from "../../test/mocks/expo-router";
 import {
   clearSecureStoreMock,
@@ -203,18 +206,24 @@ describe("[Integration] LoginScreen", () => {
 
     await press(getByText("Need an account? Sign up"));
     await changeText(getByPlaceholderText("Email"), "new@example.com");
-    await changeText(getByPlaceholderText("Password"), "pw");
+    await changeText(getByPlaceholderText("Password"), SIGNUP_TEST_PASSWORD);
     await fireEvent(getByPlaceholderText("Password"), "submitEditing");
 
     await waitFor(() => {
       expect(postApiV1AuthSignupMock).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: { email: "new@example.com", password: "pw" },
+          body: {
+            email: "new@example.com",
+            password: SIGNUP_TEST_PASSWORD,
+          },
         }),
       );
       expect(postApiV1AuthLoginMock).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: { email: "new@example.com", password: "pw" },
+          body: {
+            email: "new@example.com",
+            password: SIGNUP_TEST_PASSWORD,
+          },
         }),
       );
       expect(getBearerToken()).toBe("test-token");
@@ -317,7 +326,7 @@ describe("[Integration] LoginScreen", () => {
 
     await press(getByText("Need an account? Sign up"));
     await changeText(getByPlaceholderText("Email"), "taken@example.com");
-    await changeText(getByPlaceholderText("Password"), "pw");
+    await changeText(getByPlaceholderText("Password"), SIGNUP_TEST_PASSWORD);
     await press(getByText("Create account"));
 
     await waitFor(() => {
@@ -340,7 +349,7 @@ describe("[Integration] LoginScreen", () => {
 
     await press(getByText("Need an account? Sign up"));
     await changeText(getByPlaceholderText("Email"), "new@example.com");
-    await changeText(getByPlaceholderText("Password"), "pw");
+    await changeText(getByPlaceholderText("Password"), SIGNUP_TEST_PASSWORD);
     await press(getByText("Create account"));
 
     await waitFor(() => {
@@ -378,7 +387,7 @@ describe("[Integration] LoginScreen", () => {
 
     await press(getByText("Need an account? Sign up"));
     await changeText(getByPlaceholderText("Email"), "new@example.com");
-    await changeText(getByPlaceholderText("Password"), "pw");
+    await changeText(getByPlaceholderText("Password"), SIGNUP_TEST_PASSWORD);
     await press(getByText("Create account"));
 
     await waitFor(() => {
@@ -391,7 +400,33 @@ describe("[Integration] LoginScreen", () => {
     expect(getByPlaceholderText("Email").props.editable).toBe(false);
   });
 
-  it("signs up then logs in on successful signup", async () => {
+  it("shows password requirements on signup and checks them off as the user types", async () => {
+    const { getByTestId, getByText, getByPlaceholderText, queryByTestId } =
+      await renderWithProviders(<LoginScreen />);
+
+    expect(queryByTestId("password-policy-checklist")).toBeNull();
+
+    await press(getByText("Need an account? Sign up"));
+    expect(getByTestId("password-policy-checklist")).toBeTruthy();
+    expect(getByText("At least 12 characters")).toBeTruthy();
+
+    const minLength = getByTestId("password-requirement-too_short");
+    expect(minLength.props.accessibilityState?.checked).toBe(false);
+
+    await changeText(getByPlaceholderText("Password"), "ValidPass123");
+
+    expect(minLength.props.accessibilityState?.checked).toBe(true);
+    expect(
+      getByTestId("password-requirement-missing_uppercase").props
+        .accessibilityState?.checked,
+    ).toBe(true);
+    expect(
+      getByTestId("password-requirement-missing_digit").props.accessibilityState
+        ?.checked,
+    ).toBe(true);
+  });
+
+  it("shows password policy error on signup when password is too weak", async () => {
     const { getByText, getByPlaceholderText } = await renderWithProviders(
       <LoginScreen />,
     );
@@ -401,15 +436,35 @@ describe("[Integration] LoginScreen", () => {
     await changeText(getByPlaceholderText("Password"), "pw");
     await press(getByText("Create account"));
 
+    expect(getByText("Password must be at least 12 characters.")).toBeTruthy();
+    expect(postApiV1AuthSignupMock).not.toHaveBeenCalled();
+  });
+
+  it("signs up then logs in on successful signup", async () => {
+    const { getByText, getByPlaceholderText } = await renderWithProviders(
+      <LoginScreen />,
+    );
+
+    await press(getByText("Need an account? Sign up"));
+    await changeText(getByPlaceholderText("Email"), "new@example.com");
+    await changeText(getByPlaceholderText("Password"), SIGNUP_TEST_PASSWORD);
+    await press(getByText("Create account"));
+
     await waitFor(() => {
       expect(postApiV1AuthSignupMock).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: { email: "new@example.com", password: "pw" },
+          body: {
+            email: "new@example.com",
+            password: SIGNUP_TEST_PASSWORD,
+          },
         }),
       );
       expect(postApiV1AuthLoginMock).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: { email: "new@example.com", password: "pw" },
+          body: {
+            email: "new@example.com",
+            password: SIGNUP_TEST_PASSWORD,
+          },
         }),
       );
       expect(getBearerToken()).toBe("test-token");

@@ -37,6 +37,13 @@ export const KNOWN_DYNAMIC_TRANSLATION_KEYS: QualifiedTranslationKey[] = [
   `${I18nNamespace.Common}:purple`,
   `${I18nNamespace.Settings}:languageEnglish`,
   `${I18nNamespace.Settings}:languageSpanish`,
+  `${I18nNamespace.Auth}:passwordPolicy.too_short`,
+  `${I18nNamespace.Auth}:passwordPolicy.missing_uppercase`,
+  `${I18nNamespace.Auth}:passwordPolicy.missing_lowercase`,
+  `${I18nNamespace.Auth}:passwordPolicy.missing_digit`,
+  `${I18nNamespace.Auth}:passwordRequirement.uppercase`,
+  `${I18nNamespace.Auth}:passwordRequirement.lowercase`,
+  `${I18nNamespace.Auth}:passwordRequirement.digit`,
 ];
 
 const SKIP_FILE_PATTERNS = [

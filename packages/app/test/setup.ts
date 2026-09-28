@@ -115,6 +115,8 @@ mock.module("lucide-react-native", () => ({
   ListFilterIcon: () => React.createElement("Text", null, "sort"),
   ArrowDownAZIcon: () => React.createElement("Text", null, "a-z"),
   ClockIcon: () => React.createElement("Text", null, "clock"),
+  Check: () => React.createElement("Text", null, "check"),
+  CircleDot: () => React.createElement("Text", null, "circle"),
 }));
 
 mock.module("react-native-svg", () => {
