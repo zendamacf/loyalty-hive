@@ -5,7 +5,7 @@ import { apiKeyHeaders, createApiRouterApp } from "../../test/create-app";
 import { resetRateLimitStoreForTests } from "../common/rate-limit-store";
 
 const TEST_EMAIL = "auth.test@example.com";
-const TEST_PASSWORD = "correct-horse-battery-staple";
+const VALID_SIGNUP_PASSWORD = "ValidPass1234";
 
 describe("[Integration] auth route rate limits", () => {
   const envBackup = {
@@ -129,7 +129,7 @@ describe("[Integration] auth route rate limits", () => {
         headers,
         body: JSON.stringify({
           email: `rate.limit.signup.${randomUUID()}@example.com`,
-          password: TEST_PASSWORD,
+          password: VALID_SIGNUP_PASSWORD,
         }),
       });
       expect(response.status).toBe(201);
@@ -140,7 +140,7 @@ describe("[Integration] auth route rate limits", () => {
       headers,
       body: JSON.stringify({
         email: `rate.limit.signup.${randomUUID()}@example.com`,
-        password: TEST_PASSWORD,
+        password: VALID_SIGNUP_PASSWORD,
       }),
     });
 

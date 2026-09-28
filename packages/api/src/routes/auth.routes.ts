@@ -11,6 +11,10 @@ import {
   jsonResponse,
   validationErrorResponse,
 } from "../common/openapi-responses.js";
+import {
+  loginPasswordSchema,
+  signupPasswordSchema,
+} from "../common/password-policy.js";
 import { db } from "../db/client.js";
 import { lower, users } from "../db/schema.js";
 import { requireApiKey } from "../middleware/api-key.middleware.js";
@@ -24,9 +28,14 @@ import {
   authSignupIpRateLimit,
 } from "../middleware/rate-limit.middleware.js";
 
-const credentialsBodySchema = z.object({
+const loginBodySchema = z.object({
   email: z.string().trim().toLowerCase().pipe(z.email()),
-  password: z.string().min(1),
+  password: loginPasswordSchema,
+});
+
+const signupBodySchema = z.object({
+  email: z.string().trim().toLowerCase().pipe(z.email()),
+  password: signupPasswordSchema,
 });
 
 const loginResponseSchema = z.object({
@@ -64,7 +73,7 @@ const app = new Hono<AuthEnv>()
       },
     }),
     validator("header", apiKeyHeaderSchema),
-    validator("json", credentialsBodySchema),
+    validator("json", loginBodySchema),
     authLoginEmailRateLimit,
     async (c) => {
       const { email, password } = c.req.valid("json");
@@ -105,7 +114,7 @@ const app = new Hono<AuthEnv>()
       },
     }),
     validator("header", apiKeyHeaderSchema),
-    validator("json", credentialsBodySchema),
+    validator("json", signupBodySchema),
     async (c) => {
       const { email, password } = c.req.valid("json");
       const passwordHash = await bcryptHash(password, BCRYPT_COST);

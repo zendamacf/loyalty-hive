@@ -18,6 +18,8 @@ import { users } from "../db/schema";
 const USER_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const TEST_EMAIL = "auth.test@example.com";
 const TEST_PASSWORD = "correct-horse-battery-staple";
+/** Meets signup password policy (existing test user password is grandfathered on login). */
+const VALID_SIGNUP_PASSWORD = "ValidPass1234";
 
 let app: ReturnType<typeof createApiRouterApp>;
 
@@ -179,7 +181,7 @@ describe("auth routes", () => {
 
   it("creates a user and stores a bcrypt password hash", async () => {
     const email = `new.user.${randomUUID()}@example.com`;
-    const password = "signup-password-123";
+    const password = VALID_SIGNUP_PASSWORD;
 
     const response = await app.request("/api/v1/auth/signup", {
       method: "POST",
@@ -205,7 +207,7 @@ describe("auth routes", () => {
       headers: apiKeyHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({
         email: TEST_EMAIL,
-        password: "some-password",
+        password: VALID_SIGNUP_PASSWORD,
       }),
     });
 
@@ -221,7 +223,7 @@ describe("auth routes", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email: `signup.${randomUUID()}@example.com`,
-        password: "signup-password",
+        password: VALID_SIGNUP_PASSWORD,
       }),
     });
 
@@ -240,7 +242,7 @@ describe("auth routes", () => {
       },
       body: JSON.stringify({
         email: `signup.${randomUUID()}@example.com`,
-        password: "signup-password",
+        password: VALID_SIGNUP_PASSWORD,
       }),
     });
 
@@ -256,7 +258,7 @@ describe("auth routes", () => {
       headers: apiKeyHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({
         email: "not-an-email",
-        password: "signup-password",
+        password: VALID_SIGNUP_PASSWORD,
       }),
     });
 
@@ -274,6 +276,42 @@ describe("auth routes", () => {
     });
 
     expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when signup password is too weak", async () => {
+    const response = await app.request("/api/v1/auth/signup", {
+      method: "POST",
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({
+        email: `signup.${randomUUID()}@example.com`,
+        password: "short",
+      }),
+    });
+
+    expect(response.status).toBe(400);
+    const body = (await response.json()) as {
+      error: { message: string; path: string[] }[];
+    };
+    expect(
+      body.error.some(
+        (issue) =>
+          issue.path.includes("password") &&
+          /at least 12 characters/i.test(issue.message),
+      ),
+    ).toBe(true);
+  });
+
+  it("allows login for an existing user with a grandfathered weak password", async () => {
+    const response = await app.request("/api/v1/auth/login", {
+      method: "POST",
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+      }),
+    });
+
+    expect(response.status).toBe(200);
   });
 
   it("returns 400 for malformed JSON on signup", async () => {
@@ -337,7 +375,7 @@ describe("auth routes", () => {
 
   it("allows login after signup", async () => {
     const email = `login.after.signup.${randomUUID()}@example.com`;
-    const password = "after-signup-secret";
+    const password = VALID_SIGNUP_PASSWORD;
 
     const signupRes = await app.request("/api/v1/auth/signup", {
       method: "POST",
