@@ -4,14 +4,16 @@ import {
   createApiRouterApp,
   signTestToken,
 } from "../test/create-app";
+import { ensureEmailVerifiedForTestUsers } from "../test/upsert-test-users";
 
 const USER_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 
 let app: ReturnType<typeof createApiRouterApp>;
 
 describe("api router", () => {
-  beforeAll(() => {
+  beforeAll(async () => {
     app = createApiRouterApp();
+    await ensureEmailVerifiedForTestUsers([USER_ID]);
   });
 
   it("returns JSON error for HTTPException from protected routes", async () => {

@@ -10,6 +10,7 @@ import {
   createApiRouterApp,
   signTestToken,
 } from "../../test/create-app";
+import { upsertVerifiedTestUsers } from "../../test/upsert-test-users";
 import { config } from "../common/config";
 import { BCRYPT_COST } from "../common/constants";
 import { assignVerificationTokenToUser } from "../common/email-verification";
@@ -30,14 +31,11 @@ beforeAll(async () => {
 
   const passwordHash = await bcryptHash(TEST_PASSWORD, BCRYPT_COST);
 
-  await db
-    .insert(users)
-    .values({
-      id: USER_ID,
-      email: TEST_EMAIL,
-      passwordHash,
-    })
-    .onConflictDoNothing();
+  await upsertVerifiedTestUsers({
+    id: USER_ID,
+    email: TEST_EMAIL,
+    passwordHash,
+  });
 });
 
 describe("auth routes", () => {

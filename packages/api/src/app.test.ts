@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { signTestToken } from "../test/create-app";
-import { users } from "./db/schema";
+import { upsertVerifiedTestUsers } from "../test/upsert-test-users";
 
 const packageVersion = JSON.parse(
   readFileSync(resolve(import.meta.dir, "../package.json"), "utf8"),
@@ -20,14 +20,11 @@ beforeAll(async () => {
   ({ db } = await import("./db/client"));
   ({ default: app } = await import("./app"));
 
-  await db
-    .insert(users)
-    .values({
-      id: SMOKE_USER_ID,
-      email: "app.smoke@example.com",
-      passwordHash: "hashed-password",
-    })
-    .onConflictDoNothing();
+  await upsertVerifiedTestUsers({
+    id: SMOKE_USER_ID,
+    email: "app.smoke@example.com",
+    passwordHash: "hashed-password",
+  });
 });
 
 async function fetchOpenApiDoc(path: string) {
