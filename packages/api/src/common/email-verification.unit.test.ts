@@ -73,5 +73,53 @@ describe("[Unit] email verification", () => {
         emailVerificationExpiresAt: new Date(Date.now() - 60_000),
       }),
     ).toBe(true);
+
+    expect(
+      userNeedsVerificationEmail({
+        emailVerifiedAt: null,
+        emailVerificationTokenHash: "abc",
+        emailVerificationExpiresAt: new Date(Date.now() + 60_000),
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects an expired verification token", async () => {
+    const email = `expired.${randomUUID()}@example.com`;
+    const passwordHash = await bcryptHash("ValidPass1234", BCRYPT_COST);
+
+    const [created] = await db
+      .insert(users)
+      .values({ email, passwordHash })
+      .returning({ id: users.id });
+
+    const token = await assignVerificationTokenToUser(created.id);
+
+    await db
+      .update(users)
+      .set({ emailVerificationExpiresAt: new Date(Date.now() - 60_000) })
+      .where(eq(users.id, created.id));
+
+    const result = await verifyEmailWithToken(token);
+    expect(result).toEqual({ ok: false });
+  });
+
+  it("accepts verify when the user is already verified", async () => {
+    const email = `already.${randomUUID()}@example.com`;
+    const passwordHash = await bcryptHash("ValidPass1234", BCRYPT_COST);
+
+    const [created] = await db
+      .insert(users)
+      .values({ email, passwordHash })
+      .returning({ id: users.id });
+
+    const token = await assignVerificationTokenToUser(created.id);
+
+    await db
+      .update(users)
+      .set({ emailVerifiedAt: new Date() })
+      .where(eq(users.id, created.id));
+
+    const result = await verifyEmailWithToken(token);
+    expect(result).toEqual({ ok: true, userId: created.id });
   });
 });
