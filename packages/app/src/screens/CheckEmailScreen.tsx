@@ -1,5 +1,5 @@
-import { router } from "expo-router";
-import { useState } from "react";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Linking, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -19,7 +19,8 @@ import { useTheme } from "../theme/useTheme";
 export const CheckEmailScreen = () => {
   const { t } = useTranslation(I18nNamespace.Auth);
   const { theme } = useTheme();
-  const { user, refreshUser } = useAuth();
+  const { email: emailParam } = useLocalSearchParams<{ email?: string }>();
+  const { user, refreshUser, isAuthenticated } = useAuth();
   useTrackScreenView(Routes.CHECK_EMAIL, { title: "Check email" });
 
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +28,19 @@ export const CheckEmailScreen = () => {
   const [isResending, setIsResending] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const email = user?.email ?? "";
+  const routeEmail =
+    typeof emailParam === "string"
+      ? emailParam
+      : Array.isArray(emailParam)
+        ? emailParam[0]
+        : undefined;
+  const email = routeEmail ?? user?.email ?? "";
+
+  useEffect(() => {
+    if (isAuthenticated && !email) {
+      void refreshUser();
+    }
+  }, [isAuthenticated, email, refreshUser]);
 
   const handleResend = async () => {
     if (!email) return;

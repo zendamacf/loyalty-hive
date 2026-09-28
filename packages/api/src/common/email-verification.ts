@@ -4,6 +4,25 @@ import { eq } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { users } from "../db/schema.js";
 import { EMAIL_VERIFICATION_TTL_HOURS } from "./constants.js";
+import { sendVerificationEmail } from "./mail/verification-email.js";
+
+export type VerificationEmailUserState = {
+  emailVerifiedAt: Date | null;
+  emailVerificationTokenHash: string | null;
+  emailVerificationExpiresAt: Date | null;
+};
+
+export function userNeedsVerificationEmail(
+  user: VerificationEmailUserState,
+): boolean {
+  if (user.emailVerifiedAt) {
+    return false;
+  }
+  if (!user.emailVerificationTokenHash || !user.emailVerificationExpiresAt) {
+    return true;
+  }
+  return user.emailVerificationExpiresAt.getTime() < Date.now();
+}
 
 export function generateVerificationToken(): string {
   return randomBytes(32).toString("base64url");
@@ -17,10 +36,10 @@ function verificationExpiresAt(): Date {
   return new Date(Date.now() + EMAIL_VERIFICATION_TTL_HOURS * 60 * 60 * 1000);
 }
 
-export async function assignVerificationTokenToUser(
+async function persistVerificationTokenForUser(
   userId: string,
-): Promise<string> {
-  const token = generateVerificationToken();
+  token: string,
+): Promise<void> {
   const tokenHash = hashVerificationToken(token);
   const expiresAt = verificationExpiresAt();
 
@@ -31,7 +50,23 @@ export async function assignVerificationTokenToUser(
       emailVerificationExpiresAt: expiresAt,
     })
     .where(eq(users.id, userId));
+}
 
+/** Sends the verification email, then stores the token (only after a successful send). */
+export async function issueAndSendVerificationEmail(
+  userId: string,
+  email: string,
+): Promise<void> {
+  const token = generateVerificationToken();
+  await sendVerificationEmail(email, token);
+  await persistVerificationTokenForUser(userId, token);
+}
+
+export async function assignVerificationTokenToUser(
+  userId: string,
+): Promise<string> {
+  const token = generateVerificationToken();
+  await persistVerificationTokenForUser(userId, token);
   return token;
 }
 

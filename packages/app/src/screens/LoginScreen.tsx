@@ -62,8 +62,18 @@ export const LoginScreen = () => {
     setError(null);
   };
 
-  const completeWithToken = async (token: string) => {
-    await signIn(token);
+  const completeWithToken = async (
+    token: string,
+    verificationEmail?: string,
+  ) => {
+    const user = await signIn(token);
+    if (user && !user.emailVerified) {
+      router.replace({
+        pathname: Routes.CHECK_EMAIL,
+        params: { email: user.email || verificationEmail || "" },
+      });
+      return;
+    }
     router.replace(Routes.LOGIN);
   };
 
@@ -87,7 +97,11 @@ export const LoginScreen = () => {
     });
   };
 
-  const submitLogin = async (trimmedEmail: string, pwd: string) => {
+  const submitLogin = async (
+    trimmedEmail: string,
+    pwd: string,
+    options?: { verificationEmail?: string },
+  ) => {
     const {
       data,
       error: apiError,
@@ -109,7 +123,7 @@ export const LoginScreen = () => {
 
     if (data?.token) {
       void trackAppEvent(AnalyticsEvents.AUTH_LOGIN);
-      await completeWithToken(data.token);
+      await completeWithToken(data.token, options?.verificationEmail);
     } else {
       trackLoginFailed({ reason: "unexpected_response" });
       setError(t("unexpectedResponse"));
@@ -137,7 +151,7 @@ export const LoginScreen = () => {
     }
 
     void trackAppEvent(AnalyticsEvents.AUTH_SIGNUP);
-    await submitLogin(trimmedEmail, pwd);
+    await submitLogin(trimmedEmail, pwd, { verificationEmail: trimmedEmail });
   };
 
   const submit = async () => {

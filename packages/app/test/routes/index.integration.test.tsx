@@ -73,7 +73,10 @@ describe("[Integration] app index", () => {
     await renderWithProviders(<Index />);
 
     await waitFor(() => {
-      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CHECK_EMAIL);
+      expect(expoRouterMocks.replace).toHaveBeenCalledWith({
+        pathname: Routes.CHECK_EMAIL,
+        params: { email: "new@example.com" },
+      });
     });
   });
 });
