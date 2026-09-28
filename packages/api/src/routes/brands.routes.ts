@@ -6,7 +6,10 @@ import { errorResponse, jsonResponse } from "../common/openapi-responses.js";
 import { logoUrl } from "../common/storage.js";
 import { db } from "../db/client.js";
 import { brands } from "../db/schema.js";
-import { requireUserAuth } from "../middleware/auth.middleware.js";
+import {
+  requireEmailVerified,
+  requireUserAuth,
+} from "../middleware/auth.middleware.js";
 
 export const brandSchema = z.object({
   id: z.uuid(),
@@ -23,6 +26,7 @@ interface ContextVariables {
 
 const app = new Hono<{ Variables: ContextVariables }>()
   .use(requireUserAuth)
+  .use(requireEmailVerified)
   .get(
     "/",
     describeRoute({

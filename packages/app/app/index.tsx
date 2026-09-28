@@ -1,17 +1,37 @@
 import { Redirect } from "expo-router";
+import { useEffect } from "react";
 
 import { Routes } from "@/constants/routes.constants";
 import { useAuth } from "@/lib/auth";
 import { LoginScreen } from "@/screens/LoginScreen";
 
 export default function Index() {
-  const { isReady, isAuthenticated } = useAuth();
+  const { isReady, isAuthenticated, user, refreshUser } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated && !user) {
+      void refreshUser();
+    }
+  }, [isAuthenticated, user, refreshUser]);
 
   if (!isReady) {
     return null;
   }
 
   if (isAuthenticated) {
+    if (!user) {
+      return null;
+    }
+    if (!user.emailVerified) {
+      return (
+        <Redirect
+          href={{
+            pathname: Routes.CHECK_EMAIL,
+            params: { email: user.email },
+          }}
+        />
+      );
+    }
     return <Redirect href={Routes.CARDS} />;
   }
 

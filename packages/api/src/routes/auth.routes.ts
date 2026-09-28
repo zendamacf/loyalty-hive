@@ -4,7 +4,16 @@ import { Hono } from "hono";
 import { describeRoute, validator } from "hono-openapi";
 import z from "zod";
 import { API_KEY_HEADER, BCRYPT_COST } from "../common/constants.js";
-import { Unauthorized } from "../common/error.js";
+import {
+  issueAndSendVerificationEmail,
+  userNeedsVerificationEmail,
+  verifyEmailWithToken,
+} from "../common/email-verification.js";
+import {
+  BadRequest,
+  INVALID_VERIFICATION_TOKEN_MESSAGE,
+  Unauthorized,
+} from "../common/error.js";
 import { signAccessToken } from "../common/jwt-access-token.js";
 import {
   errorResponse,
@@ -25,6 +34,8 @@ import {
 import {
   authLoginEmailRateLimit,
   authLoginIpRateLimit,
+  authResendVerificationEmailRateLimit,
+  authResendVerificationIpRateLimit,
   authSignupIpRateLimit,
 } from "../middleware/rate-limit.middleware.js";
 
@@ -38,6 +49,14 @@ const signupBodySchema = z.object({
   password: signupPasswordSchema,
 });
 
+const verifyEmailBodySchema = z.object({
+  token: z.string().min(1),
+});
+
+const resendVerificationBodySchema = z.object({
+  email: z.string().trim().toLowerCase().pipe(z.email()),
+});
+
 const loginResponseSchema = z.object({
   token: z.string(),
 });
@@ -49,7 +68,20 @@ const signupResponseSchema = z.object({
 
 const meResponseSchema = z.object({
   id: z.uuid(),
+  email: z.string(),
+  emailVerified: z.boolean(),
 });
+
+const verifyEmailResponseSchema = z.object({
+  verified: z.literal(true),
+});
+
+const resendVerificationResponseSchema = z.object({
+  message: z.string(),
+});
+
+const RESEND_VERIFICATION_MESSAGE =
+  "If your account needs verification, we sent an email.";
 
 const apiKeyHeaderSchema = z.object({
   [API_KEY_HEADER]: z.string().min(1),
@@ -82,6 +114,9 @@ const app = new Hono<AuthEnv>()
         .select({
           id: users.id,
           passwordHash: users.passwordHash,
+          emailVerifiedAt: users.emailVerifiedAt,
+          emailVerificationTokenHash: users.emailVerificationTokenHash,
+          emailVerificationExpiresAt: users.emailVerificationExpiresAt,
         })
         .from(users)
         .where(eq(lower(users.email), email));
@@ -91,6 +126,17 @@ const app = new Hono<AuthEnv>()
         (await bcryptCompare(password, user.passwordHash).catch(() => false));
 
       if (!valid) throw Unauthorized("Invalid email or password");
+
+      if (userNeedsVerificationEmail(user)) {
+        try {
+          await issueAndSendVerificationEmail(user.id, email);
+        } catch (error) {
+          console.error(
+            "[auth] Failed to send verification email on login",
+            error,
+          );
+        }
+      }
 
       const token = await signAccessToken(user.id);
 
@@ -103,7 +149,7 @@ const app = new Hono<AuthEnv>()
     requireApiKey,
     describeRoute({
       description:
-        "Create a new user account. Rate limit (default): 5 signups/minute per IP (see `RATE_LIMIT_AUTH_*` env vars).",
+        "Create a new user account and send a verification email. Rate limit (default): 5 signups/minute per IP (see `RATE_LIMIT_AUTH_*` env vars).",
       security: [{ apiKeyAuth: [] }],
       responses: {
         201: jsonResponse("Account created", signupResponseSchema),
@@ -131,6 +177,15 @@ const app = new Hono<AuthEnv>()
             email: users.email,
           });
 
+        try {
+          await issueAndSendVerificationEmail(created.id, created.email);
+        } catch (error) {
+          console.error(
+            "[auth] Failed to send verification email on signup",
+            error,
+          );
+        }
+
         return c.json(created, 201);
       } catch (error) {
         if (pgErrorCode(error) === "23505") {
@@ -143,10 +198,82 @@ const app = new Hono<AuthEnv>()
       }
     },
   )
+  .post(
+    "/verify-email",
+    requireApiKey,
+    describeRoute({
+      description:
+        "Verify a user's email address using the token from the verification link.",
+      security: [{ apiKeyAuth: [] }],
+      responses: {
+        200: jsonResponse("Email verified", verifyEmailResponseSchema),
+        400: validationErrorResponse(
+          "Invalid or expired verification link or validation error",
+        ),
+        403: errorResponse("Invalid API key"),
+      },
+    }),
+    validator("header", apiKeyHeaderSchema),
+    validator("json", verifyEmailBodySchema),
+    async (c) => {
+      const { token } = c.req.valid("json");
+      const result = await verifyEmailWithToken(token);
+
+      if (!result.ok) {
+        throw BadRequest(INVALID_VERIFICATION_TOKEN_MESSAGE);
+      }
+
+      return c.json({ verified: true as const });
+    },
+  )
+  .post(
+    "/resend-verification",
+    authResendVerificationIpRateLimit,
+    requireApiKey,
+    describeRoute({
+      description:
+        "Resend the email verification message. Returns the same response whether or not the email exists or is already verified (rate-limited per IP and email).",
+      security: [{ apiKeyAuth: [] }],
+      responses: {
+        200: jsonResponse("Request accepted", resendVerificationResponseSchema),
+        403: errorResponse("Invalid API key"),
+        429: errorResponse("Too many requests"),
+        400: validationErrorResponse(),
+      },
+    }),
+    validator("header", apiKeyHeaderSchema),
+    validator("json", resendVerificationBodySchema),
+    authResendVerificationEmailRateLimit,
+    async (c) => {
+      const { email } = c.req.valid("json");
+
+      const [user] = await db
+        .select({
+          id: users.id,
+          email: users.email,
+          emailVerifiedAt: users.emailVerifiedAt,
+        })
+        .from(users)
+        .where(eq(lower(users.email), email));
+
+      if (user && !user.emailVerifiedAt) {
+        try {
+          await issueAndSendVerificationEmail(user.id, user.email);
+        } catch (error) {
+          console.error(
+            "[auth] Failed to send verification email on resend",
+            error,
+          );
+        }
+      }
+
+      return c.json({ message: RESEND_VERIFICATION_MESSAGE });
+    },
+  )
   .get(
     "/me",
     describeRoute({
-      description: "Get the authenticated user's id",
+      description: "Get the authenticated user's profile",
       security: [{ bearerAuth: [] }],
       responses: {
         200: jsonResponse("Successful response", meResponseSchema),
@@ -156,7 +283,28 @@ const app = new Hono<AuthEnv>()
     requireUserAuth,
     async (c) => {
       const userId = c.get("userId");
-      return c.json({ id: userId });
+      if (!userId) {
+        throw Unauthorized("You must be logged in to access this resource");
+      }
+
+      const [user] = await db
+        .select({
+          id: users.id,
+          email: users.email,
+          emailVerifiedAt: users.emailVerifiedAt,
+        })
+        .from(users)
+        .where(eq(users.id, userId));
+
+      if (!user) {
+        throw Unauthorized("You must be logged in to access this resource");
+      }
+
+      return c.json({
+        id: user.id,
+        email: user.email,
+        emailVerified: user.emailVerifiedAt !== null,
+      });
     },
   );
 

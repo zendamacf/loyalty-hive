@@ -147,4 +147,33 @@ describe("[Integration] auth route rate limits", () => {
     expect(limited.status).toBe(429);
     expect(await limited.json()).toEqual({ error: "Too many requests" });
   });
+
+  it("returns 429 when resend verification exceeds the per-email limit", async () => {
+    const app = createApiRouterApp();
+
+    const body = JSON.stringify({ email: "resend.limit@example.com" });
+    const headers = (ip: string) =>
+      apiKeyHeaders({
+        "Content-Type": "application/json",
+        "x-forwarded-for": ip,
+      });
+
+    for (let n = 0; n < 3; n++) {
+      const response = await app.request("/api/v1/auth/resend-verification", {
+        method: "POST",
+        headers: headers(`203.0.113.${70 + n}`),
+        body,
+      });
+      expect(response.status).toBe(200);
+    }
+
+    const limited = await app.request("/api/v1/auth/resend-verification", {
+      method: "POST",
+      headers: headers("203.0.113.73"),
+      body,
+    });
+
+    expect(limited.status).toBe(429);
+    expect(await limited.json()).toEqual({ error: "Too many requests" });
+  });
 });

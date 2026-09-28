@@ -3,8 +3,8 @@
 import { queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { deleteApiV1CardsById, getApiV1AuthMe, getApiV1Brands, getApiV1Cards, getApiV1CardsById, type Options, patchApiV1CardsById, postApiV1AuthLogin, postApiV1AuthSignup, postApiV1BrandRequests, postApiV1Cards, postApiV1CardsByIdView } from '../sdk.gen';
-import type { DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdError, DeleteApiV1CardsByIdResponse, GetApiV1AuthMeData, GetApiV1AuthMeError, GetApiV1AuthMeResponse, GetApiV1BrandsData, GetApiV1BrandsError, GetApiV1BrandsResponse, GetApiV1CardsByIdData, GetApiV1CardsByIdError, GetApiV1CardsByIdResponse, GetApiV1CardsData, GetApiV1CardsError, GetApiV1CardsResponse, PatchApiV1CardsByIdData, PatchApiV1CardsByIdError, PatchApiV1CardsByIdResponse, PostApiV1AuthLoginData, PostApiV1AuthLoginError, PostApiV1AuthLoginResponse, PostApiV1AuthSignupData, PostApiV1AuthSignupError, PostApiV1AuthSignupResponse, PostApiV1BrandRequestsData, PostApiV1BrandRequestsError, PostApiV1BrandRequestsResponse, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewError, PostApiV1CardsByIdViewResponse, PostApiV1CardsData, PostApiV1CardsError, PostApiV1CardsResponse } from '../types.gen';
+import { deleteApiV1CardsById, getApiV1AuthMe, getApiV1Brands, getApiV1Cards, getApiV1CardsById, type Options, patchApiV1CardsById, postApiV1AuthLogin, postApiV1AuthResendVerification, postApiV1AuthSignup, postApiV1AuthVerifyEmail, postApiV1BrandRequests, postApiV1Cards, postApiV1CardsByIdView } from '../sdk.gen';
+import type { DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdError, DeleteApiV1CardsByIdResponse, GetApiV1AuthMeData, GetApiV1AuthMeError, GetApiV1AuthMeResponse, GetApiV1BrandsData, GetApiV1BrandsError, GetApiV1BrandsResponse, GetApiV1CardsByIdData, GetApiV1CardsByIdError, GetApiV1CardsByIdResponse, GetApiV1CardsData, GetApiV1CardsError, GetApiV1CardsResponse, PatchApiV1CardsByIdData, PatchApiV1CardsByIdError, PatchApiV1CardsByIdResponse, PostApiV1AuthLoginData, PostApiV1AuthLoginError, PostApiV1AuthLoginResponse, PostApiV1AuthResendVerificationData, PostApiV1AuthResendVerificationError, PostApiV1AuthResendVerificationResponse, PostApiV1AuthSignupData, PostApiV1AuthSignupError, PostApiV1AuthSignupResponse, PostApiV1AuthVerifyEmailData, PostApiV1AuthVerifyEmailError, PostApiV1AuthVerifyEmailResponse, PostApiV1BrandRequestsData, PostApiV1BrandRequestsError, PostApiV1BrandRequestsResponse, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewError, PostApiV1CardsByIdViewResponse, PostApiV1CardsData, PostApiV1CardsError, PostApiV1CardsResponse } from '../types.gen';
 
 /**
  * Sign in with email and password; returns a JWT access token
@@ -30,6 +30,40 @@ export const postApiV1AuthSignupMutation = (options?: Partial<Options<PostApiV1A
     const mutationOptions: UseMutationOptions<PostApiV1AuthSignupResponse, PostApiV1AuthSignupError, Options<PostApiV1AuthSignupData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await postApiV1AuthSignup({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Verify a user's email address using the token from the verification link
+ */
+export const postApiV1AuthVerifyEmailMutation = (options?: Partial<Options<PostApiV1AuthVerifyEmailData>>): UseMutationOptions<PostApiV1AuthVerifyEmailResponse, PostApiV1AuthVerifyEmailError, Options<PostApiV1AuthVerifyEmailData>> => {
+    const mutationOptions: UseMutationOptions<PostApiV1AuthVerifyEmailResponse, PostApiV1AuthVerifyEmailError, Options<PostApiV1AuthVerifyEmailData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await postApiV1AuthVerifyEmail({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Resend the email verification message
+ */
+export const postApiV1AuthResendVerificationMutation = (options?: Partial<Options<PostApiV1AuthResendVerificationData>>): UseMutationOptions<PostApiV1AuthResendVerificationResponse, PostApiV1AuthResendVerificationError, Options<PostApiV1AuthResendVerificationData>> => {
+    const mutationOptions: UseMutationOptions<PostApiV1AuthResendVerificationResponse, PostApiV1AuthResendVerificationError, Options<PostApiV1AuthResendVerificationData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await postApiV1AuthResendVerification({
                 ...options,
                 ...fnOptions,
                 throwOnError: true
@@ -76,7 +110,7 @@ const createQueryKey = <TOptions extends Options>(id: string, options?: TOptions
 export const getApiV1AuthMeQueryKey = (options?: Options<GetApiV1AuthMeData>) => createQueryKey('getApiV1AuthMe', options);
 
 /**
- * Get the authenticated user's id
+ * Get the authenticated user's profile
  */
 export const getApiV1AuthMeOptions = (options?: Options<GetApiV1AuthMeData>) => queryOptions<GetApiV1AuthMeResponse, GetApiV1AuthMeError, GetApiV1AuthMeResponse, ReturnType<typeof getApiV1AuthMeQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {

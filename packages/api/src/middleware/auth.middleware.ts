@@ -1,7 +1,14 @@
+import { eq } from "drizzle-orm";
 import type { MiddlewareHandler } from "hono";
 import { verify } from "hono/jwt";
 import { config } from "../common/config";
-import { Unauthorized } from "../common/error";
+import {
+  EMAIL_NOT_VERIFIED_MESSAGE,
+  Forbidden,
+  Unauthorized,
+} from "../common/error";
+import { db } from "../db/client.js";
+import { users } from "../db/schema.js";
 
 export type AuthEnv = {
   Variables: {
@@ -25,5 +32,26 @@ export const requireUserAuth: MiddlewareHandler<AuthEnv> = async (c, next) => {
     throw Unauthorized("You must be logged in to access this resource");
 
   c.set("userId", userId);
+  return next();
+};
+
+export const requireEmailVerified: MiddlewareHandler<AuthEnv> = async (
+  c,
+  next,
+) => {
+  const userId = c.get("userId");
+  if (!userId) {
+    throw Unauthorized("You must be logged in to access this resource");
+  }
+
+  const [user] = await db
+    .select({ emailVerifiedAt: users.emailVerifiedAt })
+    .from(users)
+    .where(eq(users.id, userId));
+
+  if (!user?.emailVerifiedAt) {
+    throw Forbidden(EMAIL_NOT_VERIFIED_MESSAGE);
+  }
+
   return next();
 };

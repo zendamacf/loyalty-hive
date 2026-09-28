@@ -63,7 +63,11 @@ describe("[Unit] AuthProvider", () => {
     resetAnalyticsIdentityForTests();
     getApiV1AuthMeMock.mockImplementation(() =>
       Promise.resolve({
-        data: { id: "00000000-0000-4000-8000-000000000001" },
+        data: {
+          id: "00000000-0000-4000-8000-000000000001",
+          email: "test@example.com",
+          emailVerified: true,
+        },
         error: undefined,
       }),
     );
@@ -84,6 +88,8 @@ describe("[Unit] AuthProvider", () => {
       expect(result.current.isReady).toBe(true);
       expect(result.current.user).toEqual({
         id: "00000000-0000-4000-8000-000000000001",
+        email: "test@example.com",
+        emailVerified: true,
       });
     });
 
@@ -115,6 +121,8 @@ describe("[Unit] AuthProvider", () => {
     expect(result.current.isAuthenticated).toBe(true);
     expect(result.current.user).toEqual({
       id: "00000000-0000-4000-8000-000000000001",
+      email: "test@example.com",
+      emailVerified: true,
     });
     expect(getBearerToken()).toBe("fresh-jwt");
     expect(secureStoreSetMock).toHaveBeenCalledWith(

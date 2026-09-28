@@ -1,5 +1,7 @@
 export enum Routes {
   LOGIN = "/",
+  CHECK_EMAIL = "/check-email",
+  VERIFY_EMAIL = "/verify-email",
   CARDS = "/cards",
   CARD_CODE = "/card-code",
   SELECT_BRAND = "/select-brand",

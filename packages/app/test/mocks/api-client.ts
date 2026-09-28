@@ -7,7 +7,9 @@ import type {
   GetApiV1CardsResponse,
   PatchApiV1CardsByIdResponse,
   PostApiV1AuthLoginResponse,
+  PostApiV1AuthResendVerificationResponse,
   PostApiV1AuthSignupResponse,
+  PostApiV1AuthVerifyEmailResponse,
   PostApiV1BrandRequestsResponse,
   PostApiV1CardsByIdViewResponse,
   PostApiV1CardsResponse,
@@ -51,6 +53,30 @@ export const getApiV1AuthMeMock = mock(
       {
         data: {
           id: "00000000-0000-4000-8000-000000000001",
+          email: "test@example.com",
+          emailVerified: true,
+        },
+        error: undefined,
+      },
+      options,
+    ),
+);
+
+export const postApiV1AuthVerifyEmailMock = mock(
+  (
+    options?: SdkOptions,
+  ): Promise<ApiMockResult<PostApiV1AuthVerifyEmailResponse>> =>
+    resolveApiMock({ data: { verified: true }, error: undefined }, options),
+);
+
+export const postApiV1AuthResendVerificationMock = mock(
+  (
+    options?: SdkOptions,
+  ): Promise<ApiMockResult<PostApiV1AuthResendVerificationResponse>> =>
+    resolveApiMock(
+      {
+        data: {
+          message: "If your account needs verification, we sent an email.",
         },
         error: undefined,
       },
@@ -172,6 +198,8 @@ export const postApiV1CardsByIdViewMock = mock(
 const sdkMocks = {
   postApiV1AuthLogin: postApiV1AuthLoginMock,
   postApiV1AuthSignup: postApiV1AuthSignupMock,
+  postApiV1AuthVerifyEmail: postApiV1AuthVerifyEmailMock,
+  postApiV1AuthResendVerification: postApiV1AuthResendVerificationMock,
   getApiV1AuthMe: getApiV1AuthMeMock,
   getApiV1Brands: getApiV1BrandsMock,
   postApiV1BrandRequests: postApiV1BrandRequestsMock,

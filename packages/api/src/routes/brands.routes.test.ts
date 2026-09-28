@@ -1,8 +1,9 @@
 import { beforeAll, describe, expect, it } from "bun:test";
 import { createApiRouterApp, signTestToken } from "../../test/create-app";
+import { upsertVerifiedTestUsers } from "../../test/upsert-test-users";
 import { config } from "../common/config";
 import { db } from "../db/client";
-import { brands, users } from "../db/schema";
+import { brands } from "../db/schema";
 
 const USER_ID = "44444444-4444-4444-8444-444444444444";
 const BRAND_A_ID = "55555555-5555-4555-8555-555555555555";
@@ -15,14 +16,11 @@ beforeAll(async () => {
   app = createApiRouterApp();
   authToken = await signTestToken(USER_ID);
 
-  await db
-    .insert(users)
-    .values({
-      id: USER_ID,
-      email: "brands.tester@example.com",
-      passwordHash: "hashed-password",
-    })
-    .onConflictDoNothing();
+  await upsertVerifiedTestUsers({
+    id: USER_ID,
+    email: "brands.tester@example.com",
+    passwordHash: "hashed-password",
+  });
 
   await db
     .insert(brands)
