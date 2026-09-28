@@ -1,4 +1,4 @@
-import { inArray, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { db } from "../src/db/client";
 import { users } from "../src/db/schema";
 
@@ -29,14 +29,4 @@ export async function upsertVerifiedTestUsers(
         emailVerifiedAt: sql`COALESCE(${users.emailVerifiedAt}, excluded.email_verified_at)`,
       },
     });
-}
-
-/** Backfills verification for fixture users already present in a shared test DB. */
-export async function ensureEmailVerifiedForTestUsers(userIds: string[]) {
-  if (userIds.length === 0) return;
-
-  await db
-    .update(users)
-    .set({ emailVerifiedAt: new Date() })
-    .where(inArray(users.id, userIds));
 }
