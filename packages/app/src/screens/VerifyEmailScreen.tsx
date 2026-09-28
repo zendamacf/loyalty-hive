@@ -6,7 +6,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
-import { useTrackScreenView } from "@/lib/analytics";
+import {
+  AnalyticsEvents,
+  trackAppEvent,
+  useTrackScreenView,
+} from "@/lib/analytics";
 import { postApiV1AuthVerifyEmail } from "@/lib/api-client";
 import { authApiHeaders } from "@/lib/api-client/auth-api-headers";
 import { useAuth } from "@/lib/auth";
@@ -31,17 +35,30 @@ export const VerifyEmailScreen = () => {
   useEffect(() => {
     const run = async () => {
       if (!token || typeof token !== "string") {
+        void trackAppEvent(AnalyticsEvents.AUTH_EMAIL_VERIFY_FAILED, {
+          reason: "missing_token",
+        });
         setStatus("error");
         setError(t("verifyEmailMissingToken"));
         return;
       }
 
-      const { data, error: apiError } = await postApiV1AuthVerifyEmail({
+      const {
+        data,
+        error: apiError,
+        response,
+      } = await postApiV1AuthVerifyEmail({
         headers: authApiHeaders(),
         body: { token },
       });
 
       if (apiError || !data?.verified) {
+        void trackAppEvent(AnalyticsEvents.AUTH_EMAIL_VERIFY_FAILED, {
+          reason: apiError ? "api_error" : "invalid_response",
+          ...(response?.status !== undefined
+            ? { status_code: response.status }
+            : {}),
+        });
         setStatus("error");
         setError(getErrorMessage(apiError) ?? t("verifyEmailFailed"));
         return;
@@ -50,6 +67,7 @@ export const VerifyEmailScreen = () => {
       if (isAuthenticated) {
         await refreshUser();
       }
+      void trackAppEvent(AnalyticsEvents.AUTH_EMAIL_VERIFY);
       setStatus("success");
     };
 
