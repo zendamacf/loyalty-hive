@@ -51,6 +51,9 @@ export const users = pgTable(
     email: text("email").notNull(),
     passwordHash: text("password_hash").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
+    emailVerifiedAt: timestamp("email_verified_at"),
+    emailVerificationTokenHash: text("email_verification_token_hash"),
+    emailVerificationExpiresAt: timestamp("email_verification_expires_at"),
   },
   (table) => [uniqueIndex("users_email_unique_idx").on(lower(table.email))],
 );

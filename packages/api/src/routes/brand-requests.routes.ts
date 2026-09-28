@@ -5,7 +5,10 @@ import z from "zod";
 import { errorResponse, jsonResponse } from "../common/openapi-responses.js";
 import { db } from "../db/client.js";
 import { brandRequests, brands } from "../db/schema.js";
-import { requireUserAuth } from "../middleware/auth.middleware.js";
+import {
+  requireEmailVerified,
+  requireUserAuth,
+} from "../middleware/auth.middleware.js";
 
 export const brandRequestSchema = z.object({
   id: z.uuid(),
@@ -45,6 +48,7 @@ function toBrandRequestResponse(
 
 const app = new Hono<{ Variables: ContextVariables }>()
   .use(requireUserAuth)
+  .use(requireEmailVerified)
   .post(
     "/",
     describeRoute({
