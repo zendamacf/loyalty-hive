@@ -464,6 +464,56 @@ describe("auth routes", () => {
     });
   });
 
+  it("resend verification triggers for an unverified account", async () => {
+    const email = `resend.unverified.${randomUUID()}@example.com`;
+
+    const signupRes = await app.request("/api/v1/auth/signup", {
+      method: "POST",
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ email, password: VALID_SIGNUP_PASSWORD }),
+    });
+    expect(signupRes.status).toBe(201);
+
+    const response = await app.request("/api/v1/auth/resend-verification", {
+      method: "POST",
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ email }),
+    });
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      message: "If your account needs verification, we sent an email.",
+    });
+  });
+
+  it("login re-sends verification when the stored token is expired", async () => {
+    const email = `login.resend.${randomUUID()}@example.com`;
+    const password = VALID_SIGNUP_PASSWORD;
+
+    const signupRes = await app.request("/api/v1/auth/signup", {
+      method: "POST",
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ email, password }),
+    });
+    expect(signupRes.status).toBe(201);
+
+    await db
+      .update(users)
+      .set({ emailVerificationExpiresAt: new Date(Date.now() - 60_000) })
+      .where(eq(lower(users.email), email));
+
+    const loginRes = await app.request("/api/v1/auth/login", {
+      method: "POST",
+      headers: apiKeyHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ email, password }),
+    });
+
+    expect(loginRes.status).toBe(200);
+    expect(await loginRes.json()).toEqual({
+      token: expect.any(String),
+    });
+  });
+
   it("allows login after signup", async () => {
     const email = `login.after.signup.${randomUUID()}@example.com`;
     const password = VALID_SIGNUP_PASSWORD;
