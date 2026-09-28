@@ -157,7 +157,7 @@ describe("[Integration] LoginScreen", () => {
         AUTH_TOKEN_STORAGE_KEY,
         "test-token",
       );
-      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
+      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.LOGIN);
     });
   });
 
@@ -185,7 +185,7 @@ describe("[Integration] LoginScreen", () => {
         }),
       );
       expect(getBearerToken()).toBe("test-token");
-      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
+      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.LOGIN);
     });
   });
 
@@ -227,7 +227,7 @@ describe("[Integration] LoginScreen", () => {
         }),
       );
       expect(getBearerToken()).toBe("test-token");
-      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
+      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.LOGIN);
     });
   });
 
@@ -468,7 +468,7 @@ describe("[Integration] LoginScreen", () => {
         }),
       );
       expect(getBearerToken()).toBe("test-token");
-      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
+      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.LOGIN);
     });
   });
 });

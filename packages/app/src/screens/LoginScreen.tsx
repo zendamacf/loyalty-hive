@@ -64,7 +64,7 @@ export const LoginScreen = () => {
 
   const completeWithToken = async (token: string) => {
     await signIn(token);
-    router.replace(Routes.CARDS);
+    router.replace(Routes.LOGIN);
   };
 
   const resolveApiError = (apiError: unknown, status?: number) => {
