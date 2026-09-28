@@ -3,6 +3,20 @@ import { sendEmail } from "./send-email.js";
 
 const SEND_MAX_ATTEMPTS = 3;
 
+function isRetryableSendError(error: unknown): boolean {
+  if (typeof error === "object" && error !== null && "statusCode" in error) {
+    const statusCode = (error as { statusCode: unknown }).statusCode;
+    if (
+      typeof statusCode === "number" &&
+      statusCode >= 400 &&
+      statusCode < 500
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export function buildVerificationLink(token: string): string {
   const base = EMAIL_VERIFICATION_LINK_BASE;
   const separator = base.includes("?") ? "&" : "?";
@@ -58,6 +72,9 @@ export async function sendVerificationEmail(
       return;
     } catch (error) {
       lastError = error;
+      if (!isRetryableSendError(error)) {
+        throw error;
+      }
       if (attempt < SEND_MAX_ATTEMPTS - 1) {
         await new Promise((resolve) =>
           setTimeout(resolve, 250 * (attempt + 1)),

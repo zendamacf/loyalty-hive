@@ -6,7 +6,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
-import { useTrackScreenView } from "@/lib/analytics";
+import {
+  AnalyticsEvents,
+  trackAppEvent,
+  useTrackScreenView,
+} from "@/lib/analytics";
 import { postApiV1AuthResendVerification } from "@/lib/api-client";
 import { authApiHeaders } from "@/lib/api-client/auth-api-headers";
 import { useAuth } from "@/lib/auth";
@@ -48,14 +52,22 @@ export const CheckEmailScreen = () => {
     setInfo(null);
     setIsResending(true);
     try {
-      const { error: apiError } = await postApiV1AuthResendVerification({
-        headers: authApiHeaders(),
-        body: { email },
-      });
+      const { error: apiError, response } =
+        await postApiV1AuthResendVerification({
+          headers: authApiHeaders(),
+          body: { email },
+        });
       if (apiError) {
+        void trackAppEvent(AnalyticsEvents.AUTH_EMAIL_RESEND_FAILED, {
+          reason: "api_error",
+          ...(response?.status !== undefined
+            ? { status_code: response.status }
+            : {}),
+        });
         setError(getErrorMessage(apiError));
         return;
       }
+      void trackAppEvent(AnalyticsEvents.AUTH_EMAIL_RESEND);
       setInfo(t("checkEmailResendSuccess"));
     } finally {
       setIsResending(false);

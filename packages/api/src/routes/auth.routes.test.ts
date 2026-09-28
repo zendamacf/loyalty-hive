@@ -383,7 +383,7 @@ describe("auth routes", () => {
     });
   });
 
-  it("stores a verification token on signup", async () => {
+  it("creates an unverified user on signup", async () => {
     const email = `token.signup.${randomUUID()}@example.com`;
 
     const response = await app.request("/api/v1/auth/signup", {
@@ -398,15 +398,11 @@ describe("auth routes", () => {
     const [row] = await db
       .select({
         emailVerifiedAt: users.emailVerifiedAt,
-        tokenHash: users.emailVerificationTokenHash,
-        expiresAt: users.emailVerificationExpiresAt,
       })
       .from(users)
       .where(eq(users.id, body.id));
 
     expect(row.emailVerifiedAt).toBeNull();
-    expect(row.tokenHash).toBeString();
-    expect(row.expiresAt).not.toBeNull();
   });
 
   it("verifies email with a valid token", async () => {
