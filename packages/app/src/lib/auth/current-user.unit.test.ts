@@ -11,13 +11,19 @@ describe("[Unit] fetchCurrentUser", () => {
   it("returns the current user when /me succeeds", async () => {
     getApiV1AuthMeMock.mockImplementation(() =>
       Promise.resolve({
-        data: { id: "00000000-0000-4000-8000-000000000001" },
+        data: {
+          id: "00000000-0000-4000-8000-000000000001",
+          email: "test@example.com",
+          emailVerified: true,
+        },
         error: undefined,
       }),
     );
 
     await expect(fetchCurrentUser()).resolves.toEqual({
       id: "00000000-0000-4000-8000-000000000001",
+      email: "test@example.com",
+      emailVerified: true,
     });
   });
 

@@ -49,7 +49,11 @@ describe("[Unit] AnalyticsProvider", () => {
     getApiV1AuthMeMock.mockClear();
     getApiV1AuthMeMock.mockImplementation(() =>
       Promise.resolve({
-        data: { id: "00000000-0000-4000-8000-000000000001" },
+        data: {
+          id: "00000000-0000-4000-8000-000000000001",
+          email: "test@example.com",
+          emailVerified: true,
+        },
         error: undefined,
       }),
     );
