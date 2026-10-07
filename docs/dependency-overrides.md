@@ -16,12 +16,13 @@ See [Bun overrides](https://bun.com/docs/pm/overrides).
 
 **TBC** — added in [#93](https://github.com/zendamacf/loyalty-hive/pull/93) when switching to Bun’s hoisted linker; no separate write-up of the original failure.
 
-## `expo-constants` → `57.0.19`
+## `expo-constants` → `57.0.21`
 
 Pin one Expo SDK 57 version for `expo-constants` across the tree so transitive packages do not install a different patch (e.g. `expo` vs `expo-linking` / `expo-asset` ranges).
 
 - Introduced at `57.0.18` in [#93](https://github.com/zendamacf/loyalty-hive/pull/93).
 - Bumped to `57.0.19` in [#105](https://github.com/zendamacf/loyalty-hive/pull/105) to match `packages/app`’s direct dependency.
+- Bumped to `57.0.21` to satisfy `expo install --check` for Expo SDK 57.
 
 ## Expo Umami transitive native modules
 
