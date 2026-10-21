@@ -13,9 +13,10 @@ import {
 import { config } from "../common/config";
 import { BCRYPT_COST } from "../common/constants";
 import { db } from "../db/client";
-import { users } from "../db/schema";
+import { lower, users } from "../db/schema";
 
-const USER_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+/** Dedicated id — do not reuse other route suites' fixture user ids. */
+const AUTH_USER_ID = "a0000000-0000-4000-8000-000000000001";
 const TEST_EMAIL = "auth.test@example.com";
 const TEST_PASSWORD = "correct-horse-battery-staple";
 /** Meets signup password policy (existing test user password is grandfathered on login). */
@@ -28,14 +29,24 @@ beforeAll(async () => {
 
   const passwordHash = await bcryptHash(TEST_PASSWORD, BCRYPT_COST);
 
+  // Shared CI DB: other suites may have claimed the same uuid or left stray rows
+  // for this email from a partial run.
+  await db.delete(users).where(eq(lower(users.email), TEST_EMAIL));
+
   await db
     .insert(users)
     .values({
-      id: USER_ID,
+      id: AUTH_USER_ID,
       email: TEST_EMAIL,
       passwordHash,
     })
-    .onConflictDoNothing();
+    .onConflictDoUpdate({
+      target: users.id,
+      set: {
+        email: TEST_EMAIL,
+        passwordHash,
+      },
+    });
 });
 
 describe("auth routes", () => {
@@ -121,7 +132,7 @@ describe("auth routes", () => {
     expect(body.token).toBeString();
 
     const payload = await verify(body.token, config.jwt.accessSecret, "HS256");
-    expect(payload.sub).toBe(USER_ID);
+    expect(payload.sub).toBe(AUTH_USER_ID);
     expect(payload.iat).toBeNumber();
     expect(payload.exp).toBeNumber();
     expect(payload.exp).toBeGreaterThan(payload.iat as number);
@@ -140,7 +151,7 @@ describe("auth routes", () => {
     expect(response.status).toBe(200);
     const body = (await response.json()) as { token: string };
     const payload = await verify(body.token, config.jwt.accessSecret, "HS256");
-    expect(payload.sub).toBe(USER_ID);
+    expect(payload.sub).toBe(AUTH_USER_ID);
   });
 
   it("returns 400 for invalid email on login", async () => {
@@ -334,20 +345,20 @@ describe("auth routes", () => {
   });
 
   it("returns the authenticated user id for GET /me", async () => {
-    const token = await signTestToken(USER_ID);
+    const token = await signTestToken(AUTH_USER_ID);
 
     const response = await app.request("/api/v1/auth/me", {
       headers: authBearerHeaders(token),
     });
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ id: USER_ID });
+    expect(await response.json()).toEqual({ id: AUTH_USER_ID });
   });
 
   it("returns 401 for GET /me when bearer token is expired", async () => {
     const now = Math.floor(Date.now() / 1000);
     const token = await sign(
-      { sub: USER_ID, iat: now - 120, exp: now - 60 },
+      { sub: AUTH_USER_ID, iat: now - 120, exp: now - 60 },
       config.jwt.accessSecret,
       "HS256",
     );
@@ -363,14 +374,14 @@ describe("auth routes", () => {
   });
 
   it("does not require an API key for GET /me", async () => {
-    const token = await signTestToken(USER_ID);
+    const token = await signTestToken(AUTH_USER_ID);
 
     const response = await app.request("/api/v1/auth/me", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ id: USER_ID });
+    expect(await response.json()).toEqual({ id: AUTH_USER_ID });
   });
 
   it("allows login after signup", async () => {
