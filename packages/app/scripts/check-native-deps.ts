@@ -15,15 +15,22 @@ try {
   worklets = require("react-native-worklets/package.json");
 } catch {
   console.error(
-    "::error::Missing dependency react-native-worklets. Reanimated 4 requires Worklets 0.10.x or newer.",
+    "::error::Missing dependency react-native-worklets. Reanimated 4 requires a compatible Worklets version.",
   );
   process.exit(1);
 }
 
 const requiredRange = reanimated.peerDependencies["react-native-worklets"];
+const requiredMinor = Number.parseInt(
+  requiredRange.replace(/^[\^~>=<]*0\./, "").split(".")[0] ?? "",
+  10,
+);
 const [major, minor] = worklets.version.split(".").map(Number);
 const compatible =
-  major === 0 && minor >= 10 && minor <= 11 && worklets.version.includes(".");
+  major === 0 &&
+  !Number.isNaN(requiredMinor) &&
+  minor === requiredMinor &&
+  worklets.version.includes(".");
 
 if (!compatible) {
   console.error(
