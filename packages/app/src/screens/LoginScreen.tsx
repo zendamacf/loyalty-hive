@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { EyeIcon, EyeOffIcon } from "lucide-react-native";
-import { useEffect, useRef, useState } from "react";
+import { type ComponentRef, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Image,
@@ -43,7 +43,7 @@ export const LoginScreen = () => {
   const { theme } = useTheme();
   const { signIn } = useAuth();
   useTrackScreenView(Routes.LOGIN, { title: "Login" });
-  const passwordRef = useRef<TextInput>(null);
+  const passwordRef = useRef<ComponentRef<typeof TextInput>>(null);
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

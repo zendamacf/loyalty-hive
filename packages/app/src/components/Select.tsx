@@ -1,5 +1,6 @@
 import { ChevronDownIcon, type LucideIcon } from "lucide-react-native";
 import {
+  type ComponentRef,
   type ReactNode,
   useCallback,
   useEffect,
@@ -98,7 +99,7 @@ export const Select = <T extends string>({
   const [overlayShown, setOverlayShown] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState<MenuAnchor | null>(null);
   const [menuHeight, setMenuHeight] = useState(0);
-  const triggerRef = useRef<View>(null);
+  const triggerRef = useRef<ComponentRef<typeof View>>(null);
   const prevOpenRef = useRef(false);
   const chevronFlip = useRef(new Animated.Value(0)).current;
   const menuExpand = useRef(new Animated.Value(0)).current;
