@@ -1,11 +1,27 @@
 # @loyalty-hive/api
 
+## 1.3.0
+
+### Minor Changes
+
+- 6fda9fd: Add in-memory rate limiting on auth login and signup routes (per IP and per email on login), configurable via `RATE_LIMIT_AUTH_*` environment variables. Exceeded limits return HTTP 429 with a JSON error body.
+- 6efe42d: Access tokens now include expiration (`exp` / `iat`). Configure lifetime with `JWT_ACCESS_TTL` (default 7 days). There is no refresh token — sign in again when a token expires.
+- 1eddae8: Sign-up now requires passwords of at least 12 characters with uppercase, lowercase, and numeric characters. Login is unchanged for existing accounts.
+
+### Patch Changes
+
+- 734ca62, 0485165, c06e2b3: Updated hono (version-update:semver-minor).
+- 734ca62, c06e2b3, 0ff3f92: Updated dotenv (version-update:semver-minor).
+- 734ca62: Updated pg (version-update:semver-minor).
+- 734ca62, 669a968, 4cc6970, b5eb68b, 0ff3f92: Updated @biomejs/biome (version-update:semver-minor).
+- c06e2b3: Updated @types/node (version-update:semver-major).
+
 ## 1.2.1
 
 ### Patch Changes
 
-- 26c17f4: Updated @biomejs/biome (version-update:semver-patch).
-- 300f90e: Updated hono, @biomejs/biome, @types/pg, bun-types (version-update:semver-minor).
+- 26c17f4, 300f90e: Updated @biomejs/biome (version-update:semver-patch).
+- 300f90e: Updated hono, @types/pg, bun-types (version-update:semver-minor).
 
 ## 1.2.0
 
