@@ -1,5 +1,35 @@
 # @loyalty-hive/app
 
+## 1.3.0
+
+### Minor Changes
+
+- dfe3258: Upgrade to Expo SDK 58 (React Native 0.88). Rebuild the development client and EAS binaries after updating.
+
+### Patch Changes
+
+- 8020e7c: Set the Sentry release from the app version and include `app_version` on Umami analytics payloads so usage can be tracked by release.
+- 6efe42d: Added handling of expired sessions.
+- 1eddae8: Improved password requirements for new sign-ups.
+- 010bf66: Move Sentry initialization into a dedicated provider module (`@/lib/sentry`).
+- 734ca62, c06e2b3, 0ff3f92: Updated dotenv (version-update:semver-major).
+- 734ca62, 0485165, c06e2b3: Updated hono (version-update:semver-major).
+- 734ca62, 669a968, 4cc6970, b5eb68b, 0ff3f92: Updated @biomejs/biome (version-update:semver-major).
+- 734ca62: Updated @react-navigation/native (version-update:semver-minor).
+- 734ca62, 669a968, 4cc6970, c06e2b3, 0ff3f92, b5eb68b: Updated @sentry/react-native (version-update:semver-major).
+- 734ca62, c06e2b3: Updated @tanstack/react-query (version-update:semver-major).
+- 734ca62, c06e2b3: Updated lucide-react-native (version-update:semver-major).
+- 734ca62, 0ff3f92: Updated react-native-safe-area-context (version-update:semver-minor).
+- 4cc6970: Updated babel-preset-expo (version-update:semver-major).
+- 4cc6970: Updated expo-camera (version-update:semver-major).
+- 4cc6970: Updated expo-constants (version-update:semver-major).
+- 4cc6970: Updated expo-dev-client (version-update:semver-major).
+- 4cc6970: Updated expo-linking (version-update:semver-major).
+- 4cc6970: Updated expo-router (version-update:semver-major).
+- 4cc6970: Updated expo-splash-screen (version-update:semver-major).
+- c06e2b3: Updated react-native-qrcode-svg (version-update:semver-major).
+- c06e2b3: Updated react-native-dotenv (version-update:semver-major).
+
 ## 1.2.1
 
 ### Patch Changes
