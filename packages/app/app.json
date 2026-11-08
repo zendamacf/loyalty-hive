@@ -57,9 +57,7 @@
           "project": "loyalty-hive",
           "organization": "kalopsiadev",
           "experimental_android": {
-            "enableAndroidGradlePlugin": true,
-            "autoUploadProguardMapping": true,
-            "includeProguardMapping": true
+            "enableAndroidGradlePlugin": true
           }
         }
       ],

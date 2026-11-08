@@ -55,9 +55,9 @@ The `@sentry/react-native/expo` plugin in `app.json` uses organization `kalopsia
 Required EAS environment variables (set per environment: `production`, `preview`, `development`):
 
 - `EXPO_PUBLIC_SENTRY_DSN` — inlined into the JS bundle at build time; without it, production builds send no events.
-- `SENTRY_AUTH_TOKEN` — uploads JS source maps and native ProGuard mapping files during the build so stack traces are readable in Sentry.
+- `SENTRY_AUTH_TOKEN` — uploads JS source maps, native ProGuard mapping files, native symbols, and native sources during the build so stack traces are readable in Sentry.
 
-With R8 enabled, the `experimental_android` options of the plugin upload ProGuard mappings for native crashes. JS/Hermes source maps are not changed.
+The `experimental_android` option of the plugin turns on the Sentry Android Gradle plugin. With R8 enabled, it uploads ProGuard mappings for native crashes. It also uploads native symbols and native sources. JS/Hermes source maps are not changed.
 
 Route-level render errors (e.g. a screen throwing on mount) are captured via `Sentry.wrapExpoRouterErrorBoundary` in `app/_layout.tsx`.
 
