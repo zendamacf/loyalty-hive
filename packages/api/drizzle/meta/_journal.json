@@ -120,6 +120,13 @@
       "when": 1779600000000,
       "tag": "0016_brand_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794355200000,
+      "tag": "0017_brand_cleanup",
+      "breakpoints": true
     }
   ]
 }
