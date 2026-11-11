@@ -1,6 +1,7 @@
 {
   "errors": {
-    "generic": "Algo salió mal. Inténtalo de nuevo."
+    "generic": "Algo salió mal. Inténtalo de nuevo.",
+    "offline": "Estás sin conexión. Conéctate a internet para hacer cambios."
   },
   "clearSearch": "Borrar búsqueda",
   "close": "Cerrar",
@@ -8,5 +9,6 @@
   "dark": "Oscuro",
   "purple": "Púrpura",
   "system": "Sistema",
-  "appLogo": "Logotipo de la aplicación"
+  "appLogo": "Logotipo de la aplicación",
+  "offlineNotice": "Estás sin conexión. Mostrando tus tarjetas guardadas."
 }

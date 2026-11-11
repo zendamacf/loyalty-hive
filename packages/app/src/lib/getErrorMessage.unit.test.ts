@@ -13,6 +13,12 @@ describe("[Unit] getErrorMessage", () => {
     console.error = globalThis.console.error;
   });
 
+  it("returns the offline message for network failures", () => {
+    expect(getErrorMessage(new TypeError("Network request failed"))).toBe(
+      "You're offline. Connect to the internet to make changes.",
+    );
+  });
+
   it("returns error string from error object", () => {
     expect(getErrorMessage({ error: "Invalid credentials" })).toBe(
       "Invalid credentials",

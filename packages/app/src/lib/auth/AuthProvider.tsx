@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react-native";
 import { router } from "expo-router";
 import {
   createContext,
@@ -20,6 +21,7 @@ import {
   installUnauthorizedInterceptor,
   setUnauthorizedHandler,
 } from "@/lib/api-client/unauthorized";
+import { clearOfflineCache } from "@/lib/offline-cache";
 import { queryClient } from "@/lib/query-client";
 
 import { type CurrentUser, fetchCurrentUser } from "./current-user";
@@ -92,6 +94,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const signOut = useCallback(async () => {
+    try {
+      // Cached cards go first so a failure below can never leave them behind.
+      await clearOfflineCache();
+    } catch (err) {
+      Sentry.captureException(err);
+    }
     signOutAnalytics();
     await clearAnalyticsUserId();
     setUser(null);

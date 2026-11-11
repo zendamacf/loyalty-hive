@@ -10,6 +10,7 @@ import {
 } from "@/constants/routes.constants";
 import type { GetApiV1CardsResponse } from "@/lib/api-client/gen";
 import { CARD_SORT_STORAGE_KEY } from "@/lib/card-sort";
+import { saveCachedCards } from "@/lib/offline-cache";
 import { THEME_STORAGE_KEY } from "@/theme/theme.constants";
 import { lightTheme } from "@/theme/themes";
 import { defaultCardsResponse, testCards } from "../../test/fixtures/cards";
@@ -271,6 +272,23 @@ describe("[Integration] CardsScreen", () => {
       expect(getByText("Could not load cards")).toBeTruthy();
     });
     expect(queryByLabelText("ASOS")).toBeNull();
+  });
+
+  it("shows saved cards and an offline notice when the fetch fails", async () => {
+    await saveCachedCards("alphabetical", testCards);
+    getApiV1CardsMock.mockImplementation(() =>
+      Promise.reject(new TypeError("Network request failed")),
+    );
+
+    const { getByText, getByTestId, queryByText } = await renderWithProviders(
+      <CardsScreen />,
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("offline-notice")).toBeTruthy();
+    });
+    expect(getByText("Work card")).toBeTruthy();
+    expect(queryByText("Network request failed")).toBeNull();
   });
 
   it("shows empty state when user has no cards", async () => {

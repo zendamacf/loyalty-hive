@@ -14,7 +14,10 @@ describe("[Integration] LoyaltyBrandMark", () => {
     );
 
     const img = getByTestId("brand-logo");
-    expect(img.props.source).toEqual({ uri: "https://example.com/logo.png" });
+    expect(img.props.source).toEqual({
+      uri: "https://example.com/logo.png",
+      cache: "force-cache",
+    });
   });
 
   it("renders brand name when no logo is provided", async () => {

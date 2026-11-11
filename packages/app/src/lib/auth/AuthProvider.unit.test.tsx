@@ -11,7 +11,9 @@ import {
   setAnalyticsIdentityMode,
 } from "@/lib/analytics/analytics-state";
 import { getBearerToken, setBearerToken } from "@/lib/api-client/setup";
+import { loadCachedCards, saveCachedCards } from "@/lib/offline-cache";
 import { queryClient } from "@/lib/query-client";
+import { testCards } from "../../../test/fixtures/cards";
 import { getApiV1AuthMeMock } from "../../../test/mocks/api-client";
 import { getExpoRouterMocks } from "../../../test/mocks/expo-router";
 import {
@@ -146,6 +148,23 @@ describe("[Unit] AuthProvider", () => {
     expect(secureStoreDeleteMock).toHaveBeenCalledWith(
       ANALYTICS_USER_ID_STORAGE_KEY,
     );
+  });
+
+  it("signOut removes cached cards", async () => {
+    setSecureStoreItem(AUTH_TOKEN_STORAGE_KEY, "stored-jwt");
+    await saveCachedCards("alphabetical", testCards);
+    expect(await loadCachedCards("alphabetical")).toHaveLength(
+      testCards.length,
+    );
+
+    const { result } = await renderHook(() => useAuth(), { wrapper });
+    await waitFor(() => expect(result.current.isAuthenticated).toBe(true));
+
+    await act(async () => {
+      await result.current.signOut();
+    });
+
+    expect(await loadCachedCards("alphabetical")).toBeNull();
   });
 
   it("registers an unauthorized handler that signs out and returns to login", async () => {

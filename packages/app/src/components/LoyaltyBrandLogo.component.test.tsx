@@ -16,7 +16,10 @@ describe("[Component] LoyaltyBrandLogo", () => {
     );
 
     const img = getByTestId("brand-logo");
-    expect(img.props.source).toEqual({ uri: "https://example.com/logo.png" });
+    expect(img.props.source).toEqual({
+      uri: "https://example.com/logo.png",
+      cache: "force-cache",
+    });
   });
 
   it("renders placeholder if no logo is provided", async () => {
