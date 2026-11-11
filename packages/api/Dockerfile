@@ -1,16 +1,15 @@
 # syntax=docker/dockerfile:1
 
-FROM oven/bun:1 AS deps
+FROM oven/bun:1-alpine AS deps
 WORKDIR /app
 COPY package.json bun.lock ./
 COPY packages/api/package.json packages/api/
-RUN bun install --frozen-lockfile
+RUN bun install --frozen-lockfile --production --ignore-scripts
 
 FROM deps AS runtime
 WORKDIR /app/packages/api
 COPY packages/api ./
-COPY packages/api/docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY --chmod=755 packages/api/docker/entrypoint.sh /entrypoint.sh
 
 ENV NODE_ENV=production \
   PORT=3000
