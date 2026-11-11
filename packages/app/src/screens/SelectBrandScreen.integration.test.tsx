@@ -4,6 +4,7 @@ import { act, waitFor } from "@testing-library/react-native";
 
 import { Routes } from "@/constants/routes.constants";
 import type { GetApiV1BrandsResponse } from "@/lib/api-client/gen";
+import { saveCachedBrands } from "@/lib/offline-cache";
 import { defaultBrandsResponse } from "../../test/fixtures/brands";
 import {
   getApiV1BrandsMock,
@@ -55,6 +56,22 @@ describe("[Integration] SelectBrandScreen", () => {
 
     expect(getByLabelText("Uber Eats")).toBeTruthy();
     expect(queryByLabelText("ASOS")).toBeNull();
+  });
+
+  it("shows saved brands when the fetch fails", async () => {
+    await saveCachedBrands(defaultBrandsResponse.data ?? []);
+    getApiV1BrandsMock.mockImplementation(() =>
+      Promise.reject(new TypeError("Network request failed")),
+    );
+
+    const { getByLabelText, queryByText } = await renderWithProviders(
+      <SelectBrandScreen />,
+    );
+
+    await waitFor(() => {
+      expect(getByLabelText("ASOS")).toBeTruthy();
+    });
+    expect(queryByText("Network request failed")).toBeNull();
   });
 
   it("navigates back when close button is pressed", async () => {

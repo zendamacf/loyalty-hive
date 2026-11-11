@@ -18,7 +18,22 @@ function readStringField(
   return undefined;
 }
 
+function offlineErrorMessage(): string {
+  return i18n.t(`${I18nNamespace.Common}:errors.offline`);
+}
+
+function isNetworkError(err: unknown): boolean {
+  return (
+    err instanceof TypeError &&
+    /network request failed|failed to fetch|network error/i.test(err.message)
+  );
+}
+
 export function getErrorMessage(err: unknown): string {
+  if (isNetworkError(err)) {
+    return offlineErrorMessage();
+  }
+
   if (err instanceof Error && err.message) {
     return err.message;
   }

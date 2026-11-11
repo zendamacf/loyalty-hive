@@ -29,6 +29,11 @@ import {
   getApiV1BrandsOptions,
 } from "@/lib/api-client";
 import { getErrorMessage } from "@/lib/getErrorMessage";
+import {
+  loadCachedBrands,
+  saveCachedBrands,
+  useOfflineFallback,
+} from "@/lib/offline-cache";
 import { showRequestBrandSheet } from "@/sheets";
 import { SearchBar } from "../components/SearchBar";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
@@ -45,16 +50,17 @@ export const SelectBrandScreen = () => {
   const [query, setQuery] = useState("");
   const trimmedQuery = query.trim();
 
-  const {
-    data: brands = [],
-    error: queryError,
-    isError,
-    isPending,
-    refetch,
-  } = useQuery(getApiV1BrandsOptions());
+  const brandsQuery = useQuery(getApiV1BrandsOptions());
+  const { error: queryError, isError, isPending, refetch } = brandsQuery;
+  const { data: cachedOrFresh } = useOfflineFallback(brandsQuery, {
+    key: "brands",
+    load: loadCachedBrands,
+    save: saveCachedBrands,
+  });
+  const brands = cachedOrFresh ?? [];
 
-  const error = isError ? getErrorMessage(queryError) : null;
-  const loaded = !isPending;
+  const error = isError && !cachedOrFresh ? getErrorMessage(queryError) : null;
+  const loaded = cachedOrFresh !== undefined || !isPending;
 
   const { refreshing, onRefresh } = usePullToRefresh(async () => {
     await refetch();

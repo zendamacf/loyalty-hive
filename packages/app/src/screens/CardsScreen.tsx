@@ -46,8 +46,14 @@ import {
 } from "@/lib/card-sort";
 import { resolveCardHeadings } from "@/lib/cardHeadings";
 import { getErrorMessage } from "@/lib/getErrorMessage";
+import {
+  loadCachedCards,
+  saveCachedCards,
+  useOfflineFallback,
+} from "@/lib/offline-cache";
 import { AppTitle } from "../components/AppTitle";
 import { LoyaltyBrandLogo } from "../components/LoyaltyBrandLogo";
+import { OfflineNotice } from "../components/OfflineNotice";
 import { SearchBar } from "../components/SearchBar";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
 import { useThemedRefreshControl } from "../hooks/useThemedRefreshControl";
@@ -94,21 +100,30 @@ export const CardsScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { sort, setSort, hydrated: cardSortHydrated } = useCardSort();
 
-  const {
-    data: cards = [],
-    error: queryError,
-    isError,
-    isPending,
-    refetch,
-  } = useQuery({
+  const query = useQuery({
     ...getApiV1CardsOptions({
       query: { sort },
     }),
     enabled: cardSortHydrated,
+    // While offline, keep retrying so the list refreshes once back online.
+    refetchInterval: (q) => (q.state.status === "error" ? 15_000 : false),
+    refetchIntervalInBackground: false,
   });
+  const { error: queryError, isError, isPending, refetch } = query;
 
-  const error = isError ? getErrorMessage(queryError) : null;
-  const loaded = !isPending;
+  const { data: cachedOrFresh, isOffline } = useOfflineFallback(
+    query,
+    {
+      key: sort,
+      load: () => loadCachedCards(sort),
+      save: (value) => saveCachedCards(sort, value),
+    },
+    cardSortHydrated,
+  );
+  const cards = cachedOrFresh ?? [];
+
+  const error = isError && !cachedOrFresh ? getErrorMessage(queryError) : null;
+  const loaded = cachedOrFresh !== undefined || !isPending;
 
   const filteredCards = useMemo(
     () => filterCards(cards, searchQuery),
@@ -250,6 +265,8 @@ export const CardsScreen = () => {
           )}
         />
       </View>
+
+      {isOffline ? <OfflineNotice /> : null}
 
       <DataLoadStatus error={error} loaded={loaded} loadingLabel={t("loading")}>
         <FlatList
