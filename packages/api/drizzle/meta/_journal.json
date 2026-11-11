@@ -127,6 +127,13 @@
       "when": 1794355200000,
       "tag": "0017_brand_cleanup",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794441600000,
+      "tag": "0018_add_nz_brands",
+      "breakpoints": true
     }
   ]
 }
