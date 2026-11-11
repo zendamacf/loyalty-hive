@@ -1,6 +1,6 @@
-# Agent contributors
+# CLAUDE.md
 
-This file is for **automated coding agents** (Cursor Cloud Agents, Copilot, Claude Code, etc.). Human contributors should start with [`CONTRIBUTING.md`](CONTRIBUTING.md); agents should read **both**.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository. Human contributors should start with [`CONTRIBUTING.md`](CONTRIBUTING.md); read **both**.
 
 ## Primary reference
 
@@ -126,7 +126,7 @@ Fix failures in the package you touched before requesting review.
 
 Version bumps on `main` create `api-v*` / `app-v*` tags and trigger publish pipelines. Your changeset summary becomes the changelog entry — write for end users, not implementers.
 
-## Agent checklist
+## Checklist
 
 - [ ] Read `CONTRIBUTING.md` and package test READMEs
 - [ ] Minimal, convention-matching diff
