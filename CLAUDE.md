@@ -1,6 +1,6 @@
-# Agent contributors
+# CLAUDE.md
 
-This file is for **automated coding agents** (Cursor Cloud Agents, Copilot, Claude Code, etc.). Human contributors should start with [`CONTRIBUTING.md`](CONTRIBUTING.md); agents should read **both**.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository. Human contributors should start with [`CONTRIBUTING.md`](CONTRIBUTING.md); read **both**.
 
 ## Primary reference
 
@@ -22,8 +22,10 @@ The sections below highlight what agents most often miss.
 
 ## Commits and pull requests
 
-- Use **Conventional Commits** for every commit and PR title.
-- Scope commits when clear: `feat(api): …`, `fix(app): …`.
+- Use **Conventional Commits** for every commit and PR title: `type(scope): short imperative summary`.
+- Types: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `ci`. Scopes: `api`, `app`, `release`, `deps`.
+- Examples: `feat(api): add GET /auth/me`, `fix(app): align native animation deps with Expo SDK 57`, `chore: add changeset for dependency update`.
+- Keep the subject under about 72 characters. The PR title becomes the squash commit message, and the PR number is added at the end, for example `(#173)`.
 - One logical change per PR when practical.
 
 ## Changesets (required for releasable work)
@@ -126,7 +128,7 @@ Fix failures in the package you touched before requesting review.
 
 Version bumps on `main` create `api-v*` / `app-v*` tags and trigger publish pipelines. Your changeset summary becomes the changelog entry — write for end users, not implementers.
 
-## Agent checklist
+## Checklist
 
 - [ ] Read `CONTRIBUTING.md` and package test READMEs
 - [ ] Minimal, convention-matching diff

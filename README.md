@@ -51,7 +51,7 @@ Release tags are created automatically when package versions change on `main`, v
 
 ## Contributing
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) for development workflow, conventional commits, changesets, testing, and pull request expectations. Automated agents should also read [`AGENTS.md`](AGENTS.md).
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for development workflow, conventional commits, changesets, testing, and pull request expectations. Claude Code should also read [`CLAUDE.md`](CLAUDE.md).
 
 ## Android
 

@@ -291,4 +291,4 @@ Before requesting review, confirm:
 - [`packages/app/test/README.md`](packages/app/test/README.md) — App test patterns
 - [`packages/app/EAS.md`](packages/app/EAS.md) — Android builds
 
-For agent-specific guidance (Cursor and similar tools), see [`AGENTS.md`](AGENTS.md).
+For Claude Code guidance, see [`CLAUDE.md`](CLAUDE.md).
