@@ -53,6 +53,7 @@
     "react-native-actions-sheet": "^10.1.2",
     "react-native-barcode-svg": "^0.0.15",
     "react-native-gesture-handler": "~3.3.0",
+    "react-native-legal": "^1.9.0",
     "react-native-qrcode-svg": "^6.3.26",
     "react-native-reanimated": "4.7.1",
     "react-native-safe-area-context": "~5.10.1",

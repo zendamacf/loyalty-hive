@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "bun:test";
-
 import { getExpoRouterMocks } from "../../test/mocks/expo-router";
+import { launchLicenseListScreenMock } from "../../test/mocks/react-native-legal";
 import { press, renderWithProviders } from "../../test/render";
 
 const expoRouterMocks = getExpoRouterMocks();
@@ -30,5 +30,16 @@ describe("[Integration] AboutScreen", () => {
     await press(getByLabelText("Close"));
 
     expect(expoRouterMocks.back).toHaveBeenCalled();
+  });
+
+  it("opens the third-party software list", async () => {
+    launchLicenseListScreenMock.mockClear();
+    const { getByLabelText } = await renderWithProviders(<AboutScreen />);
+
+    await press(getByLabelText("Third-party software"));
+
+    expect(launchLicenseListScreenMock).toHaveBeenCalledWith(
+      "Third-party software",
+    );
   });
 });
