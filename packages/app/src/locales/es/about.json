@@ -1,0 +1,7 @@
+{
+  "title": "Acerca de",
+  "version": "Versión {{version}}",
+  "description": "Guarda tus tarjetas de fidelidad en un solo lugar.",
+  "disclaimerHeading": "Aviso legal",
+  "disclaimer": "{{appName}} es una aplicación independiente. No está afiliada, respaldada ni patrocinada por ninguna de las marcas que admite. Los nombres y logotipos de las marcas pertenecen a sus propietarios. Se usan solo para ayudarte a encontrar tus tarjetas."
+}

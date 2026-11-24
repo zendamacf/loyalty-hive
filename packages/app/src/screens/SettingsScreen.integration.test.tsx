@@ -27,6 +27,7 @@ describe("[Integration] SettingsScreen", () => {
     clearSecureStoreMock();
     setBearerToken(undefined);
     expoRouterMocks.back.mockClear();
+    expoRouterMocks.push.mockClear();
     expoRouterMocks.replace.mockClear();
     secureStoreDeleteMock.mockClear();
   });
@@ -63,6 +64,14 @@ describe("[Integration] SettingsScreen", () => {
     });
 
     await press(getByText("Dark"));
+  });
+
+  it("opens the About screen", async () => {
+    const { getByLabelText } = await renderWithProviders(<SettingsScreen />);
+
+    await press(getByLabelText("About"));
+
+    expect(expoRouterMocks.push).toHaveBeenCalledWith(Routes.ABOUT);
   });
 
   it("navigates back when close button is pressed", async () => {

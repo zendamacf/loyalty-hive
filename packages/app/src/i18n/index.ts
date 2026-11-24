@@ -2,12 +2,14 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
 import { I18N_NAMESPACES, I18nNamespace } from "@/i18n/i18n.constants";
+import enAbout from "@/locales/en/about.json";
 import enAuth from "@/locales/en/auth.json";
 import enBrands from "@/locales/en/brands.json";
 import enCards from "@/locales/en/cards.json";
 import enCommon from "@/locales/en/common.json";
 import enScan from "@/locales/en/scan.json";
 import enSettings from "@/locales/en/settings.json";
+import esAbout from "@/locales/es/about.json";
 import esAuth from "@/locales/es/auth.json";
 import esBrands from "@/locales/es/brands.json";
 import esCards from "@/locales/es/cards.json";
@@ -24,6 +26,7 @@ void i18n.use(initReactI18next).init({
       brands: enBrands,
       scan: enScan,
       settings: enSettings,
+      about: enAbout,
     },
     es: {
       common: esCommon,
@@ -32,6 +35,7 @@ void i18n.use(initReactI18next).init({
       brands: esBrands,
       scan: esScan,
       settings: esSettings,
+      about: esAbout,
     },
   },
   lng: "en",

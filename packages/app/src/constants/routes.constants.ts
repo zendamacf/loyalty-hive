@@ -5,6 +5,7 @@ export enum Routes {
   SELECT_BRAND = "/select-brand",
   SCAN = "/scan",
   SETTINGS = "/settings",
+  ABOUT = "/about",
 }
 
 /** Set when navigating to card code from the cards list (triggers view logging). */
