@@ -1,0 +1,7 @@
+{
+  "title": "About",
+  "version": "Version {{version}}",
+  "description": "Keep your loyalty cards in one place.",
+  "disclaimerHeading": "Disclaimer",
+  "disclaimer": "{{appName}} is an independent app. It is not affiliated with, endorsed by or sponsored by any of the brands it supports. Brand names and logos belong to their owners. They are used only to help you find your cards."
+}

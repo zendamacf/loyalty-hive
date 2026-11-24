@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { CloseButton } from "@/components/CloseButton";
@@ -19,10 +19,12 @@ import {
   useTrackScreenView,
 } from "@/lib/analytics";
 import { useAuth } from "@/lib/auth";
-import { spacing } from "@/theme/theme";
+import { spacing, typography } from "@/theme/theme";
+import { useTheme } from "@/theme/useTheme";
 
 export const SettingsScreen = () => {
   const { t } = useTranslation(I18nNamespace.Settings);
+  const { theme } = useTheme();
   const { signOut: clearSession } = useAuth();
   useTrackScreenView(Routes.SETTINGS, { title: "Settings Screen" });
 
@@ -52,6 +54,15 @@ export const SettingsScreen = () => {
           <FormGroup label={t("language")}>
             <LanguagePicker />
           </FormGroup>
+          <Pressable
+            accessibilityRole="link"
+            accessibilityLabel={t("about")}
+            onPress={() => router.push(Routes.ABOUT)}
+          >
+            <Text style={[typography.link, { color: theme.textPrimary }]}>
+              {t("about")}
+            </Text>
+          </Pressable>
         </Form>
       </ScreenShell.Body>
     </ScreenShell>
