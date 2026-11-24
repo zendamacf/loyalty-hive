@@ -18,6 +18,7 @@ import {
 import "./mocks/react-native-actions-sheet";
 import { appStateMock } from "./mocks/react-native-app-state";
 import "./mocks/react-native-gesture-reanimated";
+import "./mocks/react-native-legal";
 import "./mocks/sentry";
 
 const asyncStorage = new Map<string, string>();

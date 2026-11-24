@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { ReactNativeLegal } from "react-native-legal";
 
 import { AppTitle } from "@/components/AppTitle";
 import { CloseButton } from "@/components/CloseButton";
@@ -41,6 +42,19 @@ export const AboutScreen = () => {
             {t("disclaimer", { appName: APP_NAME })}
           </Text>
         </View>
+
+        <Pressable
+          accessibilityRole="link"
+          accessibilityLabel={t("licenses")}
+          style={styles.section}
+          onPress={() =>
+            ReactNativeLegal.launchLicenseListScreen(t("licenses"))
+          }
+        >
+          <Text style={[typography.link, { color: theme.textPrimary }]}>
+            {t("licenses")}
+          </Text>
+        </Pressable>
       </ScreenShell.Body>
     </ScreenShell>
   );
