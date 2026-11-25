@@ -6,6 +6,17 @@ import {
   parseJwtAccessTtlSeconds,
 } from "./jwt-access-ttl";
 
+export function parseTrustProxyHops(value: string | undefined): number {
+  if (value === undefined || value.trim() === "") return 0;
+  const hops = Number(value);
+  if (!Number.isInteger(hops) || hops < 0 || hops > 10) {
+    throw new Error(
+      `Invalid TRUST_PROXY_HOPS "${value}": use a whole number from 0 to 10`,
+    );
+  }
+  return hops;
+}
+
 const environment = process.env.NODE_ENV ?? "development";
 
 export const config: Config = {
@@ -20,6 +31,7 @@ export const config: Config = {
     hostname: process.env.LISTEN_HOST ?? "0.0.0.0",
     port: Number.parseInt(process.env.PORT ?? "3000", 10),
     fileStorageUrl: process.env.FILE_STORAGE_URL ?? "",
+    trustProxyHops: parseTrustProxyHops(process.env.TRUST_PROXY_HOPS),
   },
   jwt: {
     accessSecret: process.env.JWT_ACCESS_SECRET ?? "",
@@ -55,6 +67,8 @@ interface Config {
     hostname: string;
     port: number;
     fileStorageUrl: string;
+    /** Number of our own proxies in front of the API. 0 ignores X-Forwarded-For. */
+    trustProxyHops: number;
   };
   jwt: {
     accessSecret: string;

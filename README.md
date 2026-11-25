@@ -38,7 +38,7 @@ OpenAPI (`/doc`) and Swagger UI (`/`) are available when `NODE_ENV` is not `prod
 
 ### Rate limiting
 
-Auth routes enforce in-app limits (in-memory per API process): login by IP and email, signup by IP. Configure with `RATE_LIMIT_AUTH_*` in `.env` (see [`.env.example`](packages/api/.env.example)). For multi-instance or VPS deployments, you can add stricter limits at the edge (nginx, Cloudflare) in addition to these defaults.
+Auth routes enforce in-app limits (in-memory per API process): login by IP and email, signup by IP. Configure with `RATE_LIMIT_AUTH_*` in `.env` (see [`.env.example`](packages/api/.env.example)). Behind a reverse proxy, set `TRUST_PROXY_HOPS` to the number of proxies (Traefik only = 1), so the limits use the real client IP. Only the last `TRUST_PROXY_HOPS` entries of `X-Forwarded-For` are trusted, and only when the connection comes from a private address. For multi-instance or VPS deployments, you can add stricter limits at the edge (nginx, Cloudflare) in addition to these defaults.
 
 ## Releases
 

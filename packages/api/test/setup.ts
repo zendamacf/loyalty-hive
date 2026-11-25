@@ -11,6 +11,8 @@ const testDatabaseUrl = resolveTestDatabaseUrl();
 process.env.NODE_ENV = "test";
 process.env.DATABASE_URL = testDatabaseUrl;
 process.env.JWT_ACCESS_SECRET ??= "test-secret";
+// Tests send X-Forwarded-For to act as different clients.
+process.env.TRUST_PROXY_HOPS ??= "1";
 process.env.ADMIN_JWT_SECRET ??= "test-admin-secret";
 process.env.FILE_STORAGE_URL ??= "https://cdn.test/";
 process.env.RATE_LIMIT_AUTH_LOGIN_IP_MAX ??= "10000";

@@ -28,6 +28,8 @@ services:
       ADMIN_JWT_TTL: ${ADMIN_JWT_TTL:-8h}
       FILE_STORAGE_URL: ${FILE_STORAGE_URL}
       SENTRY_DSN: ${SENTRY_DSN:-}
+      # Proxies in front of the API (Traefik = 1). See .env.compose.example.
+      TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-1}
       PORT: 3000
     restart: unless-stopped
     healthcheck:
