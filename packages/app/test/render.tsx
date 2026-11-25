@@ -1,9 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
-  type RenderOptions,
-  type RenderResult,
   act,
   fireEvent,
+  type RenderOptions,
+  type RenderResult,
   render,
 } from "@testing-library/react-native";
 

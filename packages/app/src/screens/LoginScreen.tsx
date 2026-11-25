@@ -289,6 +289,20 @@ export const LoginScreen = () => {
           }}
         />
 
+        {mode === "login" && (
+          <Pressable
+            accessibilityRole="button"
+            disabled={isSubmitting}
+            hitSlop={8}
+            testID="forgot-password"
+            onPress={() => router.push(Routes.FORGOT_PASSWORD)}
+          >
+            <Text style={[styles.modeToggle, { color: theme.primary }]}>
+              {t("forgotPassword")}
+            </Text>
+          </Pressable>
+        )}
+
         <Pressable
           accessibilityRole="button"
           disabled={isSubmitting}

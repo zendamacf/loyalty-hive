@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdErrors, DeleteApiV1CardsByIdResponses, GetApiV1AuthMeData, GetApiV1AuthMeErrors, GetApiV1AuthMeResponses, GetApiV1BrandsData, GetApiV1BrandsErrors, GetApiV1BrandsResponses, GetApiV1CardsByIdData, GetApiV1CardsByIdErrors, GetApiV1CardsByIdResponses, GetApiV1CardsData, GetApiV1CardsErrors, GetApiV1CardsResponses, PatchApiV1CardsByIdData, PatchApiV1CardsByIdErrors, PatchApiV1CardsByIdResponses, PostApiV1AuthLoginData, PostApiV1AuthLoginErrors, PostApiV1AuthLoginResponses, PostApiV1AuthResendVerificationData, PostApiV1AuthResendVerificationErrors, PostApiV1AuthResendVerificationResponses, PostApiV1AuthSignupData, PostApiV1AuthSignupErrors, PostApiV1AuthSignupResponses, PostApiV1AuthVerifyEmailData, PostApiV1AuthVerifyEmailErrors, PostApiV1AuthVerifyEmailResponses, PostApiV1BrandRequestsData, PostApiV1BrandRequestsErrors, PostApiV1BrandRequestsResponses, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewErrors, PostApiV1CardsByIdViewResponses, PostApiV1CardsData, PostApiV1CardsErrors, PostApiV1CardsResponses } from './types.gen';
+import type { DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdErrors, DeleteApiV1CardsByIdResponses, GetApiV1AuthMeData, GetApiV1AuthMeErrors, GetApiV1AuthMeResponses, GetApiV1BrandsData, GetApiV1BrandsErrors, GetApiV1BrandsResponses, GetApiV1CardsByIdData, GetApiV1CardsByIdErrors, GetApiV1CardsByIdResponses, GetApiV1CardsData, GetApiV1CardsErrors, GetApiV1CardsResponses, PatchApiV1CardsByIdData, PatchApiV1CardsByIdErrors, PatchApiV1CardsByIdResponses, PostApiV1AuthForgotPasswordData, PostApiV1AuthForgotPasswordErrors, PostApiV1AuthForgotPasswordResponses, PostApiV1AuthLoginData, PostApiV1AuthLoginErrors, PostApiV1AuthLoginResponses, PostApiV1AuthResendVerificationData, PostApiV1AuthResendVerificationErrors, PostApiV1AuthResendVerificationResponses, PostApiV1AuthResetPasswordData, PostApiV1AuthResetPasswordErrors, PostApiV1AuthResetPasswordResponses, PostApiV1AuthSignupData, PostApiV1AuthSignupErrors, PostApiV1AuthSignupResponses, PostApiV1AuthVerifyEmailData, PostApiV1AuthVerifyEmailErrors, PostApiV1AuthVerifyEmailResponses, PostApiV1BrandRequestsData, PostApiV1BrandRequestsErrors, PostApiV1BrandRequestsResponses, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewErrors, PostApiV1CardsByIdViewResponses, PostApiV1CardsData, PostApiV1CardsErrors, PostApiV1CardsResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -63,6 +63,32 @@ export const postApiV1AuthVerifyEmail = <ThrowOnError extends boolean = false>(o
 export const postApiV1AuthResendVerification = <ThrowOnError extends boolean = false>(options: Options<PostApiV1AuthResendVerificationData, ThrowOnError>) => (options.client ?? client).post<PostApiV1AuthResendVerificationResponses, PostApiV1AuthResendVerificationErrors, ThrowOnError>({
     security: [{ name: 'x-api-key', type: 'apiKey' }],
     url: '/api/v1/auth/resend-verification',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Request a password reset email. Returns the same response whether or not the email exists (no user enumeration). The emailed link is single-use and expires after 60 minutes. Rate limits: 5 requests/minute per IP and 3/minute per email.
+ */
+export const postApiV1AuthForgotPassword = <ThrowOnError extends boolean = false>(options: Options<PostApiV1AuthForgotPasswordData, ThrowOnError>) => (options.client ?? client).post<PostApiV1AuthForgotPasswordResponses, PostApiV1AuthForgotPasswordErrors, ThrowOnError>({
+    security: [{ name: 'x-api-key', type: 'apiKey' }],
+    url: '/api/v1/auth/forgot-password',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Set a new password using the token from the reset email. The new password must meet the sign-up password policy. On success, all existing access tokens for the user stop working; the user must sign in again. Rate limit: 10 requests/minute per IP.
+ */
+export const postApiV1AuthResetPassword = <ThrowOnError extends boolean = false>(options: Options<PostApiV1AuthResetPasswordData, ThrowOnError>) => (options.client ?? client).post<PostApiV1AuthResetPasswordResponses, PostApiV1AuthResetPasswordErrors, ThrowOnError>({
+    security: [{ name: 'x-api-key', type: 'apiKey' }],
+    url: '/api/v1/auth/reset-password',
     ...options,
     headers: {
         'Content-Type': 'application/json',

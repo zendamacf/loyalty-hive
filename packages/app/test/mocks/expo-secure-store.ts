@@ -2,14 +2,12 @@ import { mock } from "bun:test";
 
 const secureStore = new Map<string, string>();
 
-export const secureStoreGetMock = mock(async (key: string) =>
-  secureStore.get(key) ?? null,
+export const secureStoreGetMock = mock(
+  async (key: string) => secureStore.get(key) ?? null,
 );
-export const secureStoreSetMock = mock(
-  async (key: string, value: string) => {
-    secureStore.set(key, value);
-  },
-);
+export const secureStoreSetMock = mock(async (key: string, value: string) => {
+  secureStore.set(key, value);
+});
 export const secureStoreDeleteMock = mock(async (key: string) => {
   secureStore.delete(key);
 });
