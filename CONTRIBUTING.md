@@ -8,6 +8,7 @@ Thank you for contributing — whether you are a human developer or an automated
 |---------|------|-------------|
 | API | [`packages/api/`](packages/api/) | Hono REST API, Drizzle ORM, Postgres |
 | App | [`packages/app/`](packages/app/) | Expo / React Native mobile app |
+| Admin | [`packages/admin/`](packages/admin/) | Vite + React admin panel. The API serves it at `/admin` |
 
 The root [`package.json`](package.json) is a Bun workspace. Install once from the repo root:
 
@@ -52,7 +53,7 @@ We use [Conventional Commits](https://www.conventionalcommits.org/) for commit m
 | `test` | Adding or updating tests |
 | `ci` | CI/CD workflow changes |
 
-**Scopes** (use when helpful): `api`, `app`, `release`, `deps`.
+**Scopes** (use when helpful): `api`, `app`, `admin`, `release`, `deps`.
 
 **Examples from this repo:**
 
@@ -87,6 +88,7 @@ Add a changeset in your PR when the change should be released:
 - Documentation-only changes
 - Internal refactors with no release impact
 - CI or tooling changes that do not affect published packages
+- Changes only in `packages/admin`. It is private and has no version. It ships in the API image, so add an API changeset when an admin change must be released
 
 ### How to add a changeset
 
@@ -131,11 +133,12 @@ See [README — Releases](README.md#releases) for tag and secrets details.
 
 ### Pre-commit (Husky)
 
-A [pre-commit hook](.husky/pre-commit) runs Biome auto-fix in both packages:
+A [pre-commit hook](.husky/pre-commit) runs Biome auto-fix in all packages:
 
 ```sh
 (cd packages/api && bun run lint:fix)
 (cd packages/app && bun run lint:fix)
+(cd packages/admin && bun run lint:fix)
 ```
 
 Run lint locally before committing so hooks do not surprise you.
@@ -145,15 +148,20 @@ Run lint locally before committing so hooks do not surprise you.
 After `bun install`, these scripts run the matching package script in the Bun workspace. Aggregate commands use `bun run --workspaces` (every package under `packages/*`). Package-scoped commands use `bun run --filter`.
 
 ```sh
-bun run lint              # Biome in api and app
+bun run lint              # Biome in all packages
 bun run lint:api          # packages/api only
 bun run lint:app          # packages/app only
-bun run typecheck         # tsc --noEmit in api and app
+bun run lint:admin        # packages/admin only
+bun run typecheck         # tsc --noEmit in all packages
 bun run typecheck:api
 bun run typecheck:app
-bun run test              # both packages
+bun run typecheck:admin
+bun run test              # all packages
 bun run test:api          # requires DATABASE_URL (Postgres)
 bun run test:app
+bun run test:admin
+bun run dev:admin         # admin dev server at http://localhost:5174/admin/
+bun run build:admin
 bun run check             # lint, then typecheck, then test
 ```
 
@@ -184,6 +192,18 @@ bun run test
 bun run doctor        # Native dep + expo-doctor checks
 ```
 
+**Admin** (`packages/admin`):
+
+```sh
+bun run dev           # Vite dev server. Proxies /api to http://localhost:3000
+bun run build         # Type check, then build to dist/
+bun run lint
+bun run typecheck
+bun run test
+```
+
+Start the API first. To use a different API, set `ADMIN_API_PROXY_TARGET`.
+
 ### CI
 
 Pull request checks run automatically:
@@ -192,6 +212,7 @@ Pull request checks run automatically:
 |----------|-------------|--------------|
 | [`api-pr-checks.yml`](.github/workflows/api-pr-checks.yml) | `packages/api/**` | lint, typecheck, test (with coverage), Docker smoke tests |
 | [`app-pr-checks.yml`](.github/workflows/app-pr-checks.yml) | `packages/app/**` | version sync check, lint, typecheck, test (with coverage), doctor |
+| [`admin-pr-checks.yml`](.github/workflows/admin-pr-checks.yml) | `packages/admin/**` | lint, typecheck, test, build |
 
 Coverage thresholds live in each package's `bunfig.toml` and are enforced in CI.
 
