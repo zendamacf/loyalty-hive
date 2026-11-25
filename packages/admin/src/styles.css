@@ -167,6 +167,29 @@ a {
   border-bottom: 1px solid var(--border);
 }
 
+.main-nav {
+  display: flex;
+  gap: 0.25rem;
+  margin-left: 1rem;
+}
+
+.main-nav a {
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.main-nav a:hover {
+  color: var(--text-primary);
+}
+
+.main-nav a[aria-current="page"] {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
 .app-header .who {
   margin-left: auto;
   color: var(--text-secondary);
@@ -183,6 +206,13 @@ main {
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1rem;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
 }
 
 .toolbar label {
@@ -247,6 +277,16 @@ td.url {
   background: var(--primary);
   border-color: var(--primary);
   color: var(--on-primary);
+}
+
+.status-active {
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.status-pending_deletion {
+  border-color: var(--error);
+  color: var(--error);
 }
 
 .status-approved {

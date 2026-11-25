@@ -2,7 +2,14 @@ import { afterEach, describe, expect, it } from "bun:test";
 
 import { jsonResponse, mockFetch, restoreFetch } from "../test/fetch-mock";
 import { ADMIN } from "../test/fixtures";
-import { ApiError, getMe, listBrandRequests, login, logout } from "./api";
+import {
+  ApiError,
+  getMe,
+  listBrandRequests,
+  listUsers,
+  login,
+  logout,
+} from "./api";
 
 afterEach(restoreFetch);
 
@@ -51,6 +58,29 @@ describe("[Unit] admin api client", () => {
     expect(urls).toEqual([
       "/api/v1/admin/brand-requests?limit=10&offset=20&status=approved",
       "/api/v1/admin/brand-requests?limit=50&offset=0",
+    ]);
+  });
+
+  it("adds search and filters to the users query", async () => {
+    const fetch = mockFetch(() =>
+      jsonResponse({ items: [], total: 0, limit: 50, offset: 0 }),
+    );
+
+    await listUsers({
+      search: "a+b@example.com",
+      status: "pending_deletion",
+      verified: false,
+      limit: 50,
+      offset: 0,
+    });
+    await listUsers({ verified: true, limit: 50, offset: 50 });
+    await listUsers({ limit: 50, offset: 0 });
+
+    const urls = fetch.mock.calls.map(([input]) => String(input));
+    expect(urls).toEqual([
+      "/api/v1/admin/users?limit=50&offset=0&search=a%2Bb%40example.com&status=pending_deletion&verified=false",
+      "/api/v1/admin/users?limit=50&offset=50&verified=true",
+      "/api/v1/admin/users?limit=50&offset=0",
     ]);
   });
 

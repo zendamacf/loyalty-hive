@@ -2,6 +2,7 @@ import { Hono } from "hono";
 
 import authRouter from "./auth.routes.js";
 import brandRequestsRouter from "./brand-requests.routes.js";
+import usersRouter from "./users.routes.js";
 
 /**
  * Admin panel API at `/api/v1/admin`. Not in the OpenAPI docs.
@@ -9,6 +10,7 @@ import brandRequestsRouter from "./brand-requests.routes.js";
  */
 const app = new Hono()
   .route("/auth", authRouter)
-  .route("/brand-requests", brandRequestsRouter);
+  .route("/brand-requests", brandRequestsRouter)
+  .route("/users", usersRouter);
 
 export default app;
