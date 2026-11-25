@@ -71,6 +71,13 @@ describe("app", () => {
     }
   });
 
+  it("mounts the admin panel at /admin", async () => {
+    const response = await app.request("/admin");
+
+    expect(response.status).toBe(301);
+    expect(response.headers.get("location")).toBe("/admin/");
+  });
+
   it("serves health check at /health", async () => {
     const response = await app.request("/health");
 

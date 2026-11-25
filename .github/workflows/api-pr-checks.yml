@@ -8,6 +8,8 @@ on:
       - synchronize
     paths:
       - 'packages/api/**'
+      # The API image includes the admin build.
+      - 'packages/admin/**'
       - '.github/workflows/api-pr-checks.yml'
 
 concurrency:
@@ -141,6 +143,14 @@ jobs:
 
       - name: Smoke test brand logo
         run: curl -sfI http://localhost:3000/logos/mecca-v2.png | grep -qi 'image/png'
+
+      - name: Smoke test admin panel
+        run: |
+          html=$(curl -sf http://localhost:3000/admin/)
+          echo "$html" | grep -q 'id="root"'
+          asset=$(echo "$html" | grep -o '/admin/assets/[^"]*\.js' | head -1)
+          test -n "$asset"
+          curl -sfI "http://localhost:3000${asset}" | grep -qi 'javascript'
 
       - name: Smoke test OpenAPI document
         run: curl -sf http://localhost:3000/doc | grep -q '"openapi"'

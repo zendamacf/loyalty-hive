@@ -203,6 +203,8 @@ bun run test
 
 Start the API first. To use a different API, set `ADMIN_API_PROXY_TARGET`.
 
+The API also serves the admin build at `/admin` (from `packages/admin/dist`, or `ADMIN_DIST_DIR`). To test it that way, run `bun run build:admin`, then open `http://localhost:3000/admin/`. The API Docker image builds the admin panel and includes it.
+
 ### CI
 
 Pull request checks run automatically:
