@@ -14,6 +14,9 @@ import { sendTemplatedEmail } from "./mail/send-templated-email.js";
 /**
  * Password reset security properties:
  * - Token: 32 random bytes (256 bits), base64url. Only the SHA-256 hash is stored.
+ *   The token is random, not a user password. A fast hash is correct here: a
+ *   slow hash (bcrypt) only protects low-entropy input, and the lookup needs
+ *   a deterministic hash.
  * - Expiry: PASSWORD_RESET_TTL_MINUTES.
  * - Single use: the hash is cleared when the password changes. A new request
  *   replaces an earlier token.
@@ -21,11 +24,11 @@ import { sendTemplatedEmail } from "./mail/send-templated-email.js";
  * - Sessions: success sets `password_changed_at`, so earlier JWTs are rejected.
  */
 
-export function generatePasswordResetToken(): string {
+export function generateResetToken(): string {
   return randomBytes(32).toString("base64url");
 }
 
-export function hashPasswordResetToken(token: string): string {
+export function hashResetToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
 
@@ -40,11 +43,11 @@ export async function issueAndSendPasswordResetEmail(
   userId: string,
   email: string,
 ): Promise<void> {
-  const token = generatePasswordResetToken();
+  const token = generateResetToken();
   await db
     .update(users)
     .set({
-      passwordResetTokenHash: hashPasswordResetToken(token),
+      passwordResetTokenHash: hashResetToken(token),
       passwordResetExpiresAt: new Date(
         Date.now() + PASSWORD_RESET_TTL_MINUTES * 60 * 1000,
       ),
@@ -61,7 +64,7 @@ export async function resetPasswordWithToken(
   token: string,
   newPassword: string,
 ): Promise<{ ok: true; userId: string } | { ok: false }> {
-  const tokenHash = hashPasswordResetToken(token);
+  const tokenHash = hashResetToken(token);
 
   const [user] = await db
     .select({

@@ -12,7 +12,7 @@ import {
 import { config } from "../common/config";
 import { BCRYPT_COST } from "../common/constants";
 import { INVALID_PASSWORD_RESET_TOKEN_MESSAGE } from "../common/error";
-import { hashPasswordResetToken } from "../common/password-reset";
+import { hashResetToken } from "../common/password-reset";
 import { db } from "../db/client";
 import { users } from "../db/schema";
 
@@ -47,7 +47,7 @@ async function seedResetToken(expiresAt: Date) {
   await db
     .update(users)
     .set({
-      passwordResetTokenHash: hashPasswordResetToken(RESET_TOKEN),
+      passwordResetTokenHash: hashResetToken(RESET_TOKEN),
       passwordResetExpiresAt: expiresAt,
     })
     .where(eq(users.id, USER_ID));
@@ -195,9 +195,7 @@ describe("POST /auth/reset-password", () => {
     expect(weak.status).toBe(400);
 
     const user = await getUser();
-    expect(user?.passwordResetTokenHash).toBe(
-      hashPasswordResetToken(RESET_TOKEN),
-    );
+    expect(user?.passwordResetTokenHash).toBe(hashResetToken(RESET_TOKEN));
     expect(user?.passwordChangedAt).toBeNull();
   });
 
