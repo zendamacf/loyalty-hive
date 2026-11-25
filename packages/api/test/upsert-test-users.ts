@@ -9,9 +9,7 @@ type UserInsert = typeof users.$inferInsert;
  * when the row already exists in a shared CI database (onConflictDoNothing alone
  * would leave legacy rows unverified and fail requireEmailVerified).
  */
-export async function upsertVerifiedTestUsers(
-  rows: UserInsert | UserInsert[],
-) {
+export async function upsertVerifiedTestUsers(rows: UserInsert | UserInsert[]) {
   const list = Array.isArray(rows) ? rows : [rows];
   const verifiedAt = new Date();
 

@@ -19,6 +19,10 @@ export function Forbidden(message: string = "Forbidden") {
   return new HTTPException(403, { message });
 }
 
+export function PayloadTooLarge(message: string = "Payload too large") {
+  return new HTTPException(413, { message });
+}
+
 export function BadRequest(message: string = "Bad request") {
   return new HTTPException(400, { message });
 }

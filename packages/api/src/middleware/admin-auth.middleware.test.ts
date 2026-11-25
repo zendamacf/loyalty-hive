@@ -112,6 +112,34 @@ describe("requireAdmin middleware", () => {
     expect(response.status).toBe(401);
   });
 
+  it("returns 401 for a token without exp", async () => {
+    const token = await sign(
+      {
+        sub: ADMIN_ID,
+        aud: ADMIN_JWT_AUDIENCE,
+        iat: Math.floor(Date.now() / 1000),
+      },
+      config.adminJwt.secret,
+      "HS256",
+    );
+    const response = await requestWithCookie(token);
+    expect(response.status).toBe(401);
+  });
+
+  it("returns 401 for a token without iat", async () => {
+    const token = await sign(
+      {
+        sub: ADMIN_ID,
+        aud: ADMIN_JWT_AUDIENCE,
+        exp: Math.floor(Date.now() / 1000) + 60,
+      },
+      config.adminJwt.secret,
+      "HS256",
+    );
+    const response = await requestWithCookie(token);
+    expect(response.status).toBe(401);
+  });
+
   it("returns 401 for an expired token", async () => {
     const now = Math.floor(Date.now() / 1000);
     const token = await sign(
@@ -151,6 +179,18 @@ describe("requireAdmin middleware", () => {
     );
     const response = await requestWithCookie(token);
     expect(response.status).toBe(401);
+  });
+
+  it("returns 401 when the admin secret is shorter than the minimum", async () => {
+    const original = config.adminJwt.secret;
+    config.adminJwt.secret = "short-secret";
+    try {
+      const token = await signTestAdminToken(ADMIN_ID);
+      const response = await requestWithCookie(token);
+      expect(response.status).toBe(401);
+    } finally {
+      config.adminJwt.secret = original;
+    }
   });
 
   it("returns 401 when the admin secret is the same as the app user secret", async () => {

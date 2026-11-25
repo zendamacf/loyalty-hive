@@ -123,6 +123,12 @@ describe("POST /api/v1/admin/auth/login", () => {
     expect(response.status).toBe(503);
   });
 
+  it("returns 503 when ADMIN_JWT_SECRET is shorter than 32 characters", async () => {
+    config.adminJwt.secret = "a".repeat(31);
+    const response = await login({ email: ADMIN_EMAIL, password: PASSWORD });
+    expect(response.status).toBe(503);
+  });
+
   it("returns 503 when ADMIN_JWT_SECRET is the same as JWT_ACCESS_SECRET", async () => {
     config.adminJwt.secret = config.jwt.accessSecret;
     const response = await login({ email: ADMIN_EMAIL, password: PASSWORD });
