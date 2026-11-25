@@ -12,7 +12,10 @@ import {
 import { logoUrl } from "../common/storage.js";
 import { db } from "../db/client.js";
 import { brandRequests, brands, cards } from "../db/schema.js";
-import { requireUserAuth } from "../middleware/auth.middleware.js";
+import {
+  requireEmailVerified,
+  requireUserAuth,
+} from "../middleware/auth.middleware.js";
 
 export const cardSchema = z.object({
   id: z.uuid(),
@@ -276,6 +279,7 @@ function handleFkViolation(c: AppContext, error: unknown) {
 
 const app = new Hono<{ Variables: ContextVariables }>()
   .use(requireUserAuth)
+  .use(requireEmailVerified)
   .get(
     "/",
     describeRoute({

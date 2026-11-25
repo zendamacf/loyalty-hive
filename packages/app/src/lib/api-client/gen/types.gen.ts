@@ -125,10 +125,100 @@ export type GetApiV1AuthMeResponses = {
      */
     200: {
         id: string;
+        email: string;
+        emailVerified: boolean;
     };
 };
 
 export type GetApiV1AuthMeResponse = GetApiV1AuthMeResponses[keyof GetApiV1AuthMeResponses];
+
+export type PostApiV1AuthVerifyEmailData = {
+    body: {
+        token: string;
+    };
+    headers: {
+        'x-api-key': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/verify-email';
+};
+
+export type PostApiV1AuthVerifyEmailErrors = {
+    /**
+     * Invalid or expired verification link or validation error
+     */
+    400: {
+        error: string;
+        issues?: Array<unknown>;
+    };
+    /**
+     * Invalid API key
+     */
+    403: {
+        error: string;
+    };
+};
+
+export type PostApiV1AuthVerifyEmailError = PostApiV1AuthVerifyEmailErrors[keyof PostApiV1AuthVerifyEmailErrors];
+
+export type PostApiV1AuthVerifyEmailResponses = {
+    /**
+     * Email verified
+     */
+    200: {
+        verified: true;
+    };
+};
+
+export type PostApiV1AuthVerifyEmailResponse = PostApiV1AuthVerifyEmailResponses[keyof PostApiV1AuthVerifyEmailResponses];
+
+export type PostApiV1AuthResendVerificationData = {
+    body: {
+        email: string;
+    };
+    headers: {
+        'x-api-key': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/resend-verification';
+};
+
+export type PostApiV1AuthResendVerificationErrors = {
+    /**
+     * Invalid request input
+     */
+    400: {
+        error: string;
+        issues: Array<unknown>;
+    };
+    /**
+     * Invalid API key
+     */
+    403: {
+        error: string;
+    };
+    /**
+     * Too many requests
+     */
+    429: {
+        error: string;
+    };
+};
+
+export type PostApiV1AuthResendVerificationError = PostApiV1AuthResendVerificationErrors[keyof PostApiV1AuthResendVerificationErrors];
+
+export type PostApiV1AuthResendVerificationResponses = {
+    /**
+     * Request accepted
+     */
+    200: {
+        message: string;
+    };
+};
+
+export type PostApiV1AuthResendVerificationResponse = PostApiV1AuthResendVerificationResponses[keyof PostApiV1AuthResendVerificationResponses];
 
 export type GetApiV1BrandsData = {
     body?: never;

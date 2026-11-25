@@ -313,6 +313,9 @@ mock.module("react-native", () => ({
     addEventListener: () => ({ remove: () => {} }),
     announceForAccessibility: () => {},
   },
+  Linking: {
+    openURL: mock(() => Promise.resolve()),
+  },
   Platform: {
     OS: "ios",
     Version: "17.0",

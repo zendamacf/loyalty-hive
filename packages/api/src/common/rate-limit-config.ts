@@ -1,3 +1,8 @@
+import {
+  AUTH_RESEND_VERIFICATION_EMAIL_RATE_LIMIT,
+  AUTH_RESEND_VERIFICATION_IP_RATE_LIMIT,
+} from "./constants.js";
+
 function parsePositiveInt(name: string, defaultValue: number): number {
   const raw = process.env[name];
   if (raw === undefined || raw.trim() === "") return defaultValue;
@@ -25,4 +30,12 @@ export function getAuthSignupIpRateLimit() {
     max: parsePositiveInt("RATE_LIMIT_AUTH_SIGNUP_IP_MAX", 5),
     windowMs: parsePositiveInt("RATE_LIMIT_AUTH_SIGNUP_IP_WINDOW_MS", 60_000),
   };
+}
+
+export function getAuthResendVerificationIpRateLimit() {
+  return AUTH_RESEND_VERIFICATION_IP_RATE_LIMIT;
+}
+
+export function getAuthResendVerificationEmailRateLimit() {
+  return AUTH_RESEND_VERIFICATION_EMAIL_RATE_LIMIT;
 }

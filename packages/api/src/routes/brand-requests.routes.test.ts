@@ -5,6 +5,7 @@ import {
   createApiRouterApp,
   signTestToken,
 } from "../../test/create-app";
+import { upsertVerifiedTestUsers } from "../../test/upsert-test-users";
 import { db } from "../db/client";
 import { brandRequests, brands, users } from "../db/schema";
 
@@ -21,21 +22,18 @@ beforeAll(async () => {
   authToken = await signTestToken(USER_ID);
   otherUserToken = await signTestToken(OTHER_USER_ID);
 
-  await db
-    .insert(users)
-    .values([
-      {
-        id: USER_ID,
-        email: "brand.request.user@example.com",
-        passwordHash: "hashed-password",
-      },
-      {
-        id: OTHER_USER_ID,
-        email: "brand.request.other@example.com",
-        passwordHash: "hashed-password",
-      },
-    ])
-    .onConflictDoNothing();
+  await upsertVerifiedTestUsers([
+    {
+      id: USER_ID,
+      email: "brand.request.user@example.com",
+      passwordHash: "hashed-password",
+    },
+    {
+      id: OTHER_USER_ID,
+      email: "brand.request.other@example.com",
+      passwordHash: "hashed-password",
+    },
+  ]);
 
   await db
     .insert(brands)

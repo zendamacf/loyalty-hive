@@ -16,6 +16,7 @@ import type {
 import { getBearerToken, setBearerToken } from "@/lib/api-client/setup";
 import { AUTH_TOKEN_STORAGE_KEY } from "@/lib/auth/auth.constants";
 import {
+  getApiV1AuthMeMock,
   postApiV1AuthLoginMock,
   postApiV1AuthSignupMock,
 } from "../../test/mocks/api-client";
@@ -53,6 +54,16 @@ describe("[Integration] LoginScreen", () => {
     secureStoreSetMock.mockClear();
     postApiV1AuthLoginMock.mockClear();
     postApiV1AuthSignupMock.mockClear();
+    getApiV1AuthMeMock.mockImplementation(() =>
+      Promise.resolve({
+        data: {
+          id: "00000000-0000-4000-8000-000000000001",
+          email: "test@example.com",
+          emailVerified: true,
+        },
+        error: undefined,
+      }),
+    );
     postApiV1AuthLoginMock.mockImplementation(() =>
       Promise.resolve({ data: { token: "test-token" }, error: undefined }),
     );
@@ -157,7 +168,7 @@ describe("[Integration] LoginScreen", () => {
         AUTH_TOKEN_STORAGE_KEY,
         "test-token",
       );
-      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
+      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.LOGIN);
     });
   });
 
@@ -185,7 +196,7 @@ describe("[Integration] LoginScreen", () => {
         }),
       );
       expect(getBearerToken()).toBe("test-token");
-      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
+      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.LOGIN);
     });
   });
 
@@ -227,7 +238,7 @@ describe("[Integration] LoginScreen", () => {
         }),
       );
       expect(getBearerToken()).toBe("test-token");
-      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
+      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.LOGIN);
     });
   });
 
@@ -468,7 +479,7 @@ describe("[Integration] LoginScreen", () => {
         }),
       );
       expect(getBearerToken()).toBe("test-token");
-      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
+      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.LOGIN);
     });
   });
 });
