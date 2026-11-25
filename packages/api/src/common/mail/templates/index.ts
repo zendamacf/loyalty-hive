@@ -1,3 +1,7 @@
+import {
+  type ResetPasswordEmailProps,
+  resetPasswordEmailTemplate,
+} from "./reset-password.js";
 import { type VerifyEmailProps, verifyEmailTemplate } from "./verify-email.js";
 
 export type RenderedEmail = { subject: string; html: string; text: string };
@@ -15,6 +19,7 @@ export type RenderedEmail = { subject: string; html: string; text: string };
  */
 export type EmailTemplateProps = {
   verifyEmail: VerifyEmailProps;
+  resetPassword: ResetPasswordEmailProps;
 };
 
 export type EmailType = keyof EmailTemplateProps;
@@ -23,4 +28,5 @@ export const emailTemplates: {
   [K in EmailType]: (props: EmailTemplateProps[K]) => RenderedEmail;
 } = {
   verifyEmail: verifyEmailTemplate,
+  resetPassword: resetPasswordEmailTemplate,
 };

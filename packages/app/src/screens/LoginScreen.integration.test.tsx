@@ -509,4 +509,17 @@ describe("[Integration] LoginScreen i18n", () => {
       ),
     ).toBeTruthy();
   });
+
+  it("opens forgot password from the sign-in form only", async () => {
+    expoRouterMocks.push.mockClear();
+    const { getByTestId, queryByTestId } = await renderWithProviders(
+      <LoginScreen />,
+    );
+
+    await press(getByTestId("forgot-password"));
+    expect(expoRouterMocks.push).toHaveBeenCalledWith(Routes.FORGOT_PASSWORD);
+
+    await press(getByTestId("mode-toggle"));
+    expect(queryByTestId("forgot-password")).toBeNull();
+  });
 });

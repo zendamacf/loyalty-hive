@@ -101,6 +101,101 @@ export type PostApiV1AuthSignupResponses = {
 
 export type PostApiV1AuthSignupResponse = PostApiV1AuthSignupResponses[keyof PostApiV1AuthSignupResponses];
 
+export type PostApiV1AuthForgotPasswordData = {
+    body: {
+        email: string;
+    };
+    headers: {
+        'x-api-key': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/forgot-password';
+};
+
+export type PostApiV1AuthForgotPasswordErrors = {
+    /**
+     * Invalid request input
+     */
+    400: {
+        error: string;
+        issues: Array<unknown>;
+    };
+    /**
+     * Invalid API key
+     */
+    403: {
+        error: string;
+    };
+    /**
+     * Too many requests
+     */
+    429: {
+        error: string;
+    };
+};
+
+export type PostApiV1AuthForgotPasswordError = PostApiV1AuthForgotPasswordErrors[keyof PostApiV1AuthForgotPasswordErrors];
+
+export type PostApiV1AuthForgotPasswordResponses = {
+    /**
+     * Request accepted
+     */
+    200: {
+        message: string;
+    };
+};
+
+export type PostApiV1AuthForgotPasswordResponse = PostApiV1AuthForgotPasswordResponses[keyof PostApiV1AuthForgotPasswordResponses];
+
+export type PostApiV1AuthResetPasswordData = {
+    body: {
+        token: string;
+        password: string;
+    };
+    headers: {
+        'x-api-key': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/reset-password';
+};
+
+export type PostApiV1AuthResetPasswordErrors = {
+    /**
+     * Invalid or expired reset link, weak password, or validation error
+     */
+    400: {
+        error: string;
+        issues: Array<unknown>;
+    };
+    /**
+     * Invalid API key
+     */
+    403: {
+        error: string;
+    };
+    /**
+     * Too many requests
+     */
+    429: {
+        error: string;
+    };
+};
+
+export type PostApiV1AuthResetPasswordError = PostApiV1AuthResetPasswordErrors[keyof PostApiV1AuthResetPasswordErrors];
+
+export type PostApiV1AuthResetPasswordResponses = {
+    /**
+     * Password reset
+     */
+    200: {
+        reset: true;
+    };
+};
+
+export type PostApiV1AuthResetPasswordResponse = PostApiV1AuthResetPasswordResponses[keyof PostApiV1AuthResetPasswordResponses];
+
 export type GetApiV1AuthMeData = {
     body?: never;
     path?: never;

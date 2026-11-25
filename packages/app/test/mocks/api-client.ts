@@ -6,8 +6,10 @@ import type {
   GetApiV1CardsByIdResponse,
   GetApiV1CardsResponse,
   PatchApiV1CardsByIdResponse,
+  PostApiV1AuthForgotPasswordResponse,
   PostApiV1AuthLoginResponse,
   PostApiV1AuthResendVerificationResponse,
+  PostApiV1AuthResetPasswordResponse,
   PostApiV1AuthSignupResponse,
   PostApiV1AuthVerifyEmailResponse,
   PostApiV1BrandRequestsResponse,
@@ -82,6 +84,29 @@ export const postApiV1AuthResendVerificationMock = mock(
       },
       options,
     ),
+);
+
+export const postApiV1AuthForgotPasswordMock = mock(
+  (
+    options?: SdkOptions,
+  ): Promise<ApiMockResult<PostApiV1AuthForgotPasswordResponse>> =>
+    resolveApiMock(
+      {
+        data: {
+          message:
+            "If an account exists for this email, we sent password reset instructions.",
+        },
+        error: undefined,
+      },
+      options,
+    ),
+);
+
+export const postApiV1AuthResetPasswordMock = mock(
+  (
+    options?: SdkOptions,
+  ): Promise<ApiMockResult<PostApiV1AuthResetPasswordResponse>> =>
+    resolveApiMock({ data: { reset: true }, error: undefined }, options),
 );
 
 export const postApiV1AuthSignupMock = mock(
@@ -200,6 +225,8 @@ const sdkMocks = {
   postApiV1AuthSignup: postApiV1AuthSignupMock,
   postApiV1AuthVerifyEmail: postApiV1AuthVerifyEmailMock,
   postApiV1AuthResendVerification: postApiV1AuthResendVerificationMock,
+  postApiV1AuthForgotPassword: postApiV1AuthForgotPasswordMock,
+  postApiV1AuthResetPassword: postApiV1AuthResetPasswordMock,
   getApiV1AuthMe: getApiV1AuthMeMock,
   getApiV1Brands: getApiV1BrandsMock,
   postApiV1BrandRequests: postApiV1BrandRequestsMock,

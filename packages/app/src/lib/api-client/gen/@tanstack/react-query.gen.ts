@@ -3,8 +3,8 @@
 import { queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { deleteApiV1CardsById, getApiV1AuthMe, getApiV1Brands, getApiV1Cards, getApiV1CardsById, type Options, patchApiV1CardsById, postApiV1AuthLogin, postApiV1AuthResendVerification, postApiV1AuthSignup, postApiV1AuthVerifyEmail, postApiV1BrandRequests, postApiV1Cards, postApiV1CardsByIdView } from '../sdk.gen';
-import type { DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdError, DeleteApiV1CardsByIdResponse, GetApiV1AuthMeData, GetApiV1AuthMeError, GetApiV1AuthMeResponse, GetApiV1BrandsData, GetApiV1BrandsError, GetApiV1BrandsResponse, GetApiV1CardsByIdData, GetApiV1CardsByIdError, GetApiV1CardsByIdResponse, GetApiV1CardsData, GetApiV1CardsError, GetApiV1CardsResponse, PatchApiV1CardsByIdData, PatchApiV1CardsByIdError, PatchApiV1CardsByIdResponse, PostApiV1AuthLoginData, PostApiV1AuthLoginError, PostApiV1AuthLoginResponse, PostApiV1AuthResendVerificationData, PostApiV1AuthResendVerificationError, PostApiV1AuthResendVerificationResponse, PostApiV1AuthSignupData, PostApiV1AuthSignupError, PostApiV1AuthSignupResponse, PostApiV1AuthVerifyEmailData, PostApiV1AuthVerifyEmailError, PostApiV1AuthVerifyEmailResponse, PostApiV1BrandRequestsData, PostApiV1BrandRequestsError, PostApiV1BrandRequestsResponse, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewError, PostApiV1CardsByIdViewResponse, PostApiV1CardsData, PostApiV1CardsError, PostApiV1CardsResponse } from '../types.gen';
+import { deleteApiV1CardsById, getApiV1AuthMe, getApiV1Brands, getApiV1Cards, getApiV1CardsById, type Options, patchApiV1CardsById, postApiV1AuthForgotPassword, postApiV1AuthLogin, postApiV1AuthResendVerification, postApiV1AuthResetPassword, postApiV1AuthSignup, postApiV1AuthVerifyEmail, postApiV1BrandRequests, postApiV1Cards, postApiV1CardsByIdView } from '../sdk.gen';
+import type { DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdError, DeleteApiV1CardsByIdResponse, GetApiV1AuthMeData, GetApiV1AuthMeError, GetApiV1AuthMeResponse, GetApiV1BrandsData, GetApiV1BrandsError, GetApiV1BrandsResponse, GetApiV1CardsByIdData, GetApiV1CardsByIdError, GetApiV1CardsByIdResponse, GetApiV1CardsData, GetApiV1CardsError, GetApiV1CardsResponse, PatchApiV1CardsByIdData, PatchApiV1CardsByIdError, PatchApiV1CardsByIdResponse, PostApiV1AuthForgotPasswordData, PostApiV1AuthForgotPasswordError, PostApiV1AuthForgotPasswordResponse, PostApiV1AuthLoginData, PostApiV1AuthLoginError, PostApiV1AuthLoginResponse, PostApiV1AuthResendVerificationData, PostApiV1AuthResendVerificationError, PostApiV1AuthResendVerificationResponse, PostApiV1AuthResetPasswordData, PostApiV1AuthResetPasswordError, PostApiV1AuthResetPasswordResponse, PostApiV1AuthSignupData, PostApiV1AuthSignupError, PostApiV1AuthSignupResponse, PostApiV1AuthVerifyEmailData, PostApiV1AuthVerifyEmailError, PostApiV1AuthVerifyEmailResponse, PostApiV1BrandRequestsData, PostApiV1BrandRequestsError, PostApiV1BrandRequestsResponse, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewError, PostApiV1CardsByIdViewResponse, PostApiV1CardsData, PostApiV1CardsError, PostApiV1CardsResponse } from '../types.gen';
 
 /**
  * Sign in with email and password; returns a JWT access token
@@ -64,6 +64,40 @@ export const postApiV1AuthResendVerificationMutation = (options?: Partial<Option
     const mutationOptions: UseMutationOptions<PostApiV1AuthResendVerificationResponse, PostApiV1AuthResendVerificationError, Options<PostApiV1AuthResendVerificationData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await postApiV1AuthResendVerification({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Request a password reset email. Returns the same response whether or not the email exists (no user enumeration). The emailed link is single-use and expires after 60 minutes. Rate limits: 5 requests/minute per IP and 3/minute per email.
+ */
+export const postApiV1AuthForgotPasswordMutation = (options?: Partial<Options<PostApiV1AuthForgotPasswordData>>): UseMutationOptions<PostApiV1AuthForgotPasswordResponse, PostApiV1AuthForgotPasswordError, Options<PostApiV1AuthForgotPasswordData>> => {
+    const mutationOptions: UseMutationOptions<PostApiV1AuthForgotPasswordResponse, PostApiV1AuthForgotPasswordError, Options<PostApiV1AuthForgotPasswordData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await postApiV1AuthForgotPassword({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Set a new password using the token from the reset email. The new password must meet the sign-up password policy. On success, all existing access tokens for the user stop working; the user must sign in again. Rate limit: 10 requests/minute per IP.
+ */
+export const postApiV1AuthResetPasswordMutation = (options?: Partial<Options<PostApiV1AuthResetPasswordData>>): UseMutationOptions<PostApiV1AuthResetPasswordResponse, PostApiV1AuthResetPasswordError, Options<PostApiV1AuthResetPasswordData>> => {
+    const mutationOptions: UseMutationOptions<PostApiV1AuthResetPasswordResponse, PostApiV1AuthResetPasswordError, Options<PostApiV1AuthResetPasswordData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await postApiV1AuthResetPassword({
                 ...options,
                 ...fnOptions,
                 throwOnError: true
