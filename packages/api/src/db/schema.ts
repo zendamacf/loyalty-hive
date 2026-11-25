@@ -79,6 +79,24 @@ export const apiKeys = pgTable(
   ],
 );
 
+/** Admin panel accounts. Separate from `users`: an app user is never an admin. */
+export const adminUsers = pgTable(
+  "admin_users",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    email: text("email").notNull(),
+    passwordHash: text("password_hash").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    /** Admin sessions issued before this time are rejected. */
+    passwordChangedAt: timestamp("password_changed_at"),
+    /** Set to block login and all existing sessions for this admin. */
+    disabledAt: timestamp("disabled_at"),
+  },
+  (table) => [
+    uniqueIndex("admin_users_email_unique_idx").on(lower(table.email)),
+  ],
+);
+
 export const cards = pgTable(
   "cards",
   {

@@ -169,7 +169,10 @@ bun run lint:fix      # Biome check + write
 bun run typecheck     # tsc --noEmit
 bun run test          # Integration tests (requires DATABASE_URL)
 bun run db:migrate    # Apply Drizzle migrations
+bun run admin:create <email>  # Create an admin panel account (prompts for the password)
 ```
+
+Admin accounts are in the `admin_users` table. They are separate from app `users`. There is no signup endpoint for admins. To create an admin in a running container, use `docker compose exec api bun run admin:create <email>`.
 
 **App** (`packages/app`):
 
