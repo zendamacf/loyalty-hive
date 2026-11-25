@@ -1,4 +1,5 @@
 import {
+  AUTH_DELETE_ACCOUNT_RATE_LIMIT,
   AUTH_FORGOT_PASSWORD_EMAIL_RATE_LIMIT,
   AUTH_FORGOT_PASSWORD_IP_RATE_LIMIT,
   AUTH_RESEND_VERIFICATION_EMAIL_RATE_LIMIT,
@@ -44,13 +45,53 @@ export function getAuthResendVerificationEmailRateLimit() {
 }
 
 export function getAuthForgotPasswordIpRateLimit() {
-  return AUTH_FORGOT_PASSWORD_IP_RATE_LIMIT;
+  return {
+    max: parsePositiveInt(
+      "RATE_LIMIT_AUTH_FORGOT_PASSWORD_IP_MAX",
+      AUTH_FORGOT_PASSWORD_IP_RATE_LIMIT.max,
+    ),
+    windowMs: parsePositiveInt(
+      "RATE_LIMIT_AUTH_FORGOT_PASSWORD_IP_WINDOW_MS",
+      AUTH_FORGOT_PASSWORD_IP_RATE_LIMIT.windowMs,
+    ),
+  };
 }
 
 export function getAuthForgotPasswordEmailRateLimit() {
-  return AUTH_FORGOT_PASSWORD_EMAIL_RATE_LIMIT;
+  return {
+    max: parsePositiveInt(
+      "RATE_LIMIT_AUTH_FORGOT_PASSWORD_EMAIL_MAX",
+      AUTH_FORGOT_PASSWORD_EMAIL_RATE_LIMIT.max,
+    ),
+    windowMs: parsePositiveInt(
+      "RATE_LIMIT_AUTH_FORGOT_PASSWORD_EMAIL_WINDOW_MS",
+      AUTH_FORGOT_PASSWORD_EMAIL_RATE_LIMIT.windowMs,
+    ),
+  };
 }
 
 export function getAuthResetPasswordIpRateLimit() {
-  return AUTH_RESET_PASSWORD_IP_RATE_LIMIT;
+  return {
+    max: parsePositiveInt(
+      "RATE_LIMIT_AUTH_RESET_PASSWORD_IP_MAX",
+      AUTH_RESET_PASSWORD_IP_RATE_LIMIT.max,
+    ),
+    windowMs: parsePositiveInt(
+      "RATE_LIMIT_AUTH_RESET_PASSWORD_IP_WINDOW_MS",
+      AUTH_RESET_PASSWORD_IP_RATE_LIMIT.windowMs,
+    ),
+  };
+}
+
+export function getAuthDeleteAccountRateLimit() {
+  return {
+    max: parsePositiveInt(
+      "RATE_LIMIT_AUTH_DELETE_ACCOUNT_MAX",
+      AUTH_DELETE_ACCOUNT_RATE_LIMIT.max,
+    ),
+    windowMs: parsePositiveInt(
+      "RATE_LIMIT_AUTH_DELETE_ACCOUNT_WINDOW_MS",
+      AUTH_DELETE_ACCOUNT_RATE_LIMIT.windowMs,
+    ),
+  };
 }

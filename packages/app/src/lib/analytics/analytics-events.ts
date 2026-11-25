@@ -10,6 +10,8 @@ export const AnalyticsEvents = {
   AUTH_PASSWORD_RESET_REQUEST_FAILED: "auth_password_reset_request_failed",
   AUTH_PASSWORD_RESET: "auth_password_reset",
   AUTH_PASSWORD_RESET_FAILED: "auth_password_reset_failed",
+  AUTH_ACCOUNT_DELETE: "auth_account_delete",
+  AUTH_ACCOUNT_DELETE_FAILED: "auth_account_delete_failed",
   AUTH_SIGN_OUT: "auth_sign_out",
   CARDS_SORT: "cards_sort",
   CARDS_SEARCH: "cards_search",

@@ -196,6 +196,57 @@ export type PostApiV1AuthResetPasswordResponses = {
 
 export type PostApiV1AuthResetPasswordResponse = PostApiV1AuthResetPasswordResponses[keyof PostApiV1AuthResetPasswordResponses];
 
+export type DeleteApiV1AuthMeData = {
+    body: {
+        password: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/me';
+};
+
+export type DeleteApiV1AuthMeErrors = {
+    /**
+     * Invalid request input
+     */
+    400: {
+        error: string;
+        issues: Array<unknown>;
+    };
+    /**
+     * Unauthorized
+     */
+    401: {
+        error: string;
+    };
+    /**
+     * Incorrect password
+     */
+    403: {
+        error: string;
+    };
+    /**
+     * Too many requests
+     */
+    429: {
+        error: string;
+    };
+};
+
+export type DeleteApiV1AuthMeError = DeleteApiV1AuthMeErrors[keyof DeleteApiV1AuthMeErrors];
+
+export type DeleteApiV1AuthMeResponses = {
+    /**
+     * Account deleted
+     */
+    200: {
+        deleted: true;
+        purgeAfter: string;
+    };
+};
+
+export type DeleteApiV1AuthMeResponse = DeleteApiV1AuthMeResponses[keyof DeleteApiV1AuthMeResponses];
+
 export type GetApiV1AuthMeData = {
     body?: never;
     path?: never;

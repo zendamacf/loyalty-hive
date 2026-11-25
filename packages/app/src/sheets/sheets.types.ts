@@ -58,5 +58,6 @@ declare module "react-native-actions-sheet" {
     [SheetIds.REQUEST_BRAND]: SheetDefinition<{
       payload: RequestBrandSheetPayload;
     }>;
+    [SheetIds.DELETE_ACCOUNT]: SheetDefinition;
   }
 }

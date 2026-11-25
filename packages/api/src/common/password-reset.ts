@@ -1,7 +1,7 @@
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 
 import { hash as bcryptHash } from "bcryptjs";
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { users } from "../db/schema.js";
 import {
@@ -73,7 +73,9 @@ export async function resetPasswordWithToken(
       expiresAt: users.passwordResetExpiresAt,
     })
     .from(users)
-    .where(eq(users.passwordResetTokenHash, tokenHash));
+    .where(
+      and(eq(users.passwordResetTokenHash, tokenHash), isNull(users.deletedAt)),
+    );
 
   if (!user?.storedHash || !user.expiresAt) {
     return { ok: false };

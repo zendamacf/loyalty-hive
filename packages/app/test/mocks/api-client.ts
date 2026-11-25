@@ -6,6 +6,7 @@ import type {
   GetApiV1CardsByIdResponse,
   GetApiV1CardsResponse,
   PatchApiV1CardsByIdResponse,
+  DeleteApiV1AuthMeResponse,
   PostApiV1AuthForgotPasswordResponse,
   PostApiV1AuthLoginResponse,
   PostApiV1AuthResendVerificationResponse,
@@ -80,6 +81,17 @@ export const postApiV1AuthResendVerificationMock = mock(
         data: {
           message: "If your account needs verification, we sent an email.",
         },
+        error: undefined,
+      },
+      options,
+    ),
+);
+
+export const deleteApiV1AuthMeMock = mock(
+  (options?: SdkOptions): Promise<ApiMockResult<DeleteApiV1AuthMeResponse>> =>
+    resolveApiMock(
+      {
+        data: { deleted: true, purgeAfter: "2027-01-01T00:00:00.000Z" },
         error: undefined,
       },
       options,
@@ -225,6 +237,7 @@ const sdkMocks = {
   postApiV1AuthSignup: postApiV1AuthSignupMock,
   postApiV1AuthVerifyEmail: postApiV1AuthVerifyEmailMock,
   postApiV1AuthResendVerification: postApiV1AuthResendVerificationMock,
+  deleteApiV1AuthMe: deleteApiV1AuthMeMock,
   postApiV1AuthForgotPassword: postApiV1AuthForgotPasswordMock,
   postApiV1AuthResetPassword: postApiV1AuthResetPasswordMock,
   getApiV1AuthMe: getApiV1AuthMeMock,

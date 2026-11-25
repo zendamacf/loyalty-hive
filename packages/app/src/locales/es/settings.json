@@ -5,5 +5,14 @@
   "about": "Acerca de",
   "signOut": "Cerrar sesión",
   "languageEnglish": "Inglés",
-  "languageSpanish": "Español"
+  "languageSpanish": "Español",
+  "deleteAccount": "Eliminar cuenta",
+  "deleteAccountConfirmTitle": "¿Eliminar tu cuenta?",
+  "deleteAccountConfirmMessage": "Se eliminarán tu cuenta, tus tarjetas y tus solicitudes de marcas. Se cerrará tu sesión ahora y no podrás volver a iniciarla. A los 30 días los datos se borran de forma definitiva y no se pueden recuperar. Para restaurar la cuenta antes, contacta con soporte.",
+  "deleteAccountPasswordLabel": "Introduce tu contraseña para confirmar",
+  "deleteAccountPasswordPlaceholder": "Contraseña",
+  "deleteAccountConfirmYes": "Sí, eliminar mi cuenta",
+  "deleteAccountConfirmNo": "No, conservar mi cuenta",
+  "deleteAccountDeleting": "Eliminando…",
+  "closeDeleteAccountSheetA11y": "Cerrar eliminar cuenta"
 }

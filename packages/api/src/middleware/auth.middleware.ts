@@ -33,13 +33,20 @@ export const requireUserAuth: MiddlewareHandler<AuthEnv> = async (c, next) => {
   if (!userId)
     throw Unauthorized("You must be logged in to access this resource");
 
-  // Reject tokens issued before the last password change (session revocation).
+  // Reject tokens for deleted accounts and tokens issued before the last password change.
   const [user] = await db
-    .select({ passwordChangedAt: users.passwordChangedAt })
+    .select({
+      passwordChangedAt: users.passwordChangedAt,
+      deletedAt: users.deletedAt,
+    })
     .from(users)
     .where(eq(users.id, userId));
+  // No row: the account was removed. A deleted row: it awaits the final purge.
+  if (!user || user.deletedAt) {
+    throw Unauthorized("You must be logged in to access this resource");
+  }
   if (
-    user?.passwordChangedAt &&
+    user.passwordChangedAt &&
     issuedAt < Math.floor(user.passwordChangedAt.getTime() / 1000)
   ) {
     throw Unauthorized("You must be logged in to access this resource");

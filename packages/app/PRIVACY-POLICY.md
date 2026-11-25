@@ -40,7 +40,9 @@ You can stop all collection of information by the Application easily by uninstal
 
 **Data Retention Policy**
 
-The Service Provider will retain User Provided data for as long as you use the Application and for a reasonable time thereafter. If you'd like them to delete User Provided Data that you have provided via the Application, please contact them at kalopsia.apps@gmail.com and they will respond in a reasonable time.
+The Service Provider will retain User Provided data for as long as you use the Application.
+
+You can delete your account in the Application: open Settings, choose Delete account, and enter your password. Your account is closed at once and you cannot sign in. Your account, your cards and your brand requests are kept for 30 days so the account can be restored if you ask, and are then deleted for good. To restore your account within the 30 days, or to ask for deletion without the Application, contact the Service Provider at kalopsia.apps@gmail.com.
 
 **Children**
 

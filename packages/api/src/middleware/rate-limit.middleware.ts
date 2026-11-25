@@ -3,6 +3,7 @@ import type { MiddlewareHandler } from "hono";
 import { getClientIp } from "../common/client-ip.js";
 import { TooManyRequests } from "../common/error.js";
 import {
+  getAuthDeleteAccountRateLimit,
   getAuthForgotPasswordEmailRateLimit,
   getAuthForgotPasswordIpRateLimit,
   getAuthLoginEmailRateLimit,
@@ -97,5 +98,16 @@ export const authResetPasswordIpRateLimit: MiddlewareHandler = async (
 ) => {
   const { max, windowMs } = getAuthResetPasswordIpRateLimit();
   enforceRateLimit(c, "auth:reset-password:ip", getClientIp(c), max, windowMs);
+  return next();
+};
+
+/** Limits wrong-password guesses. Run after `requireUserAuth`. */
+export const authDeleteAccountRateLimit: MiddlewareHandler = async (
+  c,
+  next,
+) => {
+  const userId = c.get("userId") as string;
+  const { max, windowMs } = getAuthDeleteAccountRateLimit();
+  enforceRateLimit(c, "auth:delete-account:user", userId, max, windowMs);
   return next();
 };

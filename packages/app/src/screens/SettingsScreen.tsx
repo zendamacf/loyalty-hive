@@ -19,6 +19,7 @@ import {
   useTrackScreenView,
 } from "@/lib/analytics";
 import { useAuth } from "@/lib/auth";
+import { showDeleteAccountSheet } from "@/sheets";
 import { spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
@@ -61,6 +62,16 @@ export const SettingsScreen = () => {
           >
             <Text style={[typography.link, { color: theme.textPrimary }]}>
               {t("about")}
+            </Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t("deleteAccount")}
+            testID="delete-account"
+            onPress={() => void showDeleteAccountSheet()}
+          >
+            <Text style={[typography.link, { color: theme.error }]}>
+              {t("deleteAccount")}
             </Text>
           </Pressable>
         </Form>
