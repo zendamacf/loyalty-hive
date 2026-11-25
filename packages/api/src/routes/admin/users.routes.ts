@@ -13,10 +13,7 @@ import z from "zod";
 
 import { db } from "../../db/client.js";
 import { users } from "../../db/schema.js";
-import {
-  type AdminEnv,
-  requireAdmin,
-} from "../../middleware/admin-auth.middleware.js";
+import type { AdminEnv } from "../../middleware/admin-auth.middleware.js";
 
 export const ADMIN_USERS_DEFAULT_LIMIT = 50;
 export const ADMIN_USERS_MAX_LIMIT = 100;
@@ -56,9 +53,10 @@ function buildWhere(query: z.infer<typeof listQuerySchema>): SQL | undefined {
   return and(...conditions);
 }
 
-const app = new Hono<AdminEnv>()
-  .use(requireAdmin)
-  .get("/", validator("query", listQuerySchema), async (c) => {
+const app = new Hono<AdminEnv>().get(
+  "/",
+  validator("query", listQuerySchema),
+  async (c) => {
     const query = c.req.valid("query");
     const where = buildWhere(query);
 
@@ -91,6 +89,7 @@ const app = new Hono<AdminEnv>()
       limit: query.limit,
       offset: query.offset,
     });
-  });
+  },
+);
 
 export default app;

@@ -16,10 +16,7 @@ import { Unauthorized } from "../../common/error.js";
 import { loginPasswordSchema } from "../../common/password-policy.js";
 import { db } from "../../db/client.js";
 import { adminUsers, lower } from "../../db/schema.js";
-import {
-  type AdminEnv,
-  requireAdmin,
-} from "../../middleware/admin-auth.middleware.js";
+import type { AdminEnv } from "../../middleware/admin-auth.middleware.js";
 import {
   adminLoginEmailRateLimit,
   adminLoginIpRateLimit,
@@ -27,7 +24,7 @@ import {
 
 const loginBodySchema = z.object({
   email: z.string().trim().toLowerCase().pipe(z.email()),
-  password: loginPasswordSchema,
+  password: loginPasswordSchema.max(1024, "Password is too long"),
 });
 
 const INVALID_CREDENTIALS_MESSAGE = "Invalid email or password";
@@ -81,12 +78,12 @@ const app = new Hono<AdminEnv>()
     clearAdminSessionCookie(c);
     return c.body(null, 204);
   })
-  .get("/me", requireAdmin, async (c) => {
+  // admin.router checks the session for /me.
+  .get("/me", async (c) => {
     const [admin] = await db
       .select({ id: adminUsers.id, email: adminUsers.email })
       .from(adminUsers)
       .where(eq(adminUsers.id, c.get("adminId")));
-    // requireAdmin already checked that the row exists.
     return c.json(admin);
   });
 

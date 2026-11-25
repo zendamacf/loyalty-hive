@@ -10,13 +10,28 @@ import {
   ADMIN_SESSION_COOKIE_PATH,
 } from "./constants.js";
 
+/** A shorter HS256 secret can be guessed offline from one captured token. */
+export const ADMIN_JWT_SECRET_MIN_LENGTH = 32;
+
 /**
- * Admin auth needs its own secret. An empty secret, or the app user secret,
- * would let app tokens or forged tokens through, so both count as "not set".
+ * Returns why admin auth is off, or null when it is on. Admin auth needs its
+ * own long secret. An empty, short, or shared secret would let forged tokens
+ * or app tokens through.
  */
-export function isAdminAuthConfigured(): boolean {
+export function adminAuthConfigProblem(): string | null {
   const { secret } = config.adminJwt;
-  return secret !== "" && secret !== config.jwt.accessSecret;
+  if (secret === "") return "ADMIN_JWT_SECRET is not set";
+  if (secret.length < ADMIN_JWT_SECRET_MIN_LENGTH) {
+    return `ADMIN_JWT_SECRET must have at least ${ADMIN_JWT_SECRET_MIN_LENGTH} characters`;
+  }
+  if (secret === config.jwt.accessSecret) {
+    return "ADMIN_JWT_SECRET must be different from JWT_ACCESS_SECRET";
+  }
+  return null;
+}
+
+export function isAdminAuthConfigured(): boolean {
+  return adminAuthConfigProblem() === null;
 }
 
 export async function signAdminToken(adminId: string): Promise<string> {
@@ -43,11 +58,16 @@ export async function verifyAdminToken(
       alg: "HS256",
       aud: ADMIN_JWT_AUDIENCE,
     });
-    if (typeof payload.sub !== "string") return null;
-    return {
-      adminId: payload.sub,
-      issuedAt: typeof payload.iat === "number" ? payload.iat : 0,
-    };
+    // hono/jwt checks exp and iat only when they are present. Require them,
+    // so that no token is valid forever.
+    if (
+      typeof payload.sub !== "string" ||
+      typeof payload.exp !== "number" ||
+      typeof payload.iat !== "number"
+    ) {
+      return null;
+    }
+    return { adminId: payload.sub, issuedAt: payload.iat };
   } catch {
     return null;
   }

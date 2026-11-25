@@ -5,10 +5,7 @@ import z from "zod";
 
 import { db } from "../../db/client.js";
 import { brandRequests, users } from "../../db/schema.js";
-import {
-  type AdminEnv,
-  requireAdmin,
-} from "../../middleware/admin-auth.middleware.js";
+import type { AdminEnv } from "../../middleware/admin-auth.middleware.js";
 
 export const ADMIN_BRAND_REQUESTS_DEFAULT_LIMIT = 50;
 export const ADMIN_BRAND_REQUESTS_MAX_LIMIT = 100;
@@ -24,9 +21,10 @@ const listQuerySchema = z.object({
   offset: z.coerce.number().int().min(0).default(0),
 });
 
-const app = new Hono<AdminEnv>()
-  .use(requireAdmin)
-  .get("/", validator("query", listQuerySchema), async (c) => {
+const app = new Hono<AdminEnv>().get(
+  "/",
+  validator("query", listQuerySchema),
+  async (c) => {
     const { status, limit, offset } = c.req.valid("query");
     const where = status ? eq(brandRequests.status, status) : undefined;
 
@@ -67,6 +65,7 @@ const app = new Hono<AdminEnv>()
       limit,
       offset,
     });
-  });
+  },
+);
 
 export default app;
