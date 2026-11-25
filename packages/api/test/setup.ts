@@ -16,6 +16,9 @@ process.env.RATE_LIMIT_AUTH_LOGIN_IP_MAX ??= "10000";
 process.env.RATE_LIMIT_AUTH_LOGIN_EMAIL_MAX ??= "10000";
 process.env.RATE_LIMIT_AUTH_SIGNUP_IP_MAX ??= "10000";
 process.env.RATE_LIMIT_AUTH_DELETE_ACCOUNT_MAX ??= "10000";
+process.env.RATE_LIMIT_AUTH_FORGOT_PASSWORD_IP_MAX ??= "10000";
+process.env.RATE_LIMIT_AUTH_FORGOT_PASSWORD_EMAIL_MAX ??= "10000";
+process.env.RATE_LIMIT_AUTH_RESET_PASSWORD_IP_MAX ??= "10000";
 
 await migrateDatabase(testDatabaseUrl);
 
