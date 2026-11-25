@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdErrors, DeleteApiV1CardsByIdResponses, GetApiV1AuthMeData, GetApiV1AuthMeErrors, GetApiV1AuthMeResponses, GetApiV1BrandsData, GetApiV1BrandsErrors, GetApiV1BrandsResponses, GetApiV1CardsByIdData, GetApiV1CardsByIdErrors, GetApiV1CardsByIdResponses, GetApiV1CardsData, GetApiV1CardsErrors, GetApiV1CardsResponses, PatchApiV1CardsByIdData, PatchApiV1CardsByIdErrors, PatchApiV1CardsByIdResponses, PostApiV1AuthForgotPasswordData, PostApiV1AuthForgotPasswordErrors, PostApiV1AuthForgotPasswordResponses, PostApiV1AuthLoginData, PostApiV1AuthLoginErrors, PostApiV1AuthLoginResponses, PostApiV1AuthResendVerificationData, PostApiV1AuthResendVerificationErrors, PostApiV1AuthResendVerificationResponses, PostApiV1AuthResetPasswordData, PostApiV1AuthResetPasswordErrors, PostApiV1AuthResetPasswordResponses, PostApiV1AuthSignupData, PostApiV1AuthSignupErrors, PostApiV1AuthSignupResponses, PostApiV1AuthVerifyEmailData, PostApiV1AuthVerifyEmailErrors, PostApiV1AuthVerifyEmailResponses, PostApiV1BrandRequestsData, PostApiV1BrandRequestsErrors, PostApiV1BrandRequestsResponses, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewErrors, PostApiV1CardsByIdViewResponses, PostApiV1CardsData, PostApiV1CardsErrors, PostApiV1CardsResponses } from './types.gen';
+import type { DeleteApiV1AuthMeData, DeleteApiV1AuthMeErrors, DeleteApiV1AuthMeResponses, DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdErrors, DeleteApiV1CardsByIdResponses, GetApiV1AuthMeData, GetApiV1AuthMeErrors, GetApiV1AuthMeResponses, GetApiV1BrandsData, GetApiV1BrandsErrors, GetApiV1BrandsResponses, GetApiV1CardsByIdData, GetApiV1CardsByIdErrors, GetApiV1CardsByIdResponses, GetApiV1CardsData, GetApiV1CardsErrors, GetApiV1CardsResponses, PatchApiV1CardsByIdData, PatchApiV1CardsByIdErrors, PatchApiV1CardsByIdResponses, PostApiV1AuthForgotPasswordData, PostApiV1AuthForgotPasswordErrors, PostApiV1AuthForgotPasswordResponses, PostApiV1AuthLoginData, PostApiV1AuthLoginErrors, PostApiV1AuthLoginResponses, PostApiV1AuthResendVerificationData, PostApiV1AuthResendVerificationErrors, PostApiV1AuthResendVerificationResponses, PostApiV1AuthResetPasswordData, PostApiV1AuthResetPasswordErrors, PostApiV1AuthResetPasswordResponses, PostApiV1AuthSignupData, PostApiV1AuthSignupErrors, PostApiV1AuthSignupResponses, PostApiV1AuthVerifyEmailData, PostApiV1AuthVerifyEmailErrors, PostApiV1AuthVerifyEmailResponses, PostApiV1BrandRequestsData, PostApiV1BrandRequestsErrors, PostApiV1BrandRequestsResponses, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewErrors, PostApiV1CardsByIdViewResponses, PostApiV1CardsData, PostApiV1CardsErrors, PostApiV1CardsResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -103,6 +103,19 @@ export const getApiV1AuthMe = <ThrowOnError extends boolean = false>(options?: O
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/auth/me',
     ...options
+});
+
+/**
+ * Delete the authenticated user's account. Needs the current password. The account is marked deleted at once: sign-in stops, and all access tokens stop working. Cards and brand requests are removed for good after 30 days, which is the time to ask support for a restore. The email stays reserved until then. Rate limit: 5 requests/minute per user.
+ */
+export const deleteApiV1AuthMe = <ThrowOnError extends boolean = false>(options: Options<DeleteApiV1AuthMeData, ThrowOnError>) => (options.client ?? client).delete<DeleteApiV1AuthMeResponses, DeleteApiV1AuthMeErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/auth/me',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
 });
 
 /**

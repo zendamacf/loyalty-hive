@@ -130,4 +130,16 @@ describe("[Integration] SettingsScreen i18n", () => {
     expect(await findByText("Ajustes")).toBeTruthy();
     expect(await findByText("Tema")).toBeTruthy();
   });
+
+  it("opens the delete account confirmation", async () => {
+    const { getByTestId, getByText } = await renderWithProviders(
+      <SettingsScreen />,
+    );
+
+    await press(getByTestId("delete-account"));
+
+    await waitFor(() => {
+      expect(getByText("Delete your account?")).toBeTruthy();
+    });
+  });
 });

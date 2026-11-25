@@ -3,8 +3,8 @@
 import { queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { deleteApiV1CardsById, getApiV1AuthMe, getApiV1Brands, getApiV1Cards, getApiV1CardsById, type Options, patchApiV1CardsById, postApiV1AuthForgotPassword, postApiV1AuthLogin, postApiV1AuthResendVerification, postApiV1AuthResetPassword, postApiV1AuthSignup, postApiV1AuthVerifyEmail, postApiV1BrandRequests, postApiV1Cards, postApiV1CardsByIdView } from '../sdk.gen';
-import type { DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdError, DeleteApiV1CardsByIdResponse, GetApiV1AuthMeData, GetApiV1AuthMeError, GetApiV1AuthMeResponse, GetApiV1BrandsData, GetApiV1BrandsError, GetApiV1BrandsResponse, GetApiV1CardsByIdData, GetApiV1CardsByIdError, GetApiV1CardsByIdResponse, GetApiV1CardsData, GetApiV1CardsError, GetApiV1CardsResponse, PatchApiV1CardsByIdData, PatchApiV1CardsByIdError, PatchApiV1CardsByIdResponse, PostApiV1AuthForgotPasswordData, PostApiV1AuthForgotPasswordError, PostApiV1AuthForgotPasswordResponse, PostApiV1AuthLoginData, PostApiV1AuthLoginError, PostApiV1AuthLoginResponse, PostApiV1AuthResendVerificationData, PostApiV1AuthResendVerificationError, PostApiV1AuthResendVerificationResponse, PostApiV1AuthResetPasswordData, PostApiV1AuthResetPasswordError, PostApiV1AuthResetPasswordResponse, PostApiV1AuthSignupData, PostApiV1AuthSignupError, PostApiV1AuthSignupResponse, PostApiV1AuthVerifyEmailData, PostApiV1AuthVerifyEmailError, PostApiV1AuthVerifyEmailResponse, PostApiV1BrandRequestsData, PostApiV1BrandRequestsError, PostApiV1BrandRequestsResponse, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewError, PostApiV1CardsByIdViewResponse, PostApiV1CardsData, PostApiV1CardsError, PostApiV1CardsResponse } from '../types.gen';
+import { deleteApiV1AuthMe, deleteApiV1CardsById, getApiV1AuthMe, getApiV1Brands, getApiV1Cards, getApiV1CardsById, type Options, patchApiV1CardsById, postApiV1AuthForgotPassword, postApiV1AuthLogin, postApiV1AuthResendVerification, postApiV1AuthResetPassword, postApiV1AuthSignup, postApiV1AuthVerifyEmail, postApiV1BrandRequests, postApiV1Cards, postApiV1CardsByIdView } from '../sdk.gen';
+import type { DeleteApiV1AuthMeData, DeleteApiV1AuthMeError, DeleteApiV1AuthMeResponse, DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdError, DeleteApiV1CardsByIdResponse, GetApiV1AuthMeData, GetApiV1AuthMeError, GetApiV1AuthMeResponse, GetApiV1BrandsData, GetApiV1BrandsError, GetApiV1BrandsResponse, GetApiV1CardsByIdData, GetApiV1CardsByIdError, GetApiV1CardsByIdResponse, GetApiV1CardsData, GetApiV1CardsError, GetApiV1CardsResponse, PatchApiV1CardsByIdData, PatchApiV1CardsByIdError, PatchApiV1CardsByIdResponse, PostApiV1AuthForgotPasswordData, PostApiV1AuthForgotPasswordError, PostApiV1AuthForgotPasswordResponse, PostApiV1AuthLoginData, PostApiV1AuthLoginError, PostApiV1AuthLoginResponse, PostApiV1AuthResendVerificationData, PostApiV1AuthResendVerificationError, PostApiV1AuthResendVerificationResponse, PostApiV1AuthResetPasswordData, PostApiV1AuthResetPasswordError, PostApiV1AuthResetPasswordResponse, PostApiV1AuthSignupData, PostApiV1AuthSignupError, PostApiV1AuthSignupResponse, PostApiV1AuthVerifyEmailData, PostApiV1AuthVerifyEmailError, PostApiV1AuthVerifyEmailResponse, PostApiV1BrandRequestsData, PostApiV1BrandRequestsError, PostApiV1BrandRequestsResponse, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewError, PostApiV1CardsByIdViewResponse, PostApiV1CardsData, PostApiV1CardsError, PostApiV1CardsResponse } from '../types.gen';
 
 /**
  * Sign in with email and password; returns a JWT access token
@@ -158,6 +158,23 @@ export const getApiV1AuthMeOptions = (options?: Options<GetApiV1AuthMeData>) => 
     },
     queryKey: getApiV1AuthMeQueryKey(options)
 });
+
+/**
+ * Delete the authenticated user's account. Needs the current password. The account is marked deleted at once: sign-in stops, and all access tokens stop working. Cards and brand requests are removed for good after 30 days, which is the time to ask support for a restore. The email stays reserved until then. Rate limit: 5 requests/minute per user.
+ */
+export const deleteApiV1AuthMeMutation = (options?: Partial<Options<DeleteApiV1AuthMeData>>): UseMutationOptions<DeleteApiV1AuthMeResponse, DeleteApiV1AuthMeError, Options<DeleteApiV1AuthMeData>> => {
+    const mutationOptions: UseMutationOptions<DeleteApiV1AuthMeResponse, DeleteApiV1AuthMeError, Options<DeleteApiV1AuthMeData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteApiV1AuthMe({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const getApiV1BrandsQueryKey = (options?: Options<GetApiV1BrandsData>) => createQueryKey('getApiV1Brands', options);
 

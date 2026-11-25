@@ -5,5 +5,14 @@
   "about": "About",
   "signOut": "Sign out",
   "languageEnglish": "English",
-  "languageSpanish": "Español"
+  "languageSpanish": "Español",
+  "deleteAccount": "Delete account",
+  "deleteAccountConfirmTitle": "Delete your account?",
+  "deleteAccountConfirmMessage": "Your account, cards and brand requests will be deleted. You are signed out now and cannot sign in again. After 30 days the data is removed for good and cannot be restored. To restore the account before then, contact support.",
+  "deleteAccountPasswordLabel": "Enter your password to confirm",
+  "deleteAccountPasswordPlaceholder": "Password",
+  "deleteAccountConfirmYes": "Yes, delete my account",
+  "deleteAccountConfirmNo": "No, keep my account",
+  "deleteAccountDeleting": "Deleting…",
+  "closeDeleteAccountSheetA11y": "Close delete account"
 }

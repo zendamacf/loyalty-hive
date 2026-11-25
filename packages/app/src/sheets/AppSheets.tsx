@@ -1,6 +1,7 @@
 import { SheetRegister } from "react-native-actions-sheet";
 
 import { CardDetailsSheet } from "./CardDetailsSheet";
+import { DeleteAccountSheet } from "./DeleteAccountSheet";
 import { DeleteCardSheet } from "./DeleteCardSheet";
 import { EditCardSheet } from "./EditCardSheet";
 import { RequestBrandSheet } from "./RequestBrandSheet";
@@ -16,6 +17,7 @@ export const AppSheets = () => (
       [SheetIds.DELETE_CARD]: DeleteCardSheet,
       [SheetIds.SCAN_MANUAL_ENTRY]: ScanManualEntrySheet,
       [SheetIds.REQUEST_BRAND]: RequestBrandSheet,
+      [SheetIds.DELETE_ACCOUNT]: DeleteAccountSheet,
     }}
   />
 );

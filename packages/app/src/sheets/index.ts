@@ -26,3 +26,6 @@ export const showScanManualEntrySheet = (
 
 export const showRequestBrandSheet = (payload: RequestBrandSheetPayload) =>
   SheetManager.show(SheetIds.REQUEST_BRAND, { payload });
+
+export const showDeleteAccountSheet = () =>
+  SheetManager.show(SheetIds.DELETE_ACCOUNT);
