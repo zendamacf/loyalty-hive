@@ -1,5 +1,18 @@
 # @loyalty-hive/app
 
+## 1.4.0
+
+### Minor Changes
+
+- 6549b7c: Add an About screen, opened from Settings. It shows the app version and a disclaimer that the app is not affiliated with the brands it supports.
+- 09a24d8: Open your cards and show barcodes without a connection. Your cards are saved encrypted on the device, refreshed in the background when you are online, and removed when you sign out.
+- 22328d8: Add a Third-party software list, opened from the About screen. It shows the open-source packages that the app uses, with their licences. It uses react-native-legal, so the list also covers native libraries.
+
+### Patch Changes
+
+- 18c790d: Update expo-constants, expo-linking and expo-status-bar to the versions that Expo SDK 58 expects.
+- 5c6815f: Reduce Android app size with R8 minification. Native crash reports in Sentry stay readable.
+
 ## 1.3.0
 
 ### Minor Changes

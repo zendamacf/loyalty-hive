@@ -1,5 +1,16 @@
 # @loyalty-hive/api
 
+## 1.4.0
+
+### Minor Changes
+
+- a33bdea: Add Mitre 10 Club, Spotlight VIP Club, IKEA Family, Cinebuzz Rewards and SuperGold Card as brands.
+
+### Patch Changes
+
+- 6760296: Remove the Subway, New World and PAK'nSAVE brands. Subcard closed, and Club+ replaced the New World Clubcard. Rename Air New Zealand to Air New Zealand Koru. Existing cards keep their data.
+- ef54cac: Make the Docker image smaller. Use the Alpine base image. Install only production dependencies.
+
 ## 1.3.0
 
 ### Minor Changes
