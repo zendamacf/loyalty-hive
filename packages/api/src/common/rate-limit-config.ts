@@ -1,6 +1,9 @@
 import {
+  AUTH_FORGOT_PASSWORD_EMAIL_RATE_LIMIT,
+  AUTH_FORGOT_PASSWORD_IP_RATE_LIMIT,
   AUTH_RESEND_VERIFICATION_EMAIL_RATE_LIMIT,
   AUTH_RESEND_VERIFICATION_IP_RATE_LIMIT,
+  AUTH_RESET_PASSWORD_IP_RATE_LIMIT,
 } from "./constants.js";
 
 function parsePositiveInt(name: string, defaultValue: number): number {
@@ -38,4 +41,16 @@ export function getAuthResendVerificationIpRateLimit() {
 
 export function getAuthResendVerificationEmailRateLimit() {
   return AUTH_RESEND_VERIFICATION_EMAIL_RATE_LIMIT;
+}
+
+export function getAuthForgotPasswordIpRateLimit() {
+  return AUTH_FORGOT_PASSWORD_IP_RATE_LIMIT;
+}
+
+export function getAuthForgotPasswordEmailRateLimit() {
+  return AUTH_FORGOT_PASSWORD_EMAIL_RATE_LIMIT;
+}
+
+export function getAuthResetPasswordIpRateLimit() {
+  return AUTH_RESET_PASSWORD_IP_RATE_LIMIT;
 }

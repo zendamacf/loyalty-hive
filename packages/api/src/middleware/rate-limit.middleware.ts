@@ -3,10 +3,13 @@ import type { MiddlewareHandler } from "hono";
 import { getClientIp } from "../common/client-ip.js";
 import { TooManyRequests } from "../common/error.js";
 import {
+  getAuthForgotPasswordEmailRateLimit,
+  getAuthForgotPasswordIpRateLimit,
   getAuthLoginEmailRateLimit,
   getAuthLoginIpRateLimit,
   getAuthResendVerificationEmailRateLimit,
   getAuthResendVerificationIpRateLimit,
+  getAuthResetPasswordIpRateLimit,
   getAuthSignupIpRateLimit,
 } from "../common/rate-limit-config.js";
 import { rateLimitStore } from "../common/rate-limit-store.js";
@@ -66,5 +69,33 @@ export const authResendVerificationEmailRateLimit: MiddlewareHandler = async (
   const { email } = c.req.valid("json" as never) as { email: string };
   const { max, windowMs } = getAuthResendVerificationEmailRateLimit();
   enforceRateLimit(c, "auth:resend-verification:email", email, max, windowMs);
+  return next();
+};
+
+export const authForgotPasswordIpRateLimit: MiddlewareHandler = async (
+  c,
+  next,
+) => {
+  const { max, windowMs } = getAuthForgotPasswordIpRateLimit();
+  enforceRateLimit(c, "auth:forgot-password:ip", getClientIp(c), max, windowMs);
+  return next();
+};
+
+export const authForgotPasswordEmailRateLimit: MiddlewareHandler = async (
+  c,
+  next,
+) => {
+  const { email } = c.req.valid("json" as never) as { email: string };
+  const { max, windowMs } = getAuthForgotPasswordEmailRateLimit();
+  enforceRateLimit(c, "auth:forgot-password:email", email, max, windowMs);
+  return next();
+};
+
+export const authResetPasswordIpRateLimit: MiddlewareHandler = async (
+  c,
+  next,
+) => {
+  const { max, windowMs } = getAuthResetPasswordIpRateLimit();
+  enforceRateLimit(c, "auth:reset-password:ip", getClientIp(c), max, windowMs);
   return next();
 };

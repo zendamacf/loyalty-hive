@@ -26,3 +26,6 @@ export const EMAIL_NOT_VERIFIED_MESSAGE = "Email address not verified";
 
 export const INVALID_VERIFICATION_TOKEN_MESSAGE =
   "Invalid or expired verification link";
+
+export const INVALID_PASSWORD_RESET_TOKEN_MESSAGE =
+  "Invalid or expired password reset link";

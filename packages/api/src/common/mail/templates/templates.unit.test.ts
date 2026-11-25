@@ -10,6 +10,10 @@ import { emailColors, escapeHtml } from "./layout.js";
 /** One sample for each registered template. The type forces a sample for a new template. */
 const samples: { [K in EmailType]: EmailTemplateProps[K] } = {
   verifyEmail: { verifyUrl: "loyaltyhive://verify-email?token=abc" },
+  resetPassword: {
+    resetUrl: "loyaltyhive://reset-password?token=abc",
+    expiresInMinutes: 60,
+  },
 };
 
 describe("[Unit] email templates", () => {

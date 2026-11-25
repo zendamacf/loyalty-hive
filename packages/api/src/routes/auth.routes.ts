@@ -11,6 +11,7 @@ import {
 } from "../common/email-verification.js";
 import {
   BadRequest,
+  INVALID_PASSWORD_RESET_TOKEN_MESSAGE,
   INVALID_VERIFICATION_TOKEN_MESSAGE,
   Unauthorized,
 } from "../common/error.js";
@@ -24,6 +25,10 @@ import {
   loginPasswordSchema,
   signupPasswordSchema,
 } from "../common/password-policy.js";
+import {
+  issueAndSendPasswordResetEmail,
+  resetPasswordWithToken,
+} from "../common/password-reset.js";
 import { db } from "../db/client.js";
 import { lower, users } from "../db/schema.js";
 import { requireApiKey } from "../middleware/api-key.middleware.js";
@@ -32,10 +37,13 @@ import {
   requireUserAuth,
 } from "../middleware/auth.middleware.js";
 import {
+  authForgotPasswordEmailRateLimit,
+  authForgotPasswordIpRateLimit,
   authLoginEmailRateLimit,
   authLoginIpRateLimit,
   authResendVerificationEmailRateLimit,
   authResendVerificationIpRateLimit,
+  authResetPasswordIpRateLimit,
   authSignupIpRateLimit,
 } from "../middleware/rate-limit.middleware.js";
 
@@ -55,6 +63,15 @@ const verifyEmailBodySchema = z.object({
 
 const resendVerificationBodySchema = z.object({
   email: z.string().trim().toLowerCase().pipe(z.email()),
+});
+
+const forgotPasswordBodySchema = z.object({
+  email: z.string().trim().toLowerCase().pipe(z.email()),
+});
+
+const resetPasswordBodySchema = z.object({
+  token: z.string().min(1),
+  password: signupPasswordSchema,
 });
 
 const loginResponseSchema = z.object({
@@ -79,6 +96,17 @@ const verifyEmailResponseSchema = z.object({
 const resendVerificationResponseSchema = z.object({
   message: z.string(),
 });
+
+const forgotPasswordResponseSchema = z.object({
+  message: z.string(),
+});
+
+const resetPasswordResponseSchema = z.object({
+  reset: z.literal(true),
+});
+
+const FORGOT_PASSWORD_MESSAGE =
+  "If an account exists for this email, we sent password reset instructions.";
 
 const RESEND_VERIFICATION_MESSAGE =
   "If your account needs verification, we sent an email.";
@@ -268,6 +296,73 @@ const app = new Hono<AuthEnv>()
       }
 
       return c.json({ message: RESEND_VERIFICATION_MESSAGE });
+    },
+  )
+  .post(
+    "/forgot-password",
+    authForgotPasswordIpRateLimit,
+    requireApiKey,
+    describeRoute({
+      description:
+        "Request a password reset email. Returns the same response whether or not the email exists (no user enumeration). The emailed link is single-use and expires after 60 minutes. Rate limits: 5 requests/minute per IP and 3/minute per email.",
+      security: [{ apiKeyAuth: [] }],
+      responses: {
+        200: jsonResponse("Request accepted", forgotPasswordResponseSchema),
+        403: errorResponse("Invalid API key"),
+        429: errorResponse("Too many requests"),
+        400: validationErrorResponse(),
+      },
+    }),
+    validator("header", apiKeyHeaderSchema),
+    validator("json", forgotPasswordBodySchema),
+    authForgotPasswordEmailRateLimit,
+    async (c) => {
+      const { email } = c.req.valid("json");
+
+      const [user] = await db
+        .select({ id: users.id, email: users.email })
+        .from(users)
+        .where(eq(lower(users.email), email));
+
+      if (user) {
+        try {
+          await issueAndSendPasswordResetEmail(user.id, user.email);
+        } catch (error) {
+          console.error("[auth] Failed to send password reset email", error);
+        }
+      }
+
+      return c.json({ message: FORGOT_PASSWORD_MESSAGE });
+    },
+  )
+  .post(
+    "/reset-password",
+    authResetPasswordIpRateLimit,
+    requireApiKey,
+    describeRoute({
+      description:
+        "Set a new password using the token from the reset email. The new password must meet the sign-up password policy. On success, all existing access tokens for the user stop working; the user must sign in again. Rate limit: 10 requests/minute per IP.",
+      security: [{ apiKeyAuth: [] }],
+      responses: {
+        200: jsonResponse("Password reset", resetPasswordResponseSchema),
+        400: validationErrorResponse(
+          "Invalid or expired reset link, weak password, or validation error",
+        ),
+        403: errorResponse("Invalid API key"),
+        429: errorResponse("Too many requests"),
+      },
+    }),
+    validator("header", apiKeyHeaderSchema),
+    validator("json", resetPasswordBodySchema),
+    async (c) => {
+      const { token, password } = c.req.valid("json");
+      const result = await resetPasswordWithToken(token, password);
+
+      if (!result.ok) {
+        throw BadRequest(INVALID_PASSWORD_RESET_TOKEN_MESSAGE);
+      }
+
+      return c.json({ reset: true as const });
     },
   )
   .get(

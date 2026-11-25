@@ -21,15 +21,29 @@ export const requireUserAuth: MiddlewareHandler<AuthEnv> = async (c, next) => {
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
 
   let userId: string | undefined;
+  let issuedAt = 0;
   if (token) {
     try {
       const payload = await verify(token, config.jwt.accessSecret, "HS256");
       userId = payload.sub as string | undefined;
+      issuedAt = typeof payload.iat === "number" ? payload.iat : 0;
     } catch {}
   }
 
   if (!userId)
     throw Unauthorized("You must be logged in to access this resource");
+
+  // Reject tokens issued before the last password change (session revocation).
+  const [user] = await db
+    .select({ passwordChangedAt: users.passwordChangedAt })
+    .from(users)
+    .where(eq(users.id, userId));
+  if (
+    user?.passwordChangedAt &&
+    issuedAt < Math.floor(user.passwordChangedAt.getTime() / 1000)
+  ) {
+    throw Unauthorized("You must be logged in to access this resource");
+  }
 
   c.set("userId", userId);
   return next();

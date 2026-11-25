@@ -54,6 +54,10 @@ export const users = pgTable(
     emailVerifiedAt: timestamp("email_verified_at"),
     emailVerificationTokenHash: text("email_verification_token_hash"),
     emailVerificationExpiresAt: timestamp("email_verification_expires_at"),
+    passwordResetTokenHash: text("password_reset_token_hash"),
+    passwordResetExpiresAt: timestamp("password_reset_expires_at"),
+    /** JWTs issued before this time are rejected (session revocation). */
+    passwordChangedAt: timestamp("password_changed_at"),
   },
   (table) => [uniqueIndex("users_email_unique_idx").on(lower(table.email))],
 );
