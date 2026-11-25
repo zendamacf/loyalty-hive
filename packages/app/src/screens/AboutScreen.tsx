@@ -1,6 +1,6 @@
+import Constants, { ExecutionEnvironment } from "expo-constants";
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { ReactNativeLegal } from "react-native-legal";
 
 import { AppTitle } from "@/components/AppTitle";
 import { CloseButton } from "@/components/CloseButton";
@@ -14,9 +14,18 @@ import { getAppVersion } from "@/lib/app-version";
 import { spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
+/// react-native-legal looks up its native module on import, which throws in
+/// Expo Go because the module is not in that binary. Load it only elsewhere.
+const getReactNativeLegal = () =>
+  Constants.executionEnvironment === ExecutionEnvironment.StoreClient
+    ? null
+    : (require("react-native-legal") as typeof import("react-native-legal"))
+        .ReactNativeLegal;
+
 export const AboutScreen = () => {
   const { t } = useTranslation(I18nNamespace.About);
   const { theme } = useTheme();
+  const reactNativeLegal = getReactNativeLegal();
   useTrackScreenView(Routes.ABOUT, { title: "About Screen" });
 
   return (
@@ -43,18 +52,20 @@ export const AboutScreen = () => {
           </Text>
         </View>
 
-        <Pressable
-          accessibilityRole="link"
-          accessibilityLabel={t("licenses")}
-          style={styles.section}
-          onPress={() =>
-            ReactNativeLegal.launchLicenseListScreen(t("licenses"))
-          }
-        >
-          <Text style={[typography.link, { color: theme.textPrimary }]}>
-            {t("licenses")}
-          </Text>
-        </Pressable>
+        {reactNativeLegal && (
+          <Pressable
+            accessibilityRole="link"
+            accessibilityLabel={t("licenses")}
+            style={styles.section}
+            onPress={() =>
+              reactNativeLegal.launchLicenseListScreen(t("licenses"))
+            }
+          >
+            <Text style={[typography.link, { color: theme.textPrimary }]}>
+              {t("licenses")}
+            </Text>
+          </Pressable>
+        )}
       </ScreenShell.Body>
     </ScreenShell>
   );
