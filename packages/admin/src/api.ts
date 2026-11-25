@@ -87,3 +87,40 @@ export function listBrandRequests(params: {
   if (params.status) query.set("status", params.status);
   return request<BrandRequestList>(`/brand-requests?${query}`);
 }
+
+export type AdminUser = {
+  id: string;
+  email: string;
+  createdAt: string;
+  emailVerifiedAt: string | null;
+  /** Set when the user deleted the account. The account is removed after the grace period. */
+  deletedAt: string | null;
+};
+
+export type UserStatus = "active" | "pending_deletion";
+
+export type UserList = {
+  items: AdminUser[];
+  total: number;
+  limit: number;
+  offset: number;
+};
+
+export function listUsers(params: {
+  search?: string;
+  status?: UserStatus;
+  verified?: boolean;
+  limit: number;
+  offset: number;
+}): Promise<UserList> {
+  const query = new URLSearchParams({
+    limit: String(params.limit),
+    offset: String(params.offset),
+  });
+  if (params.search) query.set("search", params.search);
+  if (params.status) query.set("status", params.status);
+  if (params.verified !== undefined) {
+    query.set("verified", String(params.verified));
+  }
+  return request<UserList>(`/users?${query}`);
+}

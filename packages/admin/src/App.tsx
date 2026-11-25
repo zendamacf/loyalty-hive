@@ -3,6 +3,13 @@ import { AppTitle } from "./AppTitle";
 import { type Admin, getMe, logout } from "./api";
 import { BrandRequestsPage } from "./BrandRequestsPage";
 import { LoginPage } from "./LoginPage";
+import { pathForRoute, type Route, useRoute } from "./router";
+import { UsersPage } from "./UsersPage";
+
+const NAV: { route: Route; label: string }[] = [
+  { route: "brand-requests", label: "Brand requests" },
+  { route: "users", label: "Users" },
+];
 
 type Session =
   | { state: "loading" }
@@ -12,6 +19,7 @@ type Session =
 export function App() {
   const [session, setSession] = useState<Session>({ state: "loading" });
   const [logoutError, setLogoutError] = useState(false);
+  const [route, navigate] = useRoute();
 
   useEffect(() => {
     getMe()
@@ -48,6 +56,21 @@ export function App() {
     <>
       <header className="app-header">
         <AppTitle />
+        <nav className="main-nav" aria-label="Main">
+          {NAV.map((item) => (
+            <a
+              key={item.route}
+              href={pathForRoute(item.route)}
+              aria-current={route === item.route ? "page" : undefined}
+              onClick={(event) => {
+                event.preventDefault();
+                navigate(item.route);
+              }}
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
         <span className="who">{session.admin.email}</span>
         <button type="button" onClick={handleLogout}>
           Log out
@@ -59,7 +82,11 @@ export function App() {
         </p>
       )}
       <main>
-        <BrandRequestsPage onUnauthorized={handleUnauthorized} />
+        {route === "users" ? (
+          <UsersPage onUnauthorized={handleUnauthorized} />
+        ) : (
+          <BrandRequestsPage onUnauthorized={handleUnauthorized} />
+        )}
       </main>
     </>
   );

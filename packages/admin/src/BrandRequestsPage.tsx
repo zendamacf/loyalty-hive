@@ -1,14 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
   type AdminBrandRequest,
-  ApiError,
-  type BrandRequestList,
   type BrandRequestStatus,
   listBrandRequests,
 } from "./api";
-
-export const PAGE_SIZE = 50;
+import { Pager } from "./Pager";
+import { usePagedList } from "./usePagedList";
 
 const STATUS_OPTIONS: { value: BrandRequestStatus | ""; label: string }[] = [
   { value: "", label: "All" },
@@ -63,63 +61,36 @@ export function BrandRequestsPage({
   onUnauthorized: () => void;
 }) {
   const [status, setStatus] = useState<BrandRequestStatus | "">("pending");
-  const [offset, setOffset] = useState(0);
-  const [data, setData] = useState<BrandRequestList | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    setError(null);
-    listBrandRequests({
-      status: status || undefined,
-      limit: PAGE_SIZE,
-      offset,
-    })
-      .then((result) => {
-        if (!cancelled) setData(result);
-      })
-      .catch((err: unknown) => {
-        if (cancelled) return;
-        if (err instanceof ApiError && err.status === 401) {
-          onUnauthorized();
-          return;
-        }
-        setError("Could not load brand requests.");
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [status, offset, onUnauthorized]);
-
-  const total = data?.total ?? 0;
-  const first = total === 0 ? 0 : offset + 1;
-  const last = Math.min(offset + PAGE_SIZE, total);
+  const { data, error, loading, offset, previousPage, nextPage } =
+    usePagedList<AdminBrandRequest>({
+      load: (page) =>
+        listBrandRequests({ status: status || undefined, ...page }),
+      filterKey: status,
+      onUnauthorized,
+      errorMessage: "Could not load brand requests.",
+    });
 
   return (
     <section>
       <div className="toolbar">
         <h2>Brand requests</h2>
-        <label>
-          Status
-          <select
-            value={status}
-            onChange={(event) => {
-              setStatus(event.target.value as BrandRequestStatus | "");
-              setOffset(0);
-            }}
-          >
-            {STATUS_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="filters">
+          <label>
+            Status
+            <select
+              value={status}
+              onChange={(event) =>
+                setStatus(event.target.value as BrandRequestStatus | "")
+              }
+            >
+              {STATUS_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
       </div>
 
       {error && (
@@ -152,25 +123,14 @@ export function BrandRequestsPage({
         </table>
       )}
 
-      <nav className="pager" aria-label="Pages">
-        <span>
-          {loading && !data ? "Loading…" : `${first}–${last} of ${total}`}
-        </span>
-        <button
-          type="button"
-          disabled={loading || offset === 0}
-          onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
-        >
-          Previous
-        </button>
-        <button
-          type="button"
-          disabled={loading || offset + PAGE_SIZE >= total}
-          onClick={() => setOffset(offset + PAGE_SIZE)}
-        >
-          Next
-        </button>
-      </nav>
+      <Pager
+        offset={offset}
+        total={data?.total ?? 0}
+        loading={loading}
+        loaded={data !== null}
+        onPrevious={previousPage}
+        onNext={nextPage}
+      />
     </section>
   );
 }

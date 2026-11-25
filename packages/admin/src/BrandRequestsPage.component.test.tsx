@@ -15,7 +15,8 @@ import {
   restoreFetch,
 } from "../test/fetch-mock";
 import { brandRequest, brandRequestList } from "../test/fixtures";
-import { BrandRequestsPage, PAGE_SIZE } from "./BrandRequestsPage";
+import { BrandRequestsPage } from "./BrandRequestsPage";
+import { PAGE_SIZE } from "./usePagedList";
 
 afterEach(() => {
   cleanup();

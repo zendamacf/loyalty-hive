@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from "@testing-library/react";
 
 import {
   errorResponse,
@@ -7,12 +13,19 @@ import {
   mockFetch,
   restoreFetch,
 } from "../test/fetch-mock";
-import { ADMIN, brandRequest, brandRequestList } from "../test/fixtures";
+import {
+  ADMIN,
+  adminUser,
+  brandRequest,
+  brandRequestList,
+  userList,
+} from "../test/fixtures";
 import { App } from "./App";
 
 afterEach(() => {
   cleanup();
   restoreFetch();
+  window.history.replaceState(null, "", "/admin/");
 });
 
 /** A small fake of the admin API with a session flag. */
@@ -28,6 +41,10 @@ function mockAdminApi(initiallyLoggedIn: boolean) {
       case "POST /api/v1/admin/auth/logout":
         loggedIn = false;
         return new Response(null, { status: 204 });
+      case "GET /api/v1/admin/users":
+        return loggedIn
+          ? jsonResponse(userList([adminUser()]))
+          : errorResponse(401);
       case "GET /api/v1/admin/brand-requests":
         return loggedIn
           ? jsonResponse(brandRequestList([brandRequest()]))
@@ -73,6 +90,34 @@ describe("[Integration] App", () => {
       await screen.findByRole("heading", { name: "Brand requests" }),
     ).toBeDefined();
     expect(await screen.findByText("Coffee Club")).toBeDefined();
+  });
+
+  it("moves between pages with the main navigation", async () => {
+    mockAdminApi(true);
+    render(<App />);
+    expect(await screen.findByText("Coffee Club")).toBeDefined();
+
+    const nav = screen.getByRole("navigation", { name: "Main" });
+    const usersLink = within(nav).getByRole("link", { name: "Users" });
+    expect(usersLink.getAttribute("href")).toBe("/admin/users");
+
+    fireEvent.click(usersLink);
+    expect(await screen.findByRole("heading", { name: "Users" })).toBeDefined();
+    expect(await screen.findByText("user@example.com")).toBeDefined();
+    expect(window.location.pathname).toBe("/admin/users");
+    expect(usersLink.getAttribute("aria-current")).toBe("page");
+
+    fireEvent.click(within(nav).getByRole("link", { name: "Brand requests" }));
+    expect(
+      await screen.findByRole("heading", { name: "Brand requests" }),
+    ).toBeDefined();
+  });
+
+  it("opens the users page from a deep link", async () => {
+    window.history.replaceState(null, "", "/admin/users");
+    mockAdminApi(true);
+    render(<App />);
+    expect(await screen.findByRole("heading", { name: "Users" })).toBeDefined();
   });
 
   it("goes back to login when the session ends during use", async () => {
