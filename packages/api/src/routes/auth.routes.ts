@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { describeRoute, validator } from "hono-openapi";
 import z from "zod";
+import { deleteAccount } from "../common/account-deletion.js";
 import { API_KEY_HEADER, BCRYPT_COST } from "../common/constants.js";
 import {
   issueAndSendVerificationEmail,
@@ -10,7 +11,11 @@ import {
   verifyEmailWithToken,
 } from "../common/email-verification.js";
 import {
+  ACCOUNT_DELETED_MESSAGE,
+  ACCOUNT_PENDING_DELETION_EMAIL_MESSAGE,
   BadRequest,
+  Forbidden,
+  INCORRECT_PASSWORD_MESSAGE,
   INVALID_PASSWORD_RESET_TOKEN_MESSAGE,
   INVALID_VERIFICATION_TOKEN_MESSAGE,
   Unauthorized,
@@ -37,6 +42,7 @@ import {
   requireUserAuth,
 } from "../middleware/auth.middleware.js";
 import {
+  authDeleteAccountRateLimit,
   authForgotPasswordEmailRateLimit,
   authForgotPasswordIpRateLimit,
   authLoginEmailRateLimit,
@@ -97,6 +103,15 @@ const resendVerificationResponseSchema = z.object({
   message: z.string(),
 });
 
+const deleteAccountBodySchema = z.object({
+  password: z.string().min(1),
+});
+
+const deleteAccountResponseSchema = z.object({
+  deleted: z.literal(true),
+  purgeAfter: z.iso.datetime(),
+});
+
 const forgotPasswordResponseSchema = z.object({
   message: z.string(),
 });
@@ -127,7 +142,9 @@ const app = new Hono<AuthEnv>()
       responses: {
         200: jsonResponse("Successful response", loginResponseSchema),
         401: errorResponse("Invalid email or password"),
-        403: errorResponse("Invalid API key"),
+        403: errorResponse(
+          "Invalid API key, or the account was deleted and awaits removal",
+        ),
         429: errorResponse("Too many requests"),
         400: validationErrorResponse(),
       },
@@ -142,6 +159,7 @@ const app = new Hono<AuthEnv>()
         .select({
           id: users.id,
           passwordHash: users.passwordHash,
+          deletedAt: users.deletedAt,
           emailVerifiedAt: users.emailVerifiedAt,
           emailVerificationTokenHash: users.emailVerificationTokenHash,
           emailVerificationExpiresAt: users.emailVerificationExpiresAt,
@@ -154,6 +172,9 @@ const app = new Hono<AuthEnv>()
         (await bcryptCompare(password, user.passwordHash).catch(() => false));
 
       if (!valid) throw Unauthorized("Invalid email or password");
+
+      // Only a caller with the right password learns the account was deleted.
+      if (user.deletedAt) throw Forbidden(ACCOUNT_DELETED_MESSAGE);
 
       if (userNeedsVerificationEmail(user)) {
         try {
@@ -217,8 +238,16 @@ const app = new Hono<AuthEnv>()
         return c.json(created, 201);
       } catch (error) {
         if (pgErrorCode(error) === "23505") {
+          const [existing] = await db
+            .select({ deletedAt: users.deletedAt })
+            .from(users)
+            .where(eq(lower(users.email), email));
           return c.json(
-            { error: "An account with this email already exists" },
+            {
+              error: existing?.deletedAt
+                ? ACCOUNT_PENDING_DELETION_EMAIL_MESSAGE
+                : "An account with this email already exists",
+            },
             409,
           );
         }
@@ -280,11 +309,12 @@ const app = new Hono<AuthEnv>()
           id: users.id,
           email: users.email,
           emailVerifiedAt: users.emailVerifiedAt,
+          deletedAt: users.deletedAt,
         })
         .from(users)
         .where(eq(lower(users.email), email));
 
-      if (user && !user.emailVerifiedAt) {
+      if (user && !user.emailVerifiedAt && !user.deletedAt) {
         try {
           await issueAndSendVerificationEmail(user.id, user.email);
         } catch (error) {
@@ -320,11 +350,15 @@ const app = new Hono<AuthEnv>()
       const { email } = c.req.valid("json");
 
       const [user] = await db
-        .select({ id: users.id, email: users.email })
+        .select({
+          id: users.id,
+          email: users.email,
+          deletedAt: users.deletedAt,
+        })
         .from(users)
         .where(eq(lower(users.email), email));
 
-      if (user) {
+      if (user && !user.deletedAt) {
         try {
           await issueAndSendPasswordResetEmail(user.id, user.email);
         } catch (error) {
@@ -363,6 +397,45 @@ const app = new Hono<AuthEnv>()
       }
 
       return c.json({ reset: true as const });
+    },
+  )
+  .delete(
+    "/me",
+    describeRoute({
+      description:
+        "Delete the authenticated user's account. Needs the current password. The account is marked deleted at once: sign-in stops, and all access tokens stop working. Cards and brand requests are removed for good after 30 days, which is the time to ask support for a restore. The email stays reserved until then. Rate limit: 5 requests/minute per user.",
+      security: [{ bearerAuth: [] }],
+      responses: {
+        200: jsonResponse("Account deleted", deleteAccountResponseSchema),
+        400: validationErrorResponse(),
+        401: errorResponse("Unauthorized"),
+        403: errorResponse("Incorrect password"),
+        429: errorResponse("Too many requests"),
+      },
+    }),
+    requireUserAuth,
+    validator("json", deleteAccountBodySchema),
+    authDeleteAccountRateLimit,
+    async (c) => {
+      const userId = c.get("userId");
+      if (!userId) {
+        throw Unauthorized("You must be logged in to access this resource");
+      }
+      const { password } = c.req.valid("json");
+
+      const result = await deleteAccount(userId, password);
+      if (!result.ok) {
+        // 403, not 401: the app signs the user out on any 401.
+        if (result.reason === "incorrect_password") {
+          throw Forbidden(INCORRECT_PASSWORD_MESSAGE);
+        }
+        throw Unauthorized("You must be logged in to access this resource");
+      }
+
+      return c.json({
+        deleted: true as const,
+        purgeAfter: result.purgeAfter.toISOString(),
+      });
     },
   )
   .get(

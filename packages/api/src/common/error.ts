@@ -1,4 +1,5 @@
 import { HTTPException } from "hono/http-exception";
+import { ACCOUNT_DELETION_GRACE_DAYS, SUPPORT_EMAIL } from "./constants.js";
 
 export function Unauthorized(message: string = "Unauthorized") {
   return new HTTPException(401, { message });
@@ -29,3 +30,9 @@ export const INVALID_VERIFICATION_TOKEN_MESSAGE =
 
 export const INVALID_PASSWORD_RESET_TOKEN_MESSAGE =
   "Invalid or expired password reset link";
+
+export const ACCOUNT_DELETED_MESSAGE = `This account was deleted. To restore it, contact ${SUPPORT_EMAIL} within ${ACCOUNT_DELETION_GRACE_DAYS} days.`;
+
+export const ACCOUNT_PENDING_DELETION_EMAIL_MESSAGE = `This email belongs to an account that was deleted. To restore it, contact ${SUPPORT_EMAIL} within ${ACCOUNT_DELETION_GRACE_DAYS} days.`;
+
+export const INCORRECT_PASSWORD_MESSAGE = "Incorrect password";

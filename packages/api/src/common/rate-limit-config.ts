@@ -1,4 +1,5 @@
 import {
+  AUTH_DELETE_ACCOUNT_RATE_LIMIT,
   AUTH_FORGOT_PASSWORD_EMAIL_RATE_LIMIT,
   AUTH_FORGOT_PASSWORD_IP_RATE_LIMIT,
   AUTH_RESEND_VERIFICATION_EMAIL_RATE_LIMIT,
@@ -53,4 +54,17 @@ export function getAuthForgotPasswordEmailRateLimit() {
 
 export function getAuthResetPasswordIpRateLimit() {
   return AUTH_RESET_PASSWORD_IP_RATE_LIMIT;
+}
+
+export function getAuthDeleteAccountRateLimit() {
+  return {
+    max: parsePositiveInt(
+      "RATE_LIMIT_AUTH_DELETE_ACCOUNT_MAX",
+      AUTH_DELETE_ACCOUNT_RATE_LIMIT.max,
+    ),
+    windowMs: parsePositiveInt(
+      "RATE_LIMIT_AUTH_DELETE_ACCOUNT_WINDOW_MS",
+      AUTH_DELETE_ACCOUNT_RATE_LIMIT.windowMs,
+    ),
+  };
 }

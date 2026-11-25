@@ -1,4 +1,5 @@
 import app from "./app";
+import { startAccountPurgeJob } from "./common/account-purge-job";
 import { config } from "./common/config";
 
 Bun.serve({
@@ -9,3 +10,5 @@ Bun.serve({
 console.log(
   `🚀 Server is running on http://${config.server.hostname}:${config.server.port}`,
 );
+
+startAccountPurgeJob();

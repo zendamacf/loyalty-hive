@@ -58,6 +58,8 @@ export const users = pgTable(
     passwordResetExpiresAt: timestamp("password_reset_expires_at"),
     /** JWTs issued before this time are rejected (session revocation). */
     passwordChangedAt: timestamp("password_changed_at"),
+    /** Set when the user deletes the account. The row is purged after the grace period. */
+    deletedAt: timestamp("deleted_at"),
   },
   (table) => [uniqueIndex("users_email_unique_idx").on(lower(table.email))],
 );

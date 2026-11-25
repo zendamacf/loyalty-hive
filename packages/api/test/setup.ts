@@ -15,6 +15,7 @@ process.env.FILE_STORAGE_URL ??= "https://cdn.test/";
 process.env.RATE_LIMIT_AUTH_LOGIN_IP_MAX ??= "10000";
 process.env.RATE_LIMIT_AUTH_LOGIN_EMAIL_MAX ??= "10000";
 process.env.RATE_LIMIT_AUTH_SIGNUP_IP_MAX ??= "10000";
+process.env.RATE_LIMIT_AUTH_DELETE_ACCOUNT_MAX ??= "10000";
 
 await migrateDatabase(testDatabaseUrl);
 

@@ -18,6 +18,12 @@ export const PASSWORD_RESET_LINK_BASE = "loyaltyhive://reset-password";
 
 export const PASSWORD_RESET_TTL_MINUTES = 60;
 
+/** Days a deleted account is kept (login blocked) before it is removed for good. */
+export const ACCOUNT_DELETION_GRACE_DAYS = 30;
+
+/** Contact for account restore requests during the grace period. */
+export const SUPPORT_EMAIL = "kalopsia.apps@gmail.com";
+
 const AUTH_RATE_LIMIT_WINDOW_MS = 60_000;
 
 export const AUTH_RESEND_VERIFICATION_IP_RATE_LIMIT = {
@@ -42,5 +48,10 @@ export const AUTH_FORGOT_PASSWORD_EMAIL_RATE_LIMIT = {
 
 export const AUTH_RESET_PASSWORD_IP_RATE_LIMIT = {
   max: 10,
+  windowMs: AUTH_RATE_LIMIT_WINDOW_MS,
+};
+
+export const AUTH_DELETE_ACCOUNT_RATE_LIMIT = {
+  max: 5,
   windowMs: AUTH_RATE_LIMIT_WINDOW_MS,
 };
