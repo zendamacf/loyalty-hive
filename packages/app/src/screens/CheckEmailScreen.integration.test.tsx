@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it } from "bun:test";
 import { waitFor } from "@testing-library/react-native";
+import { Linking } from "react-native";
 
+import { Routes } from "@/constants/routes.constants";
 import { AnalyticsEvents } from "@/lib/analytics/analytics-events";
 import {
   clearBufferedAnalyticsEvents,
@@ -13,6 +15,7 @@ import {
   getApiV1AuthMeMock,
   postApiV1AuthResendVerificationMock,
 } from "../../test/mocks/api-client";
+import { getExpoRouterMocks } from "../../test/mocks/expo-router";
 import {
   clearSecureStoreMock,
   setSecureStoreItem,
@@ -30,8 +33,12 @@ async function waitForIdentifiedAnalytics(): Promise<void> {
   });
 }
 
+const expoRouterMocks = getExpoRouterMocks();
+
 describe("[Integration] CheckEmailScreen", () => {
   beforeEach(() => {
+    expoRouterMocks.params = {};
+    expoRouterMocks.replace.mockClear();
     clearSecureStoreMock();
     resetAnalyticsIdentityForTests();
     clearBufferedAnalyticsEvents();
@@ -77,6 +84,114 @@ describe("[Integration] CheckEmailScreen", () => {
           },
         },
       );
+    });
+  });
+
+  it("shows the API error and tracks a failed resend", async () => {
+    postApiV1AuthResendVerificationMock.mockImplementationOnce(() =>
+      Promise.resolve({
+        data: undefined,
+        error: { error: "Too many requests" },
+        response: { status: 429 },
+      } as never),
+    );
+    const { getByText } = await renderWithProviders(<CheckEmailScreen />);
+    await waitFor(() => {
+      expect(getByText(/user@example.com/)).toBeTruthy();
+    });
+    await waitForIdentifiedAnalytics();
+
+    await press(getByText("Resend email"));
+
+    await waitFor(() => {
+      expect(getByText("Too many requests")).toBeTruthy();
+      expect(trackCustomEventMock).toHaveBeenCalledWith(
+        `/events/${AnalyticsEvents.AUTH_EMAIL_RESEND_FAILED}`,
+        AnalyticsEvents.AUTH_EMAIL_RESEND_FAILED,
+        {
+          data: {
+            app_version: expect.any(String),
+            reason: "api_error",
+            status_code: 429,
+          },
+        },
+      );
+    });
+  });
+
+  it("shows success copy after resend", async () => {
+    const { getByText } = await renderWithProviders(<CheckEmailScreen />);
+    await waitFor(() => {
+      expect(getByText(/user@example.com/)).toBeTruthy();
+    });
+
+    await press(getByText("Resend email"));
+
+    await waitFor(() => {
+      expect(
+        getByText("If your account needs verification, we sent another email."),
+      ).toBeTruthy();
+    });
+  });
+
+  it("uses the email from route params", async () => {
+    expoRouterMocks.params = { email: "route@example.com" };
+    const { getByText } = await renderWithProviders(<CheckEmailScreen />);
+
+    await waitFor(() => {
+      expect(getByText(/route@example.com/)).toBeTruthy();
+    });
+  });
+
+  it("opens the mail app", async () => {
+    const { getByText } = await renderWithProviders(<CheckEmailScreen />);
+    await waitFor(() => {
+      expect(getByText("Open mail app")).toBeTruthy();
+    });
+
+    await press(getByText("Open mail app"));
+
+    expect(Linking.openURL).toHaveBeenCalledWith("mailto:");
+  });
+
+  it("tells the user when the email is still unverified", async () => {
+    const { getByText } = await renderWithProviders(<CheckEmailScreen />);
+    await waitFor(() => {
+      expect(getByText(/user@example.com/)).toBeTruthy();
+    });
+
+    await press(getByText("I've verified my email"));
+
+    await waitFor(() => {
+      expect(
+        getByText(
+          "Your email is not verified yet. Try again after opening the link.",
+        ),
+      ).toBeTruthy();
+    });
+    expect(expoRouterMocks.replace).not.toHaveBeenCalled();
+  });
+
+  it("goes to cards once the email is verified", async () => {
+    const { getByText } = await renderWithProviders(<CheckEmailScreen />);
+    await waitFor(() => {
+      expect(getByText(/user@example.com/)).toBeTruthy();
+    });
+    getApiV1AuthMeMock.mockImplementation(() =>
+      Promise.resolve({
+        data: {
+          id: "00000000-0000-4000-8000-000000000001",
+          email: "user@example.com",
+          emailVerified: true,
+        },
+        error: undefined,
+      }),
+    );
+
+    await press(getByText("I've verified my email"));
+
+    await waitFor(() => {
+      expect(expoRouterMocks.replace).toHaveBeenCalledWith(Routes.CARDS);
     });
   });
 });
