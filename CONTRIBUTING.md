@@ -74,7 +74,7 @@ Pull request titles should follow the same convention when possible.
 
 ## Changesets
 
-We use [Changesets](https://github.com/changesets/changesets) to version [`@loyalty-hive/api`](packages/api/package.json), [`@loyalty-hive/app`](packages/app/package.json), and [`@loyalty-hive/admin`](packages/admin/package.json) independently and to generate changelogs.
+We use [Changesets](https://github.com/changesets/changesets) to version [`@loyalty-hive/api`](packages/api/package.json), [`@loyalty-hive/app`](packages/app/package.json), and [`@loyalty-hive/admin`](packages/admin/package.json) and to generate changelogs. The app has its own version. The API and admin always have the same version (a [`fixed`](https://github.com/changesets/changesets/blob/main/docs/fixed-packages.md) group in [`.changeset/config.json`](.changeset/config.json)), because the API Docker image includes the admin build. A changeset for one of them bumps both, so an admin-only change also makes a new API release and image.
 
 ### When to add a changeset
 
