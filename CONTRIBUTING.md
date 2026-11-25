@@ -74,13 +74,13 @@ Pull request titles should follow the same convention when possible.
 
 ## Changesets
 
-We use [Changesets](https://github.com/changesets/changesets) to version [`@loyalty-hive/api`](packages/api/package.json) and [`@loyalty-hive/app`](packages/app/package.json) independently and to generate changelogs.
+We use [Changesets](https://github.com/changesets/changesets) to version [`@loyalty-hive/api`](packages/api/package.json), [`@loyalty-hive/app`](packages/app/package.json), and [`@loyalty-hive/admin`](packages/admin/package.json) independently and to generate changelogs.
 
 ### When to add a changeset
 
 Add a changeset in your PR when the change should be released:
 
-- New features, bug fixes, or behavior changes in `packages/api` or `packages/app`
+- New features, bug fixes, or behavior changes in `packages/api`, `packages/app`, or `packages/admin`
 - Dependency updates that affect consumers (Dependabot PRs get changesets automatically via CI)
 
 **Skip a changeset** for:
@@ -88,7 +88,6 @@ Add a changeset in your PR when the change should be released:
 - Documentation-only changes
 - Internal refactors with no release impact
 - CI or tooling changes that do not affect published packages
-- Changes only in `packages/admin`. It is private and has no version. It ships in the API image, so add an API changeset when an admin change must be released
 
 ### How to add a changeset
 

@@ -30,7 +30,7 @@ The sections below highlight what agents most often miss.
 
 ## Changesets (required for releasable work)
 
-If your change affects released behavior in `packages/api` or `packages/app`, **add a changeset** before finishing:
+If your change affects released behavior in `packages/api`, `packages/app`, or `packages/admin`, **add a changeset** before finishing:
 
 ```sh
 bun run changeset
