@@ -1,2 +1,3 @@
 (cd packages/api; bun run lint:fix)
 (cd packages/app; bun run lint:fix)
+(cd packages/admin; bun run lint:fix)

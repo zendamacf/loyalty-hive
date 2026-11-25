@@ -23,14 +23,14 @@ The sections below highlight what agents most often miss.
 ## Commits and pull requests
 
 - Use **Conventional Commits** for every commit and PR title: `type(scope): short imperative summary`.
-- Types: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `ci`. Scopes: `api`, `app`, `release`, `deps`.
+- Types: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `ci`. Scopes: `api`, `app`, `admin`, `release`, `deps`.
 - Examples: `feat(api): add GET /auth/me`, `fix(app): align native animation deps with Expo SDK 57`, `chore: add changeset for dependency update`.
 - Keep the subject under about 72 characters. The PR title becomes the squash commit message, and the PR number is added at the end, for example `(#173)`.
 - One logical change per PR when practical.
 
 ## Changesets (required for releasable work)
 
-If your change affects released behavior in `packages/api` or `packages/app`, **add a changeset** before finishing:
+If your change affects released behavior in `packages/api`, `packages/app`, or `packages/admin`, **add a changeset** before finishing:
 
 ```sh
 bun run changeset
