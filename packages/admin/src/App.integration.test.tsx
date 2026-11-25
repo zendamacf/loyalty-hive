@@ -63,7 +63,7 @@ describe("[Integration] App", () => {
     expect(await screen.findByRole("button", { name: "Log in" })).toBeDefined();
   });
 
-  it("logs in, shows brand requests, and logs out", async () => {
+  it("logs in, shows users, and logs out", async () => {
     mockAdminApi(false);
     render(<App />);
 
@@ -75,49 +75,61 @@ describe("[Integration] App", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Log in" }));
 
-    expect(await screen.findByText("Coffee Club")).toBeDefined();
+    expect(await screen.findByText("user@example.com")).toBeDefined();
     expect(screen.getByText(ADMIN.email)).toBeDefined();
 
     fireEvent.click(screen.getByRole("button", { name: "Log out" }));
     expect(await screen.findByRole("button", { name: "Log in" })).toBeDefined();
   });
 
-  it("opens the list directly when a session exists", async () => {
+  it("opens the users page directly when a session exists", async () => {
     mockAdminApi(true);
     render(<App />);
 
+    expect(await screen.findByRole("heading", { name: "Users" })).toBeDefined();
+    expect(await screen.findByText("user@example.com")).toBeDefined();
+  });
+
+  it("shows Users first in the main navigation", async () => {
+    mockAdminApi(true);
+    render(<App />);
+
+    const nav = await screen.findByRole("navigation", { name: "Main" });
     expect(
-      await screen.findByRole("heading", { name: "Brand requests" }),
-    ).toBeDefined();
-    expect(await screen.findByText("Coffee Club")).toBeDefined();
+      within(nav)
+        .getAllByRole("link")
+        .map((link) => link.textContent),
+    ).toEqual(["Users", "Brand requests"]);
   });
 
   it("moves between pages with the main navigation", async () => {
     mockAdminApi(true);
     render(<App />);
-    expect(await screen.findByText("Coffee Club")).toBeDefined();
+    expect(await screen.findByText("user@example.com")).toBeDefined();
 
     const nav = screen.getByRole("navigation", { name: "Main" });
-    const usersLink = within(nav).getByRole("link", { name: "Users" });
-    expect(usersLink.getAttribute("href")).toBe("/admin/users");
+    const brandLink = within(nav).getByRole("link", { name: "Brand requests" });
+    expect(brandLink.getAttribute("href")).toBe("/admin/brand-requests");
 
-    fireEvent.click(usersLink);
-    expect(await screen.findByRole("heading", { name: "Users" })).toBeDefined();
-    expect(await screen.findByText("user@example.com")).toBeDefined();
-    expect(window.location.pathname).toBe("/admin/users");
-    expect(usersLink.getAttribute("aria-current")).toBe("page");
-
-    fireEvent.click(within(nav).getByRole("link", { name: "Brand requests" }));
+    fireEvent.click(brandLink);
     expect(
       await screen.findByRole("heading", { name: "Brand requests" }),
     ).toBeDefined();
+    expect(await screen.findByText("Coffee Club")).toBeDefined();
+    expect(window.location.pathname).toBe("/admin/brand-requests");
+    expect(brandLink.getAttribute("aria-current")).toBe("page");
+
+    fireEvent.click(within(nav).getByRole("link", { name: "Users" }));
+    expect(await screen.findByRole("heading", { name: "Users" })).toBeDefined();
   });
 
-  it("opens the users page from a deep link", async () => {
-    window.history.replaceState(null, "", "/admin/users");
+  it("opens the brand requests page from a deep link", async () => {
+    window.history.replaceState(null, "", "/admin/brand-requests");
     mockAdminApi(true);
     render(<App />);
-    expect(await screen.findByRole("heading", { name: "Users" })).toBeDefined();
+    expect(
+      await screen.findByRole("heading", { name: "Brand requests" }),
+    ).toBeDefined();
   });
 
   it("goes back to login when the session ends during use", async () => {

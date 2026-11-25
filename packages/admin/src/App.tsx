@@ -7,8 +7,8 @@ import { pathForRoute, type Route, useRoute } from "./router";
 import { UsersPage } from "./UsersPage";
 
 const NAV: { route: Route; label: string }[] = [
-  { route: "brand-requests", label: "Brand requests" },
   { route: "users", label: "Users" },
+  { route: "brand-requests", label: "Brand requests" },
 ];
 
 type Session =
@@ -82,10 +82,10 @@ export function App() {
         </p>
       )}
       <main>
-        {route === "users" ? (
-          <UsersPage onUnauthorized={handleUnauthorized} />
-        ) : (
+        {route === "brand-requests" ? (
           <BrandRequestsPage onUnauthorized={handleUnauthorized} />
+        ) : (
+          <UsersPage onUnauthorized={handleUnauthorized} />
         )}
       </main>
     </>

@@ -13,9 +13,9 @@ describe("[Unit] router", () => {
     expect(routeFromPath("/admin/users")).toBe("users");
     expect(routeFromPath("/admin/users/123")).toBe("users");
     expect(routeFromPath("/admin/brand-requests")).toBe("brand-requests");
-    expect(routeFromPath("/admin/")).toBe("brand-requests");
-    expect(routeFromPath("/admin")).toBe("brand-requests");
-    expect(routeFromPath("/admin/unknown")).toBe("brand-requests");
+    expect(routeFromPath("/admin/")).toBe("users");
+    expect(routeFromPath("/admin")).toBe("users");
+    expect(routeFromPath("/admin/unknown")).toBe("users");
   });
 
   it("builds paths under /admin", () => {
