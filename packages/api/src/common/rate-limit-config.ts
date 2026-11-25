@@ -1,4 +1,6 @@
 import {
+  ADMIN_LOGIN_EMAIL_RATE_LIMIT,
+  ADMIN_LOGIN_IP_RATE_LIMIT,
   AUTH_DELETE_ACCOUNT_RATE_LIMIT,
   AUTH_FORGOT_PASSWORD_EMAIL_RATE_LIMIT,
   AUTH_FORGOT_PASSWORD_IP_RATE_LIMIT,
@@ -92,6 +94,32 @@ export function getAuthDeleteAccountRateLimit() {
     windowMs: parsePositiveInt(
       "RATE_LIMIT_AUTH_DELETE_ACCOUNT_WINDOW_MS",
       AUTH_DELETE_ACCOUNT_RATE_LIMIT.windowMs,
+    ),
+  };
+}
+
+export function getAdminLoginIpRateLimit() {
+  return {
+    max: parsePositiveInt(
+      "RATE_LIMIT_ADMIN_LOGIN_IP_MAX",
+      ADMIN_LOGIN_IP_RATE_LIMIT.max,
+    ),
+    windowMs: parsePositiveInt(
+      "RATE_LIMIT_ADMIN_LOGIN_IP_WINDOW_MS",
+      ADMIN_LOGIN_IP_RATE_LIMIT.windowMs,
+    ),
+  };
+}
+
+export function getAdminLoginEmailRateLimit() {
+  return {
+    max: parsePositiveInt(
+      "RATE_LIMIT_ADMIN_LOGIN_EMAIL_MAX",
+      ADMIN_LOGIN_EMAIL_RATE_LIMIT.max,
+    ),
+    windowMs: parsePositiveInt(
+      "RATE_LIMIT_ADMIN_LOGIN_EMAIL_WINDOW_MS",
+      ADMIN_LOGIN_EMAIL_RATE_LIMIT.windowMs,
     ),
   };
 }
