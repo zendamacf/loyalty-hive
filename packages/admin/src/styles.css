@@ -1,28 +1,36 @@
+/*
+ * Colors match the app light and dark themes:
+ * packages/app/src/theme/themes.ts and packages/app/src/theme/brand.ts.
+ * styles.unit.test.ts makes sure they stay the same.
+ */
 :root {
-  color-scheme: light dark;
-  --bg: #f7f7f5;
-  --surface: #ffffff;
-  --text: #1c1c1a;
-  --muted: #6b6b66;
-  --border: #deded9;
-  --accent: #c2410c;
-  --error: #b91c1c;
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+  --background: #ffffff;
+  --surface: #f8fafc;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --border: #e2e8f0;
+  --primary: #ffc43d;
+  --on-primary: #0d1b2a;
+  --error: #ef4444;
+  --success: #22c55e;
+
+  --radius-md: 12px;
+
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 15px;
   line-height: 1.45;
-  color: var(--text);
-  background: var(--bg);
+  color: var(--text-primary);
+  background: var(--background);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #161615;
-    --surface: #1f1f1d;
-    --text: #ededea;
-    --muted: #a1a19b;
-    --border: #34342f;
-    --accent: #fb923c;
-    --error: #f87171;
+    color-scheme: dark;
+    --background: #0d1b2a;
+    --surface: #1e293b;
+    --text-primary: #f1f5f9;
+    --border: #334155;
   }
 }
 
@@ -37,15 +45,20 @@ body {
 h1,
 h2 {
   margin: 0;
-  font-weight: 600;
 }
 
 h1 {
-  font-size: 1.1rem;
+  font-size: 22px;
+  font-weight: 700;
 }
 
 h2 {
-  font-size: 1.25rem;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.brand-accent {
+  color: var(--primary);
 }
 
 button,
@@ -57,17 +70,26 @@ select {
 
 input,
 select {
-  padding: 0.45rem 0.6rem;
+  padding: 0.55rem 0.75rem;
   border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--surface);
+  border-radius: var(--radius-md);
+  background: var(--background);
+}
+
+input:focus-visible,
+select:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 button {
-  padding: 0.45rem 0.9rem;
+  padding: 0.5rem 1rem;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   background: var(--surface);
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -77,13 +99,18 @@ button:disabled {
 }
 
 button[type="submit"] {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
+  height: 48px;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--on-primary);
+  font-size: 16px;
 }
 
 a {
-  color: var(--accent);
+  color: inherit;
+  text-decoration-color: var(--primary);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
 
 .error {
@@ -97,7 +124,7 @@ a {
 
 .loading,
 .empty {
-  color: var(--muted);
+  color: var(--text-secondary);
   padding: 2rem;
 }
 
@@ -110,20 +137,25 @@ a {
 
 .login-form {
   width: 100%;
-  max-width: 340px;
+  max-width: 360px;
   display: grid;
   gap: 1rem;
   padding: 2rem;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 16px;
+}
+
+.login-form h1 {
+  font-size: 28px;
+  text-align: center;
+  margin-bottom: 0.5rem;
 }
 
 .login-form label {
   display: grid;
-  gap: 0.3rem;
-  font-size: 0.9rem;
-  color: var(--muted);
+  gap: 0.35rem;
+  font-weight: 600;
 }
 
 .app-header {
@@ -137,8 +169,8 @@ a {
 
 .app-header .who {
   margin-left: auto;
-  color: var(--muted);
-  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-size: 14px;
 }
 
 main {
@@ -157,16 +189,18 @@ main {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--muted);
+  color: var(--text-secondary);
 }
 
 table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 0.9rem;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  font-size: 14px;
 }
 
 table[aria-busy="true"] {
@@ -176,14 +210,18 @@ table[aria-busy="true"] {
 th,
 td {
   text-align: left;
-  padding: 0.6rem 0.75rem;
+  padding: 0.65rem 0.75rem;
   border-bottom: 1px solid var(--border);
   vertical-align: top;
 }
 
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
 th {
-  color: var(--muted);
-  font-weight: 500;
+  color: var(--text-secondary);
+  font-weight: 600;
 }
 
 td:first-child {
@@ -197,19 +235,23 @@ td.url {
 
 .status {
   display: inline-block;
-  padding: 0.1rem 0.5rem;
+  padding: 0.1rem 0.6rem;
   border-radius: 999px;
-  font-size: 0.8rem;
+  font-size: 13px;
+  font-weight: 600;
   border: 1px solid var(--border);
+  color: var(--text-secondary);
 }
 
 .status-pending {
-  color: var(--accent);
-  border-color: currentColor;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--on-primary);
 }
 
-.status-rejected {
-  color: var(--muted);
+.status-approved {
+  border-color: var(--success);
+  color: var(--success);
 }
 
 .pager {
@@ -218,5 +260,5 @@ td.url {
   justify-content: flex-end;
   gap: 0.5rem;
   margin-top: 1rem;
-  color: var(--muted);
+  color: var(--text-secondary);
 }

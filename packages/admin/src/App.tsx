@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-
+import { AppTitle } from "./AppTitle";
 import { type Admin, getMe, logout } from "./api";
 import { BrandRequestsPage } from "./BrandRequestsPage";
 import { LoginPage } from "./LoginPage";
@@ -47,7 +47,7 @@ export function App() {
   return (
     <>
       <header className="app-header">
-        <h1>LoyaltyHive Admin</h1>
+        <AppTitle />
         <span className="who">{session.admin.email}</span>
         <button type="button" onClick={handleLogout}>
           Log out

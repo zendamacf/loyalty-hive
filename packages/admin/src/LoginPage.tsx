@@ -1,5 +1,5 @@
 import { type FormEvent, useState } from "react";
-
+import { AppTitle } from "./AppTitle";
 import { type Admin, ApiError, login } from "./api";
 
 function loginErrorMessage(error: unknown): string {
@@ -34,7 +34,7 @@ export function LoginPage({ onLogin }: { onLogin: (admin: Admin) => void }) {
   return (
     <main className="login">
       <form className="login-form" onSubmit={handleSubmit}>
-        <h1>LoyaltyHive Admin</h1>
+        <AppTitle />
         <label>
           Email
           <input

@@ -8,6 +8,8 @@ on:
       - synchronize
     paths:
       - 'packages/admin/**'
+      # styles.unit.test.ts checks the colors against the app themes.
+      - 'packages/app/src/theme/**'
       - '.github/workflows/admin-pr-checks.yml'
 
 concurrency:
