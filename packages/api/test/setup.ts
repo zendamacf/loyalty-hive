@@ -11,6 +11,7 @@ const testDatabaseUrl = resolveTestDatabaseUrl();
 process.env.NODE_ENV = "test";
 process.env.DATABASE_URL = testDatabaseUrl;
 process.env.JWT_ACCESS_SECRET ??= "test-secret";
+process.env.ADMIN_JWT_SECRET ??= "test-admin-secret";
 process.env.FILE_STORAGE_URL ??= "https://cdn.test/";
 process.env.RATE_LIMIT_AUTH_LOGIN_IP_MAX ??= "10000";
 process.env.RATE_LIMIT_AUTH_LOGIN_EMAIL_MAX ??= "10000";
@@ -19,6 +20,8 @@ process.env.RATE_LIMIT_AUTH_DELETE_ACCOUNT_MAX ??= "10000";
 process.env.RATE_LIMIT_AUTH_FORGOT_PASSWORD_IP_MAX ??= "10000";
 process.env.RATE_LIMIT_AUTH_FORGOT_PASSWORD_EMAIL_MAX ??= "10000";
 process.env.RATE_LIMIT_AUTH_RESET_PASSWORD_IP_MAX ??= "10000";
+process.env.RATE_LIMIT_ADMIN_LOGIN_IP_MAX ??= "10000";
+process.env.RATE_LIMIT_ADMIN_LOGIN_EMAIL_MAX ??= "10000";
 
 await migrateDatabase(testDatabaseUrl);
 

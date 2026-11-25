@@ -3,6 +3,8 @@ import type { MiddlewareHandler } from "hono";
 import { getClientIp } from "../common/client-ip.js";
 import { TooManyRequests } from "../common/error.js";
 import {
+  getAdminLoginEmailRateLimit,
+  getAdminLoginIpRateLimit,
   getAuthDeleteAccountRateLimit,
   getAuthForgotPasswordEmailRateLimit,
   getAuthForgotPasswordIpRateLimit,
@@ -109,5 +111,18 @@ export const authDeleteAccountRateLimit: MiddlewareHandler = async (
   const userId = c.get("userId") as string;
   const { max, windowMs } = getAuthDeleteAccountRateLimit();
   enforceRateLimit(c, "auth:delete-account:user", userId, max, windowMs);
+  return next();
+};
+
+export const adminLoginIpRateLimit: MiddlewareHandler = async (c, next) => {
+  const { max, windowMs } = getAdminLoginIpRateLimit();
+  enforceRateLimit(c, "admin:login:ip", getClientIp(c), max, windowMs);
+  return next();
+};
+
+export const adminLoginEmailRateLimit: MiddlewareHandler = async (c, next) => {
+  const { email } = c.req.valid("json" as never) as { email: string };
+  const { max, windowMs } = getAdminLoginEmailRateLimit();
+  enforceRateLimit(c, "admin:login:email", email, max, windowMs);
   return next();
 };

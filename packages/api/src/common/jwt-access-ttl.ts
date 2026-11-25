@@ -7,6 +7,9 @@ const TTL_UNIT_SECONDS: Record<string, number> = {
 
 export const DEFAULT_JWT_ACCESS_TTL = "7d";
 
+/** Admin sessions are shorter than app sessions. */
+export const DEFAULT_ADMIN_JWT_TTL = "8h";
+
 export function parseJwtAccessTtlSeconds(
   raw: string | undefined,
   fallback = DEFAULT_JWT_ACCESS_TTL,

@@ -61,6 +61,16 @@ describe("app", () => {
     ]);
   });
 
+  it("does not include admin routes in the public or codegen docs", async () => {
+    for (const path of ["/doc", "/doc/gen"] as const) {
+      const document = await fetchOpenApiDoc(path);
+      const paths = Object.keys(document.paths);
+
+      expect(paths).toContain("/api/v1/auth/login");
+      expect(paths.filter((p) => p.startsWith("/api/v1/admin"))).toEqual([]);
+    }
+  });
+
   it("serves health check at /health", async () => {
     const response = await app.request("/health");
 

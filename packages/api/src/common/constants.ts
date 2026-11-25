@@ -3,6 +3,15 @@ export const BCRYPT_COST = 10;
 
 export const API_KEY_HEADER = "x-api-key";
 
+/** httpOnly cookie that holds the admin session JWT. */
+export const ADMIN_SESSION_COOKIE = "lh_admin_session";
+
+/** The admin session cookie is only sent to the admin API. */
+export const ADMIN_SESSION_COOKIE_PATH = "/api/v1/admin";
+
+/** `aud` claim of admin JWTs. App user tokens do not have it. */
+export const ADMIN_JWT_AUDIENCE = "loyalty-hive-admin";
+
 /** Plaintext API key seeded in tests (hashed with BCRYPT_COST in test setup) */
 export const TEST_API_KEY = "loyalty-hive-test-api-key";
 
@@ -48,6 +57,16 @@ export const AUTH_FORGOT_PASSWORD_EMAIL_RATE_LIMIT = {
 
 export const AUTH_RESET_PASSWORD_IP_RATE_LIMIT = {
   max: 10,
+  windowMs: AUTH_RATE_LIMIT_WINDOW_MS,
+};
+
+export const ADMIN_LOGIN_IP_RATE_LIMIT = {
+  max: 5,
+  windowMs: AUTH_RATE_LIMIT_WINDOW_MS,
+};
+
+export const ADMIN_LOGIN_EMAIL_RATE_LIMIT = {
+  max: 5,
   windowMs: AUTH_RATE_LIMIT_WINDOW_MS,
 };
 

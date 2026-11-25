@@ -3,6 +3,8 @@ import { config } from "./config";
 import { API_KEY_HEADER } from "./constants";
 
 const BASE_DOCS = {
+  // The admin panel API is internal. Keep it out of the public and codegen docs.
+  exclude: /^\/api\/v1\/admin(\/|$)/,
   documentation: {
     info: {
       title: "LoyaltyHive API",

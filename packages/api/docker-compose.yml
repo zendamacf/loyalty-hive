@@ -24,6 +24,8 @@ services:
     environment:
       DATABASE_URL: postgresql://loyaltyhive:${DB_PASSWORD:-loyaltyhive}@postgres:5432/loyaltyhive
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET:-}
+      ADMIN_JWT_TTL: ${ADMIN_JWT_TTL:-8h}
       FILE_STORAGE_URL: ${FILE_STORAGE_URL}
       SENTRY_DSN: ${SENTRY_DSN:-}
       PORT: 3000
