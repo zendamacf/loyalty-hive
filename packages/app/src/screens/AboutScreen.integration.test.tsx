@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, it } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
+import Constants from "expo-constants";
 import { getExpoRouterMocks } from "../../test/mocks/expo-router";
 import { launchLicenseListScreenMock } from "../../test/mocks/react-native-legal";
 import { press, renderWithProviders } from "../../test/render";
@@ -10,6 +11,10 @@ const { AboutScreen } = await import("./AboutScreen");
 describe("[Integration] AboutScreen", () => {
   beforeEach(() => {
     expoRouterMocks.back.mockClear();
+  });
+
+  afterEach(() => {
+    Object.assign(Constants, { executionEnvironment: "bare" });
   });
 
   it("shows the brand disclaimer", async () => {
@@ -41,5 +46,12 @@ describe("[Integration] AboutScreen", () => {
     expect(launchLicenseListScreenMock).toHaveBeenCalledWith(
       "Third-party software",
     );
+  });
+
+  it("hides the third-party software link in Expo Go", async () => {
+    Object.assign(Constants, { executionEnvironment: "storeClient" });
+    const { queryByLabelText } = await renderWithProviders(<AboutScreen />);
+
+    expect(queryByLabelText("Third-party software")).toBeNull();
   });
 });
