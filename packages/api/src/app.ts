@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 
 import { openAPIRouteHandler } from "hono-openapi";
+import { createAdminPanelApp } from "./admin-panel";
 import apiRouter from "./api.router";
 import { config } from "./common/config";
 import { codeGenDocs, publicDocs } from "./common/openapi-schema";
@@ -30,6 +31,7 @@ app
     }),
   )
   .route("/api/v1", apiRouter)
+  .route("/", createAdminPanelApp(config.admin.distDir))
   .get("/health", (c) => c.text("ok"));
 
 if (config.exposeOpenApi) {

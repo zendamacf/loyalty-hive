@@ -11,6 +11,10 @@ const environment = process.env.NODE_ENV ?? "development";
 export const config: Config = {
   environment,
   exposeOpenApi: environment !== "production",
+  admin: {
+    /** Admin panel build. Relative paths start at the working directory (packages/api). */
+    distDir: process.env.ADMIN_DIST_DIR ?? "../admin/dist",
+  },
   libVersion: process.env.LIB_VERSION ?? API_PACKAGE_VERSION,
   server: {
     hostname: process.env.LISTEN_HOST ?? "0.0.0.0",
@@ -43,6 +47,9 @@ export const config: Config = {
 interface Config {
   environment: string;
   exposeOpenApi: boolean;
+  admin: {
+    distDir: string;
+  };
   libVersion: string;
   server: {
     hostname: string;
