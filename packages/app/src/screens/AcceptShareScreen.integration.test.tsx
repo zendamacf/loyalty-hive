@@ -140,6 +140,19 @@ describe("[Integration] AcceptShareScreen", () => {
     expect(expoRouterMocks.replace).not.toHaveBeenCalledWith(Routes.CARDS);
   });
 
+  it("shows the offline message when there is no network", async () => {
+    postApiV1SharesPreviewMock.mockImplementation(() =>
+      Promise.reject(new TypeError("Network request failed")),
+    );
+    const { findByText } = await renderWithProviders(<AcceptShareScreen />);
+
+    expect(
+      await findByText(
+        "You're offline. Connect to the internet to make changes.",
+      ),
+    ).toBeTruthy();
+  });
+
   it("keeps the token and goes to sign-in when the user is not verified", async () => {
     getApiV1AuthMeMock.mockImplementation(() =>
       Promise.resolve({

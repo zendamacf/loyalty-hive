@@ -58,6 +58,19 @@ type State =
   /** `code`: HTTP status of the failed call. The message is built at render time. */
   | { status: "error"; code?: number; error?: unknown };
 
+/** Tracks the failure and returns the error state. `code` is unset for a network error. */
+function failed(
+  step: "preview" | "accept",
+  code: number | undefined,
+  error: unknown,
+): State {
+  void trackAppEvent(AnalyticsEvents.SHARE_ACCEPT_FAILED, {
+    step,
+    status_code: code,
+  });
+  return { status: "error", code, error };
+}
+
 export const AcceptShareScreen = () => {
   const { t } = useTranslation(I18nNamespace.Cards);
   const { theme } = useTheme();
@@ -86,33 +99,36 @@ export const AcceptShareScreen = () => {
       return;
     }
 
-    void postApiV1SharesPreview({ body: { token } }).then(
-      ({ data, error, response }) => {
+    void (async () => {
+      try {
+        const { data, error, response } = await postApiV1SharesPreview({
+          body: { token },
+        });
         if (data) {
           setState({ status: "ready", invite: data });
           return;
         }
-        void trackAppEvent(AnalyticsEvents.SHARE_ACCEPT_FAILED, {
-          step: "preview",
-          status_code: response?.status,
-        });
-        setState({ status: "error", code: response?.status, error });
-      },
-    );
+        setState(failed("preview", response?.status, error));
+      } catch (err) {
+        // The client throws when there is no network.
+        setState(failed("preview", undefined, err));
+      }
+    })();
   }, [isReady, isAuthenticated, hasUser, emailVerified, token]);
 
   const accept = async (invite: PostApiV1SharesPreviewResponse) => {
     if (typeof token !== "string") return;
     setState({ status: "accepting", invite });
-    const { error, response } = await postApiV1SharesAccept({
-      body: { token },
-    });
-    if (error) {
-      void trackAppEvent(AnalyticsEvents.SHARE_ACCEPT_FAILED, {
-        step: "accept",
-        status_code: response?.status,
+    try {
+      const { error, response } = await postApiV1SharesAccept({
+        body: { token },
       });
-      setState({ status: "error", code: response?.status, error });
+      if (error) {
+        setState(failed("accept", response?.status, error));
+        return;
+      }
+    } catch (err) {
+      setState(failed("accept", undefined, err));
       return;
     }
     void trackAppEvent(AnalyticsEvents.SHARE_ACCEPT, { scope: invite.scope });
