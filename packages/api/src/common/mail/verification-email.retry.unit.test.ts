@@ -1,6 +1,15 @@
-import { describe, expect, it, mock } from "bun:test";
+import { afterAll, describe, expect, it, mock } from "bun:test";
+
+import * as sendEmailModule from "./send-email.js";
+
+// mock.module lasts for the whole test run. Put the real module back for later files.
+const realSendEmail = { ...sendEmailModule };
 
 describe("[Unit] verification email retries", () => {
+  afterAll(() => {
+    mock.module("./send-email.js", () => realSendEmail);
+  });
+
   it("retries when send fails with a retryable error", async () => {
     const sendEmail = mock(() => Promise.reject({ statusCode: 503 }));
 

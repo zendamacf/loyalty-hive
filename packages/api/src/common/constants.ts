@@ -17,13 +17,13 @@ export const TEST_API_KEY = "loyalty-hive-test-api-key";
 
 export const TEST_API_KEY_INTEGRATION = "test";
 
-/** Deep link opened by the app to complete email verification */
-export const EMAIL_VERIFICATION_LINK_BASE = "loyaltyhive://verify-email";
+/** Deep link base of the installed app (`scheme` in packages/app/app.json). */
+export const DEFAULT_APP_DEEP_LINK_BASE = "loyaltyhive://";
+
+/** URL path of the pages that email links open. They hand the token to the app. */
+export const APP_LINKS_PATH = "/links";
 
 export const EMAIL_VERIFICATION_TTL_HOURS = 24;
-
-/** Deep link opened by the app to complete a password reset */
-export const PASSWORD_RESET_LINK_BASE = "loyaltyhive://reset-password";
 
 export const PASSWORD_RESET_TTL_MINUTES = 60;
 

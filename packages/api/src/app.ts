@@ -6,6 +6,7 @@ import { serveStatic } from "hono/bun";
 import { openAPIRouteHandler } from "hono-openapi";
 import { createAdminPanelApp } from "./admin-panel";
 import apiRouter from "./api.router";
+import { createAppLinksApp } from "./app-links";
 import { config } from "./common/config";
 import { codeGenDocs, publicDocs } from "./common/openapi-schema";
 import { enrichSentryScope } from "./common/sentry-context";
@@ -32,6 +33,7 @@ app
   )
   .route("/api/v1", apiRouter)
   .route("/", createAdminPanelApp(config.admin.distDir))
+  .route("/", createAppLinksApp(config.appLinks.deepLinkBase))
   .get("/health", (c) => c.text("ok"));
 
 if (config.exposeOpenApi) {

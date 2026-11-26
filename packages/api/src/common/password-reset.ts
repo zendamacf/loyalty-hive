@@ -4,11 +4,8 @@ import { hash as bcryptHash } from "bcryptjs";
 import { and, eq, isNull } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { users } from "../db/schema.js";
-import {
-  BCRYPT_COST,
-  PASSWORD_RESET_LINK_BASE,
-  PASSWORD_RESET_TTL_MINUTES,
-} from "./constants.js";
+import { buildEmailLink } from "./app-links.js";
+import { BCRYPT_COST, PASSWORD_RESET_TTL_MINUTES } from "./constants.js";
 import { sendTemplatedEmail } from "./mail/send-templated-email.js";
 
 /**
@@ -33,9 +30,7 @@ export function hashResetToken(token: string): string {
 }
 
 export function buildPasswordResetLink(token: string): string {
-  const base = PASSWORD_RESET_LINK_BASE;
-  const separator = base.includes("?") ? "&" : "?";
-  return `${base}${separator}token=${encodeURIComponent(token)}`;
+  return buildEmailLink("reset-password", token);
 }
 
 /** Stores a new reset token for the user, then sends the email. */
