@@ -8,7 +8,6 @@ export interface SentryScope {
   setTag(key: string, value: string): void;
   setContext(name: string, context: Record<string, unknown> | null): void;
   setUser(user: { id?: string } | null): void;
-  captureException(error: unknown): void;
 }
 
 export function readClientRequestMetadata(c: Context): ClientRequestMetadata {

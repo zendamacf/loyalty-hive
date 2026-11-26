@@ -6,6 +6,7 @@ import {
   verifyAdminToken,
 } from "../common/admin-session.js";
 import { Unauthorized } from "../common/error.js";
+import { addBreadcrumb } from "../common/sentry-breadcrumbs.js";
 import { db } from "../db/client.js";
 import { adminUsers } from "../db/schema.js";
 
@@ -42,5 +43,6 @@ export const requireAdmin: MiddlewareHandler<AdminEnv> = async (c, next) => {
   }
 
   c.set("adminId", session.adminId);
+  addBreadcrumb({ category: "auth", message: "Admin authenticated" });
   return next();
 };

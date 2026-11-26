@@ -16,6 +16,7 @@ import {
   clearAnalyticsUserId,
   signOutAnalytics,
 } from "@/lib/analytics/analytics-user";
+import { installErrorReportingInterceptor } from "@/lib/api-client/error-reporting";
 import { installRequestContextInterceptor } from "@/lib/api-client/request-context";
 import {
   installUnauthorizedInterceptor,
@@ -47,6 +48,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 installUnauthorizedInterceptor();
 installRequestContextInterceptor();
+installErrorReportingInterceptor();
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isReady, setIsReady] = useState(false);
@@ -70,6 +72,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (token) {
+        Sentry.addBreadcrumb({
+          category: "auth",
+          message: "Restored saved session",
+        });
         setClientAuth(token);
         setIsAuthenticated(true);
         void refreshUser();
@@ -85,6 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(
     async (token: string) => {
+      Sentry.addBreadcrumb({ category: "auth", message: "Signed in" });
       await persistAuthToken(token);
       setClientAuth(token);
       setIsAuthenticated(true);
@@ -94,6 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const signOut = useCallback(async () => {
+    Sentry.addBreadcrumb({ category: "auth", message: "Signed out" });
     try {
       // Cached cards go first so a failure below can never leave them behind.
       await clearOfflineCache();
@@ -113,6 +121,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setUnauthorizedHandler(async () => {
+      Sentry.addBreadcrumb({
+        category: "auth",
+        message: "Session expired",
+        level: "warning",
+      });
       markSessionExpired();
       await signOutRef.current();
       router.replace(Routes.LOGIN);

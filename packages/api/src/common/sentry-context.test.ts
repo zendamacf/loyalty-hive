@@ -10,11 +10,7 @@ describe("enrichSentryScope", () => {
 
     const app = new Hono<{ Variables: { userId?: string } }>();
     app.get("/", (c) => {
-      enrichSentryScope(
-        { setTag, setContext, setUser, captureException: mock(() => {}) },
-        c,
-        "user-123",
-      );
+      enrichSentryScope({ setTag, setContext, setUser }, c, "user-123");
       return c.text("ok");
     });
 

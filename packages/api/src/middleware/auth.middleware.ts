@@ -7,6 +7,7 @@ import {
   Forbidden,
   Unauthorized,
 } from "../common/error";
+import { addBreadcrumb } from "../common/sentry-breadcrumbs";
 import { db } from "../db/client.js";
 import { users } from "../db/schema.js";
 
@@ -53,6 +54,7 @@ export const requireUserAuth: MiddlewareHandler<AuthEnv> = async (c, next) => {
   }
 
   c.set("userId", userId);
+  addBreadcrumb({ category: "auth", message: "User authenticated" });
   return next();
 };
 

@@ -8,6 +8,7 @@ export const sentryLoggerErrorMock = mock(() => {});
 mock.module("@sentry/react-native", () => ({
   init: sentryInitMock,
   captureException: sentryCaptureExceptionMock,
+  addBreadcrumb: mock(() => {}),
   wrap: (component: unknown) => component,
   wrapExpoRouterErrorBoundary: (component: unknown) => component,
   expoRouterIntegration: mock(() => ({})),
