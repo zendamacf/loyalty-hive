@@ -8,6 +8,7 @@ export enum I18nNamespace {
   Scan = "scan",
   Settings = "settings",
   About = "about",
+  Sharing = "sharing",
 }
 
 /** All namespace values — for tests and i18next `ns` config. */

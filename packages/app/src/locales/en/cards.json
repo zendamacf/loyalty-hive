@@ -60,5 +60,7 @@
   "acceptShareInvalid": "This link is not valid.",
   "acceptShareOtherAccount": "This invite is for a different account. Log in with the email that got the invite.",
   "acceptShareExpired": "This link was already used, has expired, or was cancelled.",
-  "acceptShareBack": "Go to my cards"
+  "acceptShareBack": "Go to my cards",
+  "shareAllCardsTitle": "Share all my cards",
+  "shareAccountIntro": "They will see every card in your wallet, including cards that you add later. They cannot change them. You can stop at any time."
 }
