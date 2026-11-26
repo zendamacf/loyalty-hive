@@ -1,5 +1,18 @@
 # @loyalty-hive/app
 
+## 1.5.0
+
+### Minor Changes
+
+- e1d1dae: You can now delete your account in Settings. Enter your password to confirm. Your data is removed after 30 days. Contact support in that time to restore the account.
+- c607614: Add check-email and verify-email flows after sign-up. Futher access is blocked until the account email is verified.
+- 66895f9: Add forgot password and reset password screens. You can now reset a forgotten password from the sign-in screen. Open the link in the email to set a new password, then sign in again.
+
+### Patch Changes
+
+- bb3b205: Report server errors and unreadable responses from the API, so problems the app hides behind an error message still reach error tracking. Expected errors and offline requests are not reported.
+- bb3b205: Error reports now show recent sign-in, sign-out, and session-expired events, to make problems easier to diagnose.
+
 ## 1.4.0
 
 ### Minor Changes
