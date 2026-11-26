@@ -14,6 +14,7 @@ import {
   getAuthResendVerificationIpRateLimit,
   getAuthResetPasswordIpRateLimit,
   getAuthSignupIpRateLimit,
+  getShareCreateIpRateLimit,
 } from "../common/rate-limit-config.js";
 import { rateLimitStore } from "../common/rate-limit-store.js";
 
@@ -124,5 +125,11 @@ export const adminLoginEmailRateLimit: MiddlewareHandler = async (c, next) => {
   const { email } = c.req.valid("json" as never) as { email: string };
   const { max, windowMs } = getAdminLoginEmailRateLimit();
   enforceRateLimit(c, "admin:login:email", email, max, windowMs);
+  return next();
+};
+
+export const shareCreateIpRateLimit: MiddlewareHandler = async (c, next) => {
+  const { max, windowMs } = getShareCreateIpRateLimit();
+  enforceRateLimit(c, "share:create:ip", getClientIp(c), max, windowMs);
   return next();
 };

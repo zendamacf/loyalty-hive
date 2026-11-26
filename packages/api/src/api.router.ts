@@ -7,6 +7,7 @@ import authRouter from "./routes/auth.routes.js";
 import brandRequestsRouter from "./routes/brand-requests.routes.js";
 import brandsRouter from "./routes/brands.routes.js";
 import cardsRouter from "./routes/cards.routes.js";
+import sharesRouter from "./routes/shares.routes.js";
 
 const app = new Hono<AuthEnv>()
   .route("/admin", adminRouter)
@@ -14,6 +15,7 @@ const app = new Hono<AuthEnv>()
   .route("/brand-requests", brandRequestsRouter)
   .route("/brands", brandsRouter)
   .route("/cards", cardsRouter)
+  .route("/shares", sharesRouter)
   .onError((error, c) => {
     if (error instanceof HTTPException) {
       return c.json(

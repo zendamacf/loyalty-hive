@@ -9,7 +9,7 @@ Users delete their account in the app (Settings > Delete account) or with `DELET
    - All access tokens stop working at once.
    - Password reset and verification emails stop.
    - The email stays reserved. Sign-up with it returns 409.
-2. A job in the API process runs at start and then each day. It deletes users whose `deleted_at` is more than 30 days old (`ACCOUNT_DELETION_GRACE_DAYS`). The database cascade removes their cards (including soft-deleted cards) and brand requests. Brands stay: they are shared catalog data.
+2. A job in the API process runs at start and then each day. It deletes users whose `deleted_at` is more than 30 days old (`ACCOUNT_DELETION_GRACE_DAYS`). The database cascade removes their cards (including soft-deleted cards), brand requests, card view stats, shares and share invites. During the grace period, cards that the user shared are not shown to other accounts. Brands stay: they are shared catalog data.
 3. After the purge the account cannot be restored.
 
 More than one API instance can run the job. The delete is safe to repeat.

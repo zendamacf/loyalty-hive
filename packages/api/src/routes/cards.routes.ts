@@ -1,4 +1,5 @@
-import { and, asc, desc, eq, isNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, exists, isNull, or, sql } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import type { Context } from "hono";
 
 import { Hono } from "hono";
@@ -11,7 +12,15 @@ import {
 } from "../common/openapi-responses.js";
 import { logoUrl } from "../common/storage.js";
 import { db } from "../db/client.js";
-import { brandRequests, brands, cards, cardViews } from "../db/schema.js";
+import {
+  brandRequests,
+  brands,
+  cardShares,
+  cards,
+  cardViews,
+  shareInvites,
+  users,
+} from "../db/schema.js";
 import {
   requireEmailVerified,
   requireUserAuth,
@@ -34,6 +43,10 @@ export const cardSchema = z.object({
   viewCount: z.number().int().nonnegative(),
   lastViewedAt: z.string().nullable(),
   createdAt: z.string(),
+  /** `shared`: another account shared the card with you. You cannot change it. */
+  ownership: z.enum(["owned", "shared"]),
+  /** Email of the owner when `ownership` is `shared`. */
+  sharedBy: z.string().nullable(),
 });
 
 const idParamSchema = z.object({
@@ -95,6 +108,34 @@ interface ContextVariables {
 
 type AppContext = Context<{ Variables: ContextVariables }>;
 
+const owners = alias(users, "owners");
+
+/** Cards that the user owns, and cards that other accounts shared with the user. */
+function visibleCardCondition(userId: string) {
+  return and(
+    activeCardCondition(),
+    isNull(owners.deletedAt),
+    or(
+      eq(cards.userId, userId),
+      exists(
+        db
+          .select({ id: cardShares.id })
+          .from(cardShares)
+          .where(
+            and(
+              eq(cardShares.recipientId, userId),
+              eq(cardShares.ownerId, cards.userId),
+              or(
+                eq(cardShares.scope, "account"),
+                eq(cardShares.cardId, cards.id),
+              ),
+            ),
+          ),
+      ),
+    ),
+  );
+}
+
 /** Views of the current user. Cards with no views have no `card_views` row. */
 const viewCount = sql<number>`coalesce(${cardViews.viewCount}, 0)`.mapWith(
   Number,
@@ -113,6 +154,7 @@ const cardWithBrandSelect = {
   viewCount,
   lastViewedAt: cardViews.lastViewedAt,
   createdAt: cards.createdAt,
+  ownerEmail: owners.email,
 };
 
 type CardWithBrandRow = {
@@ -128,12 +170,14 @@ type CardWithBrandRow = {
   viewCount: number;
   lastViewedAt: Date | null;
   createdAt: Date;
+  ownerEmail: string;
 };
 
 function cardWithBrandQuery(viewerId: string) {
   return db
     .select(cardWithBrandSelect)
     .from(cards)
+    .innerJoin(owners, eq(owners.id, cards.userId))
     .leftJoin(brands, eq(cards.brandId, brands.id))
     .leftJoin(
       cardViews,
@@ -141,7 +185,11 @@ function cardWithBrandQuery(viewerId: string) {
     );
 }
 
-function toCardResponse(row: CardWithBrandRow): z.infer<typeof cardSchema> {
+function toCardResponse(
+  row: CardWithBrandRow,
+  viewerId: string,
+): z.infer<typeof cardSchema> {
+  const shared = row.userId !== viewerId;
   return {
     id: row.id,
     userId: row.userId,
@@ -159,6 +207,8 @@ function toCardResponse(row: CardWithBrandRow): z.infer<typeof cardSchema> {
     viewCount: row.viewCount,
     lastViewedAt: row.lastViewedAt?.toISOString() ?? null,
     createdAt: row.createdAt.toISOString(),
+    ownership: shared ? "shared" : "owned",
+    sharedBy: shared ? row.ownerEmail : null,
   };
 }
 
@@ -167,9 +217,7 @@ async function listCardsForUser(
   sort: CardListSort,
   order: CardListOrder,
 ) {
-  const query = cardWithBrandQuery(userId).where(
-    and(eq(cards.userId, userId), activeCardCondition()),
-  );
+  const query = cardWithBrandQuery(userId).where(visibleCardCondition(userId));
   const alphabeticalOrder =
     order === "desc" ? desc(cardAlphabeticalOrder) : asc(cardAlphabeticalOrder);
 
@@ -191,15 +239,10 @@ async function listCardsForUser(
   }
 }
 
-async function getCardForUser(userId: string, cardId: string) {
+/** A card that the user owns or that is shared with the user. */
+async function getVisibleCard(userId: string, cardId: string) {
   const [card] = await cardWithBrandQuery(userId)
-    .where(
-      and(
-        eq(cards.id, cardId),
-        eq(cards.userId, userId),
-        activeCardCondition(),
-      ),
-    )
+    .where(and(eq(cards.id, cardId), visibleCardCondition(userId)))
     .limit(1);
   return card;
 }
@@ -292,7 +335,8 @@ const app = new Hono<{ Variables: ContextVariables }>()
   .get(
     "/",
     describeRoute({
-      description: "Get all cards for the authenticated user",
+      description:
+        "Get your cards and the cards that other accounts shared with you",
       security: [{ bearerAuth: [] }],
       responses: {
         200: jsonResponse("Successful response", z.array(cardSchema)),
@@ -305,7 +349,7 @@ const app = new Hono<{ Variables: ContextVariables }>()
       const { sort, order: orderParam } = c.req.valid("query");
       const order = orderParam ?? defaultOrderForSort(sort);
       const rows = await listCardsForUser(c.get("userId"), sort, order);
-      return c.json(rows.map(toCardResponse));
+      return c.json(rows.map((row) => toCardResponse(row, c.get("userId"))));
     },
   )
   .post(
@@ -350,9 +394,9 @@ const app = new Hono<{ Variables: ContextVariables }>()
             brandRequestId: link.brandRequestId,
           })
           .returning();
-        const card = await getCardForUser(userId, created.id);
+        const card = await getVisibleCard(userId, created.id);
         if (!card) throw new Error("Card missing after insert");
-        return c.json(toCardResponse(card), 201);
+        return c.json(toCardResponse(card, userId), 201);
       } catch (error) {
         return handleFkViolation(c, error);
       }
@@ -361,7 +405,8 @@ const app = new Hono<{ Variables: ContextVariables }>()
   .get(
     "/:id",
     describeRoute({
-      description: "Get a card by id",
+      description:
+        "Get a card by id. It can be your card or a card shared with you.",
       security: [{ bearerAuth: [] }],
       responses: {
         200: jsonResponse("Successful response", cardSchema),
@@ -372,17 +417,17 @@ const app = new Hono<{ Variables: ContextVariables }>()
     validator("param", idParamSchema),
     async (c) => {
       const { id } = c.req.valid("param");
-      const card = await getCardForUser(c.get("userId"), id);
+      const card = await getVisibleCard(c.get("userId"), id);
       if (!card) {
         return c.json({ error: "Card not found" }, 404);
       }
-      return c.json(toCardResponse(card));
+      return c.json(toCardResponse(card, c.get("userId")));
     },
   )
   .patch(
     "/:id",
     describeRoute({
-      description: "Update a card",
+      description: "Update a card. Only the owner can update a card.",
       security: [{ bearerAuth: [] }],
       responses: {
         200: jsonResponse("Successful response", cardSchema),
@@ -419,11 +464,11 @@ const app = new Hono<{ Variables: ContextVariables }>()
         }
       }
 
-      const card = await getCardForUser(userId, id);
+      const card = await getVisibleCard(userId, id);
       if (!card) {
         return c.json({ error: "Card not found" }, 404);
       }
-      return c.json(toCardResponse(card));
+      return c.json(toCardResponse(card, c.get("userId")));
     },
   )
   .post(
@@ -443,7 +488,7 @@ const app = new Hono<{ Variables: ContextVariables }>()
       const { id } = c.req.valid("param");
       const userId = c.get("userId");
 
-      const card = await getCardForUser(userId, id);
+      const card = await getVisibleCard(userId, id);
       if (!card) {
         return c.json({ error: "Card not found" }, 404);
       }
@@ -463,13 +508,13 @@ const app = new Hono<{ Variables: ContextVariables }>()
           viewCount: cardViews.viewCount,
           lastViewedAt: cardViews.lastViewedAt,
         });
-      return c.json(toCardResponse({ ...card, ...stats }));
+      return c.json(toCardResponse({ ...card, ...stats }, userId));
     },
   )
   .delete(
     "/:id",
     describeRoute({
-      description: "Delete a card by id",
+      description: "Delete a card by id. Only the owner can delete a card.",
       security: [{ bearerAuth: [] }],
       responses: {
         204: noContentResponse(),
@@ -481,17 +526,33 @@ const app = new Hono<{ Variables: ContextVariables }>()
     async (c) => {
       const { id } = c.req.valid("param");
 
-      const [deleted] = await db
-        .update(cards)
-        .set({ deletedAt: new Date() })
-        .where(
-          and(
-            eq(cards.id, id),
-            eq(cards.userId, c.get("userId")),
-            activeCardCondition(),
-          ),
-        )
-        .returning({ id: cards.id });
+      const deleted = await db.transaction(async (tx) => {
+        const [row] = await tx
+          .update(cards)
+          .set({ deletedAt: new Date() })
+          .where(
+            and(
+              eq(cards.id, id),
+              eq(cards.userId, c.get("userId")),
+              activeCardCondition(),
+            ),
+          )
+          .returning({ id: cards.id });
+        if (!row) return false;
+
+        // The card is soft-deleted, so the cascade does not run. Stop sharing it now.
+        await tx.delete(cardShares).where(eq(cardShares.cardId, id));
+        await tx
+          .update(shareInvites)
+          .set({ status: "cancelled" })
+          .where(
+            and(
+              eq(shareInvites.cardId, id),
+              eq(shareInvites.status, "pending"),
+            ),
+          );
+        return true;
+      });
       if (!deleted) {
         return c.json({ error: "Card not found" }, 404);
       }

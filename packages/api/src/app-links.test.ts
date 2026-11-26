@@ -22,6 +22,13 @@ describe("app link redirects", () => {
     );
   });
 
+  it("redirects accept-share to the deep link", async () => {
+    const response = await app.request("/links/accept-share?token=abc");
+    expect(response.headers.get("location")).toBe(
+      "exp://192.168.1.20:8081/--/accept-share?token=abc",
+    );
+  });
+
   it("returns 400 without a token", async () => {
     const response = await app.request("/links/verify-email");
     expect(response.status).toBe(400);

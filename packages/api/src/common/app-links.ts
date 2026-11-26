@@ -2,7 +2,7 @@ import { config } from "./config.js";
 import { APP_LINKS_PATH } from "./constants.js";
 
 /** App screens that email links open. Each is a route in packages/app/app. */
-export type AppLinkTarget = "verify-email" | "reset-password";
+export type AppLinkTarget = "verify-email" | "reset-password" | "accept-share";
 
 /** Deep link that opens the app screen, e.g. `loyaltyhive://verify-email?token=…`. */
 export function buildAppDeepLink(

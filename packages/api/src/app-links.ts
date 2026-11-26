@@ -9,7 +9,7 @@ import { APP_LINKS_PATH } from "./common/constants";
  */
 export function createAppLinksApp(deepLinkBase: string) {
   return new Hono().get(
-    `${APP_LINKS_PATH}/:target{verify-email|reset-password}`,
+    `${APP_LINKS_PATH}/:target{verify-email|reset-password|accept-share}`,
     (c) => {
       const target = c.req.param("target") as AppLinkTarget;
       const token = c.req.query("token");
