@@ -26,6 +26,10 @@ export type DeleteCardSheetPayload = {
   cardId: string;
 };
 
+export type ShareCardSheetPayload = {
+  cardId: string;
+};
+
 export type ScanManualEntrySheetPayload = {
   brandId?: string | null;
   brandName?: string | null;
@@ -51,6 +55,9 @@ declare module "react-native-actions-sheet" {
     }>;
     [SheetIds.DELETE_CARD]: SheetDefinition<{
       payload: DeleteCardSheetPayload;
+    }>;
+    [SheetIds.SHARE_CARD]: SheetDefinition<{
+      payload: ShareCardSheetPayload;
     }>;
     [SheetIds.SCAN_MANUAL_ENTRY]: SheetDefinition<{
       payload: ScanManualEntrySheetPayload;

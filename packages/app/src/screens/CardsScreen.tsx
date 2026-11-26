@@ -7,6 +7,7 @@ import {
   ListFilterIcon,
   PlusIcon,
   SettingsIcon,
+  UsersIcon,
 } from "lucide-react-native";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -51,6 +52,7 @@ import {
   saveCachedCards,
   useOfflineFallback,
 } from "@/lib/offline-cache";
+import { usePendingShareRedirect } from "@/lib/pending-share";
 import { AppTitle } from "../components/AppTitle";
 import { LoyaltyBrandLogo } from "../components/LoyaltyBrandLogo";
 import { OfflineNotice } from "../components/OfflineNotice";
@@ -97,6 +99,7 @@ export const CardsScreen = () => {
   const { t } = useTranslation([I18nNamespace.Cards, I18nNamespace.Common]);
   const { theme } = useTheme();
   useTrackScreenView(Routes.CARDS, { title: "Cards List Screen" });
+  usePendingShareRedirect();
   const [searchQuery, setSearchQuery] = useState("");
   const { sort, setSort, hydrated: cardSortHydrated } = useCardSort();
 
@@ -291,7 +294,13 @@ export const CardsScreen = () => {
             const { title, subtitle } = resolveCardHeadings(brandName, label);
             const markBrand =
               brandName.trim() || label.trim() || item.cardNumber;
-            const cardA11yLabel = subtitle ? `${title}, ${subtitle}` : title;
+            const headingA11y = subtitle ? `${title}, ${subtitle}` : title;
+            const cardA11yLabel = item.sharedBy
+              ? t("sharedCardA11y", {
+                  title: headingA11y,
+                  email: item.sharedBy,
+                })
+              : headingA11y;
 
             return (
               <View style={styles.card}>
@@ -317,12 +326,24 @@ export const CardsScreen = () => {
                           createdAt: item.createdAt,
                           logoUrl: item.brand?.logoUrl ?? "",
                           backgroundColor: cardBackgroundColor,
+                          sharedBy: item.sharedBy ?? "",
                           [CARD_CODE_FROM_CARDS_PARAM]:
                             CARD_CODE_FROM_CARDS_VALUE,
                         },
                       })
                     }
                   />
+                  {item.sharedBy ? (
+                    <View
+                      pointerEvents="none"
+                      style={[
+                        styles.sharedBadge,
+                        { backgroundColor: theme.surface },
+                      ]}
+                    >
+                      <UsersIcon color={theme.textPrimary} size={icon.sm} />
+                    </View>
+                  ) : null}
                   {subtitle ? (
                     <View
                       pointerEvents="none"
@@ -418,6 +439,13 @@ const styles = StyleSheet.create({
     position: "relative",
     width: "100%",
     overflow: "hidden",
+    borderRadius: radius.sm,
+  },
+  sharedBadge: {
+    position: "absolute",
+    top: spacing.xs,
+    right: spacing.xs,
+    padding: spacing.xs,
     borderRadius: radius.sm,
   },
   labelBar: {

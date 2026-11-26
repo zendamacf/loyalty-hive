@@ -118,6 +118,7 @@ mock.module("lucide-react-native", () => ({
   ClockIcon: () => React.createElement("Text", null, "clock"),
   Check: () => React.createElement("Text", null, "check"),
   CircleDot: () => React.createElement("Text", null, "circle"),
+  UsersIcon: () => React.createElement("Text", null, "shared"),
 }));
 
 mock.module("react-native-svg", () => {

@@ -3,11 +3,11 @@
 import { queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { deleteApiV1AuthMe, deleteApiV1CardsById, getApiV1AuthMe, getApiV1Brands, getApiV1Cards, getApiV1CardsById, type Options, patchApiV1CardsById, postApiV1AuthForgotPassword, postApiV1AuthLogin, postApiV1AuthResendVerification, postApiV1AuthResetPassword, postApiV1AuthSignup, postApiV1AuthVerifyEmail, postApiV1BrandRequests, postApiV1Cards, postApiV1CardsByIdView } from '../sdk.gen';
-import type { DeleteApiV1AuthMeData, DeleteApiV1AuthMeError, DeleteApiV1AuthMeResponse, DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdError, DeleteApiV1CardsByIdResponse, GetApiV1AuthMeData, GetApiV1AuthMeError, GetApiV1AuthMeResponse, GetApiV1BrandsData, GetApiV1BrandsError, GetApiV1BrandsResponse, GetApiV1CardsByIdData, GetApiV1CardsByIdError, GetApiV1CardsByIdResponse, GetApiV1CardsData, GetApiV1CardsError, GetApiV1CardsResponse, PatchApiV1CardsByIdData, PatchApiV1CardsByIdError, PatchApiV1CardsByIdResponse, PostApiV1AuthForgotPasswordData, PostApiV1AuthForgotPasswordError, PostApiV1AuthForgotPasswordResponse, PostApiV1AuthLoginData, PostApiV1AuthLoginError, PostApiV1AuthLoginResponse, PostApiV1AuthResendVerificationData, PostApiV1AuthResendVerificationError, PostApiV1AuthResendVerificationResponse, PostApiV1AuthResetPasswordData, PostApiV1AuthResetPasswordError, PostApiV1AuthResetPasswordResponse, PostApiV1AuthSignupData, PostApiV1AuthSignupError, PostApiV1AuthSignupResponse, PostApiV1AuthVerifyEmailData, PostApiV1AuthVerifyEmailError, PostApiV1AuthVerifyEmailResponse, PostApiV1BrandRequestsData, PostApiV1BrandRequestsError, PostApiV1BrandRequestsResponse, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewError, PostApiV1CardsByIdViewResponse, PostApiV1CardsData, PostApiV1CardsError, PostApiV1CardsResponse } from '../types.gen';
+import { deleteApiV1AuthMe, deleteApiV1CardsById, deleteApiV1SharesById, deleteApiV1SharesInvitesById, getApiV1AuthMe, getApiV1Brands, getApiV1Cards, getApiV1CardsById, getApiV1SharesIncoming, getApiV1SharesOutgoing, type Options, patchApiV1CardsById, postApiV1AuthForgotPassword, postApiV1AuthLogin, postApiV1AuthResendVerification, postApiV1AuthResetPassword, postApiV1AuthSignup, postApiV1AuthVerifyEmail, postApiV1BrandRequests, postApiV1Cards, postApiV1CardsByIdView, postApiV1Shares, postApiV1SharesAccept, postApiV1SharesPreview } from '../sdk.gen';
+import type { DeleteApiV1AuthMeData, DeleteApiV1AuthMeError, DeleteApiV1AuthMeResponse, DeleteApiV1CardsByIdData, DeleteApiV1CardsByIdError, DeleteApiV1CardsByIdResponse, DeleteApiV1SharesByIdData, DeleteApiV1SharesByIdError, DeleteApiV1SharesByIdResponse, DeleteApiV1SharesInvitesByIdData, DeleteApiV1SharesInvitesByIdError, DeleteApiV1SharesInvitesByIdResponse, GetApiV1AuthMeData, GetApiV1AuthMeError, GetApiV1AuthMeResponse, GetApiV1BrandsData, GetApiV1BrandsError, GetApiV1BrandsResponse, GetApiV1CardsByIdData, GetApiV1CardsByIdError, GetApiV1CardsByIdResponse, GetApiV1CardsData, GetApiV1CardsError, GetApiV1CardsResponse, GetApiV1SharesIncomingData, GetApiV1SharesIncomingError, GetApiV1SharesIncomingResponse, GetApiV1SharesOutgoingData, GetApiV1SharesOutgoingError, GetApiV1SharesOutgoingResponse, PatchApiV1CardsByIdData, PatchApiV1CardsByIdError, PatchApiV1CardsByIdResponse, PostApiV1AuthForgotPasswordData, PostApiV1AuthForgotPasswordError, PostApiV1AuthForgotPasswordResponse, PostApiV1AuthLoginData, PostApiV1AuthLoginError, PostApiV1AuthLoginResponse, PostApiV1AuthResendVerificationData, PostApiV1AuthResendVerificationError, PostApiV1AuthResendVerificationResponse, PostApiV1AuthResetPasswordData, PostApiV1AuthResetPasswordError, PostApiV1AuthResetPasswordResponse, PostApiV1AuthSignupData, PostApiV1AuthSignupError, PostApiV1AuthSignupResponse, PostApiV1AuthVerifyEmailData, PostApiV1AuthVerifyEmailError, PostApiV1AuthVerifyEmailResponse, PostApiV1BrandRequestsData, PostApiV1BrandRequestsError, PostApiV1BrandRequestsResponse, PostApiV1CardsByIdViewData, PostApiV1CardsByIdViewError, PostApiV1CardsByIdViewResponse, PostApiV1CardsData, PostApiV1CardsError, PostApiV1CardsResponse, PostApiV1SharesAcceptData, PostApiV1SharesAcceptError, PostApiV1SharesAcceptResponse, PostApiV1SharesData, PostApiV1SharesError, PostApiV1SharesPreviewData, PostApiV1SharesPreviewError, PostApiV1SharesPreviewResponse, PostApiV1SharesResponse } from '../types.gen';
 
 /**
- * Sign in with email and password; returns a JWT access token
+ * Sign in with email and password; returns a short-lived JWT access token (lifetime via `JWT_ACCESS_TTL`, default 7d). There is no refresh token — sign in again after expiry. Rate limits (defaults): 10 requests/minute per IP and 5/minute per email (see `RATE_LIMIT_AUTH_*` env vars).
  */
 export const postApiV1AuthLoginMutation = (options?: Partial<Options<PostApiV1AuthLoginData>>): UseMutationOptions<PostApiV1AuthLoginResponse, PostApiV1AuthLoginError, Options<PostApiV1AuthLoginData>> => {
     const mutationOptions: UseMutationOptions<PostApiV1AuthLoginResponse, PostApiV1AuthLoginError, Options<PostApiV1AuthLoginData>> = {
@@ -24,7 +24,7 @@ export const postApiV1AuthLoginMutation = (options?: Partial<Options<PostApiV1Au
 };
 
 /**
- * Create a new user account
+ * Create a new user account and send a verification email. Rate limit (default): 5 signups/minute per IP (see `RATE_LIMIT_AUTH_*` env vars).
  */
 export const postApiV1AuthSignupMutation = (options?: Partial<Options<PostApiV1AuthSignupData>>): UseMutationOptions<PostApiV1AuthSignupResponse, PostApiV1AuthSignupError, Options<PostApiV1AuthSignupData>> => {
     const mutationOptions: UseMutationOptions<PostApiV1AuthSignupResponse, PostApiV1AuthSignupError, Options<PostApiV1AuthSignupData>> = {
@@ -41,7 +41,7 @@ export const postApiV1AuthSignupMutation = (options?: Partial<Options<PostApiV1A
 };
 
 /**
- * Verify a user's email address using the token from the verification link
+ * Verify a user's email address using the token from the verification link.
  */
 export const postApiV1AuthVerifyEmailMutation = (options?: Partial<Options<PostApiV1AuthVerifyEmailData>>): UseMutationOptions<PostApiV1AuthVerifyEmailResponse, PostApiV1AuthVerifyEmailError, Options<PostApiV1AuthVerifyEmailData>> => {
     const mutationOptions: UseMutationOptions<PostApiV1AuthVerifyEmailResponse, PostApiV1AuthVerifyEmailError, Options<PostApiV1AuthVerifyEmailData>> = {
@@ -58,7 +58,7 @@ export const postApiV1AuthVerifyEmailMutation = (options?: Partial<Options<PostA
 };
 
 /**
- * Resend the email verification message
+ * Resend the email verification message. Returns the same response whether or not the email exists or is already verified (rate-limited per IP and email).
  */
 export const postApiV1AuthResendVerificationMutation = (options?: Partial<Options<PostApiV1AuthResendVerificationData>>): UseMutationOptions<PostApiV1AuthResendVerificationResponse, PostApiV1AuthResendVerificationError, Options<PostApiV1AuthResendVerificationData>> => {
     const mutationOptions: UseMutationOptions<PostApiV1AuthResendVerificationResponse, PostApiV1AuthResendVerificationError, Options<PostApiV1AuthResendVerificationData>> = {
@@ -98,6 +98,23 @@ export const postApiV1AuthResetPasswordMutation = (options?: Partial<Options<Pos
     const mutationOptions: UseMutationOptions<PostApiV1AuthResetPasswordResponse, PostApiV1AuthResetPasswordError, Options<PostApiV1AuthResetPasswordData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await postApiV1AuthResetPassword({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Delete the authenticated user's account. Needs the current password. The account is marked deleted at once: sign-in stops, and all access tokens stop working. Cards and brand requests are removed for good after 30 days, which is the time to ask support for a restore. The email stays reserved until then. Rate limit: 5 requests/minute per user.
+ */
+export const deleteApiV1AuthMeMutation = (options?: Partial<Options<DeleteApiV1AuthMeData>>): UseMutationOptions<DeleteApiV1AuthMeResponse, DeleteApiV1AuthMeError, Options<DeleteApiV1AuthMeData>> => {
+    const mutationOptions: UseMutationOptions<DeleteApiV1AuthMeResponse, DeleteApiV1AuthMeError, Options<DeleteApiV1AuthMeData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteApiV1AuthMe({
                 ...options,
                 ...fnOptions,
                 throwOnError: true
@@ -160,12 +177,12 @@ export const getApiV1AuthMeOptions = (options?: Options<GetApiV1AuthMeData>) => 
 });
 
 /**
- * Delete the authenticated user's account. Needs the current password. The account is marked deleted at once: sign-in stops, and all access tokens stop working. Cards and brand requests are removed for good after 30 days, which is the time to ask support for a restore. The email stays reserved until then. Rate limit: 5 requests/minute per user.
+ * Request a new loyalty brand be added to the catalog
  */
-export const deleteApiV1AuthMeMutation = (options?: Partial<Options<DeleteApiV1AuthMeData>>): UseMutationOptions<DeleteApiV1AuthMeResponse, DeleteApiV1AuthMeError, Options<DeleteApiV1AuthMeData>> => {
-    const mutationOptions: UseMutationOptions<DeleteApiV1AuthMeResponse, DeleteApiV1AuthMeError, Options<DeleteApiV1AuthMeData>> = {
+export const postApiV1BrandRequestsMutation = (options?: Partial<Options<PostApiV1BrandRequestsData>>): UseMutationOptions<PostApiV1BrandRequestsResponse, PostApiV1BrandRequestsError, Options<PostApiV1BrandRequestsData>> => {
+    const mutationOptions: UseMutationOptions<PostApiV1BrandRequestsResponse, PostApiV1BrandRequestsError, Options<PostApiV1BrandRequestsData>> = {
         mutationFn: async (fnOptions) => {
-            const { data } = await deleteApiV1AuthMe({
+            const { data } = await postApiV1BrandRequests({
                 ...options,
                 ...fnOptions,
                 throwOnError: true
@@ -197,7 +214,7 @@ export const getApiV1BrandsOptions = (options?: Options<GetApiV1BrandsData>) => 
 export const getApiV1CardsQueryKey = (options?: Options<GetApiV1CardsData>) => createQueryKey('getApiV1Cards', options);
 
 /**
- * Get all cards for the authenticated user
+ * Get your cards and the cards that other accounts shared with you
  */
 export const getApiV1CardsOptions = (options?: Options<GetApiV1CardsData>) => queryOptions<GetApiV1CardsResponse, GetApiV1CardsError, GetApiV1CardsResponse, ReturnType<typeof getApiV1CardsQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
@@ -211,23 +228,6 @@ export const getApiV1CardsOptions = (options?: Options<GetApiV1CardsData>) => qu
     },
     queryKey: getApiV1CardsQueryKey(options)
 });
-
-/**
- * Request a new loyalty brand be added to the catalog
- */
-export const postApiV1BrandRequestsMutation = (options?: Partial<Options<PostApiV1BrandRequestsData>>): UseMutationOptions<PostApiV1BrandRequestsResponse, PostApiV1BrandRequestsError, Options<PostApiV1BrandRequestsData>> => {
-    const mutationOptions: UseMutationOptions<PostApiV1BrandRequestsResponse, PostApiV1BrandRequestsError, Options<PostApiV1BrandRequestsData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await postApiV1BrandRequests({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
 
 /**
  * Create a new card for the authenticated user
@@ -247,7 +247,7 @@ export const postApiV1CardsMutation = (options?: Partial<Options<PostApiV1CardsD
 };
 
 /**
- * Delete a card by id
+ * Delete a card by id. Only the owner can delete a card.
  */
 export const deleteApiV1CardsByIdMutation = (options?: Partial<Options<DeleteApiV1CardsByIdData>>): UseMutationOptions<DeleteApiV1CardsByIdResponse, DeleteApiV1CardsByIdError, Options<DeleteApiV1CardsByIdData>> => {
     const mutationOptions: UseMutationOptions<DeleteApiV1CardsByIdResponse, DeleteApiV1CardsByIdError, Options<DeleteApiV1CardsByIdData>> = {
@@ -266,7 +266,7 @@ export const deleteApiV1CardsByIdMutation = (options?: Partial<Options<DeleteApi
 export const getApiV1CardsByIdQueryKey = (options: Options<GetApiV1CardsByIdData>) => createQueryKey('getApiV1CardsById', options);
 
 /**
- * Get a card by id
+ * Get a card by id. It can be your card or a card shared with you.
  */
 export const getApiV1CardsByIdOptions = (options: Options<GetApiV1CardsByIdData>) => queryOptions<GetApiV1CardsByIdResponse, GetApiV1CardsByIdError, GetApiV1CardsByIdResponse, ReturnType<typeof getApiV1CardsByIdQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
@@ -282,7 +282,7 @@ export const getApiV1CardsByIdOptions = (options: Options<GetApiV1CardsByIdData>
 });
 
 /**
- * Update a card
+ * Update a card. Only the owner can update a card.
  */
 export const patchApiV1CardsByIdMutation = (options?: Partial<Options<PatchApiV1CardsByIdData>>): UseMutationOptions<PatchApiV1CardsByIdResponse, PatchApiV1CardsByIdError, Options<PatchApiV1CardsByIdData>> => {
     const mutationOptions: UseMutationOptions<PatchApiV1CardsByIdResponse, PatchApiV1CardsByIdError, Options<PatchApiV1CardsByIdData>> = {
@@ -305,6 +305,127 @@ export const postApiV1CardsByIdViewMutation = (options?: Partial<Options<PostApi
     const mutationOptions: UseMutationOptions<PostApiV1CardsByIdViewResponse, PostApiV1CardsByIdViewError, Options<PostApiV1CardsByIdViewData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await postApiV1CardsByIdView({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Invite another account to see one card (`scope: card`) or all your cards, also cards you add later (`scope: account`). The response is the same whether or not an account has the email (no user enumeration). Only existing, verified accounts get an email. Limits: 10 pending invites, 20 invites in 24 hours, 10 recipients for each card or account, and 1 email to the same recipient in 24 hours.
+ */
+export const postApiV1SharesMutation = (options?: Partial<Options<PostApiV1SharesData>>): UseMutationOptions<PostApiV1SharesResponse, PostApiV1SharesError, Options<PostApiV1SharesData>> => {
+    const mutationOptions: UseMutationOptions<PostApiV1SharesResponse, PostApiV1SharesError, Options<PostApiV1SharesData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await postApiV1Shares({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const getApiV1SharesOutgoingQueryKey = (options?: Options<GetApiV1SharesOutgoingData>) => createQueryKey('getApiV1SharesOutgoing', options);
+
+/**
+ * Pending invites and active shares that you gave. Pending invites include invites to emails with no account.
+ */
+export const getApiV1SharesOutgoingOptions = (options?: Options<GetApiV1SharesOutgoingData>) => queryOptions<GetApiV1SharesOutgoingResponse, GetApiV1SharesOutgoingError, GetApiV1SharesOutgoingResponse, ReturnType<typeof getApiV1SharesOutgoingQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getApiV1SharesOutgoing({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getApiV1SharesOutgoingQueryKey(options)
+});
+
+export const getApiV1SharesIncomingQueryKey = (options?: Options<GetApiV1SharesIncomingData>) => createQueryKey('getApiV1SharesIncoming', options);
+
+/**
+ * Active shares that other accounts gave you.
+ */
+export const getApiV1SharesIncomingOptions = (options?: Options<GetApiV1SharesIncomingData>) => queryOptions<GetApiV1SharesIncomingResponse, GetApiV1SharesIncomingError, GetApiV1SharesIncomingResponse, ReturnType<typeof getApiV1SharesIncomingQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getApiV1SharesIncoming({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getApiV1SharesIncomingQueryKey(options)
+});
+
+/**
+ * Show an invite from the emailed link before you accept it. You must be logged in with the invited email.
+ */
+export const postApiV1SharesPreviewMutation = (options?: Partial<Options<PostApiV1SharesPreviewData>>): UseMutationOptions<PostApiV1SharesPreviewResponse, PostApiV1SharesPreviewError, Options<PostApiV1SharesPreviewData>> => {
+    const mutationOptions: UseMutationOptions<PostApiV1SharesPreviewResponse, PostApiV1SharesPreviewError, Options<PostApiV1SharesPreviewData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await postApiV1SharesPreview({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Accept an invite from the emailed link. You must be logged in with the invited email. The link works one time.
+ */
+export const postApiV1SharesAcceptMutation = (options?: Partial<Options<PostApiV1SharesAcceptData>>): UseMutationOptions<PostApiV1SharesAcceptResponse, PostApiV1SharesAcceptError, Options<PostApiV1SharesAcceptData>> => {
+    const mutationOptions: UseMutationOptions<PostApiV1SharesAcceptResponse, PostApiV1SharesAcceptError, Options<PostApiV1SharesAcceptData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await postApiV1SharesAccept({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Cancel a pending invite that you sent.
+ */
+export const deleteApiV1SharesInvitesByIdMutation = (options?: Partial<Options<DeleteApiV1SharesInvitesByIdData>>): UseMutationOptions<DeleteApiV1SharesInvitesByIdResponse, DeleteApiV1SharesInvitesByIdError, Options<DeleteApiV1SharesInvitesByIdData>> => {
+    const mutationOptions: UseMutationOptions<DeleteApiV1SharesInvitesByIdResponse, DeleteApiV1SharesInvitesByIdError, Options<DeleteApiV1SharesInvitesByIdData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteApiV1SharesInvitesById({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Stop a share. The owner can revoke it, and the recipient can leave it. Access stops at once.
+ */
+export const deleteApiV1SharesByIdMutation = (options?: Partial<Options<DeleteApiV1SharesByIdData>>): UseMutationOptions<DeleteApiV1SharesByIdResponse, DeleteApiV1SharesByIdError, Options<DeleteApiV1SharesByIdData>> => {
+    const mutationOptions: UseMutationOptions<DeleteApiV1SharesByIdResponse, DeleteApiV1SharesByIdError, Options<DeleteApiV1SharesByIdData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteApiV1SharesById({
                 ...options,
                 ...fnOptions,
                 throwOnError: true

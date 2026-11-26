@@ -15,6 +15,8 @@ export const testCards = [
     },
     viewCount: 0,
     lastViewedAt: null,
+    ownership: "owned",
+    sharedBy: null,
     createdAt: "2020-01-01T00:00:00.000Z",
   },
   {
@@ -31,6 +33,8 @@ export const testCards = [
     },
     viewCount: 0,
     lastViewedAt: null,
+    ownership: "owned",
+    sharedBy: null,
     createdAt: "2020-01-01T00:00:00.000Z",
   },
   {
@@ -46,6 +50,8 @@ export const testCards = [
     },
     viewCount: 0,
     lastViewedAt: null,
+    ownership: "owned",
+    sharedBy: null,
     createdAt: "2020-01-01T00:00:00.000Z",
   },
 ] satisfies GetApiV1CardsResponse;

@@ -57,20 +57,19 @@ const ManageRow = ({
 
 export type CardManageSectionProps = {
   onDetailsPress: () => void;
-  onEditPress: () => void;
-  onDeletePress: () => void;
-  detailsDisabled?: boolean;
-  editDisabled?: boolean;
-  deleteDisabled?: boolean;
+  /** Leave out for a card shared with you: only the owner can change it. */
+  onEditPress?: () => void;
+  onSharePress?: () => void;
+  onDeletePress?: () => void;
+  disabled?: boolean;
 };
 
 export const CardManageSection = ({
   onDetailsPress,
   onEditPress,
+  onSharePress,
   onDeletePress,
-  detailsDisabled = false,
-  editDisabled = false,
-  deleteDisabled = false,
+  disabled = false,
 }: CardManageSectionProps) => {
   const { t } = useTranslation(I18nNamespace.Cards);
   const { theme } = useTheme();
@@ -89,21 +88,33 @@ export const CardManageSection = ({
         <ManageRow
           label={t("manageDetails")}
           onPress={onDetailsPress}
-          disabled={detailsDisabled}
+          disabled={disabled}
         />
-        <ManageRow
-          label={t("editCardSheetTitle")}
-          onPress={onEditPress}
-          disabled={editDisabled}
-          showDivider
-        />
-        <ManageRow
-          label={t("deleteCard")}
-          onPress={onDeletePress}
-          disabled={deleteDisabled}
-          destructive
-          showDivider
-        />
+        {onEditPress ? (
+          <ManageRow
+            label={t("editCardSheetTitle")}
+            onPress={onEditPress}
+            disabled={disabled}
+            showDivider
+          />
+        ) : null}
+        {onSharePress ? (
+          <ManageRow
+            label={t("shareCard")}
+            onPress={onSharePress}
+            disabled={disabled}
+            showDivider
+          />
+        ) : null}
+        {onDeletePress ? (
+          <ManageRow
+            label={t("deleteCard")}
+            onPress={onDeletePress}
+            disabled={disabled}
+            destructive
+            showDivider
+          />
+        ) : null}
       </View>
     </FormGroup>
   );

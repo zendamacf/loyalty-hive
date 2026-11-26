@@ -222,6 +222,8 @@ describe("[Integration] CardCodeScreen", () => {
         },
         viewCount: 0,
         lastViewedAt: null,
+        ownership: "owned",
+        sharedBy: null,
         createdAt: "2020-01-01T00:00:00.000Z",
       },
       error: undefined,
@@ -266,6 +268,8 @@ describe("[Integration] CardCodeScreen", () => {
         },
         viewCount: 0,
         lastViewedAt: null,
+        ownership: "owned",
+        sharedBy: null,
         createdAt: "2020-01-01T00:00:00.000Z",
       },
       error: undefined,
@@ -320,5 +324,33 @@ describe("[Integration] CardCodeScreen", () => {
     await waitFor(() =>
       expect(expoRouterMocks.dismissTo).toHaveBeenCalledWith(Routes.CARDS),
     );
+  });
+  it("shows the owner and only Details for a card shared with you", async () => {
+    expoRouterMocks.params = {
+      ...expoRouterMocks.params,
+      sharedBy: "owner@example.com",
+    };
+    const { getByText, getByLabelText, queryByLabelText } =
+      await renderWithProviders(<CardCodeScreen />);
+
+    expect(getByText("Shared by owner@example.com")).toBeTruthy();
+    expect(getByLabelText("Details")).toBeTruthy();
+    expect(queryByLabelText("Edit card")).toBeNull();
+    expect(queryByLabelText("Share card")).toBeNull();
+    expect(queryByLabelText("Delete card")).toBeNull();
+  });
+
+  it("opens the share sheet for a card you own", async () => {
+    const { getByLabelText, findByText } = await renderWithProviders(
+      <CardCodeScreen />,
+    );
+
+    await press(getByLabelText("Share card"));
+
+    expect(
+      await findByText(
+        "They will see this card in their wallet. They cannot change it. You can stop sharing at any time.",
+      ),
+    ).toBeTruthy();
   });
 });
