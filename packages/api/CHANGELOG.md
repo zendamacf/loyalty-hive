@@ -1,5 +1,25 @@
 # @loyalty-hive/api
 
+## 1.5.0
+
+### Minor Changes
+
+- e1d1dae: Add account deletion: `DELETE /api/v1/auth/me` with the current password. The account is closed at once, and its data is removed for good after 30 days.
+- ac88ace: Add admin login for the admin panel: `POST /api/v1/admin/auth/login`, `POST /api/v1/admin/auth/logout`, and `GET /api/v1/admin/auth/me`. The session is in an httpOnly cookie. Set `ADMIN_JWT_SECRET` to a value different from `JWT_ACCESS_SECRET` to turn on admin login. These routes are not in the public API docs.
+- 13af3d1: Add `GET /api/v1/admin/brand-requests` for admins. It lists brand requests from all users, with an optional status filter and pages (`limit`, `offset`).
+- 061277a: Add the `admin_users` table for admin panel accounts. Admin accounts are separate from app users. Use `bun run admin:create <email>` to create an admin.
+- 86aab4b: Add a Users page to the admin panel. It lists app users with email search and filters for account status and email verification. Add `GET /api/v1/admin/users` for admins.
+- c607614: Add sign-up email verification: verification and resend endpoints, Resend-backed mail delivery, and block unverified users from card and brand APIs until verified.
+- 66895f9: Add password reset: request and confirm endpoints, a reset email, and revocation of all existing sign-in tokens when the password changes.
+- 58724b4: Serve the admin panel at `/admin`. The Docker image now includes the admin panel build.
+
+### Patch Changes
+
+- 3b25b92: Make the buttons in verification and password reset emails work in Gmail. Email links now go to the API, which redirects to the app, because Gmail removes direct app links. Set the new `BASE_URL` to the API's public URL to turn this on. Brand logos are also served from `BASE_URL` now, and `FILE_STORAGE_URL` becomes an optional override. `APP_DEEP_LINK_BASE` can point the redirect at a development build such as Expo Go.
+- bb3b205: Improve error reporting: each server error is now reported once instead of twice, reports show which API version they came from, and failures in the daily account cleanup and unhandled promise rejections are now reported too.
+- bb3b205: Add more detail to error reports: each report now lists the database queries the request ran (without their values), whether the user or admin was authenticated, and any emails sent.
+- bb3b205: Stop reporting expected errors to Sentry, such as a missing login, an unverified email, a deleted account, or invalid input. Only server errors are reported now.
+
 ## 1.4.0
 
 ### Minor Changes
