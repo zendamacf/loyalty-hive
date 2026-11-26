@@ -99,7 +99,7 @@ describe("[Integration] App", () => {
       within(nav)
         .getAllByRole("link")
         .map((link) => link.textContent),
-    ).toEqual(["Users", "Brand requests"]);
+    ).toEqual(["Users", "Brand requests", "Shares"]);
   });
 
   it("moves between pages with the main navigation", async () => {

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 /** Must match `base` in vite.config.ts and the API mount path. */
 const BASE_PATH = "/admin";
 
-export const ROUTES = ["users", "brand-requests"] as const;
+export const ROUTES = ["users", "brand-requests", "shares"] as const;
 export type Route = (typeof ROUTES)[number];
 
 const DEFAULT_ROUTE: Route = "users";

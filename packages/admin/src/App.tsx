@@ -4,11 +4,13 @@ import { type Admin, getMe, logout } from "./api";
 import { BrandRequestsPage } from "./BrandRequestsPage";
 import { LoginPage } from "./LoginPage";
 import { pathForRoute, type Route, useRoute } from "./router";
+import { SharesPage } from "./SharesPage";
 import { UsersPage } from "./UsersPage";
 
 const NAV: { route: Route; label: string }[] = [
   { route: "users", label: "Users" },
   { route: "brand-requests", label: "Brand requests" },
+  { route: "shares", label: "Shares" },
 ];
 
 type Session =
@@ -84,6 +86,8 @@ export function App() {
       <main>
         {route === "brand-requests" ? (
           <BrandRequestsPage onUnauthorized={handleUnauthorized} />
+        ) : route === "shares" ? (
+          <SharesPage onUnauthorized={handleUnauthorized} />
         ) : (
           <UsersPage onUnauthorized={handleUnauthorized} />
         )}

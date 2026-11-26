@@ -9,6 +9,7 @@ import {
 } from "../../middleware/admin-auth.middleware.js";
 import authRouter from "./auth.routes.js";
 import brandRequestsRouter from "./brand-requests.routes.js";
+import sharesRouter from "./shares.routes.js";
 import usersRouter from "./users.routes.js";
 
 /** The only admin API paths that work without an admin session. */
@@ -46,6 +47,7 @@ const app = new Hono<AdminEnv>()
   )
   .route("/auth", authRouter)
   .route("/brand-requests", brandRequestsRouter)
+  .route("/shares", sharesRouter)
   .route("/users", usersRouter);
 
 export default app;
