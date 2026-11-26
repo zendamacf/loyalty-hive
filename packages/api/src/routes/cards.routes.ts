@@ -11,7 +11,7 @@ import {
 } from "../common/openapi-responses.js";
 import { logoUrl } from "../common/storage.js";
 import { db } from "../db/client.js";
-import { brandRequests, brands, cards } from "../db/schema.js";
+import { brandRequests, brands, cards, cardViews } from "../db/schema.js";
 import {
   requireEmailVerified,
   requireUserAuth,
@@ -95,6 +95,11 @@ interface ContextVariables {
 
 type AppContext = Context<{ Variables: ContextVariables }>;
 
+/** Views of the current user. Cards with no views have no `card_views` row. */
+const viewCount = sql<number>`coalesce(${cardViews.viewCount}, 0)`.mapWith(
+  Number,
+);
+
 const cardWithBrandSelect = {
   id: cards.id,
   userId: cards.userId,
@@ -105,8 +110,8 @@ const cardWithBrandSelect = {
   brandName: brands.name,
   brandLogoFile: brands.logoFile,
   brandBackgroundColor: brands.backgroundColor,
-  viewCount: cards.viewCount,
-  lastViewedAt: cards.lastViewedAt,
+  viewCount,
+  lastViewedAt: cardViews.lastViewedAt,
   createdAt: cards.createdAt,
 };
 
@@ -125,11 +130,15 @@ type CardWithBrandRow = {
   createdAt: Date;
 };
 
-function cardWithBrandQuery() {
+function cardWithBrandQuery(viewerId: string) {
   return db
     .select(cardWithBrandSelect)
     .from(cards)
-    .leftJoin(brands, eq(cards.brandId, brands.id));
+    .leftJoin(brands, eq(cards.brandId, brands.id))
+    .leftJoin(
+      cardViews,
+      and(eq(cardViews.cardId, cards.id), eq(cardViews.userId, viewerId)),
+    );
 }
 
 function toCardResponse(row: CardWithBrandRow): z.infer<typeof cardSchema> {
@@ -158,7 +167,7 @@ async function listCardsForUser(
   sort: CardListSort,
   order: CardListOrder,
 ) {
-  const query = cardWithBrandQuery().where(
+  const query = cardWithBrandQuery(userId).where(
     and(eq(cards.userId, userId), activeCardCondition()),
   );
   const alphabeticalOrder =
@@ -167,14 +176,14 @@ async function listCardsForUser(
   switch (sort) {
     case "most_viewed":
       return query.orderBy(
-        order === "asc" ? asc(cards.viewCount) : desc(cards.viewCount),
+        order === "asc" ? asc(viewCount) : desc(viewCount),
         alphabeticalOrder,
       );
     case "last_viewed":
       return query.orderBy(
         order === "asc"
-          ? sql`${cards.lastViewedAt} asc nulls last`
-          : sql`${cards.lastViewedAt} desc nulls last`,
+          ? sql`${cardViews.lastViewedAt} asc nulls last`
+          : sql`${cardViews.lastViewedAt} desc nulls last`,
         alphabeticalOrder,
       );
     default:
@@ -183,7 +192,7 @@ async function listCardsForUser(
 }
 
 async function getCardForUser(userId: string, cardId: string) {
-  const [card] = await cardWithBrandQuery()
+  const [card] = await cardWithBrandQuery(userId)
     .where(
       and(
         eq(cards.id, cardId),
@@ -434,28 +443,27 @@ const app = new Hono<{ Variables: ContextVariables }>()
       const { id } = c.req.valid("param");
       const userId = c.get("userId");
 
-      const [updated] = await db
-        .update(cards)
-        .set({
-          viewCount: sql`${cards.viewCount} + 1`,
-          lastViewedAt: new Date(),
-        })
-        .where(
-          and(
-            eq(cards.id, id),
-            eq(cards.userId, userId),
-            activeCardCondition(),
-          ),
-        )
-        .returning({ id: cards.id });
-
-      if (!updated) {
+      const card = await getCardForUser(userId, id);
+      if (!card) {
         return c.json({ error: "Card not found" }, 404);
       }
 
-      const card = await getCardForUser(userId, id);
-      if (!card) throw new Error("Card missing after view update");
-      return c.json(toCardResponse(card));
+      const now = new Date();
+      const [stats] = await db
+        .insert(cardViews)
+        .values({ cardId: id, userId, viewCount: 1, lastViewedAt: now })
+        .onConflictDoUpdate({
+          target: [cardViews.cardId, cardViews.userId],
+          set: {
+            viewCount: sql`${cardViews.viewCount} + 1`,
+            lastViewedAt: now,
+          },
+        })
+        .returning({
+          viewCount: cardViews.viewCount,
+          lastViewedAt: cardViews.lastViewedAt,
+        });
+      return c.json(toCardResponse({ ...card, ...stats }));
     },
   )
   .delete(

@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from "bun:test";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import {
   authBearerHeaders,
   createApiRouterApp,
@@ -8,7 +8,7 @@ import {
 import { upsertVerifiedTestUsers } from "../../test/upsert-test-users";
 import { config } from "../common/config";
 import { db } from "../db/client";
-import { brands, cards, users } from "../db/schema";
+import { brands, cards, cardViews, users } from "../db/schema";
 
 const USER_ID = "11111111-1111-4111-8111-111111111111";
 const OTHER_USER_ID = "77777777-7777-4777-8777-777777777777";
@@ -39,11 +39,16 @@ function relativeOrder(ids: string[], orderedIds: string[]) {
   }
 }
 
-function upsertTestCard(
+/** Inserts or resets test cards. Also removes their view stats. */
+async function upsertTestCard(
   values: typeof cards.$inferInsert | Array<typeof cards.$inferInsert>,
 ) {
   const rows = Array.isArray(values) ? values : [values];
-  return db
+  const ids = rows.flatMap((row) => (row.id ? [row.id] : []));
+  if (ids.length > 0) {
+    await db.delete(cardViews).where(inArray(cardViews.cardId, ids));
+  }
+  await db
     .insert(cards)
     .values(rows)
     .onConflictDoUpdate({
@@ -55,11 +60,26 @@ function upsertTestCard(
         view: sql`excluded.view`,
         brandId: sql`excluded.brand_id`,
         brandRequestId: sql`excluded.brand_request_id`,
-        viewCount: sql`excluded.view_count`,
-        lastViewedAt: sql`excluded.last_viewed_at`,
         deletedAt: sql`excluded.deleted_at`,
       },
     });
+}
+
+/** Sets the view stats of one user for one card. A count of 0 removes the row. */
+async function setTestCardViews(
+  cardId: string,
+  viewCount: number,
+  lastViewedAt = new Date(),
+  userId = USER_ID,
+) {
+  await db
+    .delete(cardViews)
+    .where(and(eq(cardViews.cardId, cardId), eq(cardViews.userId, userId)));
+  if (viewCount > 0) {
+    await db
+      .insert(cardViews)
+      .values({ cardId, userId, viewCount, lastViewedAt });
+  }
 }
 
 beforeAll(async () => {
@@ -227,32 +247,22 @@ describe("cards routes", () => {
   });
 
   it("sorts cards by most viewed", async () => {
-    await db
-      .insert(cards)
-      .values([
-        {
-          id: SORT_CARD_LEAST_VIEWED,
-          userId: USER_ID,
-          cardNumber: "sort-least",
-          label: "Least viewed",
-          viewCount: 1,
-        },
-        {
-          id: SORT_CARD_MOST_VIEWED,
-          userId: USER_ID,
-          cardNumber: "sort-most",
-          label: "Most viewed",
-          viewCount: 99,
-        },
-      ])
-      .onConflictDoUpdate({
-        target: cards.id,
-        set: {
-          userId: sql`excluded.user_id`,
-          label: sql`excluded.label`,
-          viewCount: sql`excluded.view_count`,
-        },
-      });
+    await upsertTestCard([
+      {
+        id: SORT_CARD_LEAST_VIEWED,
+        userId: USER_ID,
+        cardNumber: "sort-least",
+        label: "Least viewed",
+      },
+      {
+        id: SORT_CARD_MOST_VIEWED,
+        userId: USER_ID,
+        cardNumber: "sort-most",
+        label: "Most viewed",
+      },
+    ]);
+    await setTestCardViews(SORT_CARD_LEAST_VIEWED, 1);
+    await setTestCardViews(SORT_CARD_MOST_VIEWED, 99);
 
     const response = await app.request("/api/v1/cards?sort=most_viewed", {
       headers: authBearerHeaders(authToken),
@@ -279,43 +289,36 @@ describe("cards routes", () => {
   });
 
   it("sorts cards by last viewed with never-viewed cards last", async () => {
-    await db
-      .insert(cards)
-      .values([
-        {
-          id: SORT_CARD_OLDER,
-          userId: USER_ID,
-          cardNumber: "sort-older",
-          label: "Older view",
-          viewCount: 1,
-          lastViewedAt: new Date("2024-01-01T00:00:00.000Z"),
-        },
-        {
-          id: SORT_CARD_RECENT,
-          userId: USER_ID,
-          cardNumber: "sort-recent",
-          label: "Recent view",
-          viewCount: 1,
-          lastViewedAt: new Date("2025-06-01T00:00:00.000Z"),
-        },
-        {
-          id: SORT_CARD_NEVER_VIEWED,
-          userId: USER_ID,
-          cardNumber: "sort-never",
-          label: "Never viewed",
-          viewCount: 0,
-          lastViewedAt: null,
-        },
-      ])
-      .onConflictDoUpdate({
-        target: cards.id,
-        set: {
-          userId: sql`excluded.user_id`,
-          label: sql`excluded.label`,
-          viewCount: sql`excluded.view_count`,
-          lastViewedAt: sql`excluded.last_viewed_at`,
-        },
-      });
+    await upsertTestCard([
+      {
+        id: SORT_CARD_OLDER,
+        userId: USER_ID,
+        cardNumber: "sort-older",
+        label: "Older view",
+      },
+      {
+        id: SORT_CARD_RECENT,
+        userId: USER_ID,
+        cardNumber: "sort-recent",
+        label: "Recent view",
+      },
+      {
+        id: SORT_CARD_NEVER_VIEWED,
+        userId: USER_ID,
+        cardNumber: "sort-never",
+        label: "Never viewed",
+      },
+    ]);
+    await setTestCardViews(
+      SORT_CARD_OLDER,
+      1,
+      new Date("2024-01-01T00:00:00.000Z"),
+    );
+    await setTestCardViews(
+      SORT_CARD_RECENT,
+      1,
+      new Date("2025-06-01T00:00:00.000Z"),
+    );
 
     const response = await app.request("/api/v1/cards?sort=last_viewed", {
       headers: authBearerHeaders(authToken),
@@ -402,25 +405,15 @@ describe("cards routes", () => {
     const viewedCardId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
     const lastViewedAt = new Date("2025-06-15T10:30:00.000Z");
 
-    await db
-      .insert(cards)
-      .values({
-        id: viewedCardId,
-        userId: USER_ID,
-        cardNumber: "viewed-card-1234",
-        label: "Viewed",
-        view: "2D",
-        brandId: BRAND_ID,
-        viewCount: 3,
-        lastViewedAt,
-      })
-      .onConflictDoUpdate({
-        target: cards.id,
-        set: {
-          viewCount: sql`excluded.view_count`,
-          lastViewedAt: sql`excluded.last_viewed_at`,
-        },
-      });
+    await upsertTestCard({
+      id: viewedCardId,
+      userId: USER_ID,
+      cardNumber: "viewed-card-1234",
+      label: "Viewed",
+      view: "2D",
+      brandId: BRAND_ID,
+    });
+    await setTestCardViews(viewedCardId, 3, lastViewedAt);
 
     const response = await app.request(`/api/v1/cards/${viewedCardId}`, {
       headers: authBearerHeaders(authToken),
@@ -529,10 +522,7 @@ describe("cards routes", () => {
   });
 
   it("logs a view by incrementing viewCount and setting lastViewedAt", async () => {
-    await db
-      .update(cards)
-      .set({ viewCount: 0, lastViewedAt: null })
-      .where(eq(cards.id, CARD_ID));
+    await setTestCardViews(CARD_ID, 0);
 
     const response = await app.request(`/api/v1/cards/${CARD_ID}/view`, {
       method: "POST",
@@ -557,6 +547,26 @@ describe("cards routes", () => {
       id: CARD_ID,
       viewCount: 2,
     });
+  });
+
+  it("keeps view stats separate for each user", async () => {
+    await setTestCardViews(CARD_ID, 5);
+    await setTestCardViews(CARD_ID, 2, new Date(), OTHER_USER_ID);
+
+    const response = await app.request(`/api/v1/cards/${CARD_ID}/view`, {
+      method: "POST",
+      headers: authBearerHeaders(authToken),
+    });
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ viewCount: 6 });
+    const [otherStats] = await db
+      .select({ viewCount: cardViews.viewCount })
+      .from(cardViews)
+      .where(
+        and(eq(cardViews.cardId, CARD_ID), eq(cardViews.userId, OTHER_USER_ID)),
+      );
+    expect(otherStats?.viewCount).toBe(2);
   });
 
   it("returns 404 when logging a view for a non-existent card", async () => {

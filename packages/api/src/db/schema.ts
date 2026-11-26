@@ -3,6 +3,7 @@ import {
   type AnyPgColumn,
   integer,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
@@ -116,8 +117,6 @@ export const cards = pgTable(
         onDelete: "set null",
       },
     ),
-    viewCount: integer("view_count").notNull().default(0),
-    lastViewedAt: timestamp("last_viewed_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     deletedAt: timestamp("deleted_at"),
   },
@@ -126,6 +125,22 @@ export const cards = pgTable(
       .on(table.brandRequestId)
       .where(sql`${table.brandRequestId} is not null`),
   ],
+);
+
+/** View stats for each user of a card. A row exists after the first view. */
+export const cardViews = pgTable(
+  "card_views",
+  {
+    cardId: uuid("card_id")
+      .notNull()
+      .references(() => cards.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    viewCount: integer("view_count").notNull().default(0),
+    lastViewedAt: timestamp("last_viewed_at").notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.cardId, table.userId] })],
 );
 
 export const usersRelations = relations(users, ({ many }) => ({
