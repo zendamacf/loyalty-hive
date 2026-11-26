@@ -1,0 +1,23 @@
+{
+  "title": "Compartir",
+  "loading": "Cargando…",
+  "shareAllCards": "Compartir todas mis tarjetas",
+  "sharedByYou": "Compartidas por ti",
+  "sharedWithYou": "Compartidas contigo",
+  "nothingSharedByYou": "No has compartido tarjetas.",
+  "nothingSharedWithYou": "Nadie ha compartido tarjetas contigo.",
+  "allCards": "Todas las tarjetas",
+  "oneCard": "Una tarjeta",
+  "invitePending": "{{what}} · Invitación pendiente",
+  "stopSharing": "Dejar de compartir",
+  "cancelInvite": "Cancelar invitación",
+  "leave": "Salir",
+  "stopSharingTitle": "¿Dejar de compartir?",
+  "stopSharingMessage": "{{email}} ya no verá estas tarjetas.",
+  "cancelInviteTitle": "¿Cancelar invitación?",
+  "cancelInviteMessage": "El enlace del correo a {{email}} dejará de funcionar.",
+  "leaveTitle": "¿Salir?",
+  "leaveMessage": "Ya no verás las tarjetas de {{email}}.",
+  "keep": "Mantener",
+  "actionErrorTitle": "No se pudo cambiar"
+}

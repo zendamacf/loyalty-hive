@@ -1,0 +1,23 @@
+{
+  "title": "Sharing",
+  "loading": "Loading shares…",
+  "shareAllCards": "Share all my cards",
+  "sharedByYou": "Shared by you",
+  "sharedWithYou": "Shared with you",
+  "nothingSharedByYou": "You have not shared any cards.",
+  "nothingSharedWithYou": "No one has shared cards with you.",
+  "allCards": "All cards",
+  "oneCard": "One card",
+  "invitePending": "{{what}} · Invite pending",
+  "stopSharing": "Stop sharing",
+  "cancelInvite": "Cancel invite",
+  "leave": "Leave",
+  "stopSharingTitle": "Stop sharing?",
+  "stopSharingMessage": "{{email}} will not see these cards any more.",
+  "cancelInviteTitle": "Cancel invite?",
+  "cancelInviteMessage": "The link in the email to {{email}} will stop working.",
+  "leaveTitle": "Leave share?",
+  "leaveMessage": "You will not see the cards from {{email}} any more.",
+  "keep": "Keep",
+  "actionErrorTitle": "Could not change the share"
+}

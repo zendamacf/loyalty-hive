@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, TextInput, View } from "react-native";
@@ -9,7 +9,10 @@ import { Form } from "@/components/Form";
 import { FormGroup } from "@/components/FormGroup";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { AnalyticsEvents, trackAppEvent } from "@/lib/analytics";
-import { postApiV1SharesMutation } from "@/lib/api-client";
+import {
+  getApiV1SharesOutgoingQueryKey,
+  postApiV1SharesMutation,
+} from "@/lib/api-client";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import { radius, spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
@@ -24,38 +27,52 @@ export const ShareCardSheet = () => {
   const { t } = useTranslation(I18nNamespace.Cards);
   const { theme } = useTheme();
   const sheetRef = useSheetRef(SheetIds.SHARE_CARD);
-  const { cardId = "" } = useSheetPayload(SheetIds.SHARE_CARD) ?? {};
+  const { cardId } = useSheetPayload(SheetIds.SHARE_CARD) ?? {};
+  const queryClient = useQueryClient();
 
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
 
-  const { mutateAsync: share, isPending } = useMutation(
-    postApiV1SharesMutation(),
-  );
+  const { mutateAsync: share, isPending } = useMutation({
+    ...postApiV1SharesMutation(),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: getApiV1SharesOutgoingQueryKey(),
+      });
+    },
+  });
 
   const trimmedEmail = email.trim();
-  const canSend =
-    Boolean(cardId) && EMAIL_PATTERN.test(trimmedEmail) && !isPending;
+  const canSend = EMAIL_PATTERN.test(trimmedEmail) && !isPending;
+  const event = { scope: cardId ? "card" : "account", card_id: cardId };
 
   const send = async () => {
     if (!canSend) return;
     setError(null);
     try {
-      await share({ body: { scope: "card", cardId, email: trimmedEmail } });
-      void trackAppEvent(AnalyticsEvents.CARD_SHARE, { card_id: cardId });
+      await share({
+        body: cardId
+          ? { scope: "card", cardId, email: trimmedEmail }
+          : { scope: "account", email: trimmedEmail },
+      });
+      void trackAppEvent(AnalyticsEvents.CARD_SHARE, event);
       setSent(true);
     } catch (err) {
-      void trackAppEvent(AnalyticsEvents.CARD_SHARE_FAILED, {
-        card_id: cardId,
-      });
+      void trackAppEvent(AnalyticsEvents.CARD_SHARE_FAILED, event);
       setError(getErrorMessage(err));
     }
   };
 
   return (
     <ActionSheetFrame
-      title={sent ? t("shareSentTitle") : t("shareCard")}
+      title={
+        sent
+          ? t("shareSentTitle")
+          : cardId
+            ? t("shareCard")
+            : t("shareAllCardsTitle")
+      }
       closeAccessibilityLabel={t("closeShareCardSheetA11y")}
       footer={
         <View style={styles.footer}>
@@ -86,7 +103,7 @@ export const ShareCardSheet = () => {
       ) : (
         <Form>
           <Text style={[styles.message, { color: theme.textSecondary }]}>
-            {t("shareCardIntro")}
+            {cardId ? t("shareCardIntro") : t("shareAccountIntro")}
           </Text>
           <FormGroup label={t("shareEmailLabel")}>
             <TextInput

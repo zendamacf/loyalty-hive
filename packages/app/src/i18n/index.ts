@@ -9,6 +9,7 @@ import enCards from "@/locales/en/cards.json";
 import enCommon from "@/locales/en/common.json";
 import enScan from "@/locales/en/scan.json";
 import enSettings from "@/locales/en/settings.json";
+import enSharing from "@/locales/en/sharing.json";
 import esAbout from "@/locales/es/about.json";
 import esAuth from "@/locales/es/auth.json";
 import esBrands from "@/locales/es/brands.json";
@@ -16,6 +17,7 @@ import esCards from "@/locales/es/cards.json";
 import esCommon from "@/locales/es/common.json";
 import esScan from "@/locales/es/scan.json";
 import esSettings from "@/locales/es/settings.json";
+import esSharing from "@/locales/es/sharing.json";
 
 void i18n.use(initReactI18next).init({
   resources: {
@@ -27,6 +29,7 @@ void i18n.use(initReactI18next).init({
       scan: enScan,
       settings: enSettings,
       about: enAbout,
+      sharing: enSharing,
     },
     es: {
       common: esCommon,
@@ -36,6 +39,7 @@ void i18n.use(initReactI18next).init({
       scan: esScan,
       settings: esSettings,
       about: esAbout,
+      sharing: esSharing,
     },
   },
   lng: "en",

@@ -14,5 +14,6 @@
   "deleteAccountConfirmYes": "Yes, delete my account",
   "deleteAccountConfirmNo": "No, keep my account",
   "deleteAccountDeleting": "Deleting…",
-  "closeDeleteAccountSheetA11y": "Close delete account"
+  "closeDeleteAccountSheetA11y": "Close delete account",
+  "sharing": "Sharing"
 }

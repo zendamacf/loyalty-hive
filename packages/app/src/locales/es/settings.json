@@ -14,5 +14,6 @@
   "deleteAccountConfirmYes": "Sí, eliminar mi cuenta",
   "deleteAccountConfirmNo": "No, conservar mi cuenta",
   "deleteAccountDeleting": "Eliminando…",
-  "closeDeleteAccountSheetA11y": "Cerrar eliminar cuenta"
+  "closeDeleteAccountSheetA11y": "Cerrar eliminar cuenta",
+  "sharing": "Compartir"
 }

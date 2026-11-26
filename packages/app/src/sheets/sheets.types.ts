@@ -26,8 +26,9 @@ export type DeleteCardSheetPayload = {
   cardId: string;
 };
 
+/** Without `cardId`, the sheet shares all cards of the account. */
 export type ShareCardSheetPayload = {
-  cardId: string;
+  cardId?: string;
 };
 
 export type ScanManualEntrySheetPayload = {

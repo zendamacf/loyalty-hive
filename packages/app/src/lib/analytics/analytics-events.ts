@@ -23,6 +23,8 @@ export const AnalyticsEvents = {
   CARD_SHARE_FAILED: "card_share_failed",
   SHARE_ACCEPT: "share_accept",
   SHARE_ACCEPT_FAILED: "share_accept_failed",
+  SHARE_STOP: "share_stop",
+  SHARE_INVITE_CANCEL: "share_invite_cancel",
   BRANDS_SEARCH: "brands_search",
   CARD_ADD: "card_add",
   SETTINGS_THEME_CHANGE: "settings_theme_change",

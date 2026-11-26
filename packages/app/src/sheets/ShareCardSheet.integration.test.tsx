@@ -50,6 +50,26 @@ describe("[Integration] ShareCardSheet", () => {
     ).toBeTruthy();
   });
 
+  it("shares all cards when there is no card id", async () => {
+    const result = await renderWithProviders(<View testID="sheet-host" />);
+    await act(async () => {
+      void SheetManager.show(SheetIds.SHARE_CARD, { payload: {} });
+    });
+    await changeText(
+      await result.findByLabelText("Their email"),
+      "friend@example.com",
+    );
+    await press(result.getByText("Send invite"));
+
+    await waitFor(() => {
+      expect(postApiV1SharesMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: { scope: "account", email: "friend@example.com" },
+        }),
+      );
+    });
+  });
+
   it("shows the API error, for example a limit", async () => {
     postApiV1SharesMock.mockImplementation(() =>
       Promise.reject({ error: "Too many invites today" }),

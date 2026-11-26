@@ -57,6 +57,15 @@ export const SettingsScreen = () => {
           </FormGroup>
           <Pressable
             accessibilityRole="link"
+            accessibilityLabel={t("sharing")}
+            onPress={() => router.push(Routes.SHARING)}
+          >
+            <Text style={[typography.link, { color: theme.textPrimary }]}>
+              {t("sharing")}
+            </Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="link"
             accessibilityLabel={t("about")}
             onPress={() => router.push(Routes.ABOUT)}
           >

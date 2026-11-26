@@ -74,6 +74,14 @@ describe("[Integration] SettingsScreen", () => {
     expect(expoRouterMocks.push).toHaveBeenCalledWith(Routes.ABOUT);
   });
 
+  it("opens the Sharing screen", async () => {
+    const { getByLabelText } = await renderWithProviders(<SettingsScreen />);
+
+    await press(getByLabelText("Sharing"));
+
+    expect(expoRouterMocks.push).toHaveBeenCalledWith(Routes.SHARING);
+  });
+
   it("navigates back when close button is pressed", async () => {
     const { getByLabelText } = await renderWithProviders(<SettingsScreen />);
 

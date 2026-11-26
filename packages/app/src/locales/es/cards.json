@@ -60,5 +60,7 @@
   "acceptShareInvalid": "Este enlace no es válido.",
   "acceptShareOtherAccount": "Esta invitación es para otra cuenta. Inicia sesión con el correo que recibió la invitación.",
   "acceptShareExpired": "Este enlace ya se usó, caducó o se canceló.",
-  "acceptShareBack": "Ir a mis tarjetas"
+  "acceptShareBack": "Ir a mis tarjetas",
+  "shareAllCardsTitle": "Compartir todas mis tarjetas",
+  "shareAccountIntro": "Verán todas las tarjetas de tu billetera, incluidas las que agregues después. No podrán cambiarlas. Puedes dejar de compartir en cualquier momento."
 }
