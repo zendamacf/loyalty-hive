@@ -1,20 +1,45 @@
+import type { MiddlewareHandler } from "hono";
 import { Toucan } from "toucan-js";
 
 import { API_PACKAGE_VERSION } from "../api-package.js";
 import { config } from "./config.js";
-import { dropExpectedErrors } from "./sentry-context.js";
+import { enrichSentryScope } from "./sentry-context.js";
 
-export const SENTRY_RELEASE = `api@${API_PACKAGE_VERSION}`;
-
-/** Options shared by the per-request scope and the background client. */
-export function sentryOptions() {
-  return {
-    dsn: config.tracing.sentryDsn,
-    environment: config.environment,
-    release: SENTRY_RELEASE,
-    beforeSend: dropExpectedErrors,
-  };
+declare module "hono" {
+  interface ContextVariableMap {
+    sentry: Toucan;
+  }
 }
+
+const sentryOptions = {
+  dsn: config.tracing.sentryDsn,
+  environment: config.environment,
+  release: `api@${API_PACKAGE_VERSION}`,
+};
+
+/**
+ * Gives each request its own Sentry scope, and reports the request's error
+ * only when the response is a 5xx. Handled 4xx errors, such as a missing
+ * session or invalid input, are expected and not reported.
+ */
+export const sentryMiddleware: MiddlewareHandler<{
+  Variables: { userId?: string | null };
+}> = async (c, next) => {
+  const scope = new Toucan({
+    ...sentryOptions,
+    request: c.req.raw,
+    requestDataOptions: {
+      allowedHeaders: ["user-agent"],
+      allowedSearchParams: /(.*)/,
+    },
+  });
+  c.set("sentry", scope);
+  await next();
+  if (c.error && c.res.status >= 500) {
+    enrichSentryScope(scope, c, c.get("userId"));
+    scope.captureException(c.error);
+  }
+};
 
 let backgroundClient: Toucan | undefined;
 
@@ -24,10 +49,9 @@ let backgroundClient: Toucan | undefined;
  */
 export function captureBackgroundError(error: unknown, source: string): void {
   if (!config.tracing.sentryDsn) return;
-  backgroundClient ??= new Toucan(sentryOptions());
-  backgroundClient.withScope((scope) => {
-    scope.setTag("source", source);
-    scope.captureException(error);
+  backgroundClient ??= new Toucan(sentryOptions);
+  backgroundClient.captureException(error, {
+    captureContext: { tags: { source } },
   });
 }
 

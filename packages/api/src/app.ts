@@ -1,4 +1,3 @@
-import { sentry } from "@hono/sentry";
 import { swaggerUI } from "@hono/swagger-ui";
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
@@ -10,18 +9,15 @@ import apiRouter from "./api.router";
 import { createAppLinksApp } from "./app-links";
 import { config } from "./common/config";
 import { codeGenDocs, publicDocs } from "./common/openapi-schema";
-import { sentryOptions } from "./common/sentry";
-import { enrichSentryScope } from "./common/sentry-context";
+import { sentryMiddleware } from "./common/sentry";
 import { requestLogger } from "./middleware/request-logger.middleware";
-import { sentryContext } from "./middleware/sentry-context.middleware";
 
 const app = new Hono<{ Variables: { userId?: string } }>();
 
 app
   .use(contextStorage())
   .use(requestLogger())
-  .use("*", sentry(sentryOptions()))
-  .use("*", sentryContext)
+  .use(sentryMiddleware)
   .use(
     "/logos/*",
     serveStatic({
@@ -51,10 +47,7 @@ if (config.exposeOpenApi) {
     .get("/", openApiNotFound);
 }
 
-// The sentry middleware reports the error after this handler returns.
-app.onError((_e, c) => {
-  enrichSentryScope(c.get("sentry"), c, c.get("userId"));
-  return c.text("Internal Server Error", 500);
-});
+// sentryMiddleware reports the error after this handler returns.
+app.onError((_e, c) => c.text("Internal Server Error", 500));
 
 export default app;

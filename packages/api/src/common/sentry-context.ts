@@ -1,6 +1,4 @@
 import type { Context } from "hono";
-import { HTTPException } from "hono/http-exception";
-import { z } from "zod";
 import {
   type ClientRequestMetadata,
   parseClientRequestMetadata,
@@ -10,7 +8,6 @@ export interface SentryScope {
   setTag(key: string, value: string): void;
   setContext(name: string, context: Record<string, unknown> | null): void;
   setUser(user: { id?: string } | null): void;
-  captureException(error: unknown): void;
 }
 
 export function readClientRequestMetadata(c: Context): ClientRequestMetadata {
@@ -66,22 +63,4 @@ export function enrichSentryScope(
   if (userId) {
     sentry.setUser({ id: userId });
   }
-}
-
-/**
- * Returns false for errors the API answers with a 4xx status, such as a
- * missing session or an unverified email. They are expected, not bugs.
- */
-export function shouldReportError(error: unknown): boolean {
-  if (error instanceof HTTPException) return error.status >= 500;
-  if (error instanceof z.ZodError) return false;
-  return true;
-}
-
-/** Sentry `beforeSend` hook that drops expected 4xx errors. */
-export function dropExpectedErrors<T>(
-  event: T,
-  hint: { originalException?: unknown },
-): T | null {
-  return shouldReportError(hint.originalException) ? event : null;
 }

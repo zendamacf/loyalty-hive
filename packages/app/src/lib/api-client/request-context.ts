@@ -1,6 +1,8 @@
 import type { Client } from "./gen/client";
 import { client } from "./gen/client.gen";
 
+export const REQUEST_ID_HEADER = "x-request-id";
+
 const installedClients = new WeakSet<Client>();
 
 export function createRequestId(): string {
@@ -23,7 +25,7 @@ export function installRequestContextInterceptor(
 
   targetClient.interceptors.request.use((request) => {
     const headers = new Headers(request.headers);
-    headers.set("x-request-id", createRequestId());
+    headers.set(REQUEST_ID_HEADER, createRequestId());
     return new Request(request, { headers });
   });
 }

@@ -1,27 +1,14 @@
 import { tryGetContext } from "hono/context-storage";
+import type { Toucan } from "toucan-js";
 
-export type Breadcrumb = {
-  category: string;
-  message: string;
-  level?: "debug" | "info" | "warning" | "error";
-  data?: Record<string, unknown>;
-};
-
-type BreadcrumbEnv = {
-  Variables: {
-    sentry?: { addBreadcrumb(breadcrumb: Breadcrumb): unknown };
-  };
-};
-
-/** Longest SQL kept in a breadcrumb. Sentry trims long values anyway. */
-const MAX_QUERY_LENGTH = 1000;
+type Breadcrumb = Parameters<Toucan["addBreadcrumb"]>[0];
 
 /**
  * Adds a breadcrumb to the current request's Sentry scope. It does nothing
  * outside a request, such as in scripts and tests.
  */
 export function addBreadcrumb(breadcrumb: Breadcrumb): void {
-  tryGetContext<BreadcrumbEnv>()?.get("sentry")?.addBreadcrumb(breadcrumb);
+  tryGetContext()?.get("sentry")?.addBreadcrumb(breadcrumb);
 }
 
 /**
@@ -30,12 +17,6 @@ export function addBreadcrumb(breadcrumb: Breadcrumb): void {
  */
 export const sentryQueryLogger = {
   logQuery(query: string): void {
-    addBreadcrumb({
-      category: "db.query",
-      message:
-        query.length > MAX_QUERY_LENGTH
-          ? `${query.slice(0, MAX_QUERY_LENGTH)}…`
-          : query,
-    });
+    addBreadcrumb({ category: "db.query", message: query });
   },
 };

@@ -1,10 +1,7 @@
 import { beforeEach, describe, expect, it } from "bun:test";
 
 import { sentryCaptureExceptionMock } from "../../../test/mocks/sentry";
-import {
-  installErrorReportingInterceptor,
-  shouldReportApiError,
-} from "./error-reporting";
+import { installErrorReportingInterceptor } from "./error-reporting";
 import { createClient, createConfig } from "./gen/client";
 
 function mockFetch(response: () => Response): typeof fetch {
@@ -25,27 +22,6 @@ function jsonResponse(body: unknown, status: number): Response {
     status,
   });
 }
-
-describe("[Unit] shouldReportApiError", () => {
-  it("reports 5xx responses and unreadable successful responses", () => {
-    expect(shouldReportApiError(new Response(null, { status: 500 }))).toBe(
-      true,
-    );
-    expect(shouldReportApiError(new Response(null, { status: 200 }))).toBe(
-      true,
-    );
-  });
-
-  it("skips 4xx responses and requests with no response", () => {
-    expect(shouldReportApiError(new Response(null, { status: 401 }))).toBe(
-      false,
-    );
-    expect(shouldReportApiError(new Response(null, { status: 404 }))).toBe(
-      false,
-    );
-    expect(shouldReportApiError(undefined)).toBe(false);
-  });
-});
 
 describe("[Unit] installErrorReportingInterceptor", () => {
   beforeEach(() => {
@@ -70,6 +46,24 @@ describe("[Unit] installErrorReportingInterceptor", () => {
       .calls[0] as unknown as [Error, { tags: Record<string, string> }];
     expect(exception.message).toBe("GET /api/v1/cards/{id} failed with 500");
     expect(context.tags["api.status"]).toBe("500");
+  });
+
+  it("reports a successful response the app could not read", async () => {
+    const testClient = createTestClient(
+      mockFetch(
+        () =>
+          new Response("not json", {
+            headers: { "Content-Type": "application/json" },
+            status: 200,
+          }),
+      ),
+    );
+
+    await expect(
+      testClient.get({ url: "/api/v1/cards", throwOnError: true }),
+    ).rejects.toBeInstanceOf(SyntaxError);
+
+    expect(sentryCaptureExceptionMock).toHaveBeenCalledTimes(1);
   });
 
   it("does not report a 4xx response", async () => {

@@ -2,20 +2,16 @@ import * as Sentry from "@sentry/react-native";
 
 import type { Client } from "./gen/client";
 import { client } from "./gen/client.gen";
+import { REQUEST_ID_HEADER } from "./request-context";
 
 const installedClients = new WeakSet<Client>();
 
 /**
- * Returns true for API failures that point to a bug: a 5xx response, or a
+ * Reports API failures that point to a bug to Sentry: a 5xx response, or a
  * successful response the app could not read. 4xx responses are expected,
- * and requests with no response (offline, cancelled) are not bugs.
+ * and requests with no response (offline, cancelled) are not bugs. Events are
+ * tagged with the request id, so they match the API's event.
  */
-export function shouldReportApiError(response: Response | undefined): boolean {
-  if (!response) return false;
-  return response.status >= 500 || response.ok;
-}
-
-/** Reports API failures to Sentry, tagged so they match the API's event. */
 export function installErrorReportingInterceptor(
   targetClient: Client = client,
 ): void {
@@ -26,7 +22,7 @@ export function installErrorReportingInterceptor(
   installedClients.add(targetClient);
 
   targetClient.interceptors.error.use((error, response, request, options) => {
-    if (!shouldReportApiError(response) || !response) {
+    if (!response || (response.status < 500 && !response.ok)) {
       return error;
     }
 
@@ -45,7 +41,7 @@ export function installErrorReportingInterceptor(
         "api.method": method,
         "api.route": route,
         "api.status": String(response.status),
-        "request.id": request?.headers.get("x-request-id") ?? undefined,
+        "request.id": request?.headers.get(REQUEST_ID_HEADER) ?? undefined,
       },
       extra: { body: error instanceof Error ? undefined : error },
     });
