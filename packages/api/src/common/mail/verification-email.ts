@@ -1,4 +1,4 @@
-import { EMAIL_VERIFICATION_LINK_BASE } from "../constants.js";
+import { buildEmailLink } from "../app-links.js";
 import { sendTemplatedEmail } from "./send-templated-email.js";
 
 const SEND_MAX_ATTEMPTS = 3;
@@ -18,9 +18,7 @@ function isRetryableSendError(error: unknown): boolean {
 }
 
 export function buildVerificationLink(token: string): string {
-  const base = EMAIL_VERIFICATION_LINK_BASE;
-  const separator = base.includes("?") ? "&" : "?";
-  return `${base}${separator}token=${encodeURIComponent(token)}`;
+  return buildEmailLink("verify-email", token);
 }
 
 export async function sendVerificationEmail(

@@ -120,7 +120,7 @@ jobs:
           {
             echo 'DB_PASSWORD=loyaltyhive'
             echo 'JWT_ACCESS_SECRET=ci-dummy-jwt-secret'
-            echo 'FILE_STORAGE_URL=http://localhost:3000/'
+            echo 'BASE_URL=http://localhost:3000'
             echo 'APP_IMAGE=loyalty-hive-api:ci'
           } > .env
 

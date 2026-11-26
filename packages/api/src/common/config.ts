@@ -1,12 +1,14 @@
 import "dotenv/config";
 
 import { API_PACKAGE_VERSION } from "../api-package";
+import { DEFAULT_APP_DEEP_LINK_BASE } from "./constants";
 import {
   DEFAULT_ADMIN_JWT_TTL,
   parseJwtAccessTtlSeconds,
 } from "./jwt-access-ttl";
 
 const environment = process.env.NODE_ENV ?? "development";
+const baseUrl = (process.env.BASE_URL ?? "").replace(/\/+$/, "");
 
 export const config: Config = {
   environment,
@@ -19,7 +21,9 @@ export const config: Config = {
   server: {
     hostname: process.env.LISTEN_HOST ?? "0.0.0.0",
     port: Number.parseInt(process.env.PORT ?? "3000", 10),
-    fileStorageUrl: process.env.FILE_STORAGE_URL ?? "",
+    baseUrl,
+    fileStorageUrl:
+      process.env.FILE_STORAGE_URL || (baseUrl ? `${baseUrl}/` : ""),
   },
   jwt: {
     accessSecret: process.env.JWT_ACCESS_SECRET ?? "",
@@ -42,6 +46,9 @@ export const config: Config = {
     resendApiKey: process.env.RESEND_API_KEY ?? "",
     from: process.env.EMAIL_FROM ?? "",
   },
+  appLinks: {
+    deepLinkBase: process.env.APP_DEEP_LINK_BASE || DEFAULT_APP_DEEP_LINK_BASE,
+  },
 };
 
 interface Config {
@@ -54,6 +61,9 @@ interface Config {
   server: {
     hostname: string;
     port: number;
+    /** Public URL of this API, without a trailing slash. Email links point here. */
+    baseUrl: string;
+    /** Where brand logos are served, with a trailing slash. Defaults to `${baseUrl}/`. */
     fileStorageUrl: string;
   };
   jwt: {
@@ -73,5 +83,9 @@ interface Config {
   mail: {
     resendApiKey: string;
     from: string;
+  };
+  appLinks: {
+    /** Start of the app deep link that email links redirect to, e.g. `loyaltyhive://` or `exp://<host>:8081/--/`. */
+    deepLinkBase: string;
   };
 }
