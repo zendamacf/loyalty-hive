@@ -18,6 +18,7 @@ import {
   cardShares,
   cards,
   cardViews,
+  shareInvites,
   users,
 } from "../db/schema.js";
 import {
@@ -525,17 +526,33 @@ const app = new Hono<{ Variables: ContextVariables }>()
     async (c) => {
       const { id } = c.req.valid("param");
 
-      const [deleted] = await db
-        .update(cards)
-        .set({ deletedAt: new Date() })
-        .where(
-          and(
-            eq(cards.id, id),
-            eq(cards.userId, c.get("userId")),
-            activeCardCondition(),
-          ),
-        )
-        .returning({ id: cards.id });
+      const deleted = await db.transaction(async (tx) => {
+        const [row] = await tx
+          .update(cards)
+          .set({ deletedAt: new Date() })
+          .where(
+            and(
+              eq(cards.id, id),
+              eq(cards.userId, c.get("userId")),
+              activeCardCondition(),
+            ),
+          )
+          .returning({ id: cards.id });
+        if (!row) return false;
+
+        // The card is soft-deleted, so the cascade does not run. Stop sharing it now.
+        await tx.delete(cardShares).where(eq(cardShares.cardId, id));
+        await tx
+          .update(shareInvites)
+          .set({ status: "cancelled" })
+          .where(
+            and(
+              eq(shareInvites.cardId, id),
+              eq(shareInvites.status, "pending"),
+            ),
+          );
+        return true;
+      });
       if (!deleted) {
         return c.json({ error: "Card not found" }, 404);
       }

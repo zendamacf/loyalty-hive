@@ -33,7 +33,7 @@ export function shareInviteEmailTemplate({
     "If you do not know this person, you can ignore this email.";
 
   return {
-    subject: `${ownerEmail} shared loyalty cards with you on ${APP_NAME}`,
+    subject: `${ownerEmail} shared ${scope === "account" ? "their loyalty cards" : "a loyalty card"} with you on ${APP_NAME}`,
     html: renderLayout(
       [
         renderHeading("Cards shared with you"),

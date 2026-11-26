@@ -70,5 +70,7 @@ describe("[Unit] email templates", () => {
     expect(account.html).not.toContain("<b>x</b>");
     expect(account.text).toContain("including cards they add later");
     expect(card.text).toContain("a loyalty card");
+    expect(card.subject).toContain("shared a loyalty card");
+    expect(account.subject).toContain("shared their loyalty cards");
   });
 });

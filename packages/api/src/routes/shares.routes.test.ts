@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, describe, expect, it } from "bun:test";
+import { beforeAll, beforeEach, describe, expect, it, spyOn } from "bun:test";
 
 import { eq, inArray, or } from "drizzle-orm";
 import {
@@ -15,6 +15,7 @@ import {
   SHARE_INVITE_SENT_MESSAGE,
   SHARE_LINK_EXPIRED_MESSAGE,
 } from "../common/error";
+import * as mail from "../common/mail/send-templated-email";
 import { db } from "../db/client";
 import {
   cardShares,
@@ -142,7 +143,7 @@ describe("POST /shares", () => {
     const response = await invite({
       scope: "card",
       cardId: CARD_A,
-      email: "Share.Recipient@Example.com",
+      email: "  Share.Recipient@Example.com ",
     });
 
     expect(response.status).toBe(202);
@@ -228,6 +229,42 @@ describe("POST /shares", () => {
 
     const [row] = await ownerInvites();
     expect(row?.emailedAt).toBeNull();
+  });
+
+  it("clears emailedAt when the email fails, so the owner can send it again", async () => {
+    const send = spyOn(mail, "sendTemplatedEmail").mockRejectedValueOnce(
+      new Error("Resend down"),
+    );
+    const error = spyOn(console, "error").mockImplementation(() => {});
+    try {
+      await invite({ scope: "account", email: RECIPIENT_EMAIL });
+      expect(send).toHaveBeenCalledTimes(1);
+
+      let row = (await ownerInvites())[0];
+      for (let i = 0; i < 50 && row?.emailedAt; i++) {
+        await Bun.sleep(10);
+        row = (await ownerInvites())[0];
+      }
+      expect(row?.emailedAt).toBeNull();
+    } finally {
+      send.mockRestore();
+      error.mockRestore();
+    }
+  });
+
+  it("checks the recipient limit before it makes a cancelled invite pending again", async () => {
+    await seedInvite({ status: "cancelled", emailedAt: new Date() });
+    await seedShare({ recipientId: OTHER_ID });
+    for (let i = 0; i < SHARE_LIMITS.maxRecipients - 1; i++) {
+      await seedInvite({ recipientEmail: `nobody.${i}@example.com` });
+    }
+
+    const response = await invite({
+      scope: "card",
+      cardId: CARD_A,
+      email: RECIPIENT_EMAIL,
+    });
+    expect(response.status).toBe(409);
   });
 
   it("returns 404 for a card of another user", async () => {
@@ -316,6 +353,22 @@ describe("share lists and cancel", () => {
       token: TOKEN,
     });
     expect(accept.status).toBe(410);
+  });
+
+  it("stops sharing a card and cancels its invites when the owner deletes it", async () => {
+    await seedShare();
+    const pending = await seedInvite({ recipientEmail: UNKNOWN_EMAIL });
+
+    const response = await request("DELETE", `/cards/${CARD_A}`, ownerToken);
+    expect(response.status).toBe(204);
+
+    const outgoing = await request("GET", "/shares/outgoing", ownerToken);
+    expect(await outgoing.json()).toEqual({ invites: [], shares: [] });
+    const [row] = await db
+      .select({ status: shareInvites.status })
+      .from(shareInvites)
+      .where(eq(shareInvites.id, pending?.id ?? ""));
+    expect(row?.status).toBe("cancelled");
   });
 });
 

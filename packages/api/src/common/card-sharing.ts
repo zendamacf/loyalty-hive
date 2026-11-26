@@ -65,12 +65,12 @@ export type CreateShareInviteResult =
         | "too_many_recipients";
     };
 
+/** `email` must be trimmed and lowercase. */
 export async function createShareInvite(
   ownerId: string,
   target: ShareTarget,
-  recipientEmail: string,
+  email: string,
 ): Promise<CreateShareInviteResult> {
-  const email = recipientEmail.trim().toLowerCase();
   const now = new Date();
   const dayAgo = new Date(now.getTime() - DAY_MS);
 
@@ -141,6 +141,20 @@ export async function createShareInvite(
     return { ok: false, reason: "too_many_pending" };
   }
 
+  const recipients =
+    (await db.$count(cardShares, sameTarget(cardShares, ownerId, target))) +
+    (await db.$count(
+      shareInvites,
+      and(
+        sameTarget(shareInvites, ownerId, target),
+        eq(shareInvites.status, "pending"),
+        gt(shareInvites.expiresAt, now),
+      ),
+    ));
+  if (recipients >= SHARE_LIMITS.maxRecipients) {
+    return { ok: false, reason: "too_many_recipients" };
+  }
+
   if (earlierInvite) {
     // The recipient has the link from the earlier email. Do not send it again.
     await db
@@ -156,20 +170,6 @@ export async function createShareInvite(
   );
   if (invitesToday >= SHARE_LIMITS.maxInvitesPerDay) {
     return { ok: false, reason: "too_many_today" };
-  }
-
-  const recipients =
-    (await db.$count(cardShares, sameTarget(cardShares, ownerId, target))) +
-    (await db.$count(
-      shareInvites,
-      and(
-        sameTarget(shareInvites, ownerId, target),
-        eq(shareInvites.status, "pending"),
-        gt(shareInvites.expiresAt, now),
-      ),
-    ));
-  if (recipients >= SHARE_LIMITS.maxRecipients) {
-    return { ok: false, reason: "too_many_recipients" };
   }
 
   const recipientAccounts = await db.$count(
@@ -201,15 +201,18 @@ export async function createShareInvite(
     emailsToRecipient < SHARE_LIMITS.maxEmailsPerRecipientPerDay;
 
   const token = randomBytes(32).toString("base64url");
-  await db.insert(shareInvites).values({
-    ownerId,
-    scope: target.scope,
-    cardId: target.scope === "card" ? target.cardId : null,
-    recipientEmail: email,
-    tokenHash: hashShareToken(token),
-    expiresAt: new Date(now.getTime() + SHARE_INVITE_TTL_DAYS * DAY_MS),
-    emailedAt: sendEmail ? now : null,
-  });
+  const [created] = await db
+    .insert(shareInvites)
+    .values({
+      ownerId,
+      scope: target.scope,
+      cardId: target.scope === "card" ? target.cardId : null,
+      recipientEmail: email,
+      tokenHash: hashShareToken(token),
+      expiresAt: new Date(now.getTime() + SHARE_INVITE_TTL_DAYS * DAY_MS),
+      emailedAt: sendEmail ? now : null,
+    })
+    .returning({ id: shareInvites.id });
 
   if (sendEmail) {
     void sendTemplatedEmail("shareInvite", email, {
@@ -217,8 +220,14 @@ export async function createShareInvite(
       scope: target.scope,
       acceptUrl: buildEmailLink("accept-share", token),
       expiresInDays: SHARE_INVITE_TTL_DAYS,
-    }).catch((error) => {
+    }).catch(async (error) => {
       console.error("[shares] Failed to send share invite email", error);
+      // Not sent: let the owner cancel and invite again to send a new email.
+      await db
+        .update(shareInvites)
+        .set({ emailedAt: null })
+        .where(eq(shareInvites.id, created.id))
+        .catch(() => {});
     });
   }
 

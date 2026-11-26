@@ -28,9 +28,11 @@ import {
 } from "../middleware/auth.middleware.js";
 import { shareCreateIpRateLimit } from "../middleware/rate-limit.middleware.js";
 
+const emailSchema = z.string().trim().toLowerCase().pipe(z.email());
+
 const createShareBodySchema = z.discriminatedUnion("scope", [
-  z.object({ scope: z.literal("card"), cardId: z.uuid(), email: z.email() }),
-  z.object({ scope: z.literal("account"), email: z.email() }),
+  z.object({ scope: z.literal("card"), cardId: z.uuid(), email: emailSchema }),
+  z.object({ scope: z.literal("account"), email: emailSchema }),
 ]);
 
 const tokenBodySchema = z.object({ token: z.string().min(1) });
