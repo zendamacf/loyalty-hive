@@ -9,7 +9,7 @@ import apiRouter from "./api.router";
 import { createAppLinksApp } from "./app-links";
 import { config } from "./common/config";
 import { codeGenDocs, publicDocs } from "./common/openapi-schema";
-import { enrichSentryScope } from "./common/sentry-context";
+import { dropExpectedErrors, enrichSentryScope } from "./common/sentry-context";
 import { requestLogger } from "./middleware/request-logger.middleware";
 import { sentryContext } from "./middleware/sentry-context.middleware";
 
@@ -19,7 +19,11 @@ app
   .use(requestLogger())
   .use(
     "*",
-    sentry({ dsn: config.tracing.sentryDsn, environment: config.environment }),
+    sentry({
+      dsn: config.tracing.sentryDsn,
+      environment: config.environment,
+      beforeSend: dropExpectedErrors,
+    }),
   )
   .use("*", sentryContext)
   .use(
