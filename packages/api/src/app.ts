@@ -2,6 +2,7 @@ import { sentry } from "@hono/sentry";
 import { swaggerUI } from "@hono/swagger-ui";
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
+import { contextStorage } from "hono/context-storage";
 
 import { openAPIRouteHandler } from "hono-openapi";
 import { createAdminPanelApp } from "./admin-panel";
@@ -16,6 +17,7 @@ import { sentryContext } from "./middleware/sentry-context.middleware";
 const app = new Hono<{ Variables: { userId?: string } }>();
 
 app
+  .use(contextStorage())
   .use(requestLogger())
   .use(
     "*",
