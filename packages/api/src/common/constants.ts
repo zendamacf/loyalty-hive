@@ -70,6 +70,28 @@ export const ADMIN_LOGIN_EMAIL_RATE_LIMIT = {
   windowMs: AUTH_RATE_LIMIT_WINDOW_MS,
 };
 
+export const SHARE_INVITE_TTL_DAYS = 7;
+
+/**
+ * Share invite limits. They count invite rows, also cancelled and expired
+ * ones, so that invite → cancel → invite does not reset them.
+ */
+export const SHARE_LIMITS = {
+  /** Pending invites for each owner. */
+  maxPendingInvites: 10,
+  /** New invites for each owner in 24 hours. */
+  maxInvitesPerDay: 20,
+  /** Invite emails to one recipient email in 24 hours, from all owners. */
+  maxEmailsPerRecipientPerDay: 5,
+  /** Recipients (shares and pending invites) for each card or account. */
+  maxRecipients: 10,
+} as const;
+
+export const SHARE_CREATE_IP_RATE_LIMIT = {
+  max: 10,
+  windowMs: AUTH_RATE_LIMIT_WINDOW_MS,
+};
+
 export const AUTH_DELETE_ACCOUNT_RATE_LIMIT = {
   max: 5,
   windowMs: AUTH_RATE_LIMIT_WINDOW_MS,

@@ -14,6 +14,12 @@ const samples: { [K in EmailType]: EmailTemplateProps[K] } = {
     resetUrl: "loyaltyhive://reset-password?token=abc",
     expiresInMinutes: 60,
   },
+  shareInvite: {
+    ownerEmail: "owner@example.com",
+    scope: "account",
+    acceptUrl: "loyaltyhive://accept-share?token=abc",
+    expiresInDays: 7,
+  },
 };
 
 describe("[Unit] email templates", () => {
@@ -48,5 +54,21 @@ describe("[Unit] email templates", () => {
     expect(email.html).toContain(escapeHtml(verifyUrl));
     expect(email.html).not.toContain(verifyUrl);
     expect(email.text).toContain(verifyUrl);
+  });
+
+  it("shareInvite escapes the owner email and names the scope", () => {
+    const ownerEmail = '"<b>x</b>"@example.com';
+    const props = {
+      ownerEmail,
+      acceptUrl: "loyaltyhive://accept-share?token=abc",
+      expiresInDays: 7,
+    };
+    const account = emailTemplates.shareInvite({ ...props, scope: "account" });
+    const card = emailTemplates.shareInvite({ ...props, scope: "card" });
+
+    expect(account.html).toContain(escapeHtml(ownerEmail));
+    expect(account.html).not.toContain("<b>x</b>");
+    expect(account.text).toContain("including cards they add later");
+    expect(card.text).toContain("a loyalty card");
   });
 });

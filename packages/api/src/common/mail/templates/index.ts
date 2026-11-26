@@ -2,6 +2,10 @@ import {
   type ResetPasswordEmailProps,
   resetPasswordEmailTemplate,
 } from "./reset-password.js";
+import {
+  type ShareInviteEmailProps,
+  shareInviteEmailTemplate,
+} from "./share-invite.js";
 import { type VerifyEmailProps, verifyEmailTemplate } from "./verify-email.js";
 
 export type RenderedEmail = { subject: string; html: string; text: string };
@@ -20,6 +24,7 @@ export type RenderedEmail = { subject: string; html: string; text: string };
 export type EmailTemplateProps = {
   verifyEmail: VerifyEmailProps;
   resetPassword: ResetPasswordEmailProps;
+  shareInvite: ShareInviteEmailProps;
 };
 
 export type EmailType = keyof EmailTemplateProps;
@@ -29,4 +34,5 @@ export const emailTemplates: {
 } = {
   verifyEmail: verifyEmailTemplate,
   resetPassword: resetPasswordEmailTemplate,
+  shareInvite: shareInviteEmailTemplate,
 };

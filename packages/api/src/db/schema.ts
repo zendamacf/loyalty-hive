@@ -1,6 +1,8 @@
 import { relations, type SQL, sql } from "drizzle-orm";
 import {
   type AnyPgColumn,
+  check,
+  index,
   integer,
   pgTable,
   primaryKey,
@@ -141,6 +143,76 @@ export const cardViews = pgTable(
     lastViewedAt: timestamp("last_viewed_at").notNull(),
   },
   (table) => [primaryKey({ columns: [table.cardId, table.userId] })],
+);
+
+/** `card_id` is set for card scope only. */
+function scopeCardCheck(table: { scope: AnyPgColumn; cardId: AnyPgColumn }) {
+  return sql`(${table.scope} = 'card') = (${table.cardId} is not null)`;
+}
+
+/** `card`: one card (`card_id` is set). `account`: all cards of the owner, also cards added later. */
+export const shareScopes = ["card", "account"] as const;
+
+/**
+ * Share invites. There is a row for each invite, also when no account has the
+ * recipient email, so that limits and lists do not show which accounts exist.
+ */
+export const shareInvites = pgTable(
+  "share_invites",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    scope: text("scope", { enum: shareScopes }).notNull(),
+    cardId: uuid("card_id").references(() => cards.id, { onDelete: "cascade" }),
+    /** Lowercase. */
+    recipientEmail: text("recipient_email").notNull(),
+    tokenHash: text("token_hash").notNull(),
+    status: text("status", { enum: ["pending", "accepted", "cancelled"] })
+      .notNull()
+      .default("pending"),
+    expiresAt: timestamp("expires_at").notNull(),
+    /** Set when the invite email was sent. Null when no email was sent. */
+    emailedAt: timestamp("emailed_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    check("share_invites_scope_card_check", scopeCardCheck(table)),
+    uniqueIndex("share_invites_token_hash_unique_idx").on(table.tokenHash),
+    index("share_invites_owner_created_idx").on(table.ownerId, table.createdAt),
+    index("share_invites_recipient_emailed_idx").on(
+      table.recipientEmail,
+      table.emailedAt,
+    ),
+  ],
+);
+
+/** Accepted shares. The recipient can see the cards but cannot change them. */
+export const cardShares = pgTable(
+  "card_shares",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    recipientId: uuid("recipient_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    scope: text("scope", { enum: shareScopes }).notNull(),
+    cardId: uuid("card_id").references(() => cards.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    check("card_shares_scope_card_check", scopeCardCheck(table)),
+    uniqueIndex("card_shares_account_unique_idx")
+      .on(table.ownerId, table.recipientId)
+      .where(sql`${table.scope} = 'account'`),
+    uniqueIndex("card_shares_card_unique_idx")
+      .on(table.cardId, table.recipientId)
+      .where(sql`${table.scope} = 'card'`),
+    index("card_shares_recipient_idx").on(table.recipientId),
+  ],
 );
 
 export const usersRelations = relations(users, ({ many }) => ({

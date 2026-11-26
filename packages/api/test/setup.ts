@@ -23,6 +23,7 @@ process.env.RATE_LIMIT_AUTH_FORGOT_PASSWORD_EMAIL_MAX ??= "10000";
 process.env.RATE_LIMIT_AUTH_RESET_PASSWORD_IP_MAX ??= "10000";
 process.env.RATE_LIMIT_ADMIN_LOGIN_IP_MAX ??= "10000";
 process.env.RATE_LIMIT_ADMIN_LOGIN_EMAIL_MAX ??= "10000";
+process.env.RATE_LIMIT_SHARE_CREATE_IP_MAX ??= "10000";
 
 await migrateDatabase(testDatabaseUrl);
 

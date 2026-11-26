@@ -7,6 +7,7 @@ import {
   AUTH_RESEND_VERIFICATION_EMAIL_RATE_LIMIT,
   AUTH_RESEND_VERIFICATION_IP_RATE_LIMIT,
   AUTH_RESET_PASSWORD_IP_RATE_LIMIT,
+  SHARE_CREATE_IP_RATE_LIMIT,
 } from "./constants.js";
 
 function parsePositiveInt(name: string, defaultValue: number): number {
@@ -120,6 +121,19 @@ export function getAdminLoginEmailRateLimit() {
     windowMs: parsePositiveInt(
       "RATE_LIMIT_ADMIN_LOGIN_EMAIL_WINDOW_MS",
       ADMIN_LOGIN_EMAIL_RATE_LIMIT.windowMs,
+    ),
+  };
+}
+
+export function getShareCreateIpRateLimit() {
+  return {
+    max: parsePositiveInt(
+      "RATE_LIMIT_SHARE_CREATE_IP_MAX",
+      SHARE_CREATE_IP_RATE_LIMIT.max,
+    ),
+    windowMs: parsePositiveInt(
+      "RATE_LIMIT_SHARE_CREATE_IP_WINDOW_MS",
+      SHARE_CREATE_IP_RATE_LIMIT.windowMs,
     ),
   };
 }
