@@ -162,6 +162,13 @@
       "when": 1795605237040,
       "tag": "0022_admin_users",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1795687244365,
+      "tag": "0023_card_views",
+      "breakpoints": true
     }
   ]
 }
