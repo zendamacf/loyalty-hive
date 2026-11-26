@@ -1,7 +1,9 @@
 import type {
   AdminBrandRequest,
+  AdminShare,
   AdminUser,
   BrandRequestList,
+  ShareList,
   UserList,
 } from "../src/api";
 
@@ -45,5 +47,23 @@ export function userList(
   items: AdminUser[],
   overrides: Partial<UserList> = {},
 ): UserList {
+  return { items, total: items.length, limit: 50, offset: 0, ...overrides };
+}
+
+export function adminShare(overrides: Partial<AdminShare> = {}): AdminShare {
+  return {
+    id: "share-1",
+    scope: "card",
+    ownerEmail: "owner@example.com",
+    recipientEmail: "friend@example.com",
+    createdAt: "2026-11-25T10:00:00.000Z",
+    ...overrides,
+  };
+}
+
+export function shareList(
+  items: AdminShare[],
+  overrides: Partial<ShareList> = {},
+): ShareList {
   return { items, total: items.length, limit: 50, offset: 0, ...overrides };
 }

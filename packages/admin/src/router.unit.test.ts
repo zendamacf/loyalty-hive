@@ -13,6 +13,7 @@ describe("[Unit] router", () => {
     expect(routeFromPath("/admin/users")).toBe("users");
     expect(routeFromPath("/admin/users/123")).toBe("users");
     expect(routeFromPath("/admin/brand-requests")).toBe("brand-requests");
+    expect(routeFromPath("/admin/shares")).toBe("shares");
     expect(routeFromPath("/admin/")).toBe("users");
     expect(routeFromPath("/admin")).toBe("users");
     expect(routeFromPath("/admin/unknown")).toBe("users");

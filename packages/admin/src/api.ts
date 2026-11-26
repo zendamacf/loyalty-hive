@@ -124,3 +124,34 @@ export function listUsers(params: {
   }
   return request<UserList>(`/users?${query}`);
 }
+
+export type ShareScope = "card" | "account";
+
+/** An accepted share. `card` is one card, `account` is all cards of the owner. */
+export type AdminShare = {
+  id: string;
+  scope: ShareScope;
+  ownerEmail: string;
+  recipientEmail: string;
+  createdAt: string;
+};
+
+export type ShareList = {
+  items: AdminShare[];
+  total: number;
+  limit: number;
+  offset: number;
+};
+
+export function listShares(params: {
+  scope?: ShareScope;
+  limit: number;
+  offset: number;
+}): Promise<ShareList> {
+  const query = new URLSearchParams({
+    limit: String(params.limit),
+    offset: String(params.offset),
+  });
+  if (params.scope) query.set("scope", params.scope);
+  return request<ShareList>(`/shares?${query}`);
+}
