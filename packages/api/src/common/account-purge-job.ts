@@ -1,4 +1,5 @@
 import { purgeDeletedAccounts } from "./account-deletion.js";
+import { captureBackgroundError } from "./sentry.js";
 
 const PURGE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
@@ -12,6 +13,7 @@ async function runPurge(purge: () => Promise<number>): Promise<void> {
     );
   } catch (error) {
     console.error("[account-purge] Purge failed", error);
+    captureBackgroundError(error, "account-purge");
   }
 }
 

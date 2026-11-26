@@ -2,6 +2,9 @@ import app from "./app";
 import { startAccountPurgeJob } from "./common/account-purge-job";
 import { adminAuthConfigProblem } from "./common/admin-session";
 import { config } from "./common/config";
+import { installUnhandledRejectionHandler } from "./common/sentry";
+
+installUnhandledRejectionHandler();
 
 Bun.serve({
   hostname: config.server.hostname,

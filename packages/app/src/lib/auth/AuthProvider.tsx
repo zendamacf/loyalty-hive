@@ -16,6 +16,7 @@ import {
   clearAnalyticsUserId,
   signOutAnalytics,
 } from "@/lib/analytics/analytics-user";
+import { installErrorReportingInterceptor } from "@/lib/api-client/error-reporting";
 import { installRequestContextInterceptor } from "@/lib/api-client/request-context";
 import {
   installUnauthorizedInterceptor,
@@ -47,6 +48,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 installUnauthorizedInterceptor();
 installRequestContextInterceptor();
+installErrorReportingInterceptor();
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isReady, setIsReady] = useState(false);

@@ -10,7 +10,8 @@ import apiRouter from "./api.router";
 import { createAppLinksApp } from "./app-links";
 import { config } from "./common/config";
 import { codeGenDocs, publicDocs } from "./common/openapi-schema";
-import { dropExpectedErrors, enrichSentryScope } from "./common/sentry-context";
+import { sentryOptions } from "./common/sentry";
+import { enrichSentryScope } from "./common/sentry-context";
 import { requestLogger } from "./middleware/request-logger.middleware";
 import { sentryContext } from "./middleware/sentry-context.middleware";
 
@@ -19,14 +20,7 @@ const app = new Hono<{ Variables: { userId?: string } }>();
 app
   .use(contextStorage())
   .use(requestLogger())
-  .use(
-    "*",
-    sentry({
-      dsn: config.tracing.sentryDsn,
-      environment: config.environment,
-      beforeSend: dropExpectedErrors,
-    }),
-  )
+  .use("*", sentry(sentryOptions()))
   .use("*", sentryContext)
   .use(
     "/logos/*",
@@ -57,10 +51,9 @@ if (config.exposeOpenApi) {
     .get("/", openApiNotFound);
 }
 
-app.onError((e, c) => {
-  const sentryScope = c.get("sentry");
-  enrichSentryScope(sentryScope, c, c.get("userId"));
-  sentryScope.captureException(e);
+// The sentry middleware reports the error after this handler returns.
+app.onError((_e, c) => {
+  enrichSentryScope(c.get("sentry"), c, c.get("userId"));
   return c.text("Internal Server Error", 500);
 });
 
