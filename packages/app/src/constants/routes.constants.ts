@@ -10,6 +10,7 @@ export enum Routes {
   SCAN = "/scan",
   SETTINGS = "/settings",
   ABOUT = "/about",
+  ACCEPT_SHARE = "/accept-share",
 }
 
 /** Set when navigating to card code from the cards list (triggers view logging). */

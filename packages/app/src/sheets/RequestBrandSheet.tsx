@@ -12,7 +12,7 @@ import { Routes } from "@/constants/routes.constants";
 import { I18nNamespace } from "@/i18n/i18n.constants";
 import { getUrlHost, trackBrandRequestSubmitted } from "@/lib/analytics";
 import {
-  type BrandRequestResponse,
+  type PostApiV1BrandRequestsResponse,
   postApiV1BrandRequestsMutation,
 } from "@/lib/api-client";
 import { getErrorMessage } from "@/lib/getErrorMessage";
@@ -43,7 +43,7 @@ export const RequestBrandSheet = () => {
   const [notes, setNotes] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submittedRequest, setSubmittedRequest] =
-    useState<BrandRequestResponse | null>(null);
+    useState<PostApiV1BrandRequestsResponse | null>(null);
 
   useEffect(() => {
     setRequestedName(initialName);

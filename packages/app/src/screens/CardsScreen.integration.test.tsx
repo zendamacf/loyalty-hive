@@ -11,6 +11,7 @@ import {
 import type { GetApiV1CardsResponse } from "@/lib/api-client/gen";
 import { CARD_SORT_STORAGE_KEY } from "@/lib/card-sort";
 import { saveCachedCards } from "@/lib/offline-cache";
+import { savePendingShareToken } from "@/lib/pending-share";
 import { THEME_STORAGE_KEY } from "@/theme/theme.constants";
 import { lightTheme } from "@/theme/themes";
 import { defaultCardsResponse, testCards } from "../../test/fixtures/cards";
@@ -149,6 +150,8 @@ describe("[Integration] CardsScreen", () => {
             brand: null,
             viewCount: 0,
             lastViewedAt: null,
+            ownership: "owned",
+            sharedBy: null,
             createdAt: "2020-01-01T00:00:00.000Z",
           },
         ],
@@ -174,6 +177,7 @@ describe("[Integration] CardsScreen", () => {
         createdAt: "2020-01-01T00:00:00.000Z",
         logoUrl: "",
         backgroundColor: lightTheme.cardFallback,
+        sharedBy: "",
         [CARD_CODE_FROM_CARDS_PARAM]: CARD_CODE_FROM_CARDS_VALUE,
       },
     });
@@ -207,8 +211,48 @@ describe("[Integration] CardsScreen", () => {
         createdAt: "2020-01-01T00:00:00.000Z",
         logoUrl: "https://logo.clearbit.com/asos.com",
         backgroundColor: "#FFFFFF",
+        sharedBy: "",
         [CARD_CODE_FROM_CARDS_PARAM]: CARD_CODE_FROM_CARDS_VALUE,
       },
+    });
+  });
+
+  it("labels a shared card and passes the owner to the card screen", async () => {
+    getApiV1CardsMock.mockImplementation(() =>
+      Promise.resolve({
+        data: [
+          {
+            ...testCards[0],
+            ownership: "shared",
+            sharedBy: "owner@example.com",
+          },
+        ],
+        error: undefined,
+      }),
+    );
+
+    const { findByLabelText } = await renderWithProviders(<CardsScreen />);
+
+    await press(await findByLabelText("ASOS, shared by owner@example.com"));
+
+    expect(expoRouterMocks.push).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pathname: Routes.CARD_CODE,
+        params: expect.objectContaining({ sharedBy: "owner@example.com" }),
+      }),
+    );
+  });
+
+  it("opens an invite that was saved before sign-in", async () => {
+    await savePendingShareToken("share-token");
+
+    await renderWithProviders(<CardsScreen />);
+
+    await waitFor(() => {
+      expect(expoRouterMocks.push).toHaveBeenCalledWith({
+        pathname: Routes.ACCEPT_SHARE,
+        params: { token: "share-token" },
+      });
     });
   });
 
@@ -238,6 +282,7 @@ describe("[Integration] CardsScreen", () => {
         createdAt: "2020-01-01T00:00:00.000Z",
         logoUrl: "https://logo.clearbit.com/asos.com",
         backgroundColor: "#FFFFFF",
+        sharedBy: "",
         [CARD_CODE_FROM_CARDS_PARAM]: CARD_CODE_FROM_CARDS_VALUE,
       },
     });

@@ -2,7 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getBrightnessAsync, setBrightnessAsync } from "expo-brightness";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { useTranslation } from "react-i18next";
+import { StyleSheet, Text, View } from "react-native";
 
 import { CardCodeDisplay } from "@/components/CardCodeDisplay";
 import { CardManageSection } from "@/components/CardManageSection";
@@ -14,6 +15,7 @@ import {
   CARD_CODE_FROM_CARDS_VALUE,
   Routes,
 } from "@/constants/routes.constants";
+import { I18nNamespace } from "@/i18n/i18n.constants";
 import {
   AnalyticsEvents,
   trackAppEvent,
@@ -29,10 +31,13 @@ import {
   showCardDetailsSheet,
   showDeleteCardSheet,
   showEditCardSheet,
+  showShareCardSheet,
 } from "@/sheets";
+import { spacing, typography } from "@/theme/theme";
 import { useTheme } from "@/theme/useTheme";
 
 export const CardCodeScreen = () => {
+  const { t } = useTranslation(I18nNamespace.Cards);
   const { theme } = useTheme();
   useTrackScreenView(Routes.CARD_CODE, { title: "Card Code Screen" });
   const params = useLocalSearchParams<{
@@ -45,6 +50,8 @@ export const CardCodeScreen = () => {
     brandName?: string;
     label?: string;
     createdAt?: string;
+    /** Owner email when another account shared the card. */
+    sharedBy?: string;
     [CARD_CODE_FROM_CARDS_PARAM]?: string;
   }>();
 
@@ -59,6 +66,7 @@ export const CardCodeScreen = () => {
   const logoUrl = typeof params.logoUrl === "string" ? params.logoUrl : "";
   const createdAt =
     typeof params.createdAt === "string" ? params.createdAt : "";
+  const sharedBy = typeof params.sharedBy === "string" ? params.sharedBy : "";
   const [label, setLabel] = useState(() =>
     typeof params.label === "string" && params.label.trim() ? params.label : "",
   );
@@ -135,16 +143,23 @@ export const CardCodeScreen = () => {
     logCardView({ path: { id: cardId } });
   }, [cardId, fromCards, logCardView]);
 
-  const manageDisabled = !cardId;
+  const onDetailsPress = () => {
+    void trackAppEvent(AnalyticsEvents.CARD_VIEW_DETAILS, {
+      card_id: cardId,
+    });
+    void showCardDetailsSheet({ cardNumber, createdAt });
+  };
 
-  const manageSection = (
+  const manageSection = sharedBy ? (
+    <View style={styles.sharedFooter}>
+      <Text style={[styles.sharedBy, { color: theme.textSecondary }]}>
+        {t("sharedByLabel", { email: sharedBy })}
+      </Text>
+      <CardManageSection onDetailsPress={onDetailsPress} disabled={!cardId} />
+    </View>
+  ) : (
     <CardManageSection
-      onDetailsPress={() => {
-        void trackAppEvent(AnalyticsEvents.CARD_VIEW_DETAILS, {
-          card_id: cardId,
-        });
-        void showCardDetailsSheet({ cardNumber, createdAt });
-      }}
+      onDetailsPress={onDetailsPress}
       onEditPress={() => {
         void showEditCardSheet({
           cardId,
@@ -160,12 +175,13 @@ export const CardCodeScreen = () => {
           setDisplayView(updated.view);
         });
       }}
+      onSharePress={() => {
+        void showShareCardSheet({ cardId });
+      }}
       onDeletePress={() => {
         void showDeleteCardSheet({ cardId });
       }}
-      detailsDisabled={manageDisabled}
-      editDisabled={manageDisabled}
-      deleteDisabled={manageDisabled}
+      disabled={!cardId}
     />
   );
 
@@ -204,5 +220,12 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     width: "100%",
     maxWidth: 320,
+  },
+  sharedFooter: {
+    gap: spacing.sm,
+  },
+  sharedBy: {
+    ...typography.caption,
+    textAlign: "center",
   },
 });

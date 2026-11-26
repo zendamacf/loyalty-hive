@@ -6,6 +6,7 @@ import type {
   EditCardSheetPayload,
   RequestBrandSheetPayload,
   ScanManualEntrySheetPayload,
+  ShareCardSheetPayload,
 } from "./sheets.types";
 
 export { AppSheets } from "./AppSheets";
@@ -19,6 +20,9 @@ export const showEditCardSheet = (payload: EditCardSheetPayload) =>
 
 export const showDeleteCardSheet = (payload: DeleteCardSheetPayload) =>
   SheetManager.show(SheetIds.DELETE_CARD, { payload });
+
+export const showShareCardSheet = (payload: ShareCardSheetPayload) =>
+  SheetManager.show(SheetIds.SHARE_CARD, { payload });
 
 export const showScanManualEntrySheet = (
   payload: ScanManualEntrySheetPayload,

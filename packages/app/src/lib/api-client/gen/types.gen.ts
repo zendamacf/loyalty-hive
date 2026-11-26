@@ -32,9 +32,15 @@ export type PostApiV1AuthLoginErrors = {
         error: string;
     };
     /**
-     * Invalid API key
+     * Invalid API key, or the account was deleted and awaits removal
      */
     403: {
+        error: string;
+    };
+    /**
+     * Too many requests
+     */
+    429: {
         error: string;
     };
 };
@@ -85,6 +91,12 @@ export type PostApiV1AuthSignupErrors = {
     409: {
         error: string;
     };
+    /**
+     * Too many requests
+     */
+    429: {
+        error: string;
+    };
 };
 
 export type PostApiV1AuthSignupError = PostApiV1AuthSignupErrors[keyof PostApiV1AuthSignupErrors];
@@ -100,6 +112,94 @@ export type PostApiV1AuthSignupResponses = {
 };
 
 export type PostApiV1AuthSignupResponse = PostApiV1AuthSignupResponses[keyof PostApiV1AuthSignupResponses];
+
+export type PostApiV1AuthVerifyEmailData = {
+    body: {
+        token: string;
+    };
+    headers: {
+        'x-api-key': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/verify-email';
+};
+
+export type PostApiV1AuthVerifyEmailErrors = {
+    /**
+     * Invalid or expired verification link or validation error
+     */
+    400: {
+        error: string;
+        issues: Array<unknown>;
+    };
+    /**
+     * Invalid API key
+     */
+    403: {
+        error: string;
+    };
+};
+
+export type PostApiV1AuthVerifyEmailError = PostApiV1AuthVerifyEmailErrors[keyof PostApiV1AuthVerifyEmailErrors];
+
+export type PostApiV1AuthVerifyEmailResponses = {
+    /**
+     * Email verified
+     */
+    200: {
+        verified: true;
+    };
+};
+
+export type PostApiV1AuthVerifyEmailResponse = PostApiV1AuthVerifyEmailResponses[keyof PostApiV1AuthVerifyEmailResponses];
+
+export type PostApiV1AuthResendVerificationData = {
+    body: {
+        email: string;
+    };
+    headers: {
+        'x-api-key': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/resend-verification';
+};
+
+export type PostApiV1AuthResendVerificationErrors = {
+    /**
+     * Invalid request input
+     */
+    400: {
+        error: string;
+        issues: Array<unknown>;
+    };
+    /**
+     * Invalid API key
+     */
+    403: {
+        error: string;
+    };
+    /**
+     * Too many requests
+     */
+    429: {
+        error: string;
+    };
+};
+
+export type PostApiV1AuthResendVerificationError = PostApiV1AuthResendVerificationErrors[keyof PostApiV1AuthResendVerificationErrors];
+
+export type PostApiV1AuthResendVerificationResponses = {
+    /**
+     * Request accepted
+     */
+    200: {
+        message: string;
+    };
+};
+
+export type PostApiV1AuthResendVerificationResponse = PostApiV1AuthResendVerificationResponses[keyof PostApiV1AuthResendVerificationResponses];
 
 export type PostApiV1AuthForgotPasswordData = {
     body: {
@@ -278,93 +378,60 @@ export type GetApiV1AuthMeResponses = {
 
 export type GetApiV1AuthMeResponse = GetApiV1AuthMeResponses[keyof GetApiV1AuthMeResponses];
 
-export type PostApiV1AuthVerifyEmailData = {
+export type PostApiV1BrandRequestsData = {
     body: {
-        token: string;
-    };
-    headers: {
-        'x-api-key': string;
+        requestedName: string;
+        url: string;
+        notes?: string | null;
     };
     path?: never;
     query?: never;
-    url: '/api/v1/auth/verify-email';
+    url: '/api/v1/brand-requests';
 };
 
-export type PostApiV1AuthVerifyEmailErrors = {
+export type PostApiV1BrandRequestsErrors = {
     /**
-     * Invalid or expired verification link or validation error
+     * Invalid input or brand already exists
      */
     400: {
         error: string;
-        issues?: Array<unknown>;
     };
     /**
-     * Invalid API key
+     * Unauthorized
      */
-    403: {
+    401: {
         error: string;
     };
 };
 
-export type PostApiV1AuthVerifyEmailError = PostApiV1AuthVerifyEmailErrors[keyof PostApiV1AuthVerifyEmailErrors];
+export type PostApiV1BrandRequestsError = PostApiV1BrandRequestsErrors[keyof PostApiV1BrandRequestsErrors];
 
-export type PostApiV1AuthVerifyEmailResponses = {
+export type PostApiV1BrandRequestsResponses = {
     /**
-     * Email verified
+     * Existing pending request for this brand name
      */
     200: {
-        verified: true;
+        id: string;
+        requestedName: string;
+        url: string;
+        notes: string | null;
+        status: 'pending' | 'approved' | 'rejected';
+        createdAt: string;
+    };
+    /**
+     * Brand request created
+     */
+    201: {
+        id: string;
+        requestedName: string;
+        url: string;
+        notes: string | null;
+        status: 'pending' | 'approved' | 'rejected';
+        createdAt: string;
     };
 };
 
-export type PostApiV1AuthVerifyEmailResponse = PostApiV1AuthVerifyEmailResponses[keyof PostApiV1AuthVerifyEmailResponses];
-
-export type PostApiV1AuthResendVerificationData = {
-    body: {
-        email: string;
-    };
-    headers: {
-        'x-api-key': string;
-    };
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/resend-verification';
-};
-
-export type PostApiV1AuthResendVerificationErrors = {
-    /**
-     * Invalid request input
-     */
-    400: {
-        error: string;
-        issues: Array<unknown>;
-    };
-    /**
-     * Invalid API key
-     */
-    403: {
-        error: string;
-    };
-    /**
-     * Too many requests
-     */
-    429: {
-        error: string;
-    };
-};
-
-export type PostApiV1AuthResendVerificationError = PostApiV1AuthResendVerificationErrors[keyof PostApiV1AuthResendVerificationErrors];
-
-export type PostApiV1AuthResendVerificationResponses = {
-    /**
-     * Request accepted
-     */
-    200: {
-        message: string;
-    };
-};
-
-export type PostApiV1AuthResendVerificationResponse = PostApiV1AuthResendVerificationResponses[keyof PostApiV1AuthResendVerificationResponses];
+export type PostApiV1BrandRequestsResponse = PostApiV1BrandRequestsResponses[keyof PostApiV1BrandRequestsResponses];
 
 export type GetApiV1BrandsData = {
     body?: never;
@@ -399,56 +466,6 @@ export type GetApiV1BrandsResponses = {
 };
 
 export type GetApiV1BrandsResponse = GetApiV1BrandsResponses[keyof GetApiV1BrandsResponses];
-
-export type BrandRequestResponse = {
-    id: string;
-    requestedName: string;
-    url: string;
-    notes: string | null;
-    status: 'pending' | 'approved' | 'rejected';
-    createdAt: string;
-};
-
-export type PostApiV1BrandRequestsData = {
-    body: {
-        requestedName: string;
-        url: string;
-        notes?: string | null;
-    };
-    path?: never;
-    query?: never;
-    url: '/api/v1/brand-requests';
-};
-
-export type PostApiV1BrandRequestsErrors = {
-    /**
-     * Invalid input or brand already exists
-     */
-    400: {
-        error: string;
-    };
-    /**
-     * Unauthorized
-     */
-    401: {
-        error: string;
-    };
-};
-
-export type PostApiV1BrandRequestsError = PostApiV1BrandRequestsErrors[keyof PostApiV1BrandRequestsErrors];
-
-export type PostApiV1BrandRequestsResponses = {
-    /**
-     * Existing pending request for this brand name
-     */
-    200: BrandRequestResponse;
-    /**
-     * Brand request created
-     */
-    201: BrandRequestResponse;
-};
-
-export type PostApiV1BrandRequestsResponse = PostApiV1BrandRequestsResponses[keyof PostApiV1BrandRequestsResponses];
 
 export type GetApiV1CardsData = {
     body?: never;
@@ -496,6 +513,8 @@ export type GetApiV1CardsResponses = {
         viewCount: number;
         lastViewedAt: string | null;
         createdAt: string;
+        ownership: 'owned' | 'shared';
+        sharedBy: string | null;
     }>;
 };
 
@@ -556,6 +575,8 @@ export type PostApiV1CardsResponses = {
         viewCount: number;
         lastViewedAt: string | null;
         createdAt: string;
+        ownership: 'owned' | 'shared';
+        sharedBy: string | null;
     };
 };
 
@@ -571,6 +592,14 @@ export type DeleteApiV1CardsByIdData = {
 };
 
 export type DeleteApiV1CardsByIdErrors = {
+    /**
+     * Validation Error
+     */
+    400: {
+        success: false;
+        error: Array<unknown>;
+        data: unknown;
+    };
     /**
      * Unauthorized
      */
@@ -607,6 +636,14 @@ export type GetApiV1CardsByIdData = {
 
 export type GetApiV1CardsByIdErrors = {
     /**
+     * Validation Error
+     */
+    400: {
+        success: false;
+        error: Array<unknown>;
+        data: unknown;
+    };
+    /**
      * Unauthorized
      */
     401: {
@@ -641,6 +678,8 @@ export type GetApiV1CardsByIdResponses = {
         viewCount: number;
         lastViewedAt: string | null;
         createdAt: string;
+        ownership: 'owned' | 'shared';
+        sharedBy: string | null;
     };
 };
 
@@ -659,6 +698,14 @@ export type PatchApiV1CardsByIdData = {
 };
 
 export type PatchApiV1CardsByIdErrors = {
+    /**
+     * Validation Error
+     */
+    400: {
+        success: false;
+        error: Array<unknown>;
+        data: unknown;
+    };
     /**
      * Unauthorized
      */
@@ -694,6 +741,8 @@ export type PatchApiV1CardsByIdResponses = {
         viewCount: number;
         lastViewedAt: string | null;
         createdAt: string;
+        ownership: 'owned' | 'shared';
+        sharedBy: string | null;
     };
 };
 
@@ -709,6 +758,14 @@ export type PostApiV1CardsByIdViewData = {
 };
 
 export type PostApiV1CardsByIdViewErrors = {
+    /**
+     * Validation Error
+     */
+    400: {
+        success: false;
+        error: Array<unknown>;
+        data: unknown;
+    };
     /**
      * Unauthorized
      */
@@ -744,7 +801,330 @@ export type PostApiV1CardsByIdViewResponses = {
         viewCount: number;
         lastViewedAt: string | null;
         createdAt: string;
+        ownership: 'owned' | 'shared';
+        sharedBy: string | null;
     };
 };
 
 export type PostApiV1CardsByIdViewResponse = PostApiV1CardsByIdViewResponses[keyof PostApiV1CardsByIdViewResponses];
+
+export type PostApiV1SharesData = {
+    body: {
+        scope: 'card';
+        cardId: string;
+        email: string;
+    } | {
+        scope: 'account';
+        email: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/shares';
+};
+
+export type PostApiV1SharesErrors = {
+    /**
+     * Invalid request input
+     */
+    400: {
+        error: string;
+        issues: Array<unknown>;
+    };
+    /**
+     * Unauthorized
+     */
+    401: {
+        error: string;
+    };
+    /**
+     * Card not found
+     */
+    404: {
+        error: string;
+    };
+    /**
+     * This card or account has the maximum number of recipients
+     */
+    409: {
+        error: string;
+    };
+    /**
+     * Too many requests or invites
+     */
+    429: {
+        error: string;
+    };
+};
+
+export type PostApiV1SharesError = PostApiV1SharesErrors[keyof PostApiV1SharesErrors];
+
+export type PostApiV1SharesResponses = {
+    /**
+     * Invite accepted for processing
+     */
+    202: {
+        message: string;
+    };
+};
+
+export type PostApiV1SharesResponse = PostApiV1SharesResponses[keyof PostApiV1SharesResponses];
+
+export type GetApiV1SharesOutgoingData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/shares/outgoing';
+};
+
+export type GetApiV1SharesOutgoingErrors = {
+    /**
+     * Unauthorized
+     */
+    401: {
+        error: string;
+    };
+};
+
+export type GetApiV1SharesOutgoingError = GetApiV1SharesOutgoingErrors[keyof GetApiV1SharesOutgoingErrors];
+
+export type GetApiV1SharesOutgoingResponses = {
+    /**
+     * Successful response
+     */
+    200: {
+        invites: Array<{
+            id: string;
+            scope: 'card' | 'account';
+            cardId: string | null;
+            email: string;
+            createdAt: string;
+            expiresAt: string;
+        }>;
+        shares: Array<{
+            id: string;
+            scope: 'card' | 'account';
+            cardId: string | null;
+            email: string;
+            createdAt: string;
+        }>;
+    };
+};
+
+export type GetApiV1SharesOutgoingResponse = GetApiV1SharesOutgoingResponses[keyof GetApiV1SharesOutgoingResponses];
+
+export type GetApiV1SharesIncomingData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/shares/incoming';
+};
+
+export type GetApiV1SharesIncomingErrors = {
+    /**
+     * Unauthorized
+     */
+    401: {
+        error: string;
+    };
+};
+
+export type GetApiV1SharesIncomingError = GetApiV1SharesIncomingErrors[keyof GetApiV1SharesIncomingErrors];
+
+export type GetApiV1SharesIncomingResponses = {
+    /**
+     * Successful response
+     */
+    200: Array<{
+        id: string;
+        scope: 'card' | 'account';
+        cardId: string | null;
+        email: string;
+        createdAt: string;
+    }>;
+};
+
+export type GetApiV1SharesIncomingResponse = GetApiV1SharesIncomingResponses[keyof GetApiV1SharesIncomingResponses];
+
+export type PostApiV1SharesPreviewData = {
+    body: {
+        token: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/shares/preview';
+};
+
+export type PostApiV1SharesPreviewErrors = {
+    /**
+     * Invalid share link, or validation error
+     */
+    400: {
+        error: string;
+    };
+    /**
+     * Unauthorized
+     */
+    401: {
+        error: string;
+    };
+    /**
+     * The invite is for a different account
+     */
+    403: {
+        error: string;
+    };
+    /**
+     * The invite was used, has expired, or was cancelled
+     */
+    410: {
+        error: string;
+    };
+};
+
+export type PostApiV1SharesPreviewError = PostApiV1SharesPreviewErrors[keyof PostApiV1SharesPreviewErrors];
+
+export type PostApiV1SharesPreviewResponses = {
+    /**
+     * Successful response
+     */
+    200: {
+        scope: 'card' | 'account';
+        ownerEmail: string;
+        expiresAt: string;
+    };
+};
+
+export type PostApiV1SharesPreviewResponse = PostApiV1SharesPreviewResponses[keyof PostApiV1SharesPreviewResponses];
+
+export type PostApiV1SharesAcceptData = {
+    body: {
+        token: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/shares/accept';
+};
+
+export type PostApiV1SharesAcceptErrors = {
+    /**
+     * Invalid share link, or validation error
+     */
+    400: {
+        error: string;
+    };
+    /**
+     * Unauthorized
+     */
+    401: {
+        error: string;
+    };
+    /**
+     * The invite is for a different account
+     */
+    403: {
+        error: string;
+    };
+    /**
+     * The invite was used, has expired, or was cancelled
+     */
+    410: {
+        error: string;
+    };
+};
+
+export type PostApiV1SharesAcceptError = PostApiV1SharesAcceptErrors[keyof PostApiV1SharesAcceptErrors];
+
+export type PostApiV1SharesAcceptResponses = {
+    /**
+     * Invite accepted
+     */
+    204: void;
+};
+
+export type PostApiV1SharesAcceptResponse = PostApiV1SharesAcceptResponses[keyof PostApiV1SharesAcceptResponses];
+
+export type DeleteApiV1SharesInvitesByIdData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/shares/invites/{id}';
+};
+
+export type DeleteApiV1SharesInvitesByIdErrors = {
+    /**
+     * Validation Error
+     */
+    400: {
+        success: false;
+        error: Array<unknown>;
+        data: unknown;
+    };
+    /**
+     * Unauthorized
+     */
+    401: {
+        error: string;
+    };
+    /**
+     * Invite not found
+     */
+    404: {
+        error: string;
+    };
+};
+
+export type DeleteApiV1SharesInvitesByIdError = DeleteApiV1SharesInvitesByIdErrors[keyof DeleteApiV1SharesInvitesByIdErrors];
+
+export type DeleteApiV1SharesInvitesByIdResponses = {
+    /**
+     * Successful response
+     */
+    204: void;
+};
+
+export type DeleteApiV1SharesInvitesByIdResponse = DeleteApiV1SharesInvitesByIdResponses[keyof DeleteApiV1SharesInvitesByIdResponses];
+
+export type DeleteApiV1SharesByIdData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/shares/{id}';
+};
+
+export type DeleteApiV1SharesByIdErrors = {
+    /**
+     * Validation Error
+     */
+    400: {
+        success: false;
+        error: Array<unknown>;
+        data: unknown;
+    };
+    /**
+     * Unauthorized
+     */
+    401: {
+        error: string;
+    };
+    /**
+     * Share not found
+     */
+    404: {
+        error: string;
+    };
+};
+
+export type DeleteApiV1SharesByIdError = DeleteApiV1SharesByIdErrors[keyof DeleteApiV1SharesByIdErrors];
+
+export type DeleteApiV1SharesByIdResponses = {
+    /**
+     * Successful response
+     */
+    204: void;
+};
+
+export type DeleteApiV1SharesByIdResponse = DeleteApiV1SharesByIdResponses[keyof DeleteApiV1SharesByIdResponses];

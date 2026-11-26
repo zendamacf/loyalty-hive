@@ -1,12 +1,14 @@
 import { mock } from "bun:test";
 
 import type {
+  DeleteApiV1AuthMeResponse,
   GetApiV1AuthMeResponse,
   GetApiV1BrandsResponse,
   GetApiV1CardsByIdResponse,
   GetApiV1CardsResponse,
+  GetApiV1SharesIncomingResponse,
+  GetApiV1SharesOutgoingResponse,
   PatchApiV1CardsByIdResponse,
-  DeleteApiV1AuthMeResponse,
   PostApiV1AuthForgotPasswordResponse,
   PostApiV1AuthLoginResponse,
   PostApiV1AuthResendVerificationResponse,
@@ -16,6 +18,8 @@ import type {
   PostApiV1BrandRequestsResponse,
   PostApiV1CardsByIdViewResponse,
   PostApiV1CardsResponse,
+  PostApiV1SharesPreviewResponse,
+  PostApiV1SharesResponse,
 } from "@/lib/api-client";
 
 export type ApiMockResult<TData> =
@@ -174,6 +178,8 @@ export const createCardMock = (
   brand: null,
   viewCount: 0,
   lastViewedAt: null,
+  ownership: "owned",
+  sharedBy: null,
   createdAt: new Date().toISOString(),
   ...overrides,
 });
@@ -232,6 +238,66 @@ export const postApiV1CardsByIdViewMock = mock(
     ),
 );
 
+export const postApiV1SharesMock = mock(
+  (options?: SdkOptions): Promise<ApiMockResult<PostApiV1SharesResponse>> =>
+    resolveApiMock(
+      {
+        data: {
+          message:
+            "If there is a LoyaltyHive account with this email, we sent them an invite.",
+        },
+        error: undefined,
+      },
+      options,
+    ),
+);
+
+export const postApiV1SharesPreviewMock = mock(
+  (
+    options?: SdkOptions,
+  ): Promise<ApiMockResult<PostApiV1SharesPreviewResponse>> =>
+    resolveApiMock(
+      {
+        data: {
+          scope: "card",
+          ownerEmail: "owner@example.com",
+          expiresAt: new Date(Date.now() + 86_400_000).toISOString(),
+        },
+        error: undefined,
+      },
+      options,
+    ),
+);
+
+export const postApiV1SharesAcceptMock = mock(
+  (options?: SdkOptions): Promise<ApiMockResult<null>> =>
+    resolveApiMock({ data: null, error: undefined }, options),
+);
+
+export const getApiV1SharesOutgoingMock = mock(
+  (
+    options?: SdkOptions,
+  ): Promise<ApiMockResult<GetApiV1SharesOutgoingResponse>> =>
+    resolveApiMock({ data: { invites: [], shares: [] } }, options),
+);
+
+export const getApiV1SharesIncomingMock = mock(
+  (
+    options?: SdkOptions,
+  ): Promise<ApiMockResult<GetApiV1SharesIncomingResponse>> =>
+    resolveApiMock({ data: [] }, options),
+);
+
+export const deleteApiV1SharesInvitesByIdMock = mock(
+  (options?: SdkOptions): Promise<ApiMockResult<null>> =>
+    resolveApiMock({ data: null }, options),
+);
+
+export const deleteApiV1SharesByIdMock = mock(
+  (options?: SdkOptions): Promise<ApiMockResult<null>> =>
+    resolveApiMock({ data: null }, options),
+);
+
 const sdkMocks = {
   postApiV1AuthLogin: postApiV1AuthLoginMock,
   postApiV1AuthSignup: postApiV1AuthSignupMock,
@@ -249,6 +315,13 @@ const sdkMocks = {
   deleteApiV1CardsById: deleteApiV1CardsByIdMock,
   patchApiV1CardsById: patchApiV1CardsByIdMock,
   postApiV1CardsByIdView: postApiV1CardsByIdViewMock,
+  postApiV1Shares: postApiV1SharesMock,
+  postApiV1SharesPreview: postApiV1SharesPreviewMock,
+  postApiV1SharesAccept: postApiV1SharesAcceptMock,
+  getApiV1SharesOutgoing: getApiV1SharesOutgoingMock,
+  getApiV1SharesIncoming: getApiV1SharesIncomingMock,
+  deleteApiV1SharesInvitesById: deleteApiV1SharesInvitesByIdMock,
+  deleteApiV1SharesById: deleteApiV1SharesByIdMock,
 };
 
 mock.module("@/lib/api-client/gen/sdk.gen", () => ({
